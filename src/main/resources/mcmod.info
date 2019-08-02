@@ -7,7 +7,5 @@
   "url": "minecraftforge.net/",
   "updateJSON": "minecraftforge.net/versions.json",
   "authorList": ["Yung"],
-  "credits": "Thanks to superfluke's WorleyCaves for some algorithms, and TheMasterCaver for inspiration from his work.",
-  "useDependencyInformation": true,
-  "requiredMods": ["cubicchunks", "cubicgen", "malisiscore"]
+  "credits": "Thanks to superfluke's WorleyCaves for some algorithms, and TheMasterCaver for inspiration from his work."
 }]

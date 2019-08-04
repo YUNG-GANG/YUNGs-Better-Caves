@@ -1,6 +1,5 @@
 package com.yungnickyoung.minecraft.bettercaves.proxy;
 
-import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.event.EventCave;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -10,7 +9,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
  */
 public class CommonProxy {
     public void preInit(FMLPreInitializationEvent event) {
-        // Register cave generation event listener
-        MinecraftForge.TERRAIN_GEN_BUS.register(new EventCave());
+        // Register event handlers
+        MinecraftForge.TERRAIN_GEN_BUS.register(new EventCave()); // Cave gen handler to override default cave gen
     }
 }

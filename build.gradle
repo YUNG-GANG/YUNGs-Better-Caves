@@ -1,3 +1,5 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 buildscript {
     repositories {
         jcenter()
@@ -10,9 +12,13 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.forge'
 //Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 
-version = "0.0.1"
+// Import properties from resources/app.properties
+apply from: 'src/main/resources/app.properties'
+
+// Maven info
+version = bc_version
 group = "com.yungnickyoung.minecraft.bettercaves" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "bettercaves"
+archivesBaseName = bc_modid
 
 sourceCompatibility = targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 compileJava {
@@ -23,6 +29,9 @@ minecraft {
     version = "1.12.2-14.23.5.2838"
     runDir = "run"
 
+    // Fill in properties in source files
+    replace "{@modid}":bc_modid, "{@name}":bc_name, "{@version}":bc_version
+
     // the mappings can be changed at any time, and must be in the following format.
     // snapshot_YYYYMMDD   snapshot are built nightly.
     // stable_#            stables are built at the discretion of the MCP team.
@@ -31,6 +40,8 @@ minecraft {
     mappings = "snapshot_20171003"
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 }
+
+
 
 dependencies {
     // you may put jars on which you depend on in ./libs
@@ -56,21 +67,43 @@ dependencies {
 
 }
 
+//sourceSets {
+//    main {
+//        java {
+//            srcDirs 'src'
+//        }
+//        resources {
+//            srcDirs 'src/mainresources'
+//        }
+//    }
+//}
+//
+//task updateVersion(type: Copy) {
+//    from 'src/main/java'
+//    into 'build/sources/main/java'
+//    filter(ReplaceTokens, tokens: [MOD_ID: bc_modid, VERSION: project.version, NAME: bc_name])
+//}
+//
+//compileJava.dependsOn updateVersion
+
 processResources {
-    // this will ensure that this task is redone when the versions change.
+    // this will ensure that this task is redone when any variables change
+    inputs.property "modid", bc_modid
+    inputs.property "name", bc_name
     inputs.property "version", project.version
     inputs.property "mcversion", project.minecraft.version
+    inputs.property "description", bc_desc
+    inputs.property "credits", bc_credits
 
-    // replace stuff in mcmod.info, nothing else
+    // replace vars in mcmod.info
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
-                
-        // replace version and mcversion
-        expand 'version':project.version, 'mcversion':project.minecraft.version
+        expand 'modid':bc_modid, 'name':bc_name, 'description':bc_desc, 'credits':bc_credits,'version': project.version, 'mcversion': project.minecraft.version
     }
-        
+
     // copy everything else except the mcmod.info
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
     }
 }
+

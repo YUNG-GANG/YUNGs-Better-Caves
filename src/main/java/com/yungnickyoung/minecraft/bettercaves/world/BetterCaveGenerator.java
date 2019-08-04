@@ -1,6 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.world;
 
-import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
+import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.MapGenCaves;
@@ -15,6 +15,6 @@ public class BetterCaveGenerator extends MapGenCaves {
     @Override
     @ParametersAreNonnullByDefault
     public void generate(World worldIn, int x, int z, ChunkPrimer primer) {
-        Configuration.LOGGER.info("generate() cave called: {} | {} | {} | {}", worldIn, x, z, primer);
+        Settings.LOGGER.info("generate() cave called: {} | {} | {} | {}", worldIn, x, z, primer);
     }
 }

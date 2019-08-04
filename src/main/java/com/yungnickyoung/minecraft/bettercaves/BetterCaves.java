@@ -1,11 +1,8 @@
 package com.yungnickyoung.minecraft.bettercaves;
 
 // Better Caves
-import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
+import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.proxy.CommonProxy;
-
-// Minecraft API
-import net.minecraft.init.Blocks;
 
 // Minecraft Forge API
 import net.minecraftforge.fml.common.Mod;
@@ -17,21 +14,19 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 /**
  * Entry point for Better Caves
  */
-@Mod(modid = Configuration.MOD_ID, name = Configuration.NAME, version = Configuration.VERSION, useMetadata = true)
+@Mod(modid = Settings.MOD_ID, name = Settings.NAME, version = Settings.VERSION, useMetadata = Settings.USE_META_DATA)
 public class BetterCaves {
-    @SidedProxy(clientSide = Configuration.CLIENT_PROXY, serverSide = Configuration.COMMON_PROXY)
+    @SidedProxy(clientSide = Settings.CLIENT_PROXY, serverSide = Settings.COMMON_PROXY)
     public static CommonProxy proxy;
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
-        Configuration.LOGGER.info("pre-init, diamond >> {}", Blocks.DIAMOND_BLOCK.getRegistryName());
+        Settings.LOGGER.info("main pre-init");
         proxy.preInit(event);
     }
 
     @EventHandler
-    public void init(FMLInitializationEvent event)
-    {
-        // some example code
-        Configuration.LOGGER.info("DIRT BLOCK >> {}", Blocks.DIRT.getRegistryName());
+    public void init(FMLInitializationEvent event) {
+        Settings.LOGGER.info("main init");
     }
 }

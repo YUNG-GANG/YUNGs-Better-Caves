@@ -1,5 +1,3 @@
-import org.apache.tools.ant.filters.ReplaceTokens
-
 buildscript {
     repositories {
         jcenter()
@@ -13,7 +11,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 //Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 
 // Import properties from resources/app.properties
-apply from: 'src/main/resources/app.properties'
+apply from: 'src/main/resources/app.properties' // all variables prepended with bc_ come from this file
 
 // Maven info
 version = bc_version
@@ -41,8 +39,6 @@ minecraft {
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 }
 
-
-
 dependencies {
     // you may put jars on which you depend on in ./libs
     // or you may define them like so..
@@ -64,7 +60,6 @@ dependencies {
     // for more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
-
 }
 
 //sourceSets {

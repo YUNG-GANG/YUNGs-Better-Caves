@@ -8,7 +8,8 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * Singleton class containing meta information for Better Caves.
+ * Class containing information for Better Caves.
+ * All fields are {@code static}.
  */
 public class Settings {
     // MOD INFORMATION CONSTANTS
@@ -22,23 +23,5 @@ public class Settings {
     public static final String CLIENT_PROXY = "com.yungnickyoung.minecraft.bettercaves.proxy.ClientProxy";
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
 
-//    public Settings() {
-//        Properties properties = new Properties();
-//        ClassLoader loader = Thread.currentThread().getContextClassLoader();
-//        InputStream stream = loader.getResourceAsStream("app.properties");
-//
-//        try {
-//            properties.load(stream);
-//        } catch (IOException | NullPointerException e) {
-//            LOGGER.error("UNABLE TO FETCH PROPERTIES");
-//            return;
-//        }
-//
-//        MOD_ID = properties.getProperty("modid");
-//        NAME = properties.getProperty("modName");
-//        VERSION = properties.getProperty("version");
-//    }
-
-    private Settings() {}
-
+    private Settings() {} // private constructor prevents instantiation
 }

@@ -8,12 +8,18 @@ public class Configuration {
     @Config.Name("Cave Generation Parameters")
     public static ConfigCaveGen cavegen = new ConfigCaveGen();
 
-    private static class ConfigCaveGen {
-        @Config.Name("Test Double")
-        @Config.Comment("This is a test double. Value must be -1.0 to 1.0.")
-        @Config.RangeDouble(min = -1.0f, max = 1.0f)
+    public static class ConfigCaveGen {
+        @Config.Name("F Threshold")
+        @Config.Comment("The threshold for the F function")
+        @Config.RangeDouble(min = 0)
         @Config.RequiresWorldRestart
-        public double testDouble = .5f;
+        public double FThreshold = 20;
+
+        @Config.Name("Lava Depth")
+        @Config.Comment("The y-coordinate below which lava replaces air. Default 10")
+        @Config.RangeInt(min = 1)
+        @Config.RequiresWorldRestart
+        public int lavaDepth = 10;
     }
 
 }

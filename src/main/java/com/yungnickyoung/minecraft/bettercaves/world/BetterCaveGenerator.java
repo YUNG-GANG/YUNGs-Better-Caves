@@ -80,17 +80,20 @@ public class BetterCaveGenerator extends MapGenCaves {
 
 //                    Settings.LOGGER.info("noise1: {}, noise2: {}", noise1, noise2);
 
-                    int state1 = (noise1 < 0.9) ? 0 : 1;
-                    int state2 = (noise2 < 0.9) ? 0 : 1;
-                    int state = state1 * state2;
+//                    int state1 = (noise1 < 0.85) ? 0 : 1;
+//                    int state2 = (noise2 < 0.85) ? 0 : 1;
+//                    int state = state1 * state2;
 
-                    if (state == 1) {
+                    float noise = noise1 * noise2;
+
+//                    if (state == 1) {
+                    if (noise > .8) {
                         IBlockState currentBlockState = primer.getBlockState(localX, realY, localZ);
                         IBlockState aboveBlockState = primer.getBlockState(localX, realY + 1, localZ);
                         boolean foundTopBlock = isTopBlock(primer, localX, realY, localZ, chunkX, chunkZ);
                         digBlock(primer, localX, realY, localZ, chunkX, chunkZ, foundTopBlock, currentBlockState, aboveBlockState);
                     }
-
+e
                     avgNoise1 = ((numChunksGenerated * avgNoise1) + noise1) / (numChunksGenerated + 1);
                     avgNoise2 = ((numChunksGenerated * avgNoise2) + noise2) / (numChunksGenerated + 1);
 

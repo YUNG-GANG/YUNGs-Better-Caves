@@ -21,6 +21,9 @@ public class BetterCaveGenerator extends MapGenCaves {
     private int lavaDepth;
     private double FThreshold;
 
+    private FastNoise noiseGenerator1;
+    private FastNoise noiseGenerator2;
+
     // DEBUG VALS
     private int numChunksGenerated = 0;
     private double avgNoise1 = 0;
@@ -34,13 +37,34 @@ public class BetterCaveGenerator extends MapGenCaves {
     public BetterCaveGenerator() {
         this.lavaDepth = Configuration.cavegen.lavaDepth;
         this.FThreshold = Configuration.cavegen.FThreshold;
+
+        // Base noise functions - Ridged Multi-fractals
+        noiseGenerator1 = new FastNoise();
+        noiseGenerator2 = new FastNoise();
+
+        noiseGenerator1.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
+        noiseGenerator2.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
+
+        noiseGenerator1.SetFractalType(FastNoise.FractalType.RigidMulti);
+        noiseGenerator2.SetFractalType(FastNoise.FractalType.RigidMulti);
+
+        noiseGenerator1.SetFractalOctaves(1);
+        noiseGenerator2.SetFractalOctaves(1);
+        noiseGenerator1.SetFractalGain(.3f);
+        noiseGenerator2.SetFractalGain(.3f);
+        noiseGenerator1.SetFrequency(.05f);
+        noiseGenerator2.SetFrequency(.05f);
     }
 
     @Override
     @ParametersAreNonnullByDefault
     public void generate(World worldIn, int chunkX, int chunkZ, ChunkPrimer primer) {
 //        Settings.LOGGER.info("generate() cave called: {} | {} | {} | {}", worldIn, chunkX, chunkZ, primer);
-        this.world = worldIn;
+        if (world == null) {
+            world = worldIn;
+            noiseGenerator1.SetSeed((int) world.getSeed());
+            noiseGenerator2.SetSeed((int) world.getSeed() + 1);
+        }
 
 //        generateWorleys(chunkX, chunkZ, primer);
         generateFractal(chunkX, chunkZ, primer);
@@ -50,29 +74,14 @@ public class BetterCaveGenerator extends MapGenCaves {
 
 
     private void generateFractal(int chunkX, int chunkZ, ChunkPrimer primer) {
-        FastNoise noiseGenerator1 = new FastNoise(primer.hashCode());
-        noiseGenerator1.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
-        noiseGenerator1.SetFractalType(FastNoise.FractalType.RigidMulti); // TODO - try rigid multi?
-
-        FastNoise noiseGenerator2 = new FastNoise(primer.hashCode() + 1);
-        noiseGenerator2.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
-        noiseGenerator2.SetFractalType(FastNoise.FractalType.RigidMulti); // TODO - try rigid multi?
-
-
-        noiseGenerator1.SetFractalOctaves(1);
-        noiseGenerator2.SetFractalOctaves(1);
-//        noiseGenerator2.SetFrequency(2);
-//        noiseGenerator.SetFractalLacunarity();
-        noiseGenerator1.SetFractalGain(.3f);
-        noiseGenerator2.SetFractalGain(.3f);
-        noiseGenerator1.SetFrequency(.05f);
-        noiseGenerator2.SetFrequency(.05f);
+        // Turbulence functions - gradient fractals
+//        FastNoise turbulenceX = new FastNoise()
 
         for (int localX = 0; localX < 16; localX++) {
-            int realX = localX + chunkX;
+            int realX = localX + 16*chunkX;
 
             for (int localZ = 0; localZ < 16; localZ++) {
-                int realZ = localZ + chunkZ;
+                int realZ = localZ + 16*chunkZ;
 
                 for (int realY = 64; realY > 0; realY--) {
                     float noise1 = noiseGenerator1.GetNoise(realX, realY, realZ);
@@ -86,6 +95,11 @@ public class BetterCaveGenerator extends MapGenCaves {
 
                     float noise = noise1 * noise2;
 
+
+
+                    // TURBULENCE:
+
+
 //                    if (state == 1) {
                     if (noise > .8) {
                         IBlockState currentBlockState = primer.getBlockState(localX, realY, localZ);
@@ -93,7 +107,7 @@ public class BetterCaveGenerator extends MapGenCaves {
                         boolean foundTopBlock = isTopBlock(primer, localX, realY, localZ, chunkX, chunkZ);
                         digBlock(primer, localX, realY, localZ, chunkX, chunkZ, foundTopBlock, currentBlockState, aboveBlockState);
                     }
-e
+
                     avgNoise1 = ((numChunksGenerated * avgNoise1) + noise1) / (numChunksGenerated + 1);
                     avgNoise2 = ((numChunksGenerated * avgNoise2) + noise2) / (numChunksGenerated + 1);
 
@@ -105,17 +119,17 @@ e
                     numChunksGenerated++;
 
                     if (numChunksGenerated == 2000) {
-                        Settings.LOGGER.info("300 Chunks Generated Report");
-
-                        Settings.LOGGER.info("--> Noise 1");
-                        Settings.LOGGER.info("  > Average: {}", avgNoise1);
-                        Settings.LOGGER.info("  > Max: {}", maxNoise1);
-                        Settings.LOGGER.info("  > Min: {}", minNoise1);
-
-                        Settings.LOGGER.info("--> Noise 2");
-                        Settings.LOGGER.info("  > Average: {}", avgNoise2);
-                        Settings.LOGGER.info("  > Max: {}", maxNoise2);
-                        Settings.LOGGER.info("  > Min: {}", minNoise2);
+//                        Settings.LOGGER.info("300 Chunks Generated Report");
+//
+//                        Settings.LOGGER.info("--> Noise 1");
+//                        Settings.LOGGER.info("  > Average: {}", avgNoise1);
+//                        Settings.LOGGER.info("  > Max: {}", maxNoise1);
+//                        Settings.LOGGER.info("  > Min: {}", minNoise1);
+//
+//                        Settings.LOGGER.info("--> Noise 2");
+//                        Settings.LOGGER.info("  > Average: {}", avgNoise2);
+//                        Settings.LOGGER.info("  > Max: {}", maxNoise2);
+//                        Settings.LOGGER.info("  > Min: {}", minNoise2);
 
                         // Reset vals
                         numChunksGenerated = 0;

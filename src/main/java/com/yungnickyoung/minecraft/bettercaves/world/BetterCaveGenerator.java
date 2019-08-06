@@ -25,6 +25,7 @@ public class BetterCaveGenerator extends MapGenCaves {
     private FastNoise noiseGenerator2;
 
     // DEBUG VALS
+    private static final boolean DEBUG_LOG_ENABLED = false;
     private int numChunksGenerated = 0;
     private double avgNoise1 = 0;
     private double avgNoise2 = 0;
@@ -67,7 +68,8 @@ public class BetterCaveGenerator extends MapGenCaves {
         }
 
 //        generateWorleys(chunkX, chunkZ, primer);
-        generateFractal(chunkX, chunkZ, primer);
+//        generateFractal(chunkX, chunkZ, primer);
+        generateFractalModelForScreenShots(chunkX, chunkZ, primer);
     }
 
 
@@ -108,37 +110,65 @@ public class BetterCaveGenerator extends MapGenCaves {
                         digBlock(primer, localX, realY, localZ, chunkX, chunkZ, foundTopBlock, currentBlockState, aboveBlockState);
                     }
 
-                    avgNoise1 = ((numChunksGenerated * avgNoise1) + noise1) / (numChunksGenerated + 1);
-                    avgNoise2 = ((numChunksGenerated * avgNoise2) + noise2) / (numChunksGenerated + 1);
+                    if (DEBUG_LOG_ENABLED) {
+                        avgNoise1 = ((numChunksGenerated * avgNoise1) + noise1) / (numChunksGenerated + 1);
+                        avgNoise2 = ((numChunksGenerated * avgNoise2) + noise2) / (numChunksGenerated + 1);
 
-                    if (noise1 > maxNoise1) maxNoise1 = noise1;
-                    if (noise2 > maxNoise2) maxNoise2 = noise2;
-                    if (noise1 < minNoise1) minNoise1 = noise1;
-                    if (noise2 < minNoise2) minNoise2 = noise2;
+                        if (noise1 > maxNoise1) maxNoise1 = noise1;
+                        if (noise2 > maxNoise2) maxNoise2 = noise2;
+                        if (noise1 < minNoise1) minNoise1 = noise1;
+                        if (noise2 < minNoise2) minNoise2 = noise2;
 
-                    numChunksGenerated++;
+                        numChunksGenerated++;
 
-                    if (numChunksGenerated == 2000) {
-//                        Settings.LOGGER.info("300 Chunks Generated Report");
-//
-//                        Settings.LOGGER.info("--> Noise 1");
-//                        Settings.LOGGER.info("  > Average: {}", avgNoise1);
-//                        Settings.LOGGER.info("  > Max: {}", maxNoise1);
-//                        Settings.LOGGER.info("  > Min: {}", minNoise1);
-//
-//                        Settings.LOGGER.info("--> Noise 2");
-//                        Settings.LOGGER.info("  > Average: {}", avgNoise2);
-//                        Settings.LOGGER.info("  > Max: {}", maxNoise2);
-//                        Settings.LOGGER.info("  > Min: {}", minNoise2);
+                        if (numChunksGenerated == 2000) {
+                            Settings.LOGGER.info("2000 Chunks Generated Report");
 
-                        // Reset vals
-                        numChunksGenerated = 0;
-                        avgNoise1 = 0;
-                        avgNoise2 = 0;
-                        maxNoise1 = -10;
-                        minNoise1 = 10;
-                        maxNoise2 = -10;
-                        minNoise2 = 10;
+                            Settings.LOGGER.info("--> Noise 1");
+                            Settings.LOGGER.info("  > Average: {}", avgNoise1);
+                            Settings.LOGGER.info("  > Max: {}", maxNoise1);
+                            Settings.LOGGER.info("  > Min: {}", minNoise1);
+
+                            Settings.LOGGER.info("--> Noise 2");
+                            Settings.LOGGER.info("  > Average: {}", avgNoise2);
+                            Settings.LOGGER.info("  > Max: {}", maxNoise2);
+                            Settings.LOGGER.info("  > Min: {}", minNoise2);
+
+                            // Reset vals
+                            numChunksGenerated = 0;
+                            avgNoise1 = 0;
+                            avgNoise2 = 0;
+                            maxNoise1 = -10;
+                            minNoise1 = 10;
+                            maxNoise2 = -10;
+                            minNoise2 = 10;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void generateFractalModelForScreenShots(int chunkX, int chunkZ, ChunkPrimer primer) {
+        for (int localX = 0; localX < 16; localX++) {
+            int realX = localX + 16*chunkX;
+
+            for (int localZ = 0; localZ < 16; localZ++) {
+                int realZ = localZ + 16*chunkZ;
+
+                for (int realY = 128; realY > 0; realY--) {
+                    if (realX < 0) {
+                        primer.setBlockState(localX, realY, localZ, Blocks.AIR.getDefaultState());
+                    } else {
+                        float noise1 = noiseGenerator1.GetNoise(realX, realY, realZ);
+                        float noise2 = noiseGenerator2.GetNoise(realX, realY, realZ);
+                        float noise = noise1 * noise2;
+
+                        if (noise > .8) {
+                            primer.setBlockState(localX, realY, localZ, Blocks.QUARTZ_BLOCK.getDefaultState());
+                        } else {
+                            primer.setBlockState(localX, realY, localZ, Blocks.AIR.getDefaultState());
+                        }
                     }
                 }
             }
@@ -216,25 +246,25 @@ public class BetterCaveGenerator extends MapGenCaves {
     }
 
     @Override
-    protected void digBlock(ChunkPrimer data, int x, int y, int z, int chunkX, int chunkZ, boolean foundTop, IBlockState state, IBlockState up) {
+    protected void digBlock(ChunkPrimer primer, int x, int y, int z, int chunkX, int chunkZ, boolean foundTop, IBlockState state, IBlockState up) {
         net.minecraft.world.biome.Biome biome = world.getBiome(new BlockPos(x + chunkX * 16, 0, z + chunkZ * 16));
         IBlockState top = biome.topBlock;
         IBlockState filler = biome.fillerBlock;
 
         if (this.canReplaceBlock(state, up) || state.getBlock() == top.getBlock() || state.getBlock() == filler.getBlock()) {
             if (y <= lavaDepth)
-                data.setBlockState(x, y, z, Blocks.LAVA.getDefaultState());
+                primer.setBlockState(x, y, z, Blocks.LAVA.getDefaultState());
             else {
-                data.setBlockState(x, y, z, Blocks.AIR.getDefaultState());
-                if (foundTop && data.getBlockState(x, y - 1, z).getBlock() == filler.getBlock())
-                    data.setBlockState(x, y - 1, z, top);
+                primer.setBlockState(x, y, z, Blocks.AIR.getDefaultState());
+                if (foundTop && primer.getBlockState(x, y - 1, z).getBlock() == filler.getBlock())
+                    primer.setBlockState(x, y - 1, z, top);
 
 
                 //replace floating sand with sandstone
                 if(up == Blocks.SAND.getDefaultState()) {
-                    data.setBlockState(x, y+1, z, BLK_SANDSTONE);
+                    primer.setBlockState(x, y+1, z, BLK_SANDSTONE);
                 } else if(up == Blocks.SAND.getStateFromMeta(1)) {
-                    data.setBlockState(x, y+1, z, BLK_RED_SANDSTONE);
+                    primer.setBlockState(x, y+1, z, BLK_RED_SANDSTONE);
                 }
             }
         }

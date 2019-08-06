@@ -8,7 +8,6 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.MapGenCaves;
 
@@ -18,11 +17,11 @@ import java.util.Random;
 
 public class BetterCaveGenerator extends MapGenCaves {
 
-    private int lavaDepth;
-    private double FThreshold;
-
     private FastNoise noiseGenerator1;
     private FastNoise noiseGenerator2;
+    private FastNoise turbulenceX;
+    private FastNoise turbulenceY;
+    private FastNoise turbulenceZ;
 
     // DEBUG VALS
     private int numChunksGenerated = 0;
@@ -35,49 +34,68 @@ public class BetterCaveGenerator extends MapGenCaves {
 
 
     public BetterCaveGenerator() {
-        this.lavaDepth = Configuration.cavegen.lavaDepth;
-        this.FThreshold = Configuration.cavegen.FThreshold;
-
         // Base noise functions - Ridged Multi-fractals
         noiseGenerator1 = new FastNoise();
         noiseGenerator2 = new FastNoise();
 
         noiseGenerator1.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
         noiseGenerator2.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
-
         noiseGenerator1.SetFractalType(FastNoise.FractalType.RigidMulti);
         noiseGenerator2.SetFractalType(FastNoise.FractalType.RigidMulti);
-
         noiseGenerator1.SetFractalOctaves(1);
         noiseGenerator2.SetFractalOctaves(1);
         noiseGenerator1.SetFractalGain(.3f);
         noiseGenerator2.SetFractalGain(.3f);
         noiseGenerator1.SetFrequency(.05f);
         noiseGenerator2.SetFrequency(.05f);
+
+        turbulenceX = new FastNoise();
+        turbulenceY = new FastNoise();
+        turbulenceZ = new FastNoise();
+
+        turbulenceX.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
+        turbulenceY.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
+        turbulenceZ.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
+        turbulenceX.SetFractalType(FastNoise.FractalType.FBM);
+        turbulenceY.SetFractalType(FastNoise.FractalType.FBM);
+        turbulenceZ.SetFractalType(FastNoise.FractalType.FBM);
+        turbulenceX.SetFractalOctaves(3);
+        turbulenceY.SetFractalOctaves(3);
+        turbulenceZ.SetFractalOctaves(3);
+        turbulenceX.SetFractalGain(.3f);
+        turbulenceY.SetFractalGain(.3f);
+        turbulenceZ.SetFractalGain(.3f);
+        turbulenceX.SetFrequency(.01f);
+        turbulenceY.SetFrequency(.01f);
+        turbulenceZ.SetFrequency(.01f);
     }
 
     @Override
     @ParametersAreNonnullByDefault
     public void generate(World worldIn, int chunkX, int chunkZ, ChunkPrimer primer) {
-//        Settings.LOGGER.info("generate() cave called: {} | {} | {} | {}", worldIn, chunkX, chunkZ, primer);
+        if (Settings.DEBUG_LOG_ENABLED)
+            Settings.LOGGER.info("generate() cave called: {} | {} | {} | {}", worldIn, chunkX, chunkZ, primer);
+
+
         if (world == null) {
             world = worldIn;
-            noiseGenerator1.SetSeed((int) world.getSeed());
-            noiseGenerator2.SetSeed((int) world.getSeed() + 1);
+            int worldSeed = (int)(world.getSeed());
+            noiseGenerator1.SetSeed(worldSeed);
+            noiseGenerator2.SetSeed(worldSeed + 1);
+            turbulenceX.SetSeed(worldSeed+ 1000);
+            turbulenceY.SetSeed(worldSeed+ 2000);
+            turbulenceZ.SetSeed(worldSeed+ 3000);
         }
 
 //        generateWorleys(chunkX, chunkZ, primer);
-//        generateFractal(chunkX, chunkZ, primer);
-        generateFractalModelForScreenShots(chunkX, chunkZ, primer);
+        generateFractal(chunkX, chunkZ, primer);
+//        generateFractalModelForScreenShots(chunkX, chunkZ, primer);
     }
 
 
 
 
     private void generateFractal(int chunkX, int chunkZ, ChunkPrimer primer) {
-        // Turbulence functions - gradient fractals
-//        FastNoise turbulenceX = new FastNoise()
-
         for (int localX = 0; localX < 16; localX++) {
             int realX = localX + 16*chunkX;
 
@@ -88,8 +106,9 @@ public class BetterCaveGenerator extends MapGenCaves {
                     float noise1 = noiseGenerator1.GetNoise(realX, realY, realZ);
                     float noise2 = noiseGenerator2.GetNoise(realX, realY, realZ);
 
-//                    Settings.LOGGER.info("noise1: {}, noise2: {}", noise1, noise2);
-
+                    if (Settings.DEBUG_LOG_ENABLED) {
+                        Settings.LOGGER.info("noise1: {}, noise2: {}", noise1, noise2);
+                    }
 //                    int state1 = (noise1 < 0.85) ? 0 : 1;
 //                    int state2 = (noise2 < 0.85) ? 0 : 1;
 //                    int state = state1 * state2;
@@ -99,7 +118,7 @@ public class BetterCaveGenerator extends MapGenCaves {
 
 
                     // TURBULENCE:
-
+//                    if (Configuration.)
 
 //                    if (state == 1) {
                     if (noise > .8) {
@@ -213,7 +232,7 @@ public class BetterCaveGenerator extends MapGenCaves {
 
                     double F = Math.abs(F2 - F1);
 
-                    if (F < FThreshold) {
+                    if (F < Configuration.FThreshold) {
                         IBlockState currentBlockState = primer.getBlockState(localX, localY, localZ);
                         IBlockState aboveBlockState = primer.getBlockState(localX, localY + 1, localZ);
                         boolean foundTopBlock = isTopBlock(primer, localX, localY, localZ, chunkX, chunkZ);
@@ -251,7 +270,7 @@ public class BetterCaveGenerator extends MapGenCaves {
         IBlockState filler = biome.fillerBlock;
 
         if (this.canReplaceBlock(state, up) || state.getBlock() == top.getBlock() || state.getBlock() == filler.getBlock()) {
-            if (y <= lavaDepth)
+            if (y <= Configuration.lavaDepth)
                 primer.setBlockState(x, y, z, Blocks.LAVA.getDefaultState());
             else {
                 primer.setBlockState(x, y, z, Blocks.AIR.getDefaultState());

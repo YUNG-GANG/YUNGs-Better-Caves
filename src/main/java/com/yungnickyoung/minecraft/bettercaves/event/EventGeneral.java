@@ -15,7 +15,7 @@ public class EventGeneral {
      * @param event Config change event
      */
     @SubscribeEvent
-    public static void onConfigReload(ConfigChangedEvent.OnConfigChangedEvent event) {
+    public void onConfigReload(ConfigChangedEvent.OnConfigChangedEvent event) {
         // Only mess with config syncing if it is this mod being changed
         if (Settings.MOD_ID.equals(event.getModID()))
             ConfigManager.sync(Settings.MOD_ID, Config.Type.INSTANCE);

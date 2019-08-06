@@ -59,12 +59,14 @@ public class BetterCaveGenerator extends MapGenCaves {
         noiseGenerator2.SetFractalType(FastNoise.FractalType.RigidMulti); // TODO - try rigid multi?
 
 
-//        noiseGenerator2.SetFractalOctaves(1);
+        noiseGenerator1.SetFractalOctaves(1);
+        noiseGenerator2.SetFractalOctaves(1);
 //        noiseGenerator2.SetFrequency(2);
 //        noiseGenerator.SetFractalLacunarity();
-        noiseGenerator1.SetFractalGain(.2f);
-        noiseGenerator2.SetFractalGain(.2f);
+        noiseGenerator1.SetFractalGain(.3f);
+        noiseGenerator2.SetFractalGain(.3f);
         noiseGenerator1.SetFrequency(.05f);
+        noiseGenerator2.SetFrequency(.05f);
 
         for (int localX = 0; localX < 16; localX++) {
             int realX = localX + chunkX;
@@ -78,8 +80,8 @@ public class BetterCaveGenerator extends MapGenCaves {
 
 //                    Settings.LOGGER.info("noise1: {}, noise2: {}", noise1, noise2);
 
-                    int state1 = (noise1 < .7) ? 1 : 0;
-                    int state2 = (noise2 < .7) ? 1 : 0;
+                    int state1 = (noise1 < 0.9) ? 0 : 1;
+                    int state2 = (noise2 < 0.9) ? 0 : 1;
                     int state = state1 * state2;
 
                     if (state == 1) {

@@ -21,7 +21,9 @@ public class Settings {
 
     public static final String COMMON_PROXY = "com.yungnickyoung.minecraft.bettercaves.proxy.CommonProxy";
     public static final String CLIENT_PROXY = "com.yungnickyoung.minecraft.bettercaves.proxy.ClientProxy";
+
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
+    public static final boolean DEBUG_LOG_ENABLED = false;
 
     private Settings() {} // private constructor prevents instantiation
 }

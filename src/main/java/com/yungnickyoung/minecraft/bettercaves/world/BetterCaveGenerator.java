@@ -25,7 +25,6 @@ public class BetterCaveGenerator extends MapGenCaves {
     private FastNoise noiseGenerator2;
 
     // DEBUG VALS
-    private static final boolean DEBUG_LOG_ENABLED = false;
     private int numChunksGenerated = 0;
     private double avgNoise1 = 0;
     private double avgNoise2 = 0;
@@ -110,7 +109,7 @@ public class BetterCaveGenerator extends MapGenCaves {
                         digBlock(primer, localX, realY, localZ, chunkX, chunkZ, foundTopBlock, currentBlockState, aboveBlockState);
                     }
 
-                    if (DEBUG_LOG_ENABLED) {
+                    if (Settings.DEBUG_LOG_ENABLED) {
                         avgNoise1 = ((numChunksGenerated * avgNoise1) + noise1) / (numChunksGenerated + 1);
                         avgNoise2 = ((numChunksGenerated * avgNoise2) + noise2) / (numChunksGenerated + 1);
 

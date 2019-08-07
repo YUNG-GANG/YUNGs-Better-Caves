@@ -1,19 +1,9 @@
 package com.yungnickyoung.minecraft.bettercaves.config;
 
 import net.minecraftforge.common.config.Config;
-import net.minecraftforge.common.config.ConfigManager;
-import net.minecraftforge.fml.client.event.ConfigChangedEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @Config(modid = Settings.MOD_ID, name = Settings.NAME)
 public class Configuration {
-    @Config.Name("F Threshold")
-    @Config.Comment("The threshold for the F function")
-    @Config.RangeDouble(min = 0)
-    @Config.RequiresWorldRestart
-    public static double FThreshold = 20;
-
     @Config.Name("Lava Depth")
     @Config.Comment("The y-coordinate below which lava replaces air. Default 10")
     @Config.RangeInt(min = 1)
@@ -25,21 +15,39 @@ public class Configuration {
     @Config.RequiresWorldRestart
     public static boolean enableTurbulence = true;
 
-    @Config.Name("Turbulence X Power")
-    @Config.Comment("X-axis turbulence function power")
-    @Config.RangeDouble(min = 0.0, max = 1.0)
+    @Config.Name("Fractal Octaves")
+    @Config.Comment("The number of octaves used for ridged multi-fractal noise generation.")
     @Config.RequiresWorldRestart
-    public static double turbPowerX = .25;
+    public static int fractalOctaves = 1;
 
-    @Config.Name("Turbulence Y Power")
-    @Config.Comment("Y-axis turbulence function power")
-    @Config.RangeDouble(min = 0.0, max = 1.0)
+    @Config.Name("Fractal Gain")
+    @Config.Comment("The gain for ridged multi-fractal noise generation.")
     @Config.RequiresWorldRestart
-    public static double turbPowerY = .25;
+    public static float fractalGain = 0.3f;
 
-    @Config.Name("Turbulence Z Power")
-    @Config.Comment("Z-axis turbulence function power")
-    @Config.RangeDouble(min = 0.0, max = 1.0)
+    @Config.Name("Fractal Frequency")
+    @Config.Comment("The frequency for ridged multi-fractal noise generation.")
     @Config.RequiresWorldRestart
-    public static double turbPowerZ = .25;
+    public static float fractalFrequency = 0.03f;
+
+    @Config.Name("Turbulence Octaves")
+    @Config.Comment("The number of octaves used for the fBM turbulence function.")
+    @Config.RequiresWorldRestart
+    public static int turbulenceOctaves = 3;
+
+    @Config.Name("Turbulence Gain")
+    @Config.Comment("The gain for the fBM turbulence function.")
+    @Config.RequiresWorldRestart
+    public static float turbulenceGain = 0.9f;
+
+    @Config.Name("Turbulence Frequency")
+    @Config.Comment("The frequency for the fBM turbulence function.")
+    @Config.RequiresWorldRestart
+    public static float turbulenceFrequency = 0.03f;
+
+    @Config.Name("Noise Threshold")
+    @Config.Comment("Threshold for determining which blocks get mined out as part of cave generation. Higher value = less caves.")
+    @Config.RangeDouble(min = -1.0, max = 1.0)
+    @Config.RequiresWorldRestart
+    public static float noiseThreshold = .7f;
 }

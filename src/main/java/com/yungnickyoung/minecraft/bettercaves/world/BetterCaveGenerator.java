@@ -12,6 +12,7 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.MapGenCaves;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import javax.vecmath.Vector3f;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -19,9 +20,7 @@ public class BetterCaveGenerator extends MapGenCaves {
 
     private FastNoise noiseGenerator1;
     private FastNoise noiseGenerator2;
-    private FastNoise turbulenceX;
-    private FastNoise turbulenceY;
-    private FastNoise turbulenceZ;
+    private FastNoise turbulence;
 
     // DEBUG VALS
     private int numChunksGenerated = 0;
@@ -31,43 +30,40 @@ public class BetterCaveGenerator extends MapGenCaves {
     private double minNoise1 = 10;
     private double maxNoise2 = -10;
     private double minNoise2 = 10;
+    private double avgNoise = 0;
+    private double maxNoise = -10;
+    private double minNoise = 10;
 
 
     public BetterCaveGenerator() {
-        // Base noise functions - Ridged Multi-fractals
+        // Noise generators - these use ridged multi-fractals.
+        // The intersection of these two functions is found to generate a single noise value.
         noiseGenerator1 = new FastNoise();
         noiseGenerator2 = new FastNoise();
 
+        // Optional turbulence - uses fBM fractal.
+        // Tends to make caves less smooth and noticeably patterned. Can be good for generating a "cave feel"
+        turbulence = new FastNoise();
+
+        // Initialize all noise generators
+
         noiseGenerator1.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
-        noiseGenerator2.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
         noiseGenerator1.SetFractalType(FastNoise.FractalType.RigidMulti);
+        noiseGenerator1.SetFractalOctaves(Configuration.fractalOctaves);
+        noiseGenerator1.SetFractalGain(Configuration.fractalGain);
+        noiseGenerator1.SetFrequency(Configuration.fractalFrequency);
+
+        noiseGenerator2.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
         noiseGenerator2.SetFractalType(FastNoise.FractalType.RigidMulti);
-        noiseGenerator1.SetFractalOctaves(1);
-        noiseGenerator2.SetFractalOctaves(1);
-        noiseGenerator1.SetFractalGain(.3f);
-        noiseGenerator2.SetFractalGain(.3f);
-        noiseGenerator1.SetFrequency(.05f);
-        noiseGenerator2.SetFrequency(.05f);
+        noiseGenerator2.SetFractalOctaves(Configuration.fractalOctaves);
+        noiseGenerator2.SetFractalGain(Configuration.fractalGain);
+        noiseGenerator2.SetFrequency(Configuration.fractalFrequency);
 
-        turbulenceX = new FastNoise();
-        turbulenceY = new FastNoise();
-        turbulenceZ = new FastNoise();
-
-        turbulenceX.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
-        turbulenceY.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
-        turbulenceZ.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
-        turbulenceX.SetFractalType(FastNoise.FractalType.FBM);
-        turbulenceY.SetFractalType(FastNoise.FractalType.FBM);
-        turbulenceZ.SetFractalType(FastNoise.FractalType.FBM);
-        turbulenceX.SetFractalOctaves(3);
-        turbulenceY.SetFractalOctaves(3);
-        turbulenceZ.SetFractalOctaves(3);
-        turbulenceX.SetFractalGain(.3f);
-        turbulenceY.SetFractalGain(.3f);
-        turbulenceZ.SetFractalGain(.3f);
-        turbulenceX.SetFrequency(.01f);
-        turbulenceY.SetFrequency(.01f);
-        turbulenceZ.SetFrequency(.01f);
+        turbulence.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
+        turbulence.SetFractalType(FastNoise.FractalType.FBM);
+        turbulence.SetFractalOctaves(Configuration.turbulenceOctaves);
+        turbulence.SetFractalGain(Configuration.turbulenceGain);
+        turbulence.SetFrequency(Configuration.turbulenceFrequency);
     }
 
     @Override
@@ -82,9 +78,7 @@ public class BetterCaveGenerator extends MapGenCaves {
             int worldSeed = (int)(world.getSeed());
             noiseGenerator1.SetSeed(worldSeed);
             noiseGenerator2.SetSeed(worldSeed + 1);
-            turbulenceX.SetSeed(worldSeed+ 1000);
-            turbulenceY.SetSeed(worldSeed+ 2000);
-            turbulenceZ.SetSeed(worldSeed+ 3000);
+            turbulence.SetSeed(worldSeed + 1000);
         }
 
 //        generateWorleys(chunkX, chunkZ, primer);
@@ -103,25 +97,24 @@ public class BetterCaveGenerator extends MapGenCaves {
                 int realZ = localZ + 16*chunkZ;
 
                 for (int realY = 64; realY > 0; realY--) {
-                    float noise1 = noiseGenerator1.GetNoise(realX, realY, realZ);
-                    float noise2 = noiseGenerator2.GetNoise(realX, realY, realZ);
+                    Vector3f f = new Vector3f(realX, realY, realZ);
 
-                    if (Settings.DEBUG_LOG_ENABLED) {
-                        Settings.LOGGER.info("noise1: {}, noise2: {}", noise1, noise2);
-                    }
-//                    int state1 = (noise1 < 0.85) ? 0 : 1;
-//                    int state2 = (noise2 < 0.85) ? 0 : 1;
-//                    int state = state1 * state2;
+                    // Use turbulence function to apply gradient perturbation, if enabled
+                    if (Configuration.enableTurbulence)
+                        turbulence.GradientPerturbFractal(f);
 
+                    float noise1 = noiseGenerator1.GetNoise(f.x, f.y, f.z);
+                    float noise2 = noiseGenerator2.GetNoise(f.x, f.y, f.z);
+
+                    /*
+                     * Multiply noise to get intersection of the two multi-fractals.
+                     * This is necessary when operating in three dimensions. A single multi-fractal would yield
+                     * shell-like slices carved out of the terrain, rather than tunnels.
+                     */
                     float noise = noise1 * noise2;
 
-
-
-                    // TURBULENCE:
-//                    if (Configuration.)
-
 //                    if (state == 1) {
-                    if (noise > .8) {
+                    if (noise > Configuration.noiseThreshold) {
                         IBlockState currentBlockState = primer.getBlockState(localX, realY, localZ);
                         IBlockState aboveBlockState = primer.getBlockState(localX, realY + 1, localZ);
                         boolean foundTopBlock = isTopBlock(primer, localX, realY, localZ, chunkX, chunkZ);
@@ -131,35 +124,51 @@ public class BetterCaveGenerator extends MapGenCaves {
                     if (Settings.DEBUG_LOG_ENABLED) {
                         avgNoise1 = ((numChunksGenerated * avgNoise1) + noise1) / (numChunksGenerated + 1);
                         avgNoise2 = ((numChunksGenerated * avgNoise2) + noise2) / (numChunksGenerated + 1);
+                        avgNoise = ((numChunksGenerated * avgNoise) + noise) / (numChunksGenerated + 1);
 
                         if (noise1 > maxNoise1) maxNoise1 = noise1;
-                        if (noise2 > maxNoise2) maxNoise2 = noise2;
                         if (noise1 < minNoise1) minNoise1 = noise1;
+
+                        if (noise2 > maxNoise2) maxNoise2 = noise2;
                         if (noise2 < minNoise2) minNoise2 = noise2;
+
+                        if (noise > maxNoise) maxNoise = noise;
+                        if (noise < minNoise) minNoise = noise;
 
                         numChunksGenerated++;
 
                         if (numChunksGenerated == 2000) {
                             Settings.LOGGER.info("2000 Chunks Generated Report");
 
-                            Settings.LOGGER.info("--> Noise 1");
-                            Settings.LOGGER.info("  > Average: {}", avgNoise1);
-                            Settings.LOGGER.info("  > Max: {}", maxNoise1);
-                            Settings.LOGGER.info("  > Min: {}", minNoise1);
+                            Settings.LOGGER.info("--> Noise");
+                            Settings.LOGGER.info("  > Average: {}", avgNoise);
+                            Settings.LOGGER.info("  > Max: {}", maxNoise);
+                            Settings.LOGGER.info("  > Min: {}", minNoise);
 
-                            Settings.LOGGER.info("--> Noise 2");
-                            Settings.LOGGER.info("  > Average: {}", avgNoise2);
-                            Settings.LOGGER.info("  > Max: {}", maxNoise2);
-                            Settings.LOGGER.info("  > Min: {}", minNoise2);
+//                            Settings.LOGGER.info("--> Noise 1");
+//                            Settings.LOGGER.info("  > Average: {}", avgNoise1);
+//                            Settings.LOGGER.info("  > Max: {}", maxNoise1);
+//                            Settings.LOGGER.info("  > Min: {}", minNoise1);
+//
+//                            Settings.LOGGER.info("--> Noise 2");
+//                            Settings.LOGGER.info("  > Average: {}", avgNoise2);
+//                            Settings.LOGGER.info("  > Max: {}", maxNoise2);
+//                            Settings.LOGGER.info("  > Min: {}", minNoise2);
 
                             // Reset vals
                             numChunksGenerated = 0;
-                            avgNoise1 = 0;
-                            avgNoise2 = 0;
-                            maxNoise1 = -10;
-                            minNoise1 = 10;
-                            maxNoise2 = -10;
-                            minNoise2 = 10;
+
+//                            avgNoise1 = 0;
+//                            maxNoise1 = -10;
+//                            minNoise1 = 10;
+//
+//                            avgNoise2 = 0;
+//                            maxNoise2 = -10;
+//                            minNoise2 = 10;
+
+                            avgNoise = 0;
+                            maxNoise = -10;
+                            minNoise = 10;
                         }
                     }
                 }
@@ -178,8 +187,13 @@ public class BetterCaveGenerator extends MapGenCaves {
                     if (realX < 0) {
                         primer.setBlockState(localX, realY, localZ, Blocks.AIR.getDefaultState());
                     } else {
-                        float noise1 = noiseGenerator1.GetNoise(realX, realY, realZ);
-                        float noise2 = noiseGenerator2.GetNoise(realX, realY, realZ);
+                        Vector3f f = new Vector3f(realX, realY, realZ);
+
+                        if (Configuration.enableTurbulence)
+                            turbulence.GradientPerturbFractal(f);
+
+                        float noise1 = noiseGenerator1.GetNoise(f.x, f.y, f.z);
+                        float noise2 = noiseGenerator2.GetNoise(f.x, f.y, f.z);
                         float noise = noise1 * noise2;
 
                         if (noise > .8) {
@@ -232,7 +246,7 @@ public class BetterCaveGenerator extends MapGenCaves {
 
                     double F = Math.abs(F2 - F1);
 
-                    if (F < Configuration.FThreshold) {
+                    if (F < 20) {
                         IBlockState currentBlockState = primer.getBlockState(localX, localY, localZ);
                         IBlockState aboveBlockState = primer.getBlockState(localX, localY + 1, localZ);
                         boolean foundTopBlock = isTopBlock(primer, localX, localY, localZ, chunkX, chunkZ);

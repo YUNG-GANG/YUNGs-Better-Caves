@@ -26,7 +26,7 @@ public abstract class BetterCave {
         noiseGenerator2 = new FastNoise();
 
         // Optional turbulence - uses fBM fractal.
-        // Tends to make caves less smooth and noticeably patterned. Can be good for generating a "cave feel"
+        // Tends to make caves less smooth/noticeably patterned. Can be good for generating a "cave feel"
         turbulence = new FastNoise();
 
         // Initialize noise types and fractal types. These are universal across all BetterCaves
@@ -42,8 +42,6 @@ public abstract class BetterCave {
         turbulence.SetFractalType(FastNoise.FractalType.FBM);
         this.turbulence.SetSeed(worldSeed + 1000);
     }
-
-    // generate method must be overridden by child classes
 
     /**
      * Generates caves for a given chunk. Note that the coordinate parameters are

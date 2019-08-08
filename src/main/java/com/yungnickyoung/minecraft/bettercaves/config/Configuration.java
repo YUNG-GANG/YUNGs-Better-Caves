@@ -54,7 +54,7 @@ public class Configuration {
         @Config.Name("Turbulence Gain")
         @Config.Comment("The gain for the fBM turbulence function.")
         @Config.RequiresWorldRestart
-        public float turbulenceGain = 0.9f;
+        public float turbulenceGain = 30f;
 
         @Config.Name("Turbulence Frequency")
         @Config.Comment("The frequency for the fBM turbulence function.")

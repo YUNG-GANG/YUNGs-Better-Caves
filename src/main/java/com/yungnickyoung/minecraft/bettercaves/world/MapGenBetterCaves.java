@@ -8,7 +8,6 @@ import net.minecraft.world.gen.MapGenCaves;
 
 import javax.annotation.Nonnull;
 
-
 public class MapGenBetterCaves extends MapGenCaves {
 
     public enum CaveType {
@@ -26,13 +25,14 @@ public class MapGenBetterCaves extends MapGenCaves {
 
     @Override
     public void generate(World worldIn, int chunkX, int chunkZ, @Nonnull ChunkPrimer primer) {
-        if (world == null) { // First call - initialize all noise generators using world seed
+        if (world == null) { // First call - initialize all cave types
             world = worldIn;
             this.cavern = new Cavern(world);
             this.dynamicCavern = new DynamicCavern(world);
         }
 
-        CaveType caveType = CaveType.DynamicCavern;
+        CaveType caveType = CaveType.DynamicCavern; // TODO: have this be chosen based on another noise generator that
+                                                    // partitions off cave biomes based on real x-y-z coords
 
         switch (caveType) {
             case Fractal:

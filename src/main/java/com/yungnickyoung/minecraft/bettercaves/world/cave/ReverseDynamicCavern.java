@@ -11,10 +11,10 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import javax.vecmath.Vector3f;
 
 /**
- * Generates large cavernous caves of uniform size, i.e. not depending on depth
+ * Generates large cavernous caves of dynamic size, meaning the caves get larger the lower the y-coordinate.
  */
-public class Cavern extends BetterCave {
-    public Cavern(World world) {
+public class ReverseDynamicCavern extends BetterCave {
+    public ReverseDynamicCavern(World world) {
         super(world);
 
         noiseGenerator1.SetFractalOctaves(Configuration.cavern.fractalOctaves);
@@ -59,13 +59,44 @@ public class Cavern extends BetterCave {
                      * shell-like slices carved out of the terrain, rather than tunnels.
                      */
                     float noise = noise1 * noise2;
+                    float heightAdjustedThreshold;
 
-                    if (noise > Configuration.cavern.noiseThreshold) {
+                    if (realY < 32)
+                        heightAdjustedThreshold = Configuration.cavern.noiseThreshold;
+                    else {
+                        float heightAdjuster = realY * (1f / 64f);
+                        heightAdjustedThreshold = Configuration.cavern.noiseThreshold - (Configuration.dynamicCavern.depthPower * heightAdjuster);
+                    }
+
+                    if (noise < heightAdjustedThreshold) {
                         IBlockState currentBlockState = primer.getBlockState(localX, realY, localZ);
                         IBlockState aboveBlockState = primer.getBlockState(localX, realY + 1, localZ);
                         boolean foundTopBlock = BetterCaveUtil.isTopBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
                         BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ, foundTopBlock, currentBlockState, aboveBlockState);
                     }
+
+                    /*
+                    float noise = noise1 * noise2;
+                    float heightAdjustedThreshold;
+
+                    if (realY < 32) {
+                        heightAdjustedThreshold = Configuration.cavern.noiseThreshold;
+                        if (noise < heightAdjustedThreshold) {
+                            IBlockState currentBlockState = primer.getBlockState(localX, realY, localZ);
+                            IBlockState aboveBlockState = primer.getBlockState(localX, realY + 1, localZ);
+                            boolean foundTopBlock = BetterCaveUtil.isTopBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
+                            BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ, foundTopBlock, currentBlockState, aboveBlockState);
+                        }
+                    } else {
+                        float heightAdjuster = realY * (1f / 64f);
+                        heightAdjustedThreshold = Configuration.cavern.noiseThreshold + (Configuration.dynamicCavern.depthPower * heightAdjuster);
+                        if (noise > heightAdjustedThreshold) {
+                            IBlockState currentBlockState = primer.getBlockState(localX, realY, localZ);
+                            IBlockState aboveBlockState = primer.getBlockState(localX, realY + 1, localZ);
+                            boolean foundTopBlock = BetterCaveUtil.isTopBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
+                            BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ, foundTopBlock, currentBlockState, aboveBlockState);
+                        }
+                    }*/
 
                     if (Settings.DEBUG_LOG_ENABLED) {
                         avgNoise = ((numChunksGenerated * avgNoise) + noise) / (numChunksGenerated + 1);
@@ -123,7 +154,15 @@ public class Cavern extends BetterCave {
                          */
                         float noise = noise1 * noise2;
 
-                        if (noise > Configuration.cavern.noiseThreshold) {
+                        float heightAdjustedThreshold;
+                        if (realY < 32)
+                            heightAdjustedThreshold = Configuration.cavern.noiseThreshold;
+                        else {
+                            float heightAdjuster = realY * (1f / 64f);
+                            heightAdjustedThreshold = Configuration.cavern.noiseThreshold - (Configuration.dynamicCavern.depthPower * heightAdjuster);
+                        }
+
+                        if (noise < heightAdjustedThreshold) {
                             primer.setBlockState(localX, realY, localZ, Blocks.QUARTZ_BLOCK.getDefaultState());
                         } else {
                             primer.setBlockState(localX, realY, localZ, Blocks.AIR.getDefaultState());

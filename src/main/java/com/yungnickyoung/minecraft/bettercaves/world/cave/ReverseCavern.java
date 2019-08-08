@@ -13,8 +13,8 @@ import javax.vecmath.Vector3f;
 /**
  * Generates large cavernous caves of uniform size, i.e. not depending on depth
  */
-public class Cavern extends BetterCave {
-    public Cavern(World world) {
+public class ReverseCavern extends BetterCave {
+    public ReverseCavern(World world) {
         super(world);
 
         noiseGenerator1.SetFractalOctaves(Configuration.cavern.fractalOctaves);
@@ -60,7 +60,7 @@ public class Cavern extends BetterCave {
                      */
                     float noise = noise1 * noise2;
 
-                    if (noise > Configuration.cavern.noiseThreshold) {
+                    if (noise < Configuration.cavern.noiseThreshold) {
                         IBlockState currentBlockState = primer.getBlockState(localX, realY, localZ);
                         IBlockState aboveBlockState = primer.getBlockState(localX, realY + 1, localZ);
                         boolean foundTopBlock = BetterCaveUtil.isTopBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
@@ -123,7 +123,7 @@ public class Cavern extends BetterCave {
                          */
                         float noise = noise1 * noise2;
 
-                        if (noise > Configuration.cavern.noiseThreshold) {
+                        if (noise < Configuration.cavern.noiseThreshold) {
                             primer.setBlockState(localX, realY, localZ, Blocks.QUARTZ_BLOCK.getDefaultState());
                         } else {
                             primer.setBlockState(localX, realY, localZ, Blocks.AIR.getDefaultState());

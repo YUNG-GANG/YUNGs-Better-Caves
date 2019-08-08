@@ -4,6 +4,7 @@ import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 
@@ -31,6 +32,11 @@ public class DynamicCavern extends BetterCave {
 
     @Override
     public void generate(int chunkX, int chunkZ, ChunkPrimer primer) {
+        if (Settings.DEBUG_WORLD_GEN) {
+            debugGenerate(chunkX, chunkZ, primer);
+            return;
+        }
+
         for (int localX = 0; localX < 16; localX++) {
             int realX = localX + 16*chunkX;
 
@@ -91,6 +97,52 @@ public class DynamicCavern extends BetterCave {
                             avgNoise = 0;
                             maxNoise = -10;
                             minNoise = 10;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void debugGenerate(int chunkX, int chunkZ, ChunkPrimer primer) {
+        for (int localX = 0; localX < 16; localX++) {
+            int realX = localX + 16*chunkX;
+
+            for (int localZ = 0; localZ < 16; localZ++) {
+                int realZ = localZ + 16*chunkZ;
+
+                for (int realY = 128; realY > 0; realY--) {
+                    if (realX < 0) {
+                        primer.setBlockState(localX, realY, localZ, Blocks.AIR.getDefaultState());
+                    } else {
+                        Vector3f f = new Vector3f(realX, realY, realZ);
+
+                        // Use turbulence function to apply gradient perturbation, if enabled
+                        if (Configuration.cavern.enableTurbulence)
+                            turbulence.GradientPerturbFractal(f);
+
+                        float noise1 = noiseGenerator1.GetNoise(f.x, f.y, f.z);
+                        float noise2 = noiseGenerator2.GetNoise(f.x, f.y, f.z);
+
+                        /*
+                         * Multiply noise to get intersection of the two multi-fractals.
+                         * This is necessary when operating in three dimensions. A single multi-fractal would yield
+                         * shell-like slices carved out of the terrain, rather than tunnels.
+                         */
+                        float noise = noise1 * noise2;
+
+                        float heightAdjustedThreshold;
+                        if (realY < 32)
+                            heightAdjustedThreshold = Configuration.cavern.noiseThreshold;
+                        else {
+                            float heightAdjuster = realY * (1f / 64f);
+                            heightAdjustedThreshold = Configuration.cavern.noiseThreshold + (Configuration.dynamicCavern.depthPower * heightAdjuster);
+                        }
+
+                        if (noise > heightAdjustedThreshold) {
+                            primer.setBlockState(localX, realY, localZ, Blocks.QUARTZ_BLOCK.getDefaultState());
+                        } else {
+                            primer.setBlockState(localX, realY, localZ, Blocks.AIR.getDefaultState());
                         }
                     }
                 }

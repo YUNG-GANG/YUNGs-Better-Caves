@@ -1,7 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves.event;
 
 import com.yungnickyoung.minecraft.bettercaves.config.Settings;
-import com.yungnickyoung.minecraft.bettercaves.world.BetterCaveGenerator;
+import com.yungnickyoung.minecraft.bettercaves.world.MapGenBetterCaves;
 import net.minecraftforge.event.terraingen.InitMapGenEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -18,9 +18,8 @@ public class EventTerrain {
     public void onCaveEvent(InitMapGenEvent event) {
         Settings.LOGGER.info("onCaveEvent called");
         // Only replace cave gen if the original gen passed isn't a Better Cave
-        if (event.getType() == InitMapGenEvent.EventType.CAVE && !event.getOriginalGen().getClass().equals(BetterCaveGenerator.class)) {
-            Settings.LOGGER.info("  onCaveEvent passed conditions");
-            event.setNewGen(new BetterCaveGenerator());
+        if (event.getType() == InitMapGenEvent.EventType.CAVE && !event.getOriginalGen().getClass().equals(MapGenBetterCaves.class)) {
+            event.setNewGen(new MapGenBetterCaves());
         }
     }
 }

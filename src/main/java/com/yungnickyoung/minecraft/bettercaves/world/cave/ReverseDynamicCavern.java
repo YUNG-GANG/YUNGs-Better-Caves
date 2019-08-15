@@ -61,12 +61,17 @@ public class ReverseDynamicCavern extends BetterCave {
                     float noise = noise1 * noise2;
                     float heightAdjustedThreshold;
 
-                    if (realY < 32)
-                        heightAdjustedThreshold = Configuration.cavern.noiseThreshold;
-                    else {
-                        float heightAdjuster = realY * (1f / 64f);
-                        heightAdjustedThreshold = Configuration.cavern.noiseThreshold - (Configuration.dynamicCavern.depthPower * heightAdjuster);
-                    }
+//                    if (realY < 32)
+//                        heightAdjustedThreshold = Configuration.cavern.noiseThreshold;
+//                    else {
+//                        float heightAdjuster = realY * (1f / 64f);
+//                        heightAdjustedThreshold = Configuration.cavern.noiseThreshold - (Configuration.dynamicCavern.depthPower * heightAdjuster);
+//                    }
+
+                    // The following is kinda decent with a depthPower of .4
+                    float heightAdjuster = realY * (1f / 64f);
+                    heightAdjustedThreshold = Configuration.cavern.noiseThreshold - (Configuration.dynamicCavern.depthPower * heightAdjuster);
+
 
                     if (noise < heightAdjustedThreshold) {
                         IBlockState currentBlockState = primer.getBlockState(localX, realY, localZ);
@@ -106,8 +111,8 @@ public class ReverseDynamicCavern extends BetterCave {
 
                         numChunksGenerated++;
 
-                        if (numChunksGenerated == 2000) {
-                            Settings.LOGGER.info("2000 Chunks Generated Report");
+                        if (numChunksGenerated == CHUNKS_PER_REPORT) {
+                            Settings.LOGGER.info(CHUNKS_PER_REPORT + " Chunks Generated Report");
 
                             Settings.LOGGER.info("--> Noise");
                             Settings.LOGGER.info("  > Average: {}", avgNoise);

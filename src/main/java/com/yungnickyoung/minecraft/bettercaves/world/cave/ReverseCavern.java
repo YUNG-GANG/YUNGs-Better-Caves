@@ -3,6 +3,7 @@ package com.yungnickyoung.minecraft.bettercaves.world.cave;
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
@@ -60,11 +61,23 @@ public class ReverseCavern extends BetterCave {
                      */
                     float noise = noise1 * noise2;
 
-                    if (noise < Configuration.cavern.noiseThreshold) {
-                        IBlockState currentBlockState = primer.getBlockState(localX, realY, localZ);
-                        IBlockState aboveBlockState = primer.getBlockState(localX, realY + 1, localZ);
+                    if (noise > Configuration.cavern.noiseThreshold) {
+                        IBlockState blockState = primer.getBlockState(localX, realY, localZ);
+                        IBlockState blockStateAbove = primer.getBlockState(localX, realY + 1, localZ);
                         boolean foundTopBlock = BetterCaveUtil.isTopBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
-                        BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ, foundTopBlock, currentBlockState, aboveBlockState);
+
+                        if (blockStateAbove.getMaterial() == Material.WATER)
+                            continue;
+                        if (localX < 15 && primer.getBlockState(localX + 1, realY, localZ).getMaterial() == Material.WATER)
+                            continue;
+                        if (localX > 0 && primer.getBlockState(localX - 1, realY, localZ).getMaterial() == Material.WATER)
+                            continue;
+                        if (localZ < 15 && primer.getBlockState(localX, realY, localZ + 1).getMaterial() == Material.WATER)
+                            continue;
+                        if (localZ > 0 && primer.getBlockState(localX, realY, localZ - 1).getMaterial() == Material.WATER)
+                            continue;
+
+                        BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ, foundTopBlock, blockState, blockStateAbove);
                     }
 
                     if (Settings.DEBUG_LOG_ENABLED) {
@@ -75,8 +88,8 @@ public class ReverseCavern extends BetterCave {
 
                         numChunksGenerated++;
 
-                        if (numChunksGenerated == 2000) {
-                            Settings.LOGGER.info("2000 Chunks Generated Report");
+                        if (numChunksGenerated == CHUNKS_PER_REPORT) {
+                            Settings.LOGGER.info(CHUNKS_PER_REPORT + " Chunks Generated Report");
 
                             Settings.LOGGER.info("--> Noise");
                             Settings.LOGGER.info("  > Average: {}", avgNoise);

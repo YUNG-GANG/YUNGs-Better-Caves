@@ -53,6 +53,7 @@ public abstract class BetterCave {
     abstract public void generate(int chunkX, int chunkZ, ChunkPrimer primer);
 
     // DEBUG vals used for logging
+    final int CHUNKS_PER_REPORT = 5000;
     int numChunksGenerated = 0;
     double avgNoise = 0;
     double maxNoise = -10;

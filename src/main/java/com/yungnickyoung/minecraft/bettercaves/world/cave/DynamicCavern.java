@@ -83,8 +83,8 @@ public class DynamicCavern extends BetterCave {
 
                         numChunksGenerated++;
 
-                        if (numChunksGenerated == 2000) {
-                            Settings.LOGGER.info("2000 Chunks Generated Report");
+                        if (numChunksGenerated == CHUNKS_PER_REPORT) {
+                            Settings.LOGGER.info(CHUNKS_PER_REPORT + " Chunks Generated Report");
 
                             Settings.LOGGER.info("--> Noise");
                             Settings.LOGGER.info("  > Average: {}", avgNoise);

@@ -16,7 +16,6 @@ public class EventTerrain {
      */
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onCaveEvent(InitMapGenEvent event) {
-        Settings.LOGGER.info("onCaveEvent called");
         // Only replace cave gen if the original gen passed isn't a Better Cave
         if (event.getType() == InitMapGenEvent.EventType.CAVE && !event.getOriginalGen().getClass().equals(MapGenBetterCaves.class)) {
             event.setNewGen(new MapGenBetterCaves());

@@ -37,7 +37,7 @@ public class MapGenBetterCaves extends MapGenCaves {
             this.reverseDynamicCavern = new ReverseDynamicCavern(world);
         }
 
-        CaveType caveType = CaveType.ReverseDynamicCavern; // TODO: have this be chosen based on another noise generator that
+        CaveType caveType = CaveType.ReverseCavern; // TODO: have this be chosen based on another noise generator that
                                                     // partitions off cave biomes based on real x-y-z coords
 
         switch (caveType) {

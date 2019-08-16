@@ -6,6 +6,7 @@ import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 
@@ -38,6 +39,8 @@ public class ReverseCavern extends BetterCave {
             return;
         }
 
+        int maxSurfaceHeight = BetterCaveUtil.getMaxSurfaceHeight(primer);
+
         for (int localX = 0; localX < 16; localX++) {
             int realX = localX + 16*chunkX;
 
@@ -53,6 +56,7 @@ public class ReverseCavern extends BetterCave {
 
                     float noise1 = noiseGenerator1.GetNoise(f.x, f.y, f.z);
                     float noise2 = noiseGenerator2.GetNoise(f.x, f.y, f.z);
+
 
                     /*
                      * Multiply noise to get intersection of the two multi-fractals.
@@ -79,6 +83,9 @@ public class ReverseCavern extends BetterCave {
 
                         BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ, foundTopBlock, blockState, blockStateAbove);
                     }
+
+
+
 
                     if (Settings.DEBUG_LOG_ENABLED) {
                         avgNoise = ((numChunksGenerated * avgNoise) + noise) / (numChunksGenerated + 1);

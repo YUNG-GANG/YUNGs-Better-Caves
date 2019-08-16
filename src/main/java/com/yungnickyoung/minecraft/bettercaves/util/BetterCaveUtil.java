@@ -76,10 +76,6 @@ public class BetterCaveUtil {
                     primer.setBlockState(x, y+1, z, Blocks.SANDSTONE.getDefaultState());
                 else if (blockStateAbove == Blocks.SAND.getDefaultState().withProperty(BlockSand.VARIANT, BlockSand.EnumType.RED_SAND))
                     primer.setBlockState(x, y+1, z, Blocks.RED_SANDSTONE.getDefaultState());
-
-                // Replace floating gravel with andesite
-                if (blockStateAbove == Blocks.GRAVEL.getDefaultState())
-                    primer.setBlockState(x, y, z, Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.ANDESITE));
             }
         }
     }
@@ -92,17 +88,65 @@ public class BetterCaveUtil {
      */
     public static boolean canReplaceBlock(IBlockState blockState, IBlockState blockStateAbove) {
         if (blockState.getBlock() == Blocks.STONE) return true;
-        if (blockState.getBlock() == Blocks.DIRT) return true;
-        if (blockState.getBlock() == Blocks.GRASS) return true;
-        if (blockState.getBlock() == Blocks.HARDENED_CLAY) return true;
-        if (blockState.getBlock() == Blocks.STAINED_HARDENED_CLAY) return true;
-        if (blockState.getBlock() == Blocks.SANDSTONE) return true;
-        if (blockState.getBlock() == Blocks.RED_SANDSTONE) return true;
-        if (blockState.getBlock() == Blocks.MYCELIUM) return true;
-        if (blockState.getBlock() == Blocks.SNOW_LAYER) return true;
-        if (blockState.getBlock() == Blocks.SAND) return true;
-        if (blockState.getBlock() == Blocks.GRAVEL) return true;
+        else if (blockState.getBlock() == Blocks.DIRT) return true;
+        else if (blockState.getBlock() == Blocks.GRASS) return true;
+        else if (blockState.getBlock() == Blocks.HARDENED_CLAY) return true;
+        else if (blockState.getBlock() == Blocks.STAINED_HARDENED_CLAY) return true;
+        else if (blockState.getBlock() == Blocks.SANDSTONE) return true;
+        else if (blockState.getBlock() == Blocks.RED_SANDSTONE) return true;
+        else if (blockState.getBlock() == Blocks.MYCELIUM) return true;
+        else if (blockState.getBlock() == Blocks.SNOW_LAYER) return true;
+        else if (blockState.getBlock() == Blocks.SAND) return true;
+        else if (blockState.getBlock() == Blocks.GRAVEL) return true;
+        else
+            return (blockState.getBlock() == Blocks.SAND || blockState.getBlock() == Blocks.GRAVEL) && blockStateAbove.getMaterial() != Material.WATER;
+    }
+    /**
+     * Tests 8 edge points and center of chunk to approximate max surface height of the chunk.
+     * @param primer primer for chunk
+     * @return Max surface height of chunk
+     */
+    public static int getMaxSurfaceHeight(ChunkPrimer primer) {
+        int maxHeight = 0;
+        int[] testCoords = {0, 7, 15};
 
-        return false;
+        for (int x : testCoords)
+            for (int z : testCoords)
+                maxHeight = Math.max(maxHeight, getSurfaceHeight(primer, x, z));
+
+        return maxHeight;
+    }
+
+    /**
+     * Returns the y-coordinate of the surface block for a given local block coordinate for a given chunk.
+     * @param primer The ChunkPrimer containing the block
+     * @param x The block's chunk-local x-coordinate
+     * @param z The block's chunk-local z-coordinate
+     * @return The y-coordinate of the surface block
+     */
+    public static int getSurfaceHeight(ChunkPrimer primer, int x, int z) {
+        return recursiveBinarySurfaceSearch(primer, x, z, 255, 0);
+    }
+
+    /**
+     * Recursive binary search, this search always converges on the surface in 8 in cycles for the range 255 >= y >= 0
+     * @param primer Chunk's ChunkPrimer
+     * @param x Chunk-local x-coordinate
+     * @param z Chunk-local z-coordinate
+     * @param top Upper y-coordinate search bound
+     * @param bottom Lower y-coordinate search bound
+     * @return Surface height at given coordinate
+     */
+    private static int recursiveBinarySurfaceSearch(ChunkPrimer primer, int x, int z, int top, int bottom) {
+        if (top > bottom) {
+            int mid = (top + bottom) / 2;
+
+            if (canReplaceBlock(primer.getBlockState(x, mid, z), Blocks.AIR.getDefaultState()))
+                top = recursiveBinarySurfaceSearch(primer, x, z, top, mid + 1);
+            else
+                top = recursiveBinarySurfaceSearch(primer, x, z, mid, bottom);
+        }
+
+        return top;
     }
 }

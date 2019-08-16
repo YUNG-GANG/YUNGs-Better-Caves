@@ -6,7 +6,6 @@ import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 
@@ -40,6 +39,9 @@ public class ReverseCavern extends BetterCave {
         }
 
         int maxSurfaceHeight = BetterCaveUtil.getMaxSurfaceHeight(primer);
+        int minSurfaceHeight = BetterCaveUtil.getMinSurfaceHeight(primer);
+//        int easeInDepth = (int)(maxSurfaceHeight * .75); // begin closing off caves when x% down from the surface
+        int easeInDepth = (int)(minSurfaceHeight * .9); // begin closing off caves when x% down from the surface
 
         for (int localX = 0; localX < 16; localX++) {
             int realX = localX + 16*chunkX;
@@ -47,7 +49,7 @@ public class ReverseCavern extends BetterCave {
             for (int localZ = 0; localZ < 16; localZ++) {
                 int realZ = localZ + 16*chunkZ;
 
-                for (int realY = 64; realY > 0; realY--) {
+                for (int realY = maxSurfaceHeight; realY > 0; realY--) {
                     Vector3f f = new Vector3f(realX, realY, realZ);
 
                     // Use turbulence function to apply gradient perturbation, if enabled
@@ -57,7 +59,6 @@ public class ReverseCavern extends BetterCave {
                     float noise1 = noiseGenerator1.GetNoise(f.x, f.y, f.z);
                     float noise2 = noiseGenerator2.GetNoise(f.x, f.y, f.z);
 
-
                     /*
                      * Multiply noise to get intersection of the two multi-fractals.
                      * This is necessary when operating in three dimensions. A single multi-fractal would yield
@@ -65,7 +66,14 @@ public class ReverseCavern extends BetterCave {
                      */
                     float noise = noise1 * noise2;
 
-                    if (noise > Configuration.cavern.noiseThreshold) {
+                    // Adjust noise threshold when close to the surface to close off caves
+                    float adjustedNoiseThreshold = Configuration.cavern.noiseThreshold;
+                    if (realY >= easeInDepth) {
+                        float adjustment = (float)(realY - easeInDepth) / (float)(maxSurfaceHeight - easeInDepth) * .4f;
+                        adjustedNoiseThreshold -= adjustment;
+                    }
+
+                    if (noise < adjustedNoiseThreshold) {
                         IBlockState blockState = primer.getBlockState(localX, realY, localZ);
                         IBlockState blockStateAbove = primer.getBlockState(localX, realY + 1, localZ);
                         boolean foundTopBlock = BetterCaveUtil.isTopBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);

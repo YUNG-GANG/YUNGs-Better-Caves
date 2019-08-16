@@ -46,9 +46,9 @@ public class BetterCaveUtil {
      *
      * @param world the Minecraft world this block is in
      * @param primer the ChunkPrimer containing the block
-     * @param x the block's x coordinate
-     * @param y the block's y coordinate
-     * @param z the block's z coordinate
+     * @param x the block's chunk-local x coordinate
+     * @param y the block's chunk-local y coordinate
+     * @param z the block's chunk-local z coordinate
      * @param chunkX the chunk's x coordinate
      * @param chunkZ the chunk's z coordinate
      * @param foundTop true if we've encountered the biome's top block (ideally, true if we've broken the surface)
@@ -82,22 +82,24 @@ public class BetterCaveUtil {
 
     /**
      * Determines if the Block of a given IBlockState is suitable to be replaced during cave generation.
+     * Basically returns true for most common world-get blocks, false if the block is air.
      * @param blockState the block's IBlockState
      * @param blockStateAbove the IBlockState of the block above this one
      * @return true if the blockState can be replaced
      */
     public static boolean canReplaceBlock(IBlockState blockState, IBlockState blockStateAbove) {
-        if (blockState.getBlock() == Blocks.STONE) return true;
-        else if (blockState.getBlock() == Blocks.DIRT) return true;
-        else if (blockState.getBlock() == Blocks.GRASS) return true;
-        else if (blockState.getBlock() == Blocks.HARDENED_CLAY) return true;
-        else if (blockState.getBlock() == Blocks.STAINED_HARDENED_CLAY) return true;
-        else if (blockState.getBlock() == Blocks.SANDSTONE) return true;
-        else if (blockState.getBlock() == Blocks.RED_SANDSTONE) return true;
-        else if (blockState.getBlock() == Blocks.MYCELIUM) return true;
-        else if (blockState.getBlock() == Blocks.SNOW_LAYER) return true;
-        else if (blockState.getBlock() == Blocks.SAND) return true;
-        else if (blockState.getBlock() == Blocks.GRAVEL) return true;
+        Block block = blockState.getBlock();
+
+        if (block == Blocks.STONE
+                || block == Blocks.DIRT
+                || block == Blocks.GRASS
+                || block == Blocks.HARDENED_CLAY
+                || block == Blocks.STAINED_HARDENED_CLAY
+                || block == Blocks.SANDSTONE
+                || block == Blocks.RED_SANDSTONE
+                || block == Blocks.MYCELIUM
+                || block  == Blocks.SNOW_LAYER)
+            return true;
         else
             return (blockState.getBlock() == Blocks.SAND || blockState.getBlock() == Blocks.GRAVEL) && blockStateAbove.getMaterial() != Material.WATER;
     }
@@ -108,7 +110,7 @@ public class BetterCaveUtil {
      */
     public static int getMaxSurfaceHeight(ChunkPrimer primer) {
         int maxHeight = 0;
-        int[] testCoords = {0, 7, 15};
+        int[] testCoords = {0, 7, 15}; // chunk-local x/z coordinates to test for max height
 
         for (int x : testCoords)
             for (int z : testCoords)
@@ -118,13 +120,29 @@ public class BetterCaveUtil {
     }
 
     /**
+     * Tests 8 edge points and center of chunk to approximate min surface height of the chunk.
+     * @param primer primer for chunk
+     * @return Max surface height of chunk
+     */
+    public static int getMinSurfaceHeight(ChunkPrimer primer) {
+        int minHeight = 0;
+        int[] testCoords = {0, 7, 15}; // chunk-local x/z coordinates to test for max height
+
+        for (int x : testCoords)
+            for (int z : testCoords)
+                minHeight = Math.min(minHeight, getSurfaceHeight(primer, x, z));
+
+        return minHeight;
+    }
+
+    /**
      * Returns the y-coordinate of the surface block for a given local block coordinate for a given chunk.
      * @param primer The ChunkPrimer containing the block
      * @param x The block's chunk-local x-coordinate
      * @param z The block's chunk-local z-coordinate
      * @return The y-coordinate of the surface block
      */
-    public static int getSurfaceHeight(ChunkPrimer primer, int x, int z) {
+    private static int getSurfaceHeight(ChunkPrimer primer, int x, int z) {
         return recursiveBinarySurfaceSearch(primer, x, z, 255, 0);
     }
 
@@ -146,7 +164,6 @@ public class BetterCaveUtil {
             else
                 top = recursiveBinarySurfaceSearch(primer, x, z, mid, bottom);
         }
-
         return top;
     }
 }

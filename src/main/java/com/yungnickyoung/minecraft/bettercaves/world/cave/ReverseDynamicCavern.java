@@ -3,6 +3,7 @@ package com.yungnickyoung.minecraft.bettercaves.world.cave;
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
+import com.yungnickyoung.minecraft.bettercaves.util.FastNoise;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
@@ -17,10 +18,12 @@ public class ReverseDynamicCavern extends BetterCave {
     public ReverseDynamicCavern(World world) {
         super(world);
 
+        noiseGenerator1.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
         noiseGenerator1.SetFractalOctaves(Configuration.cavern.fractalOctaves);
         noiseGenerator1.SetFractalGain(Configuration.cavern.fractalGain);
         noiseGenerator1.SetFrequency(Configuration.cavern.fractalFrequency);
 
+        noiseGenerator2.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
         noiseGenerator2.SetFractalOctaves(Configuration.cavern.fractalOctaves);
         noiseGenerator2.SetFractalGain(Configuration.cavern.fractalGain);
         noiseGenerator2.SetFrequency(Configuration.cavern.fractalFrequency);

@@ -29,12 +29,10 @@ public abstract class BetterCave {
         // Tends to make caves less smooth/noticeably patterned. Can be good for generating a "cave feel"
         turbulence = new FastNoise();
 
-        // Initialize noise types and fractal types. These are universal across all BetterCaves
-        noiseGenerator1.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
+        // Initialize fractal types and seeds. These are universal across all BetterCaves
         noiseGenerator1.SetFractalType(FastNoise.FractalType.RigidMulti);
         this.noiseGenerator1.SetSeed(worldSeed);
 
-        noiseGenerator2.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
         noiseGenerator2.SetFractalType(FastNoise.FractalType.RigidMulti);
         this.noiseGenerator2.SetSeed(worldSeed + 1);
 

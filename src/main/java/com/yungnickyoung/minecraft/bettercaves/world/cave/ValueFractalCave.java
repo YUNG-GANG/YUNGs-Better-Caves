@@ -3,7 +3,7 @@ package com.yungnickyoung.minecraft.bettercaves.world.cave;
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
-import com.yungnickyoung.minecraft.bettercaves.util.FastNoise;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
@@ -12,18 +12,16 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import javax.vecmath.Vector3f;
 
 /**
- * Generates large cavernous caves of dynamic size, meaning the caves get larger the lower the y-coordinate.
+ * Generates large cavernous caves of uniform size, i.e. not depending on depth
  */
-public class DynamicCavern extends BetterCave {
-    public DynamicCavern(World world) {
+public class ValueFractalCave extends BetterCave {
+    public ValueFractalCave(World world) {
         super(world);
 
-        noiseGenerator1.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
         noiseGenerator1.SetFractalOctaves(Configuration.cavern.fractalOctaves);
         noiseGenerator1.SetFractalGain(Configuration.cavern.fractalGain);
         noiseGenerator1.SetFrequency(Configuration.cavern.fractalFrequency);
 
-        noiseGenerator2.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
         noiseGenerator2.SetFractalOctaves(Configuration.cavern.fractalOctaves);
         noiseGenerator2.SetFractalGain(Configuration.cavern.fractalGain);
         noiseGenerator2.SetFrequency(Configuration.cavern.fractalFrequency);
@@ -63,19 +61,23 @@ public class DynamicCavern extends BetterCave {
                      */
                     float noise = noise1 * noise2;
 
-                    float heightAdjustedThreshold;
-                    if (realY < 32)
-                        heightAdjustedThreshold = Configuration.cavern.noiseThreshold;
-                    else {
-                        float heightAdjuster = realY * (1f / 64f);
-                        heightAdjustedThreshold = Configuration.cavern.noiseThreshold + (Configuration.dynamicCavern.depthPower * heightAdjuster);
-                    }
-
-                    if (noise > heightAdjustedThreshold) {
-                        IBlockState currentBlockState = primer.getBlockState(localX, realY, localZ);
-                        IBlockState aboveBlockState = primer.getBlockState(localX, realY + 1, localZ);
+                    if (noise > Configuration.cavern.noiseThreshold) {
+                        IBlockState blockState = primer.getBlockState(localX, realY, localZ);
+                        IBlockState blockStateAbove = primer.getBlockState(localX, realY + 1, localZ);
                         boolean foundTopBlock = BetterCaveUtil.isTopBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
-                        BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ, foundTopBlock, currentBlockState, aboveBlockState);
+
+                        if (blockStateAbove.getMaterial() == Material.WATER)
+                            continue;
+                        if (localX < 15 && primer.getBlockState(localX + 1, realY, localZ).getMaterial() == Material.WATER)
+                            continue;
+                        if (localX > 0 && primer.getBlockState(localX - 1, realY, localZ).getMaterial() == Material.WATER)
+                            continue;
+                        if (localZ < 15 && primer.getBlockState(localX, realY, localZ + 1).getMaterial() == Material.WATER)
+                            continue;
+                        if (localZ > 0 && primer.getBlockState(localX, realY, localZ - 1).getMaterial() == Material.WATER)
+                            continue;
+
+                        BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ, foundTopBlock, blockState, blockStateAbove);
                     }
 
                     if (Settings.DEBUG_LOG_ENABLED) {
@@ -108,48 +110,5 @@ public class DynamicCavern extends BetterCave {
     }
 
     private void debugGenerate(int chunkX, int chunkZ, ChunkPrimer primer) {
-        for (int localX = 0; localX < 16; localX++) {
-            int realX = localX + 16*chunkX;
-
-            for (int localZ = 0; localZ < 16; localZ++) {
-                int realZ = localZ + 16*chunkZ;
-
-                for (int realY = 128; realY > 0; realY--) {
-                    if (realX < 0) {
-                        primer.setBlockState(localX, realY, localZ, Blocks.AIR.getDefaultState());
-                    } else {
-                        Vector3f f = new Vector3f(realX, realY, realZ);
-
-                        // Use turbulence function to apply gradient perturbation, if enabled
-                        if (Configuration.cavern.enableTurbulence)
-                            turbulence.GradientPerturbFractal(f);
-
-                        float noise1 = noiseGenerator1.GetNoise(f.x, f.y, f.z);
-                        float noise2 = noiseGenerator2.GetNoise(f.x, f.y, f.z);
-
-                        /*
-                         * Multiply noise to get intersection of the two multi-fractals.
-                         * This is necessary when operating in three dimensions. A single multi-fractal would yield
-                         * shell-like slices carved out of the terrain, rather than tunnels.
-                         */
-                        float noise = noise1 * noise2;
-
-                        float heightAdjustedThreshold;
-                        if (realY < 32)
-                            heightAdjustedThreshold = Configuration.cavern.noiseThreshold;
-                        else {
-                            float heightAdjuster = realY * (1f / 64f);
-                            heightAdjustedThreshold = Configuration.cavern.noiseThreshold + (Configuration.dynamicCavern.depthPower * heightAdjuster);
-                        }
-
-                        if (noise > heightAdjustedThreshold) {
-                            primer.setBlockState(localX, realY, localZ, Blocks.QUARTZ_BLOCK.getDefaultState());
-                        } else {
-                            primer.setBlockState(localX, realY, localZ, Blocks.AIR.getDefaultState());
-                        }
-                    }
-                }
-            }
-        }
     }
 }

@@ -90,6 +90,12 @@ public class BetterCaveUtil {
     public static boolean canReplaceBlock(IBlockState blockState, IBlockState blockStateAbove) {
         Block block = blockState.getBlock();
 
+        if (block == Blocks.LEAVES
+            || block == Blocks.LEAVES2
+            || block == Blocks.LOG
+            || block == Blocks.LOG2)
+            return false;
+
         if (block == Blocks.STONE
                 || block == Blocks.DIRT
                 || block == Blocks.GRASS
@@ -125,7 +131,7 @@ public class BetterCaveUtil {
      * @return Max surface height of chunk
      */
     public static int getMinSurfaceHeight(ChunkPrimer primer) {
-        int minHeight = 0;
+        int minHeight = 256;
         int[] testCoords = {0, 7, 15}; // chunk-local x/z coordinates to test for max height
 
         for (int x : testCoords)

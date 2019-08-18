@@ -1,9 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.world;
 
-import com.yungnickyoung.minecraft.bettercaves.world.cave.Cavern;
-import com.yungnickyoung.minecraft.bettercaves.world.cave.DynamicCavern;
-import com.yungnickyoung.minecraft.bettercaves.world.cave.ReverseCavern;
-import com.yungnickyoung.minecraft.bettercaves.world.cave.ReverseDynamicCavern;
+import com.yungnickyoung.minecraft.bettercaves.world.cave.*;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.MapGenCaves;
@@ -17,12 +14,14 @@ public class MapGenBetterCaves extends MapGenCaves {
         DynamicCavern,
         ReverseCavern,
         ReverseDynamicCavern,
+        ValueFractalCave
     }
 
     private Cavern cavern;
     private DynamicCavern dynamicCavern;
     private ReverseCavern reverseCavern;
     private ReverseDynamicCavern reverseDynamicCavern;
+    private ValueFractalCave valueFractalCave;
 
     public MapGenBetterCaves() {
     }
@@ -35,9 +34,10 @@ public class MapGenBetterCaves extends MapGenCaves {
             this.dynamicCavern = new DynamicCavern(world);
             this.reverseCavern = new ReverseCavern(world);
             this.reverseDynamicCavern = new ReverseDynamicCavern(world);
+            this.valueFractalCave = new ValueFractalCave(world);
         }
 
-        CaveType caveType = CaveType.ReverseCavern; // TODO: have this be chosen based on another noise generator that
+        CaveType caveType = CaveType.ValueFractalCave; // TODO: have this be chosen based on another noise generator that
                                                     // partitions off cave biomes based on real x-y-z coords
 
         switch (caveType) {
@@ -52,6 +52,9 @@ public class MapGenBetterCaves extends MapGenCaves {
                 break;
             case ReverseDynamicCavern:
                 reverseDynamicCavern.generate(chunkX, chunkZ, primer);
+                break;
+            case ValueFractalCave:
+                valueFractalCave.generate(chunkX, chunkZ, primer);
                 break;
             default:
                 throw new IllegalArgumentException("generate() called with unsupported cave type " + caveType);

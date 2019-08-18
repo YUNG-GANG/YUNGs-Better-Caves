@@ -11,6 +11,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 
 import javax.vecmath.Vector3f;
+import java.util.Random;
 
 /**
  * Generates large cavernous caves of uniform size, i.e. not depending on depth
@@ -40,10 +41,29 @@ public class ValueFractalCave extends BetterCave {
         noiseGenerator3.SetFractalOctaves(Configuration.valueFractalCave.fractalOctaves);
         noiseGenerator3.SetFractalGain(Configuration.valueFractalCave.fractalGain);
         noiseGenerator3.SetFrequency(Configuration.valueFractalCave.fractalFrequency);
+
+        noiseGenerator4.SetFractalType(FastNoise.FractalType.RigidMulti);
+        noiseGenerator4.SetSeed((int)(world.getSeed()) + 3);
+        noiseGenerator4.SetNoiseType(FastNoise.NoiseType.ValueFractal);
+        noiseGenerator4.SetFractalOctaves(Configuration.valueFractalCave.fractalOctaves);
+        noiseGenerator4.SetFractalGain(Configuration.valueFractalCave.fractalGain);
+        noiseGenerator4.SetFrequency(Configuration.valueFractalCave.fractalFrequency);
+
+        noiseGenerator5.SetFractalType(FastNoise.FractalType.RigidMulti);
+        noiseGenerator5.SetSeed((int)(world.getSeed()) + 4);
+        noiseGenerator5.SetNoiseType(FastNoise.NoiseType.ValueFractal);
+        noiseGenerator5.SetFractalOctaves(Configuration.valueFractalCave.fractalOctaves);
+        noiseGenerator5.SetFractalGain(Configuration.valueFractalCave.fractalGain);
+        noiseGenerator5.SetFrequency(Configuration.valueFractalCave.fractalFrequency);
+
+        r = new Random(world.getSeed());
     }
 
     private FastNoise noiseGenerator3 = new FastNoise();
+    private FastNoise noiseGenerator4 = new FastNoise();
+    private FastNoise noiseGenerator5 = new FastNoise();
 
+    private Random r;
 
     private NoiseTriple[][][] createNoise(int chunkX, int chunkZ, int maxHeight) {
         NoiseTriple[][][] noises = new NoiseTriple[16][maxHeight][16];
@@ -64,28 +84,34 @@ public class ValueFractalCave extends BetterCave {
                     float noise1 = noiseGenerator1.GetNoise(f.x, f.y, f.z);
                     float noise2 = noiseGenerator2.GetNoise(f.x, f.y, f.z);
                     float noise3 = noiseGenerator3.GetNoise(f.x, f.y, f.z);
+                    float noise4 = noiseGenerator4.GetNoise(f.x, f.y, f.z);
+                    float noise5 = noiseGenerator5.GetNoise(f.x, f.y, f.z);
 
                     NoiseTriple aboveTriple, twoAboveTriple;
 
                     if (realY < maxHeight - 1) {
                         aboveTriple = noises[localX][realY + 1][localZ];
-                        if (noise1 * noise2 * noise3 > aboveTriple.n1 * aboveTriple.n2 * aboveTriple.n3) {
+                        if (noise1 * noise2 * noise3 * noise4 * noise5 > aboveTriple.n1 * aboveTriple.n2 * aboveTriple.n3 * aboveTriple.n4 * aboveTriple.n5) {
                             aboveTriple.n1 = (.2f * aboveTriple.n1) + (.8f * noise1);
                             aboveTriple.n2 = (.2f * aboveTriple.n2) + (.8f * noise2);
                             aboveTriple.n3 = (.2f * aboveTriple.n3) + (.8f * noise3);
+                            aboveTriple.n4 = (.2f * aboveTriple.n4) + (.8f * noise4);
+                            aboveTriple.n5 = (.2f * aboveTriple.n5) + (.8f * noise5);
                         }
                     }
 
                     if (realY < maxHeight - 2) {
                         twoAboveTriple = noises[localX][realY + 2][localZ];
-                        if (noise1 * noise2 * noise3 > twoAboveTriple.n1 * twoAboveTriple.n2 * twoAboveTriple.n3) {
+                        if (noise1 * noise2 * noise3 * noise4 * noise5 > twoAboveTriple.n1 * twoAboveTriple.n2 * twoAboveTriple.n3 * twoAboveTriple.n4 * twoAboveTriple.n5) {
                             twoAboveTriple.n1 = (.65f * twoAboveTriple.n1) + (.35f * noise1);
                             twoAboveTriple.n2 = (.65f * twoAboveTriple.n2) + (.35f * noise2);
                             twoAboveTriple.n3 = (.65f * twoAboveTriple.n3) + (.35f * noise3);
+                            twoAboveTriple.n4 = (.65f * twoAboveTriple.n4) + (.35f * noise4);
+                            twoAboveTriple.n5 = (.65f * twoAboveTriple.n5) + (.35f * noise5);
                         }
                     }
 
-                    noises[localX][realY][localZ] = new NoiseTriple(noise1, noise2, noise3); // note that y indices are from 0 to maxSurfaceHeight - 1
+                    noises[localX][realY][localZ] = new NoiseTriple(noise1, noise2, noise3, noise4, noise5); // note that y indices are from 0 to maxSurfaceHeight - 1
                 }
             }
         }
@@ -101,6 +127,9 @@ public class ValueFractalCave extends BetterCave {
 
         NoiseTriple[][][] noises = createNoise(chunkX, chunkZ, 64);
 
+        float adjustment = (r.nextFloat() % .05f) - .025f;
+        float adjustedThreshold = Configuration.valueFractalCave.noiseThreshold + adjustment;
+
         for (int localX = 0; localX < 16; localX++) {
             int realX = localX + 16*chunkX;
 
@@ -111,12 +140,16 @@ public class ValueFractalCave extends BetterCave {
                     float noise1 = noises[localX][realY - 1][localZ].n1;
                     float noise2 = noises[localX][realY - 1][localZ].n2;
                     float noise3 = noises[localX][realY - 1][localZ].n3;
+                    float noise4 = noises[localX][realY - 1][localZ].n4;
+                    float noise5 = noises[localX][realY - 1][localZ].n5;
 
-                    int state1 = (noise1 > Configuration.valueFractalCave.noiseThreshold) ? 1 : 0;
-                    int state2 = (noise2 > Configuration.valueFractalCave.noiseThreshold) ? 1 : 0;
-                    int state3 = (noise3 > Configuration.valueFractalCave.noiseThreshold) ? 1 : 0;
+                    int state1 = (noise1 > adjustedThreshold) ? 1 : 0;
+                    int state2 = (noise2 > adjustedThreshold) ? 1 : 0;
+                    int state3 = (noise3 > adjustedThreshold) ? 1 : 0;
+                    int state4 = (noise4 > adjustedThreshold) ? 1 : 0;
+                    int state5 = (noise5 > adjustedThreshold) ? 1 : 0;
 
-                    int state = state1 * state2 * state3;
+                    int state = state1 * state2 * state3 * state4 * state5;
 
                     if (state == 1) {
                         IBlockState blockState = primer.getBlockState(localX, realY, localZ);
@@ -168,11 +201,13 @@ public class ValueFractalCave extends BetterCave {
     }
 
     private static class NoiseTriple {
-        public float n1, n2, n3;
-        public NoiseTriple(float n1, float n2, float n3) {
+        public float n1, n2, n3, n4, n5;
+        public NoiseTriple(float n1, float n2, float n3, float n4, float n5) {
             this.n1 = n1;
             this.n2 = n2;
             this.n3 = n3;
+            this.n4 = n4;
+            this.n5 = n5;
         }
     }
 

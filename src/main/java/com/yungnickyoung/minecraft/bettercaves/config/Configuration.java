@@ -78,7 +78,7 @@ public class Configuration {
         @Config.Comment("Threshold for determining which blocks get mined out as part of cave generation. Higher value = less caves.")
         @Config.RangeDouble(min = -1.0, max = 1.0)
         @Config.RequiresWorldRestart
-        public float noiseThreshold = .75f;
+        public float noiseThreshold = .7f;
 
         @Config.Name("Use Turbulence")
         @Config.Comment("Enable to apply turbulence")

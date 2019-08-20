@@ -55,13 +55,13 @@ public class BetterCaveUtil {
      * @param blockState the block's IBlockState
      * @param blockStateAbove the IBlockState of the block above this one
      */
-    public static void digBlock(World world, ChunkPrimer primer, int x, int y, int z, int chunkX, int chunkZ, boolean foundTop, IBlockState blockState, IBlockState blockStateAbove) {
+    public static void digBlock(World world, ChunkPrimer primer, int x, int y, int z, int chunkX, int chunkZ, boolean foundTop, IBlockState blockState, IBlockState blockStateAbove, boolean createLava) {
         Biome biome = world.getBiome(new BlockPos(x + chunkX * 16, 0, z + chunkZ * 16));
         Block biomeTopBlock = biome.topBlock.getBlock();
         Block biomeFillerBlock = biome.fillerBlock.getBlock();
 
         if (canReplaceBlock(blockState, blockStateAbove) || blockState.getBlock() == biomeTopBlock || blockState.getBlock() == biomeFillerBlock) {
-            if (y <= Configuration.lavaDepth) {
+            if (createLava && y <= Configuration.lavaDepth) {
                 primer.setBlockState(x, y, z, Blocks.LAVA.getDefaultState());
             } else {
                 // Remove this block
@@ -80,13 +80,17 @@ public class BetterCaveUtil {
         }
     }
 
-    /**
-     * Determines if the Block of a given IBlockState is suitable to be replaced during cave generation.
-     * Basically returns true for most common world-get blocks, false if the block is air.
-     * @param blockState the block's IBlockState
-     * @param blockStateAbove the IBlockState of the block above this one
-     * @return true if the blockState can be replaced
-     */
+    public static void digBlock(World world, ChunkPrimer primer, int x, int y, int z, int chunkX, int chunkZ, boolean foundTop, IBlockState blockState, IBlockState blockStateAbove) {
+        digBlock(world, primer, x, y, z, chunkX, chunkZ, foundTop, blockState, blockStateAbove, true);
+    }
+
+        /**
+         * Determines if the Block of a given IBlockState is suitable to be replaced during cave generation.
+         * Basically returns true for most common world-get blocks, false if the block is air.
+         * @param blockState the block's IBlockState
+         * @param blockStateAbove the IBlockState of the block above this one
+         * @return true if the blockState can be replaced
+         */
     public static boolean canReplaceBlock(IBlockState blockState, IBlockState blockStateAbove) {
         Block block = blockState.getBlock();
 

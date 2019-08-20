@@ -135,6 +135,9 @@ public class SimplexFractalCave extends BetterCave {
                 int realZ = localZ + 16*chunkZ;
 
                 for (int realY = 64; realY > 0; realY--) {
+                    if (primer.getBlockState(localX, realY, localZ) == Blocks.BEDROCK.getDefaultState())
+                        primer.setBlockState(localX, realY, localZ, Blocks.STONE.getDefaultState());
+
                     float noise1 = noises[localX][realY - 1][localZ].n1;
                     float noise2 = noises[localX][realY - 1][localZ].n2;
                     float noise3 = noises[localX][realY - 1][localZ].n3;
@@ -165,7 +168,9 @@ public class SimplexFractalCave extends BetterCave {
                         if (localZ > 0 && primer.getBlockState(localX, realY, localZ - 1).getMaterial() == Material.WATER)
                             continue;
 
-                        BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ, foundTopBlock, blockState, blockStateAbove);
+                        boolean lava = false;
+
+                        BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ, foundTopBlock, blockState, blockStateAbove, lava);
                     }
 
                     /*

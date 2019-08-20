@@ -16,7 +16,8 @@ public class MapGenBetterCaves extends MapGenCaves {
         ReverseDynamicCavern,
         ValueFractalCave,
         SimplexFractalCave,
-        CellularCave
+        CellularCave,
+        PerlinFractalCave
     }
 
     private Cavern cavern;
@@ -26,6 +27,7 @@ public class MapGenBetterCaves extends MapGenCaves {
     private ValueFractalCave valueFractalCave;
     private SimplexFractalCave simplexFractalCave;
     private CellularCave cellularCave;
+    private PerlinFractalCave perlinFractalCave;
 
     public MapGenBetterCaves() {
     }
@@ -41,9 +43,10 @@ public class MapGenBetterCaves extends MapGenCaves {
             this.valueFractalCave = new ValueFractalCave(world);
             this.simplexFractalCave = new SimplexFractalCave(world);
             this.cellularCave = new CellularCave(world);
+            this.perlinFractalCave = new PerlinFractalCave(world);
         }
 
-        CaveType caveType = CaveType.CellularCave; // TODO: have this be chosen based on another noise generator that
+        CaveType caveType = CaveType.PerlinFractalCave; // TODO: have this be chosen based on another noise generator that
                                                     // partitions off cave biomes based on real x-y-z coords
 
         switch (caveType) {
@@ -67,6 +70,9 @@ public class MapGenBetterCaves extends MapGenCaves {
                 break;
             case CellularCave:
                 cellularCave.generate(chunkX, chunkZ, primer);
+                break;
+            case PerlinFractalCave:
+                perlinFractalCave.generate(chunkX, chunkZ, primer);
                 break;
             default:
                 throw new IllegalArgumentException("generate() called with unsupported cave type " + caveType);

@@ -23,7 +23,7 @@ public class Settings {
     public static final String CLIENT_PROXY = "com.yungnickyoung.minecraft.bettercaves.proxy.ClientProxy";
 
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
-    public static final boolean DEBUG_LOG_ENABLED = false;
+    public static final boolean DEBUG_LOG_ENABLED = true;
     public static final boolean DEBUG_WORLD_GEN = false;
 
     private Settings() {} // private constructor prevents instantiation

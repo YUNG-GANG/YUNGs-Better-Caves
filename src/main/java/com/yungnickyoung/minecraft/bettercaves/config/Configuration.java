@@ -35,6 +35,10 @@ public class Configuration {
     @Config.RequiresWorldRestart
     public static int lavaDepth = 10;
 
+    @Config.Name("Bedrock Generation")
+    @Config.Comment("Configure how bedrock spawns at the bottom of the map.")
+    public static BedrockSettings bedrockSettings = new BedrockSettings();
+
     public static class Cavern {
         @Config.Name("Noise Threshold")
         @Config.Comment("Threshold for determining which blocks get mined out as part of cave generation. Higher value = less caves.")
@@ -271,5 +275,45 @@ public class Configuration {
         @Config.Comment("Whether or not to adjust noise of blocks above to make caves taller")
         @Config.RequiresWorldRestart
         public boolean yNoiseAdjustment = false;
+    }
+
+    public static class BedrockSettings {
+        public Overworld overworld = new Overworld();
+        public Nether nether = new Nether();
+
+        public static class Overworld {
+            @Config.Name("Flatten Bedrock")
+            @Config.Comment("Set this to true to replace the usual bedrock generation pattern with flat layers.")
+            @Config.RequiresWorldRestart
+            public boolean flattenBedrock = true;
+
+            @Config.Name("Bedrock Layer Width")
+            @Config.Comment("The width of the bedrock layer. Only works if Flatten Bedrock is true.")
+            @Config.RequiresWorldRestart
+            @Config.SlidingOption
+            @Config.RangeInt(min = 1, max = 256)
+            public int bedrockWidth = 1;
+        }
+
+        public static class Nether {
+            @Config.Name("Flatten Bedrock")
+            @Config.Comment("Set this to true to replace the usual bedrock generation pattern with flat layers.")
+            @Config.RequiresWorldRestart
+            public boolean flattenBedrock = true;
+
+            @Config.Name("Bedrock Layer Width - Bottom")
+            @Config.Comment("The width of the bedrock layer at the bottom of the nether. Only works if Flatten Bedrock is true.")
+            @Config.RequiresWorldRestart
+            @Config.SlidingOption
+            @Config.RangeInt(min = 1, max = 64)
+            public int bedrockWidthBottom = 1;
+
+            @Config.Name("Bedrock Layer Width - Top")
+            @Config.Comment("The width of the bedrock layer at the top of the nether. Only works if Flatten Bedrock is true.")
+            @Config.RequiresWorldRestart
+            @Config.SlidingOption
+            @Config.RangeInt(min = 1, max = 64)
+            public int bedrockWidthTop = 1;
+        }
     }
 }

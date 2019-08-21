@@ -46,7 +46,7 @@ public class MapGenBetterCaves extends MapGenCaves {
             this.perlinFractalCave = new PerlinFractalCave(world);
         }
 
-        CaveType caveType = CaveType.CellularCave; // TODO: have this be chosen based on another noise generator that
+        CaveType caveType = CaveType.SimplexFractalCave; // TODO: have this be chosen based on another noise generator that
                                                     // partitions off cave biomes based on real x-y-z coords
 
         switch (caveType) {

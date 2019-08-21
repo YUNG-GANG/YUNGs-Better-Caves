@@ -144,10 +144,10 @@ public class PerlinFractalCave extends BetterCave {
                     float noise4 = noises[localX][realY - 1][localZ].n4;
 //                    float noise5 = noises[localX][realY - 1][localZ].n5;
 
-                    int state1 = (noise1 > adjustedThreshold && noise1 < Configuration.perlinFractalCave.topThreshold) ? 1 : 0;
-                    int state2 = (noise2 > adjustedThreshold && noise2 < Configuration.perlinFractalCave.topThreshold) ? 1 : 0;
-                    int state3 = (noise3 > adjustedThreshold && noise3 < Configuration.perlinFractalCave.topThreshold) ? 1 : 0;
-                    int state4 = (noise4 > adjustedThreshold && noise4 < Configuration.perlinFractalCave.topThreshold) ? 1 : 0;
+                    int state1 = (noise1 > adjustedThreshold) ? 1 : 0;
+                    int state2 = (noise2 > adjustedThreshold) ? 1 : 0;
+                    int state3 = (noise3 > adjustedThreshold) ? 1 : 0;
+                    int state4 = (noise4 > adjustedThreshold) ? 1 : 0;
 //                    int state5 = (noise5 > adjustedThreshold && noise5 < Configuration.perlinFractalCave.topThreshold) ? 1 : 0;
 
                     int state = state1 * state2 * state3 * state4;

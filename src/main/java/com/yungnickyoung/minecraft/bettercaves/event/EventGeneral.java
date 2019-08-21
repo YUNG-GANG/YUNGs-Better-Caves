@@ -105,10 +105,8 @@ public class EventGeneral {
             numSections = Configuration.bedrockSettings.nether.bedrockWidthTop / 16;
             topLeftover = Configuration.bedrockSettings.nether.bedrockWidthTop % 16;
 
-            Settings.LOGGER.info("passed check 2 {} {}", sections.length, numSections);
             for (int section = 0; section < numSections; section++) {
                 if (sections[8 - section - 1] != null && !sections[8 - section - 1].isEmpty()) {
-                    Settings.LOGGER.info("passed check 2: {} || {}", sections.length, (sections.length - section - 1));
                     for (int x = 0; x < 16; x++) {
                         for (int y = 0; y < 16; y++) {
                             for (int z = 0; z < 16; z++) {

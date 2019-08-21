@@ -180,13 +180,13 @@ public class Configuration {
         @Config.Comment("Threshold for determining which blocks get mined out as part of cave generation. Higher value = less caves.")
         @Config.RangeDouble(min = -1.0, max = 1.0)
         @Config.RequiresWorldRestart
-        public float noiseThreshold = -.77f;
+        public float noiseThreshold = -.79f;
 
         @Config.Name("Top Threshold")
         @Config.Comment("Threshold for determining which blocks get mined out as part of cave generation. Higher value = less caves.")
         @Config.RangeDouble(min = -1.0, max = 1.0)
         @Config.RequiresWorldRestart
-        public float topThreshold = -.55f;
+        public float topThreshold = -.57f;
 
         @Config.Name("Use Turbulence")
         @Config.Comment("Enable to apply turbulence")
@@ -206,12 +206,12 @@ public class Configuration {
         @Config.Name("Fractal Frequency")
         @Config.Comment("The frequency for ridged multi-fractal noise generation.")
         @Config.RequiresWorldRestart
-        public float fractalFrequency = 0.03f;
+        public float fractalFrequency = 0.02f;
 
         @Config.Name("Turbulence Octaves")
         @Config.Comment("The number of octaves used for the fBM turbulence function.")
         @Config.RequiresWorldRestart
-        public int turbulenceOctaves = 3;
+        public int turbulenceOctaves = 5;
 
         @Config.Name("Turbulence Gain")
         @Config.Comment("The gain for the fBM turbulence function.")
@@ -221,7 +221,7 @@ public class Configuration {
         @Config.Name("Turbulence Frequency")
         @Config.Comment("The frequency for the fBM turbulence function.")
         @Config.RequiresWorldRestart
-        public float turbulenceFrequency = 0.03f;
+        public float turbulenceFrequency = 0.005f;
     }
 
     public static class PerlinFractalCave {

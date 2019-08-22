@@ -52,7 +52,7 @@ public class Configuration {
         @Config.Name("Use Turbulence")
         @Config.Comment("Enable to apply turbulence")
         @Config.RequiresWorldRestart
-        public boolean enableTurbulence = true;
+        public boolean enableTurbulence = false;
 
         @Config.Name("Fractal Octaves")
         @Config.Comment("The number of octaves used for ridged multi-fractal noise generation.")
@@ -67,7 +67,7 @@ public class Configuration {
         @Config.Name("Fractal Frequency")
         @Config.Comment("The frequency for ridged multi-fractal noise generation.")
         @Config.RequiresWorldRestart
-        public float fractalFrequency = 0.035f;
+        public float fractalFrequency = 0.03f;
 
         @Config.Name("Turbulence Octaves")
         @Config.Comment("The number of octaves used for the fBM turbulence function.")
@@ -98,12 +98,12 @@ public class Configuration {
         @Config.Comment("The number of noise generation functions used. The intersection of these functions is" +
                 "used to calculate a single noise value.")
         @Config.RequiresWorldRestart
-        public int numGenerators = 8;
+        public int numGenerators = 2;
 
         @Config.Name("Terrain Smoothing")
         @Config.Comment("Attempts to smooth caves using average computation. Possibly computationally heavy.")
         @Config.RequiresWorldRestart
-        public boolean enableSmoothing = true;
+        public boolean enableSmoothing = false;
     }
 
     public static class ValueFractalCave {

@@ -14,3 +14,6 @@ TODO:
 Right now it simply takes the average. Reread the article - I think it's 
 supposed to be a multiplicative thing like before. This may help fix the 
 shell problem I've been having?
+  - UPDATE: Multiplication seems to work well for InvertedPerlinCavern. 
+Will prob have to mess around with all the different possibilities and 
+test on a case-by-case basis.

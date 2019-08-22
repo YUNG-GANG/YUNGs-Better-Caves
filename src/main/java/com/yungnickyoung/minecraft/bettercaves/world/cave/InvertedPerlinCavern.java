@@ -7,6 +7,7 @@ import com.yungnickyoung.minecraft.bettercaves.noise.PerlinNoiseGen;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 
@@ -52,12 +53,12 @@ public class InvertedPerlinCavern extends BetterCave {
                     List<Float> blockNoise = noises.get(maxHeight - realY)[localX][localZ].getNoiseValues();
 
                     boolean digBlock = true;
-                    for (float noise : blockNoise) {
-                        if (noise > Configuration.invertedPerlinCavern.noiseThreshold) {
-                            digBlock = false;
-                            break;
-                        }
-                    }
+//                    for (float noise : blockNoise) {
+//                        if (noise < Configuration.invertedPerlinCavern.noiseThreshold) {
+//                            digBlock = false;
+//                            break;
+//                        }
+//                    }
 
 //                    float totalNoise = 0;
 //                    for (float noise : blockNoise)
@@ -67,6 +68,12 @@ public class InvertedPerlinCavern extends BetterCave {
 //                    if (totalNoise < Configuration.invertedPerlinCavern.noiseThreshold)
 //                        digBlock = false;
 
+                    float totalNoise = 1;
+                    for (float noise : blockNoise)
+                        totalNoise *= noise;
+
+                    if (totalNoise < Configuration.invertedPerlinCavern.noiseThreshold)
+                        digBlock = false;
 
                     if (digBlock) {
                         IBlockState blockState = primer.getBlockState(localX, realY, localZ);

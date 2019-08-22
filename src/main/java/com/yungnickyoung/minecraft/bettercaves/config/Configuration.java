@@ -1,17 +1,14 @@
 package com.yungnickyoung.minecraft.bettercaves.config;
 
+import com.yungnickyoung.minecraft.bettercaves.world.MapGenBetterCaves;
 import net.minecraftforge.common.config.Config;
 
 @Config(modid = Settings.MOD_ID, name = Settings.NAME)
 public class Configuration {
 
-    @Config.Name("Giant Cavern Settings")
-    @Config.Comment("Parameters used in the generation of large cavernous caves")
-    public static Cavern cavern = new Cavern();
-
-    @Config.Name("Dynamic Cavern Settings")
-    @Config.Comment("Parameters used in the generation of the dynamic variation of large cavernous caves")
-    public static DynamicCavern dynamicCavern = new DynamicCavern();
+    @Config.Name("Inverted Perlin Cavern")
+    @Config.Comment("Parameters used in the generation of inverted Perlin caverns")
+    public static InvertedPerlinCavern invertedPerlinCavern = new InvertedPerlinCavern();
 
     @Config.Name("Value Fractal Cave Settings")
     @Config.Comment("Parameters used in the generation of the value fractal caves")
@@ -39,7 +36,13 @@ public class Configuration {
     @Config.Comment("Configure how bedrock spawns at the bottom of the map.")
     public static BedrockSettings bedrockSettings = new BedrockSettings();
 
-    public static class Cavern {
+    @Config.Name("Cave Type")
+    @Config.Comment("Configure how bedrock spawns at the bottom of the map.")
+    public static MapGenBetterCaves.CaveType caveType = MapGenBetterCaves.CaveType.InvertedPerlinCavern;
+
+
+
+    public static class InvertedPerlinCavern {
         @Config.Name("Noise Threshold")
         @Config.Comment("Threshold for determining which blocks get mined out as part of cave generation. Higher value = less caves.")
         @Config.RangeDouble(min = -1.0, max = 1.0)
@@ -80,13 +83,27 @@ public class Configuration {
         @Config.Comment("The frequency for the fBM turbulence function.")
         @Config.RequiresWorldRestart
         public float turbulenceFrequency = 0.03f;
-    }
 
-    public static class DynamicCavern {
-        @Config.Name("Depth Power")
-        @Config.Comment("Determines how much depth affects the size of caves. The higher the value, the more caves increase in size as the y-coordinate decreases.")
+        @Config.Name("Max Height")
+        @Config.Comment("The max y-coordinate for cave generation.")
         @Config.RequiresWorldRestart
-        public float depthPower = .2f;
+        public int maxHeight = 64;
+
+        @Config.Name("Min Height")
+        @Config.Comment("The min y-coordinate for cave generation.")
+        @Config.RequiresWorldRestart
+        public int minHeight = 1;
+
+        @Config.Name("Number of Generators")
+        @Config.Comment("The number of noise generation functions used. The intersection of these functions is" +
+                "used to calculate a single noise value.")
+        @Config.RequiresWorldRestart
+        public int numGenerators = 8;
+
+        @Config.Name("Terrain Smoothing")
+        @Config.Comment("Attempts to smooth caves using average computation. Possibly computationally heavy.")
+        @Config.RequiresWorldRestart
+        public boolean enableSmoothing = true;
     }
 
     public static class ValueFractalCave {

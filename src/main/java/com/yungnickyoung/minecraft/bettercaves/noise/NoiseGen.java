@@ -5,8 +5,30 @@ import java.util.List;
 public abstract class NoiseGen {
     private long seed;
 
-    public NoiseGen(long seed) {
+    int fractalOctaves;
+    float fractalGain;
+    float fractalFrequency;
+
+    int turbulenceOctaves;
+    float turbulenceGain;
+    float turbulenceFrequency;
+
+    boolean enableTurbulence;
+    boolean enableSmoothing;
+
+    public NoiseGen(long seed, int fOctaves, float fGain, float fFreq, int tOctaves, float tGain, float tFreq, boolean useTurb, boolean useSmooth) {
         this.seed = seed;
+
+        this.fractalOctaves = fOctaves;
+        this.fractalGain = fGain;
+        this.fractalFrequency = fFreq;
+
+        this.turbulenceOctaves = tOctaves;
+        this.turbulenceGain = tGain;
+        this.turbulenceFrequency = tFreq;
+
+        this.enableTurbulence = useTurb;
+        this.enableSmoothing = useSmooth;
     }
 
     /**

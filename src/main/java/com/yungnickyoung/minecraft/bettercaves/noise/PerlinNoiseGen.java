@@ -7,17 +7,17 @@ import javax.vecmath.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SimplexNoiseGen extends NoiseGen {
+public class PerlinNoiseGen extends NoiseGen {
     // List of all distinct generators
     private List<FastNoise> listNoiseGens = new ArrayList<>();
     private FastNoise turbulenceGen = new FastNoise();
 
-    public SimplexNoiseGen (long seed, int fOctaves, float fGain, float fFreq, int tOctaves, float tGain, float tFreq, boolean useTurb, boolean useSmooth) {
+    public PerlinNoiseGen (long seed, int fOctaves, float fGain, float fFreq, int tOctaves, float tGain, float tFreq, boolean useTurb, boolean useSmooth) {
         super(seed, fOctaves, fGain, fFreq, tOctaves, tGain, tFreq, useTurb, useSmooth);
         initializeTurbulenceGen();
     }
 
-    public SimplexNoiseGen(World world, int fOctaves, float fGain, float fFreq, int tOctaves, float tGain, float tFreq, boolean useTurb, boolean useSmooth) {
+    public PerlinNoiseGen(World world, int fOctaves, float fGain, float fFreq, int tOctaves, float tGain, float tFreq, boolean useTurb, boolean useSmooth) {
         this(world.getSeed(), fOctaves, fGain, fFreq, tOctaves, tGain, tFreq, useTurb, useSmooth);
     }
 
@@ -109,7 +109,7 @@ public class SimplexNoiseGen extends NoiseGen {
                     }
 
                     noiseLayer[localX][localZ] = newTuple;
-               }
+                }
             }
             noises.add(noiseLayer);
             noisesIndex++;
@@ -143,7 +143,7 @@ public class SimplexNoiseGen extends NoiseGen {
 
                         for (int i = 0; i < curr.size(); i++) {
                             noises.get(y)[x][z].set(i, (left.get(i) + right.get(i) + front.get(i) + back.get(i) + up.get(i) + down.get(i) + curr.get(i)
-                             + edge1.get(i) + edge2.get(i) + edge3.get(i) + edge4.get(i) + edge5.get(i) + edge6.get(i) + edge7.get(i) + edge8.get(i)) / 15f);
+                                    + edge1.get(i) + edge2.get(i) + edge3.get(i) + edge4.get(i) + edge5.get(i) + edge6.get(i) + edge7.get(i) + edge8.get(i)) / 15f);
                         }
                     }
                 }
@@ -164,7 +164,7 @@ public class SimplexNoiseGen extends NoiseGen {
             FastNoise noiseGen = new FastNoise();
             noiseGen.SetFractalType(FastNoise.FractalType.RigidMulti);
             noiseGen.SetSeed((int) (this.getSeed()) + (1111 * seedModifier));
-            noiseGen.SetNoiseType(FastNoise.NoiseType.SimplexFractal);
+            noiseGen.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
             noiseGen.SetFractalOctaves(this.fractalOctaves);
             noiseGen.SetFractalGain(this.fractalGain);
             noiseGen.SetFrequency(this.fractalFrequency);

@@ -27,9 +27,9 @@ public class SimplexFractalCave extends BetterCave {
 //            return;
 //        }
 
-        int maxHeight = 64;
-        int minHeight = 1;
-        int numGenerators = 5;
+        int maxHeight = Configuration.simplexFractalCave.maxHeight;
+        int minHeight = Configuration.simplexFractalCave.minHeight;
+        int numGenerators = Configuration.simplexFractalCave.numGenerators;
 
         List<NoiseTuple[][]> noises = noiseGen.generateNoise(chunkX, chunkZ, minHeight, maxHeight, numGenerators);
 
@@ -39,12 +39,21 @@ public class SimplexFractalCave extends BetterCave {
                     List<Float> blockNoise = noises.get(maxHeight - realY)[localX][localZ].getNoiseValues();
 
                     boolean digBlock = true;
-                    for (float noise : blockNoise) {
-                        if (noise < Configuration.simplexFractalCave.noiseThreshold) {
-                            digBlock = false;
-                            break;
-                        }
-                    }
+//                    for (float noise : blockNoise) {
+//                        if (noise < Configuration.simplexFractalCave.noiseThreshold) {
+//                            digBlock = false;
+//                            break;
+//                        }
+//                    }
+
+                    float totalNoise = 0;
+                    for (float noise : blockNoise)
+                        totalNoise += noise;
+
+                    totalNoise /= blockNoise.size();
+                    if (totalNoise < Configuration.simplexFractalCave.noiseThreshold)
+                        digBlock = false;
+
 
                     if (digBlock) {
                         IBlockState blockState = primer.getBlockState(localX, realY, localZ);

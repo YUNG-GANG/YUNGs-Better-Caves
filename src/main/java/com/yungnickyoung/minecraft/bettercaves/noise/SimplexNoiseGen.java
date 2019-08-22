@@ -89,16 +89,68 @@ public class SimplexNoiseGen extends NoiseGen {
                         // Update the block above, if the check was passed
                         if (updateNeeded) {
                             for (int i = 0; i < numGenerators; i++) {
-                                tupleTwoAbove.set(i, (.65f * tupleTwoAbove.get(i)) + (.35f * newTuple.get(i)));
+                                tupleTwoAbove.set(i, (.2f * tupleTwoAbove.get(i)) + (.8f * newTuple.get(i)));
                             }
                         }
                     }
+
+                    /* Adjust noise values based on horizontal neighbors. This might help prevent cave fracturing.*/
+                    if (localX > 0) {
+                        NoiseTuple neighbor = noiseLayer[localX - 1][localZ];
+                        for (int i = 0; i < numGenerators; i++)
+                            neighbor.set(i, (neighbor.get(i) * .6f) + (newTuple.get(i) * .4f));
+
+                    }
+
+                    if (localZ > 0) {
+                        NoiseTuple neighbor = noiseLayer[localX][localZ - 1];
+                        for (int i = 0; i < numGenerators; i++)
+                            neighbor.set(i, (neighbor.get(i) * .5f) + (newTuple.get(i) * .5f));
+
+                    }
+
                     noiseLayer[localX][localZ] = newTuple;
                }
             }
             noises.add(noiseLayer);
             noisesIndex++;
         }
+
+        // Attempt smoothing
+        if (Configuration.simplexFractalCave.enableSmoothing) {
+            for (int y = 1; y < noises.size() - 1; y++) {
+                NoiseTuple[][] layer = noises.get(y);
+                NoiseTuple[][] layerUp = noises.get(y + 1);
+                NoiseTuple[][] layerDown = noises.get(y - 1);
+
+                for (int x = 1; x < 15; x++) {
+                    for (int z = 1; z < 15; z++) {
+                        NoiseTuple curr = layer[x][z];
+                        NoiseTuple left = layer[x - 1][z];
+                        NoiseTuple right = layer[x + 1][z];
+                        NoiseTuple front = layer[x][z + 1];
+                        NoiseTuple back = layer[x][z - 1];
+                        NoiseTuple up = layerUp[x][z];
+                        NoiseTuple down = layerDown[x][z];
+                        NoiseTuple edge1 = layerUp[x + 1][z];
+                        NoiseTuple edge2 = layerUp[x - 1][z];
+                        NoiseTuple edge3 = layerUp[x][z + 1];
+                        NoiseTuple edge4 = layerUp[x][z - 1];
+                        NoiseTuple edge5 = layerDown[x + 1][z];
+                        NoiseTuple edge6 = layerDown[x - 1][z];
+                        NoiseTuple edge7 = layerDown[x][z + 1];
+                        NoiseTuple edge8 = layerDown[x][z - 1];
+
+
+                        for (int i = 0; i < curr.size(); i++) {
+                            noises.get(y)[x][z].set(i, (left.get(i) + right.get(i) + front.get(i) + back.get(i) + up.get(i) + down.get(i) + curr.get(i)
+                             + edge1.get(i) + edge2.get(i) + edge3.get(i) + edge4.get(i) + edge5.get(i) + edge6.get(i) + edge7.get(i) + edge8.get(i)) / 15f);
+                        }
+                    }
+                }
+            }
+        }
+
         return noises;
     }
 

@@ -11,18 +11,22 @@ import javax.annotation.Nonnull;
 public class MapGenBetterCaves extends MapGenCaves {
 
     public enum CaveType {
+        PerlinCavern,
         InvertedPerlinCavern,
         ValueFractalCave,
         SimplexFractalCave,
         CellularCave,
-        PerlinFractalCave
+        PerlinFractalCave,
+        SimplexIPComboCavern
     }
 
+    private PerlinCavern perlinCavern;
     private InvertedPerlinCavern invertedPerlinCavern;
     private ValueFractalCave valueFractalCave;
     private SimplexFractalCave simplexFractalCave;
     private CellularCave cellularCave;
     private PerlinFractalCave perlinFractalCave;
+    private SimplexIPComboCavern simplexIPComboCavern;
 
     public MapGenBetterCaves() {
     }
@@ -31,11 +35,13 @@ public class MapGenBetterCaves extends MapGenCaves {
     public void generate(World worldIn, int chunkX, int chunkZ, @Nonnull ChunkPrimer primer) {
         if (world == null) { // First call - initialize all cave types
             world = worldIn;
+            this.perlinCavern = new PerlinCavern(world);
             this.invertedPerlinCavern = new InvertedPerlinCavern(world);
             this.valueFractalCave = new ValueFractalCave(world);
             this.simplexFractalCave = new SimplexFractalCave(world);
             this.cellularCave = new CellularCave(world);
             this.perlinFractalCave = new PerlinFractalCave(world);
+            this.simplexIPComboCavern = new SimplexIPComboCavern(world);
         }
 
 //        CaveType caveType = CaveType.InvertedPerlinCavern; // TODO: have this be chosen based on another noise generator that
@@ -44,6 +50,9 @@ public class MapGenBetterCaves extends MapGenCaves {
         CaveType caveType = Configuration.caveType;
 
         switch (caveType) {
+            case PerlinCavern:
+                perlinCavern.generate(chunkX, chunkZ, primer);
+                break;
             case InvertedPerlinCavern:
                 invertedPerlinCavern.generate(chunkX, chunkZ, primer);
                 break;
@@ -58,6 +67,9 @@ public class MapGenBetterCaves extends MapGenCaves {
                 break;
             case PerlinFractalCave:
                 perlinFractalCave.generate(chunkX, chunkZ, primer);
+                break;
+            case SimplexIPComboCavern:
+                simplexIPComboCavern.generate(chunkX, chunkZ, primer);
                 break;
             default:
                 throw new IllegalArgumentException("generate() called with unsupported cave type " + caveType);

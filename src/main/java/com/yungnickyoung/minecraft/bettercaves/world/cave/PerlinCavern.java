@@ -7,7 +7,6 @@ import com.yungnickyoung.minecraft.bettercaves.noise.PerlinNoiseGen;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 
@@ -16,21 +15,21 @@ import java.util.List;
 /**
  * Generates large cavernous caves of uniform size, i.e. not depending on depth
  */
-public class InvertedPerlinCavern extends BetterCave {
+public class PerlinCavern extends BetterCave {
     private PerlinNoiseGen noiseGen;
 
-    public InvertedPerlinCavern(World world) {
+    public PerlinCavern(World world) {
         super(world);
         noiseGen = new PerlinNoiseGen(
                 world,
-                Configuration.invertedPerlinCavern.fractalOctaves,
-                Configuration.invertedPerlinCavern.fractalGain,
-                Configuration.invertedPerlinCavern.fractalFrequency,
-                Configuration.invertedPerlinCavern.turbulenceOctaves,
-                Configuration.invertedPerlinCavern.turbulenceGain,
-                Configuration.invertedPerlinCavern.turbulenceFrequency,
-                Configuration.invertedPerlinCavern.enableTurbulence,
-                Configuration.invertedPerlinCavern.enableSmoothing
+                Configuration.perlinCavern.fractalOctaves,
+                Configuration.perlinCavern.fractalGain,
+                Configuration.perlinCavern.fractalFrequency,
+                Configuration.perlinCavern.turbulenceOctaves,
+                Configuration.perlinCavern.turbulenceGain,
+                Configuration.perlinCavern.turbulenceFrequency,
+                Configuration.perlinCavern.enableTurbulence,
+                Configuration.perlinCavern.enableSmoothing
         );
     }
 
@@ -41,9 +40,9 @@ public class InvertedPerlinCavern extends BetterCave {
 //            return;
 //        }
 
-        int maxHeight = Configuration.invertedPerlinCavern.maxHeight;
-        int minHeight = Configuration.invertedPerlinCavern.minHeight;
-        int numGenerators = Configuration.invertedPerlinCavern.numGenerators;
+        int maxHeight = Configuration.perlinCavern.maxHeight;
+        int minHeight = Configuration.perlinCavern.minHeight;
+        int numGenerators = Configuration.perlinCavern.numGenerators;
 
         List<NoiseTuple[][]> noises = noiseGen.generateNoise(chunkX, chunkZ, minHeight, maxHeight, numGenerators);
 
@@ -54,7 +53,7 @@ public class InvertedPerlinCavern extends BetterCave {
 
                     boolean digBlock = true;
 //                    for (float noise : blockNoise) {
-//                        if (noise < Configuration.invertedPerlinCavern.noiseThreshold) {
+//                        if (noise < Configuration.perlinCavern.noiseThreshold) {
 //                            digBlock = false;
 //                            break;
 //                        }
@@ -65,14 +64,14 @@ public class InvertedPerlinCavern extends BetterCave {
 //                        totalNoise += noise;
 //
 //                    totalNoise /= blockNoise.size();
-//                    if (totalNoise < Configuration.invertedPerlinCavern.noiseThreshold)
+//                    if (totalNoise < Configuration.perlinCavern.noiseThreshold)
 //                        digBlock = false;
 
                     float totalNoise = 1;
                     for (float noise : blockNoise)
                         totalNoise *= noise;
 
-                    if (totalNoise > Configuration.invertedPerlinCavern.noiseThreshold)
+                    if (totalNoise < Configuration.perlinCavern.noiseThreshold)
                         digBlock = false;
 
                     if (digBlock) {

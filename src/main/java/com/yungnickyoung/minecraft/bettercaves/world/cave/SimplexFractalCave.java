@@ -61,9 +61,16 @@ public class SimplexFractalCave extends BetterCave {
                         totalNoise += noise;
 
                     totalNoise /= blockNoise.size();
+
+                    // the following is decent with freq .03 (prob need higher), threshold .16, 8 gens, terrain smooth true, turb false?
+//                    float totalNoise = 1;
+//                    for (float noise : blockNoise)
+//                        totalNoise *= noise;
+
+
+
                     if (totalNoise < Configuration.simplexFractalCave.noiseThreshold)
                         digBlock = false;
-
 
                     if (digBlock) {
                         IBlockState blockState = primer.getBlockState(localX, realY, localZ);

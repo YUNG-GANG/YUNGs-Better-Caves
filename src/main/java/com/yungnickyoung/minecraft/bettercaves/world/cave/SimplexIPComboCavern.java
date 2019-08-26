@@ -83,18 +83,20 @@ public class SimplexIPComboCavern extends BetterCave {
                         for (float noise : pBlockNoise)
                             pNoise *= noise;
 
-                        if (pNoise < Configuration.invertedPerlinCavern.noiseThreshold)
+                        if (pNoise > Configuration.invertedPerlinCavern.noiseThreshold)
                             pdigBlock = false;
                     }
 
                     if (realY >= simplexCaveBottom) {
-                        float sNoise = 1;
+                        float sNoise = 0;
                         sBlockNoise= simplexNoises.get(simplexCaveTop - realY)[localX][localZ].getNoiseValues();
 
                         for (float noise : sBlockNoise)
-                            sNoise *= noise;
+                            sNoise += noise;
 
-                        if (sNoise > Configuration.simplexFractalCave.noiseThreshold)
+                        sNoise /= sBlockNoise.size();
+
+                        if (sNoise < Configuration.simplexFractalCave.noiseThreshold)
                             sdigBlock = false;
                     }
 

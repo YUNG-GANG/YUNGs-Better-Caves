@@ -51,16 +51,17 @@ public class SimplexIPComboCavern extends BetterCave {
 //            return;
 //        }
 
-//        int maxHeight = Configuration.simplexFractalCave.maxHeight;
-//        int minHeight = Configuration.simplexFractalCave.minHeight;
+        int maxSurfaceHeight = BetterCaveUtil.getMaxSurfaceHeight(primer);
+        int minSurfaceHeight = BetterCaveUtil.getMinSurfaceHeight(primer);
+
+        int simplexCaveBottom = 20;
+        int simplexCaveTop = minSurfaceHeight + ((maxSurfaceHeight - minSurfaceHeight) / 2);
 
         int perlinCavernBottom = 1;
         int perlinCavernTransitionBoundary = 25;
-        int perlinCavernTop = 35;
+        int perlinCavernTop = Math.min(simplexCaveTop, 35);
 
-        int simplexCaveBottom = 20;
-        int simplexCaveTransitionBoundary = 45;
-        int simplexCaveTop = 60;
+        int easeInDepth = minSurfaceHeight - Math.min((int)(minSurfaceHeight * .1), 5);
 
         int perlinNumGens = Configuration.invertedPerlinCavern.numGenerators;
         int simplexNumGens = Configuration.simplexFractalCave.numGenerators;
@@ -84,17 +85,25 @@ public class SimplexIPComboCavern extends BetterCave {
                         for (float noise : pBlockNoise)
                             pNoise *= noise;
 
-                        // Adjust threshold if we're in the transition range
-                        if (realY >= perlinCavernTransitionBoundary)
-                            noiseThreshold *= Math.max((float)(realY - perlinCavernTop) / (perlinCavernTransitionBoundary - perlinCavernTop), .7f);
+                        if (realY >= perlinCavernTransitionBoundary) {
+                            // Adjust threshold if we're in the transition range to provide smoother transition into simplex caves
+                            noiseThreshold *= Math.max((float) (realY - perlinCavernTop) / (perlinCavernTransitionBoundary - perlinCavernTop), .7f);
+                        }
+
+                        if (realY >= easeInDepth) {
+                            // Close off caverns if we're in ease-in depth range (probably means this is under the ocean)
+                            noiseThreshold *= (float) (realY - perlinCavernTop) / (easeInDepth - perlinCavernTop);
+                        }
 
                         if (pNoise < noiseThreshold)
                             digBlock = true;
                     }
 
                     // Process simplex noise
-                    if (realY >= simplexCaveBottom) {
+                    if (realY >= simplexCaveBottom && !digBlock) {
                         float sNoise = 0;
+                        float noiseThreshold = Configuration.simplexFractalCave.noiseThreshold;
+
                         sBlockNoise= simplexNoises.get(simplexCaveTop - realY)[localX][localZ].getNoiseValues();
 
                         for (float noise : sBlockNoise)
@@ -102,7 +111,12 @@ public class SimplexIPComboCavern extends BetterCave {
 
                         sNoise /= sBlockNoise.size();
 
-                        if (sNoise > Configuration.simplexFractalCave.noiseThreshold)
+                        if (realY >= easeInDepth) {
+                            // Close off caves if we're in ease-in depth range
+                            noiseThreshold *= (1 + Math.max((float) (realY - simplexCaveTop) / (easeInDepth - simplexCaveTop), .5f));
+                        }
+
+                        if (sNoise > noiseThreshold)
                             digBlock = true;
                     }
 

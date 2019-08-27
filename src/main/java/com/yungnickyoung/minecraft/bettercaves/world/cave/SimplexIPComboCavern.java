@@ -68,7 +68,6 @@ public class SimplexIPComboCavern extends BetterCave {
         List<NoiseTuple[][]> perlinNoises = perlinNoiseGen.generateNoise(chunkX, chunkZ, perlinCavernBottom, simplexCaveTop, perlinNumGens);
         List<NoiseTuple[][]> simplexNoises = simplexNoiseGen.generateNoise(chunkX, chunkZ, perlinCavernBottom, simplexCaveTop, simplexNumGens);
 
-        /* Dig out Inverse Perlin Caverns */
         for (int realY = simplexCaveTop; realY >= perlinCavernBottom; realY--) {
             for (int localX = 0; localX < 16; localX++) {
                 for (int localZ = 0; localZ < 16; localZ++) {
@@ -76,17 +75,25 @@ public class SimplexIPComboCavern extends BetterCave {
                     boolean pdigBlock = true;
                     boolean sdigBlock = true;
 
+                    // Process inverse perlin noise
                     if (realY <= perlinCavernTop) {
                         float pNoise = 1;
+                        float noiseThreshold = Configuration.invertedPerlinCavern.noiseThreshold;
+
                         pBlockNoise = perlinNoises.get(simplexCaveTop - realY)[localX][localZ].getNoiseValues();
 
                         for (float noise : pBlockNoise)
                             pNoise *= noise;
 
-                        if (pNoise > Configuration.invertedPerlinCavern.noiseThreshold)
+                        // Adjust threshold if we're in the transition range
+                        if (realY >= perlinCavernTransitionBoundary)
+                            noiseThreshold *= Math.max((float)(realY - perlinCavernTop) / (perlinCavernTransitionBoundary - perlinCavernTop), .7f);
+
+                        if (pNoise > noiseThreshold)
                             pdigBlock = false;
                     }
 
+                    // Process simplex noise
                     if (realY >= simplexCaveBottom) {
                         float sNoise = 0;
                         sBlockNoise= simplexNoises.get(simplexCaveTop - realY)[localX][localZ].getNoiseValues();

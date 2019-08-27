@@ -17,7 +17,8 @@ public class MapGenBetterCaves extends MapGenCaves {
         SimplexFractalCave,
         CellularCave,
         PerlinFractalCave,
-        SimplexIPComboCavern
+        SimplexIPComboCavern,
+        SimplexPerlinComboCavern
     }
 
     private PerlinCavern perlinCavern;
@@ -27,6 +28,7 @@ public class MapGenBetterCaves extends MapGenCaves {
     private CellularCave cellularCave;
     private PerlinFractalCave perlinFractalCave;
     private SimplexIPComboCavern simplexIPComboCavern;
+    private SimplexPerlinComboCavern simplexPerlinComboCavern;
 
     public MapGenBetterCaves() {
     }
@@ -42,6 +44,7 @@ public class MapGenBetterCaves extends MapGenCaves {
             this.cellularCave = new CellularCave(world);
             this.perlinFractalCave = new PerlinFractalCave(world);
             this.simplexIPComboCavern = new SimplexIPComboCavern(world);
+            this.simplexPerlinComboCavern = new SimplexPerlinComboCavern(world);
         }
 
 //        CaveType caveType = CaveType.InvertedPerlinCavern; // TODO: have this be chosen based on another noise generator that
@@ -70,6 +73,9 @@ public class MapGenBetterCaves extends MapGenCaves {
                 break;
             case SimplexIPComboCavern:
                 simplexIPComboCavern.generate(chunkX, chunkZ, primer);
+                break;
+            case SimplexPerlinComboCavern:
+                simplexPerlinComboCavern.generate(chunkX, chunkZ, primer);
                 break;
             default:
                 throw new IllegalArgumentException("generate() called with unsupported cave type " + caveType);

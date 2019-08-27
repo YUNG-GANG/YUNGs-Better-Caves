@@ -58,7 +58,7 @@ public class SimplexIPComboCavern extends BetterCave {
         int perlinCavernTransitionBoundary = 25;
         int perlinCavernTop = 35;
 
-        int simplexCaveBottom = 30;
+        int simplexCaveBottom = 20;
         int simplexCaveTransitionBoundary = 45;
         int simplexCaveTop = 60;
 
@@ -72,8 +72,7 @@ public class SimplexIPComboCavern extends BetterCave {
             for (int localX = 0; localX < 16; localX++) {
                 for (int localZ = 0; localZ < 16; localZ++) {
                     List<Float> pBlockNoise, sBlockNoise;
-                    boolean pdigBlock = true;
-                    boolean sdigBlock = true;
+                    boolean digBlock = false;
 
                     // Process inverse perlin noise
                     if (realY <= perlinCavernTop) {
@@ -89,8 +88,8 @@ public class SimplexIPComboCavern extends BetterCave {
                         if (realY >= perlinCavernTransitionBoundary)
                             noiseThreshold *= Math.max((float)(realY - perlinCavernTop) / (perlinCavernTransitionBoundary - perlinCavernTop), .7f);
 
-                        if (pNoise > noiseThreshold)
-                            pdigBlock = false;
+                        if (pNoise < noiseThreshold)
+                            digBlock = true;
                     }
 
                     // Process simplex noise
@@ -103,11 +102,11 @@ public class SimplexIPComboCavern extends BetterCave {
 
                         sNoise /= sBlockNoise.size();
 
-                        if (sNoise < Configuration.simplexFractalCave.noiseThreshold)
-                            sdigBlock = false;
+                        if (sNoise > Configuration.simplexFractalCave.noiseThreshold)
+                            digBlock = true;
                     }
 
-                    if (pdigBlock && sdigBlock) {
+                    if (digBlock) {
                         IBlockState blockState = primer.getBlockState(localX, realY, localZ);
                         IBlockState blockStateAbove = primer.getBlockState(localX, realY + 1, localZ);
                         boolean foundTopBlock = BetterCaveUtil.isTopBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);

@@ -48,66 +48,6 @@ public class SimplexNoiseGen extends NoiseGen {
                     for (int i = 0; i < numGenerators; i++)
                         newTuple.add(listNoiseGens.get(i).GetNoise(f.x, f.y, f.z));
 
-//                    /* Adjust noise values based on blocks above in order to give players more headroom */
-//                    // Adjust block immediately above:
-//                    if (y < maxHeight - 1) {
-//                        NoiseTuple tupleAbove = noises.get(noisesIndex - 1)[localX][localZ];
-//                        boolean updateNeeded = true; // Flag for determining if the noise of this block is large enough
-//                        // to warrant updating the noise val of the block above
-//
-//                        // Check if we need to update the block above
-//                        for (int i = 0; i < numGenerators; i++) {
-//                            if (newTuple.get(i) < tupleAbove.get(i)) {
-//                                updateNeeded = false;
-//                                break;
-//                            }
-//                        }
-//
-//                        // Update the block above, if the check was passed
-//                        if (updateNeeded) {
-//                            for (int i = 0; i < numGenerators; i++) {
-//                                tupleAbove.set(i, (.2f * tupleAbove.get(i)) + (.8f * newTuple.get(i)));
-//                            }
-//                        }
-//                    }
-//
-//                    // Adjust block two blocks above:
-//                    if (y < maxHeight - 2) {
-//                        NoiseTuple tupleTwoAbove = noises.get(noisesIndex - 2)[localX][localZ];
-//                        boolean updateNeeded = true; // Flag for determining if the noise of this block is large enough
-//                        // to warrant updating the noise val of the block above
-//
-//                        // Check if we need to update the block above
-//                        for (int i = 0; i < numGenerators; i++) {
-//                            if (newTuple.get(i) < tupleTwoAbove.get(i)) {
-//                                updateNeeded = false;
-//                                break;
-//                            }
-//                        }
-//
-//                        // Update the block above, if the check was passed
-//                        if (updateNeeded) {
-//                            for (int i = 0; i < numGenerators; i++) {
-//                                tupleTwoAbove.set(i, (.2f * tupleTwoAbove.get(i)) + (.8f * newTuple.get(i)));
-//                            }
-//                        }
-//                    }
-
-//                    /* Adjust noise values based on horizontal neighbors. This might help prevent cave fracturing.*/
-//                    if (localX > 0) {
-//                        NoiseTuple neighbor = noiseLayer[localX - 1][localZ];
-//                        for (int i = 0; i < numGenerators; i++)
-//                            neighbor.set(i, (neighbor.get(i) * .6f) + (newTuple.get(i) * .4f));
-//
-//                    }
-//
-//                    if (localZ > 0) {
-//                        NoiseTuple neighbor = noiseLayer[localX][localZ - 1];
-//                        for (int i = 0; i < numGenerators; i++)
-//                            neighbor.set(i, (neighbor.get(i) * .5f) + (newTuple.get(i) * .5f));
-//
-//                    }
-
                     noiseLayer[localX][localZ] = newTuple;
                }
             }

@@ -59,7 +59,7 @@ public class SimplexIPComboCavern extends BetterCave {
         int simplexCaveBottom = 20;
 //        int simplexCaveTop = minSurfaceHeight + ((maxSurfaceHeight - minSurfaceHeight) / 2);
         Random r = new Random((long) (chunkX + chunkZ));
-        int simplexCaveTop = maxSurfaceHeight;
+        int simplexCaveTop = minSurfaceHeight + ((maxSurfaceHeight - minSurfaceHeight) / 4);
 
         int perlinCavernBottom = 1;
         int perlinCavernTransitionBoundary = 23;
@@ -100,18 +100,18 @@ public class SimplexIPComboCavern extends BetterCave {
                                 tupleTwoAbove.set(i, (.15f * tupleTwoAbove.get(i)) + (.85f * sBlockNoise.get(i)));
                         }
 
-                        /* Adjust noise values based on horizontal neighbors. This might help prevent cave fracturing.*/
-                        if (localX > 0) {
-                            NoiseTuple neighbor = simplexNoises.get(simplexCaveTop - realY)[localX - 1][localZ];
-                            for (int i = 0; i < simplexNumGens; i++)
-                                neighbor.set(i, (neighbor.get(i) * .75f) + (sBlockNoise.get(i) * .25f));
-                        }
-
-                        if (localZ > 0) {
-                            NoiseTuple neighbor = simplexNoises.get(simplexCaveTop - realY)[localX][localZ - 1];
-                            for (int i = 0; i < simplexNumGens; i++)
-                                neighbor.set(i, (neighbor.get(i) * .75f) + (sBlockNoise.get(i) * .25f));
-                        }
+//                        /* Adjust noise values based on horizontal neighbors. This might help prevent cave fracturing.*/
+//                        if (localX > 0) {
+//                            NoiseTuple neighbor = simplexNoises.get(simplexCaveTop - realY)[localX - 1][localZ];
+//                            for (int i = 0; i < simplexNumGens; i++)
+//                                neighbor.set(i, (neighbor.get(i) * .75f) + (sBlockNoise.get(i) * .25f));
+//                        }
+//
+//                        if (localZ > 0) {
+//                            NoiseTuple neighbor = simplexNoises.get(simplexCaveTop - realY)[localX][localZ - 1];
+//                            for (int i = 0; i < simplexNumGens; i++)
+//                                neighbor.set(i, (neighbor.get(i) * .75f) + (sBlockNoise.get(i) * .25f));
+//                        }
                     }
                 }
             }
@@ -164,7 +164,7 @@ public class SimplexIPComboCavern extends BetterCave {
                         if (realY >= easeInDepth) {
                             // Close off caves if we're in ease-in depth range
 //                            noiseThreshold *= (1 + Math.max((float) (simplexCaveTop - realY) / (simplexCaveTop- easeInDepth), .5f));
-                            noiseThreshold *= (1 + .2f * ((float)(realY - easeInDepth) / (simplexCaveTop - easeInDepth)));
+                            noiseThreshold *= (1 + .15f * ((float)(realY - easeInDepth) / (simplexCaveTop - easeInDepth)));
                         }
 
                         if (sNoise > noiseThreshold)

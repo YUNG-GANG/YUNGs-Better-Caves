@@ -11,7 +11,9 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 
+import javax.vecmath.Vector3f;
 import java.util.List;
+import java.util.Random;
 
 public class SimplexIPComboCavern extends BetterCave {
     private SimplexNoiseGen simplexNoiseGen;
@@ -55,19 +57,100 @@ public class SimplexIPComboCavern extends BetterCave {
         int minSurfaceHeight = BetterCaveUtil.getMinSurfaceHeight(primer);
 
         int simplexCaveBottom = 20;
-        int simplexCaveTop = minSurfaceHeight + ((maxSurfaceHeight - minSurfaceHeight) / 2);
+//        int simplexCaveTop = minSurfaceHeight + ((maxSurfaceHeight - minSurfaceHeight) / 2);
+        Random r = new Random((long) (chunkX + chunkZ));
+        int simplexCaveTop = maxSurfaceHeight;
 
         int perlinCavernBottom = 1;
-        int perlinCavernTransitionBoundary = 25;
-        int perlinCavernTop = Math.min(simplexCaveTop, 35);
+        int perlinCavernTransitionBoundary = 23;
+        int perlinCavernTop = 30;
 
-        int easeInDepth = minSurfaceHeight - Math.min((int)(minSurfaceHeight * .1), 5);
+        int easeInDepth = minSurfaceHeight - 5;
 
         int perlinNumGens = Configuration.invertedPerlinCavern.numGenerators;
         int simplexNumGens = Configuration.simplexFractalCave.numGenerators;
 
         List<NoiseTuple[][]> perlinNoises = perlinNoiseGen.generateNoise(chunkX, chunkZ, perlinCavernBottom, simplexCaveTop, perlinNumGens);
         List<NoiseTuple[][]> simplexNoises = simplexNoiseGen.generateNoise(chunkX, chunkZ, perlinCavernBottom, simplexCaveTop, simplexNumGens);
+
+
+        /* Adjust simplex noise values based on horizontal neighbors. This might help prevent cave fracturing.*/
+        for (int realY = simplexCaveTop; realY >= perlinCavernBottom; realY--) {
+            for (int localX = 0; localX < 16; localX++) {
+                for (int localZ = 0; localZ < 16; localZ++) {
+                    NoiseTuple sBlockNoise = simplexNoises.get(simplexCaveTop - realY)[localX][localZ];
+
+                    float avgSNoise = 0;
+
+                    for (float noise : sBlockNoise.getNoiseValues())
+                        avgSNoise += noise;
+
+                    avgSNoise /= sBlockNoise.size();
+
+                    /* Adjust noise values based on blocks above in order to give players more headroom */
+                    // Adjust block immediately above:
+                    if (realY < simplexCaveTop) {
+                        NoiseTuple tupleAbove = simplexNoises.get(simplexCaveTop - realY - 1)[localX][localZ];
+                        boolean updateNeeded = true; // Flag for determining if the noise of this block is large enough
+                                                     // to warrant updating the noise val of the block above
+
+                        // Check if we need to update the block above
+                        for (int i = 0; i < simplexNumGens; i++) {
+                            if (sBlockNoise.get(i) < tupleAbove.get(i)) {
+                                updateNeeded = false;
+                                break;
+                            }
+                        }
+
+                        // Update the block above, if the check was passed
+                        if (updateNeeded) {
+                            for (int i = 0; i < simplexNumGens; i++) {
+                                tupleAbove.set(i, (.2f * tupleAbove.get(i)) + (.8f * sBlockNoise.get(i)));
+                            }
+                        }
+                    }
+
+                    // Adjust block two blocks above:
+                    if (realY < simplexCaveTop - 1) {
+                        NoiseTuple tupleTwoAbove = simplexNoises.get(simplexCaveTop - realY - 2)[localX][localZ];
+                        boolean updateNeeded = true; // Flag for determining if the noise of this block is large enough
+                        // to warrant updating the noise val of the block above
+
+                        // Check if we need to update the block above
+                        for (int i = 0; i < simplexNumGens; i++) {
+                            if (sBlockNoise.get(i) < tupleTwoAbove.get(i)) {
+                                updateNeeded = false;
+                                break;
+                            }
+                        }
+
+                        // Update the block above, if the check was passed
+                        if (updateNeeded) {
+                            for (int i = 0; i < simplexNumGens; i++) {
+                                tupleTwoAbove.set(i, (.35f * tupleTwoAbove.get(i)) + (.65f * sBlockNoise.get(i)));
+                            }
+                        }
+                    }
+
+                    /* Adjust noise values based on horizontal neighbors. This might help prevent cave fracturing.*/
+                    if (avgSNoise > Configuration.simplexFractalCave.noiseThreshold) {
+                        if (localX > 0) {
+                            NoiseTuple neighbor = simplexNoises.get(simplexCaveTop - realY)[localX - 1][localZ];
+                            for (int i = 0; i < simplexNumGens; i++)
+                                neighbor.set(i, (neighbor.get(i) * .6f) + (sBlockNoise.get(i) * .4f));
+                        }
+
+                        if (localZ > 0) {
+                            NoiseTuple neighbor = simplexNoises.get(simplexCaveTop - realY)[localX][localZ - 1];
+                            for (int i = 0; i < simplexNumGens; i++)
+                                neighbor.set(i, (neighbor.get(i) * .6f) + (sBlockNoise.get(i) * .4f));
+                        }
+                    }
+                }
+            }
+        }
+
+
 
         for (int realY = simplexCaveTop; realY >= perlinCavernBottom; realY--) {
             for (int localX = 0; localX < 16; localX++) {
@@ -87,7 +170,7 @@ public class SimplexIPComboCavern extends BetterCave {
 
                         if (realY >= perlinCavernTransitionBoundary) {
                             // Adjust threshold if we're in the transition range to provide smoother transition into simplex caves
-                            noiseThreshold *= Math.max((float) (realY - perlinCavernTop) / (perlinCavernTransitionBoundary - perlinCavernTop), .7f);
+                            noiseThreshold *= Math.max((float) (realY - perlinCavernTop) / (perlinCavernTransitionBoundary - perlinCavernTop), .5f);
                         }
 
                         if (realY >= easeInDepth) {
@@ -113,7 +196,8 @@ public class SimplexIPComboCavern extends BetterCave {
 
                         if (realY >= easeInDepth) {
                             // Close off caves if we're in ease-in depth range
-                            noiseThreshold *= (1 + Math.max((float) (realY - simplexCaveTop) / (easeInDepth - simplexCaveTop), .5f));
+//                            noiseThreshold *= (1 + Math.max((float) (simplexCaveTop - realY) / (simplexCaveTop- easeInDepth), .5f));
+                            noiseThreshold *= (1 + .2f * ((float)(realY - easeInDepth) / (simplexCaveTop - easeInDepth)));
                         }
 
                         if (sNoise > noiseThreshold)

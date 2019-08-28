@@ -93,20 +93,20 @@ public class PerlinNoiseGen extends NoiseGen {
                         }
                     }
 
-                    /* Adjust noise values based on horizontal neighbors. This might help prevent cave fracturing.*/
-                    if (localX > 0) {
-                        NoiseTuple neighbor = noiseLayer[localX - 1][localZ];
-                        for (int i = 0; i < numGenerators; i++)
-                            neighbor.set(i, (neighbor.get(i) * .6f) + (newTuple.get(i) * .4f));
-
-                    }
-
-                    if (localZ > 0) {
-                        NoiseTuple neighbor = noiseLayer[localX][localZ - 1];
-                        for (int i = 0; i < numGenerators; i++)
-                            neighbor.set(i, (neighbor.get(i) * .5f) + (newTuple.get(i) * .5f));
-
-                    }
+//                    /* Adjust noise values based on horizontal neighbors. This might help prevent cave fracturing.*/
+//                    if (localX > 0) {
+//                        NoiseTuple neighbor = noiseLayer[localX - 1][localZ];
+//                        for (int i = 0; i < numGenerators; i++)
+//                            neighbor.set(i, (neighbor.get(i) * .6f) + (newTuple.get(i) * .4f));
+//
+//                    }
+//
+//                    if (localZ > 0) {
+//                        NoiseTuple neighbor = noiseLayer[localX][localZ - 1];
+//                        for (int i = 0; i < numGenerators; i++)
+//                            neighbor.set(i, (neighbor.get(i) * .5f) + (newTuple.get(i) * .5f));
+//
+//                    }
 
                     noiseLayer[localX][localZ] = newTuple;
                 }

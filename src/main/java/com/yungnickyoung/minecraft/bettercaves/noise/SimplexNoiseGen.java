@@ -38,7 +38,7 @@ public class SimplexNoiseGen extends NoiseGen {
                 for (int localZ = 0; localZ < 16; localZ++) {
                     int realZ = localZ + 16 * chunkZ;
 
-                    Vector3f f = new Vector3f(realX, y * Configuration.simplexFractalCave.yCompression, realZ);
+                    Vector3f f = new Vector3f(realX * Configuration.simplexFractalCave.xzCompression, y * Configuration.simplexFractalCave.yCompression, realZ * Configuration.simplexFractalCave.xzCompression);
 
                     // Use turbulence function to apply gradient perturbation, if enabled
                     if (this.enableTurbulence)

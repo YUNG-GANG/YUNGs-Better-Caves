@@ -284,6 +284,11 @@ public class Configuration {
         @Config.Comment("Changes height of caves. Lower value = taller caves with steeper drops")
         @Config.RequiresWorldRestart
         public float yCompression = 2f;
+
+        @Config.Name("xz-compression")
+        @Config.Comment("Changes width of caves. Lower value = wider caves")
+        @Config.RequiresWorldRestart
+        public float xzCompression = .8f;
     }
 
     public static class CellularCave {

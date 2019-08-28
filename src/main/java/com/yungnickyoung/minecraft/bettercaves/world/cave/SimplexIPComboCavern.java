@@ -8,6 +8,7 @@ import com.yungnickyoung.minecraft.bettercaves.noise.SimplexNoiseGen;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 
@@ -164,7 +165,7 @@ public class SimplexIPComboCavern extends BetterCave {
                         if (realY >= easeInDepth) {
                             // Close off caves if we're in ease-in depth range
 //                            noiseThreshold *= (1 + Math.max((float) (simplexCaveTop - realY) / (simplexCaveTop- easeInDepth), .5f));
-                            noiseThreshold *= (1 + .15f * ((float)(realY - easeInDepth) / (simplexCaveTop - easeInDepth)));
+                            noiseThreshold *= (1 + .2f * ((float)(realY - easeInDepth) / (simplexCaveTop - easeInDepth)));
                         }
 
                         if (sNoise > noiseThreshold)
@@ -190,6 +191,29 @@ public class SimplexIPComboCavern extends BetterCave {
                         boolean lava = true;
 
                         BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ, foundTopBlock, blockState, blockStateAbove, lava);
+                    }
+                }
+            }
+        }
+
+        // Try to remove any singular floating blocks in the ease-in range near the surface
+        IBlockState BlockStateAir = Blocks.AIR.getDefaultState();
+        for (int realY = easeInDepth + 1; realY < simplexCaveTop - 1; realY++) {
+            for (int localX = 0; localX < 16; localX++) {
+                for (int localZ = 0; localZ < 16; localZ++) {
+                    IBlockState currBlock = primer.getBlockState(localX, realY, localZ);
+
+                    if (BetterCaveUtil.canReplaceBlock(currBlock, BlockStateAir)
+//                      && primer.getBlockState(localX, realY, localZ - 1) == BlockStateAir
+//                      && primer.getBlockState(localX, realY, localZ + 1) == BlockStateAir
+//                      && primer.getBlockState(localX - 1, realY, localZ) == BlockStateAir
+//                      && primer.getBlockState(localX + 1, realY, localZ) == BlockStateAir
+                      && primer.getBlockState(localX, realY + 1, localZ) == BlockStateAir
+                      && primer.getBlockState(localX, realY - 1, localZ) == BlockStateAir
+                    ) {
+                        boolean foundTopBlock = BetterCaveUtil.isTopBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
+                        IBlockState blockStateAbove = primer.getBlockState(localX, realY + 1, localZ);
+                        BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ, foundTopBlock, currBlock, blockStateAbove);
                     }
                 }
             }

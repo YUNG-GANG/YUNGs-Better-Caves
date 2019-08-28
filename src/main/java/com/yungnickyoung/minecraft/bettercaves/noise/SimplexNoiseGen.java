@@ -1,5 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.noise;
 
+import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.util.FastNoise;
 import net.minecraft.world.World;
 
@@ -37,7 +38,7 @@ public class SimplexNoiseGen extends NoiseGen {
                 for (int localZ = 0; localZ < 16; localZ++) {
                     int realZ = localZ + 16 * chunkZ;
 
-                    Vector3f f = new Vector3f(realX, y, realZ);
+                    Vector3f f = new Vector3f(realX, y * Configuration.simplexFractalCave.yCompression, realZ);
 
                     // Use turbulence function to apply gradient perturbation, if enabled
                     if (this.enableTurbulence)

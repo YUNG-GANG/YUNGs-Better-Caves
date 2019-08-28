@@ -79,7 +79,6 @@ public class SimplexIPComboCavern extends BetterCave {
             for (int localX = 0; localX < 16; localX++) {
                 for (int localZ = 0; localZ < 16; localZ++) {
                     NoiseTuple sBlockNoise = simplexNoises.get(simplexCaveTop - realY)[localX][localZ];
-
                     float avgSNoise = 0;
 
                     for (float noise : sBlockNoise.getNoiseValues())
@@ -87,63 +86,31 @@ public class SimplexIPComboCavern extends BetterCave {
 
                     avgSNoise /= sBlockNoise.size();
 
-                    /* Adjust noise values based on blocks above in order to give players more headroom */
-                    // Adjust block immediately above:
-                    if (realY < simplexCaveTop) {
-                        NoiseTuple tupleAbove = simplexNoises.get(simplexCaveTop - realY - 1)[localX][localZ];
-                        boolean updateNeeded = true; // Flag for determining if the noise of this block is large enough
-                                                     // to warrant updating the noise val of the block above
-
-                        // Check if we need to update the block above
-                        for (int i = 0; i < simplexNumGens; i++) {
-                            if (sBlockNoise.get(i) < tupleAbove.get(i)) {
-                                updateNeeded = false;
-                                break;
-                            }
-                        }
-
-                        // Update the block above, if the check was passed
-                        if (updateNeeded) {
-                            for (int i = 0; i < simplexNumGens; i++) {
-                                tupleAbove.set(i, (.2f * tupleAbove.get(i)) + (.8f * sBlockNoise.get(i)));
-                            }
-                        }
-                    }
-
-                    // Adjust block two blocks above:
-                    if (realY < simplexCaveTop - 1) {
-                        NoiseTuple tupleTwoAbove = simplexNoises.get(simplexCaveTop - realY - 2)[localX][localZ];
-                        boolean updateNeeded = true; // Flag for determining if the noise of this block is large enough
-                        // to warrant updating the noise val of the block above
-
-                        // Check if we need to update the block above
-                        for (int i = 0; i < simplexNumGens; i++) {
-                            if (sBlockNoise.get(i) < tupleTwoAbove.get(i)) {
-                                updateNeeded = false;
-                                break;
-                            }
-                        }
-
-                        // Update the block above, if the check was passed
-                        if (updateNeeded) {
-                            for (int i = 0; i < simplexNumGens; i++) {
-                                tupleTwoAbove.set(i, (.35f * tupleTwoAbove.get(i)) + (.65f * sBlockNoise.get(i)));
-                            }
-                        }
-                    }
-
-                    /* Adjust noise values based on horizontal neighbors. This might help prevent cave fracturing.*/
                     if (avgSNoise > Configuration.simplexFractalCave.noiseThreshold) {
+                        /* Adjust noise values of blocks above to give the player more head room */
+                        if (realY < simplexCaveTop) {
+                            NoiseTuple tupleAbove = simplexNoises.get(simplexCaveTop - realY - 1)[localX][localZ];
+                            for (int i = 0; i < simplexNumGens; i++)
+                                tupleAbove.set(i, (.1f * tupleAbove.get(i)) + (.9f * sBlockNoise.get(i)));
+                        }
+
+                        if (realY < simplexCaveTop - 1) {
+                            NoiseTuple tupleTwoAbove = simplexNoises.get(simplexCaveTop - realY - 2)[localX][localZ];
+                            for (int i = 0; i < simplexNumGens; i++)
+                                tupleTwoAbove.set(i, (.15f * tupleTwoAbove.get(i)) + (.85f * sBlockNoise.get(i)));
+                        }
+
+                        /* Adjust noise values based on horizontal neighbors. This might help prevent cave fracturing.*/
                         if (localX > 0) {
                             NoiseTuple neighbor = simplexNoises.get(simplexCaveTop - realY)[localX - 1][localZ];
                             for (int i = 0; i < simplexNumGens; i++)
-                                neighbor.set(i, (neighbor.get(i) * .6f) + (sBlockNoise.get(i) * .4f));
+                                neighbor.set(i, (neighbor.get(i) * .75f) + (sBlockNoise.get(i) * .25f));
                         }
 
                         if (localZ > 0) {
                             NoiseTuple neighbor = simplexNoises.get(simplexCaveTop - realY)[localX][localZ - 1];
                             for (int i = 0; i < simplexNumGens; i++)
-                                neighbor.set(i, (neighbor.get(i) * .6f) + (sBlockNoise.get(i) * .4f));
+                                neighbor.set(i, (neighbor.get(i) * .75f) + (sBlockNoise.get(i) * .25f));
                         }
                     }
                 }

@@ -279,6 +279,11 @@ public class Configuration {
         @Config.Comment("Attempts to smooth caves using average computation. Possibly computationally heavy.")
         @Config.RequiresWorldRestart
         public boolean enableSmoothing = true;
+
+        @Config.Name("y-compression")
+        @Config.Comment("Changes height of caves. Lower value = taller caves with steeper drops")
+        @Config.RequiresWorldRestart
+        public float yCompression = 2f;
     }
 
     public static class CellularCave {

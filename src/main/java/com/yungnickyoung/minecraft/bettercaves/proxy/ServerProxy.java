@@ -1,10 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves.proxy;
 
-import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
-import com.yungnickyoung.minecraft.bettercaves.event.EventConfigReload;
-import com.yungnickyoung.minecraft.bettercaves.event.EventFlattenBedrock;
 import com.yungnickyoung.minecraft.bettercaves.event.EventBetterCaveGen;
-import net.minecraft.client.Minecraft;
+import com.yungnickyoung.minecraft.bettercaves.event.EventFlattenBedrock;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -14,17 +11,16 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 /**
- * Proxy for client-only code. Unused as of 1.0.0
+ * Proxy for common code (client or server)
  */
-public class ClientProxy implements IProxy {
-    // mouse helper
+public class ServerProxy implements IProxy {
     @Override
     public void preInit(FMLPreInitializationEvent event) {
-        MinecraftForge.EVENT_BUS.register(new EventConfigReload());
     }
 
     @Override
     public void init(FMLInitializationEvent event) {
+
 
     }
 
@@ -33,12 +29,12 @@ public class ClientProxy implements IProxy {
     }
 
     @Override
-    public EntityPlayer getPlayerEntityFromContext(MessageContext ctx) {
-        return (ctx.side.isClient() ? Minecraft.getMinecraft().player : BetterCaves.proxy.getPlayerEntityFromContext(ctx));
+    public void serverStarting(FMLServerStartingEvent event) {
+        // register server commands here
     }
 
     @Override
-    public void serverStarting(FMLServerStartingEvent event) {
-        // This will never get called on client side
+    public EntityPlayer getPlayerEntityFromContext(MessageContext ctx) {
+        return ctx.getServerHandler().player;
     }
 }

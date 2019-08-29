@@ -19,7 +19,7 @@ public class Settings {
     public static final String NAME = "{@name}";
     public static final String VERSION = "{@version}";
 
-    public static final String COMMON_PROXY = "com.yungnickyoung.minecraft.bettercaves.proxy.CommonProxy";
+    public static final String SERVER_PROXY = "com.yungnickyoung.minecraft.bettercaves.proxy.ServerProxy";
     public static final String CLIENT_PROXY = "com.yungnickyoung.minecraft.bettercaves.proxy.ClientProxy";
 
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);

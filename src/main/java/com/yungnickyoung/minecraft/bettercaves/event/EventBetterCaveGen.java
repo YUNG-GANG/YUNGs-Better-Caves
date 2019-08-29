@@ -6,9 +6,10 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /**
- * Handlers for events registered to the {@code TERRAIN_GEN_BUS}.
+ * Replaces vanilla cave generation with Better Caves cave generation.
+ * Should be registered to the {@code TERRAIN_GEN_BUS}.
  */
-public class EventTerrain {
+public class EventBetterCaveGen {
     /**
      * Replaces cave gen events with Better Caves cave gen
      * @param event Map generation event

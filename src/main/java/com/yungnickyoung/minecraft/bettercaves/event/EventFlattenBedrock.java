@@ -1,34 +1,22 @@
 package com.yungnickyoung.minecraft.bettercaves.event;
 
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
-import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
-import net.minecraftforge.common.config.Config;
-import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.event.terraingen.PopulateChunkEvent;
-import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /**
- * Handlers for events registered to the {@code EVENT_BUS}.
+ * Replaces ordinary bedrock generation with a flattened layer based on the user's specification.
+ * Should be registered to the {@code EVENT_BUS} in the client proxy.
  */
-public class EventGeneral {
+public class EventFlattenBedrock {
     /**
-     * Keeps Better Caves config settings synchronized
-     */
-    @SubscribeEvent
-    public void onConfigReload(ConfigChangedEvent.OnConfigChangedEvent event) {
-        // Only mess with config syncing if it is this mod being changed
-        if (Settings.MOD_ID.equals(event.getModID()))
-            ConfigManager.sync(Settings.MOD_ID, Config.Type.INSTANCE);
-    }
-
-    /**
-     * Replaces usual bedrock generation with a flat layer of bedrock
+     * Replaces usual bedrock generation with a flat layer of bedrock.
+     * Accounts for both the Overworld and the Nether, based on user config settings.
      */
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onPopulateChunkEventPre(PopulateChunkEvent.Pre event) {

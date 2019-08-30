@@ -68,7 +68,7 @@ public class ConfigSimplexCave {
     @Config.Name("y-compression")
     @Config.Comment("Changes height of caves. Lower value = taller caves with steeper drops")
     @Config.RequiresWorldRestart
-    public float yCompression = 1.5f;
+    public float yCompression = 1.8f;
 
     @Config.Name("xz-compression")
     @Config.Comment("Changes width of caves. Lower value = wider caves")

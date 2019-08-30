@@ -46,7 +46,7 @@ public class MapGenBetterCaves extends MapGenCaves {
             this.simplexIPComboCavern = new SimplexIPComboCavern(world);
             this.simplexPerlinComboCavern = new SimplexPerlinComboCavern(world);
         }
-        
+
         CaveType caveType = Configuration.caveType;
 
         switch (caveType) {

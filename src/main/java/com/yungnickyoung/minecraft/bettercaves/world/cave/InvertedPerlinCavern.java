@@ -23,14 +23,14 @@ public class InvertedPerlinCavern extends BetterCave {
         super(world);
         noiseGen = new PerlinNoiseGen(
                 world,
-                Configuration.invertedPerlinCavern.fractalOctaves,
-                Configuration.invertedPerlinCavern.fractalGain,
-                Configuration.invertedPerlinCavern.fractalFrequency,
-                Configuration.invertedPerlinCavern.turbulenceOctaves,
-                Configuration.invertedPerlinCavern.turbulenceGain,
-                Configuration.invertedPerlinCavern.turbulenceFrequency,
-                Configuration.invertedPerlinCavern.enableTurbulence,
-                Configuration.invertedPerlinCavern.enableSmoothing
+                Configuration.caveSettings.invertedPerlinCavern.fractalOctaves,
+                Configuration.caveSettings.invertedPerlinCavern.fractalGain,
+                Configuration.caveSettings.invertedPerlinCavern.fractalFrequency,
+                Configuration.caveSettings.invertedPerlinCavern.turbulenceOctaves,
+                Configuration.caveSettings.invertedPerlinCavern.turbulenceGain,
+                Configuration.caveSettings.invertedPerlinCavern.turbulenceFrequency,
+                Configuration.caveSettings.invertedPerlinCavern.enableTurbulence,
+                Configuration.caveSettings.invertedPerlinCavern.enableSmoothing
         );
     }
 
@@ -41,9 +41,9 @@ public class InvertedPerlinCavern extends BetterCave {
 //            return;
 //        }
 
-        int maxHeight = Configuration.invertedPerlinCavern.maxHeight;
-        int minHeight = Configuration.invertedPerlinCavern.minHeight;
-        int numGenerators = Configuration.invertedPerlinCavern.numGenerators;
+        int maxHeight = Configuration.caveSettings.invertedPerlinCavern.maxHeight;
+        int minHeight = Configuration.caveSettings.invertedPerlinCavern.minHeight;
+        int numGenerators = Configuration.caveSettings.invertedPerlinCavern.numGenerators;
 
         List<NoiseTuple[][]> noises = noiseGen.generateNoise(chunkX, chunkZ, minHeight, maxHeight, numGenerators);
 
@@ -72,7 +72,7 @@ public class InvertedPerlinCavern extends BetterCave {
                     for (float noise : blockNoise)
                         totalNoise *= noise;
 
-                    if (totalNoise > Configuration.invertedPerlinCavern.noiseThreshold)
+                    if (totalNoise > Configuration.caveSettings.invertedPerlinCavern.noiseThreshold)
                         digBlock = false;
 
                     if (digBlock) {
@@ -93,7 +93,7 @@ public class InvertedPerlinCavern extends BetterCave {
 
                         boolean lava = true;
 
-                        BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ, foundTopBlock, blockState, blockStateAbove, lava);
+                        BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
                     }
 
 

@@ -3,7 +3,6 @@ package com.yungnickyoung.minecraft.bettercaves.util;
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSand;
-import net.minecraft.block.BlockStone;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -20,6 +19,13 @@ import net.minecraft.world.chunk.ChunkPrimer;
  */
 public class BetterCaveUtil {
     private BetterCaveUtil() {} // Private constructor prevents instantiation
+
+    /* Common IBlockStates used in this class */
+    private static final IBlockState BLOCKSTATE_AIR = Blocks.AIR.getDefaultState();
+    private static final IBlockState BLOCKSTATE_LAVA = Blocks.LAVA.getDefaultState();
+    private static final IBlockState BLOCKSTATE_SAND = Blocks.SAND.getDefaultState();
+    private static final IBlockState BLOCKSTATE_SANDSTONE = Blocks.SANDSTONE.getDefaultState();
+    private static final IBlockState BLOCKSTATE_REDSANDSTONE = Blocks.RED_SANDSTONE.getDefaultState();
 
     /**
      * Determine if the block at the specified location is the designated top block for the biome.
@@ -51,53 +57,50 @@ public class BetterCaveUtil {
      * @param z the block's chunk-local z coordinate
      * @param chunkX the chunk's x coordinate
      * @param chunkZ the chunk's z coordinate
-     * @param foundTop true if we've encountered the biome's top block (ideally, true if we've broken the surface)
-     * @param blockState the block's IBlockState
-     * @param blockStateAbove the IBlockState of the block above this one
      */
-    public static void digBlock(World world, ChunkPrimer primer, int x, int y, int z, int chunkX, int chunkZ, boolean foundTop, IBlockState blockState, IBlockState blockStateAbove, boolean createLava) {
+    public static void digBlock(World world, ChunkPrimer primer, int x, int y, int z, int chunkX, int chunkZ) {
+        IBlockState blockState = primer.getBlockState(x, y, z);
+        IBlockState blockStateAbove = primer.getBlockState(x, y + 1, z);
+
         Biome biome = world.getBiome(new BlockPos(x + chunkX * 16, 0, z + chunkZ * 16));
         Block biomeTopBlock = biome.topBlock.getBlock();
         Block biomeFillerBlock = biome.fillerBlock.getBlock();
 
+        // Only continue if the block is replaceable
         if (canReplaceBlock(blockState, blockStateAbove) || blockState.getBlock() == biomeTopBlock || blockState.getBlock() == biomeFillerBlock) {
-            if (createLava && y <= Configuration.lavaDepth) {
-                primer.setBlockState(x, y, z, Blocks.LAVA.getDefaultState());
+            if (y <= Configuration.lavaDepth) { // Replace any block below the lava depth with lava
+                primer.setBlockState(x, y, z, BLOCKSTATE_LAVA);
             } else {
-                // Remove this block
-                primer.setBlockState(x, y, z, Blocks.AIR.getDefaultState());
-
-                // Adjust block below if block removed was biome top block
-                if (foundTop && primer.getBlockState(x, y - 1, z).getBlock() == biomeFillerBlock)
+                // Adjust block below if block removed is biome top block
+                if (isTopBlock(world, primer, x, y, z, chunkX, chunkZ) && canReplaceBlock(primer.getBlockState(x, y - 1, z), BLOCKSTATE_AIR))
                     primer.setBlockState(x, y - 1, z, biome.topBlock);
 
-                // Replace floating sand with sandstone
-                if (blockStateAbove == Blocks.SAND.getDefaultState())
-                    primer.setBlockState(x, y+1, z, Blocks.SANDSTONE.getDefaultState());
-                else if (blockStateAbove == Blocks.SAND.getDefaultState().withProperty(BlockSand.VARIANT, BlockSand.EnumType.RED_SAND))
-                    primer.setBlockState(x, y+1, z, Blocks.RED_SANDSTONE.getDefaultState());
+                // Replace this block with air, effectively "digging" it out
+                primer.setBlockState(x, y, z, BLOCKSTATE_AIR);
+
+                // If we caused floating sand to form, replace it with sandstone
+                if (blockStateAbove == BLOCKSTATE_SAND)
+                    primer.setBlockState(x, y + 1, z, BLOCKSTATE_SANDSTONE);
+                else if (blockStateAbove == BLOCKSTATE_SAND.withProperty(BlockSand.VARIANT, BlockSand.EnumType.RED_SAND))
+                    primer.setBlockState(x, y + 1, z, BLOCKSTATE_REDSANDSTONE);
             }
         }
     }
 
-    public static void digBlock(World world, ChunkPrimer primer, int x, int y, int z, int chunkX, int chunkZ, boolean foundTop, IBlockState blockState, IBlockState blockStateAbove) {
-        digBlock(world, primer, x, y, z, chunkX, chunkZ, foundTop, blockState, blockStateAbove, true);
-    }
-
-        /**
-         * Determines if the Block of a given IBlockState is suitable to be replaced during cave generation.
-         * Basically returns true for most common world-get blocks, false if the block is air.
-         * @param blockState the block's IBlockState
-         * @param blockStateAbove the IBlockState of the block above this one
-         * @return true if the blockState can be replaced
-         */
+    /**
+     * Determines if the Block of a given IBlockState is suitable to be replaced during cave generation.
+     * Basically returns true for most common world-get blocks, false if the block is air.
+     * @param blockState the block's IBlockState
+     * @param blockStateAbove the IBlockState of the block above this one
+     * @return true if the blockState can be replaced
+     */
     public static boolean canReplaceBlock(IBlockState blockState, IBlockState blockStateAbove) {
         Block block = blockState.getBlock();
 
         if (block == Blocks.LEAVES
-            || block == Blocks.LEAVES2
-            || block == Blocks.LOG
-            || block == Blocks.LOG2)
+                || block == Blocks.LEAVES2
+                || block == Blocks.LOG
+                || block == Blocks.LOG2)
             return false;
 
         if (block == Blocks.STONE
@@ -110,9 +113,11 @@ public class BetterCaveUtil {
                 || block == Blocks.MYCELIUM
                 || block  == Blocks.SNOW_LAYER)
             return true;
-        else
-            return (blockState.getBlock() == Blocks.SAND || blockState.getBlock() == Blocks.GRAVEL) && blockStateAbove.getMaterial() != Material.WATER;
+
+        return (block == Blocks.SAND || block == Blocks.GRAVEL)
+                    && blockStateAbove.getMaterial() != Material.WATER;
     }
+
     /**
      * Tests 8 edge points and center of chunk to approximate max surface height of the chunk.
      * @param primer primer for chunk

@@ -21,40 +21,40 @@ public class PerlinFractalCave extends BetterCave {
         super(world);
 
         noiseGenerator1.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
-        noiseGenerator1.SetFractalOctaves(Configuration.perlinFractalCave.fractalOctaves);
-        noiseGenerator1.SetFractalGain(Configuration.perlinFractalCave.fractalGain);
-        noiseGenerator1.SetFrequency(Configuration.perlinFractalCave.fractalFrequency);
+        noiseGenerator1.SetFractalOctaves(Configuration.caveSettings.perlinFractalCave.fractalOctaves);
+        noiseGenerator1.SetFractalGain(Configuration.caveSettings.perlinFractalCave.fractalGain);
+        noiseGenerator1.SetFrequency(Configuration.caveSettings.perlinFractalCave.fractalFrequency);
 
         noiseGenerator2.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
-        noiseGenerator2.SetFractalOctaves(Configuration.perlinFractalCave.fractalOctaves);
-        noiseGenerator2.SetFractalGain(Configuration.perlinFractalCave.fractalGain);
-        noiseGenerator2.SetFrequency(Configuration.perlinFractalCave.fractalFrequency);
+        noiseGenerator2.SetFractalOctaves(Configuration.caveSettings.perlinFractalCave.fractalOctaves);
+        noiseGenerator2.SetFractalGain(Configuration.caveSettings.perlinFractalCave.fractalGain);
+        noiseGenerator2.SetFrequency(Configuration.caveSettings.perlinFractalCave.fractalFrequency);
 
-        turbulence.SetFractalOctaves(Configuration.perlinFractalCave.turbulenceOctaves);
-        turbulence.SetFractalGain(Configuration.perlinFractalCave.turbulenceGain);
-        turbulence.SetFrequency(Configuration.perlinFractalCave.turbulenceFrequency);
+        turbulence.SetFractalOctaves(Configuration.caveSettings.perlinFractalCave.turbulenceOctaves);
+        turbulence.SetFractalGain(Configuration.caveSettings.perlinFractalCave.turbulenceGain);
+        turbulence.SetFrequency(Configuration.caveSettings.perlinFractalCave.turbulenceFrequency);
 
 
         noiseGenerator3.SetFractalType(FastNoise.FractalType.RigidMulti);
         noiseGenerator3.SetSeed((int)(world.getSeed()) + 2);
         noiseGenerator3.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
-        noiseGenerator3.SetFractalOctaves(Configuration.perlinFractalCave.fractalOctaves);
-        noiseGenerator3.SetFractalGain(Configuration.perlinFractalCave.fractalGain);
-        noiseGenerator3.SetFrequency(Configuration.perlinFractalCave.fractalFrequency);
+        noiseGenerator3.SetFractalOctaves(Configuration.caveSettings.perlinFractalCave.fractalOctaves);
+        noiseGenerator3.SetFractalGain(Configuration.caveSettings.perlinFractalCave.fractalGain);
+        noiseGenerator3.SetFrequency(Configuration.caveSettings.perlinFractalCave.fractalFrequency);
 
         noiseGenerator4.SetFractalType(FastNoise.FractalType.RigidMulti);
         noiseGenerator4.SetSeed((int)(world.getSeed()) + 3);
         noiseGenerator4.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
-        noiseGenerator4.SetFractalOctaves(Configuration.perlinFractalCave.fractalOctaves);
-        noiseGenerator4.SetFractalGain(Configuration.perlinFractalCave.fractalGain);
-        noiseGenerator4.SetFrequency(Configuration.perlinFractalCave.fractalFrequency);
+        noiseGenerator4.SetFractalOctaves(Configuration.caveSettings.perlinFractalCave.fractalOctaves);
+        noiseGenerator4.SetFractalGain(Configuration.caveSettings.perlinFractalCave.fractalGain);
+        noiseGenerator4.SetFrequency(Configuration.caveSettings.perlinFractalCave.fractalFrequency);
 
         noiseGenerator5.SetFractalType(FastNoise.FractalType.RigidMulti);
         noiseGenerator5.SetSeed((int)(world.getSeed()) + 4);
         noiseGenerator5.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
-        noiseGenerator5.SetFractalOctaves(Configuration.perlinFractalCave.fractalOctaves);
-        noiseGenerator5.SetFractalGain(Configuration.perlinFractalCave.fractalGain);
-        noiseGenerator5.SetFrequency(Configuration.perlinFractalCave.fractalFrequency);
+        noiseGenerator5.SetFractalOctaves(Configuration.caveSettings.perlinFractalCave.fractalOctaves);
+        noiseGenerator5.SetFractalGain(Configuration.caveSettings.perlinFractalCave.fractalGain);
+        noiseGenerator5.SetFrequency(Configuration.caveSettings.perlinFractalCave.fractalFrequency);
 
     }
 
@@ -77,7 +77,7 @@ public class PerlinFractalCave extends BetterCave {
                     Vector3f f = new Vector3f(realX, realY, realZ);
 
                     // Use turbulence function to apply gradient perturbation, if enabled
-                    if (Configuration.perlinFractalCave.enableTurbulence)
+                    if (Configuration.caveSettings.perlinFractalCave.enableTurbulence)
                         turbulence.GradientPerturbFractal(f);
 
                     float noise1 = noiseGenerator1.GetNoise(f.x, f.y, f.z);
@@ -87,7 +87,7 @@ public class PerlinFractalCave extends BetterCave {
 //                    float noise5 = noiseGenerator5.GetNoise(f.x, f.y, f.z);
 
 
-                    if (Configuration.perlinFractalCave.yNoiseAdjustment) {
+                    if (Configuration.caveSettings.perlinFractalCave.yNoiseAdjustment) {
                         NoiseTriple aboveTriple, twoAboveTriple;
 
                         if (realY < maxHeight - 1) {
@@ -129,7 +129,7 @@ public class PerlinFractalCave extends BetterCave {
 
         NoiseTriple[][][] noises = createNoise(chunkX, chunkZ, 64);
 
-        float adjustedThreshold = Configuration.perlinFractalCave.noiseThreshold;
+        float adjustedThreshold = Configuration.caveSettings.perlinFractalCave.noiseThreshold;
 
         for (int localX = 0; localX < 16; localX++) {
             int realX = localX + 16*chunkX;
@@ -168,7 +168,7 @@ public class PerlinFractalCave extends BetterCave {
                         if (localZ > 0 && primer.getBlockState(localX, realY, localZ - 1).getMaterial() == Material.WATER)
                             continue;
 
-                        BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ, foundTopBlock, blockState, blockStateAbove);
+                        BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
                     }
 
 

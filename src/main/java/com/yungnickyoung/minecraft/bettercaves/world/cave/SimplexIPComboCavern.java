@@ -1,7 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.world.cave;
 
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
-import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
 import com.yungnickyoung.minecraft.bettercaves.noise.PerlinNoiseGen;
 import com.yungnickyoung.minecraft.bettercaves.noise.SimplexNoiseGen;
@@ -12,7 +11,6 @@ import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 
-import javax.vecmath.Vector3f;
 import java.util.List;
 import java.util.Random;
 
@@ -24,26 +22,28 @@ public class SimplexIPComboCavern extends BetterCave {
         super(world);
         simplexNoiseGen = new SimplexNoiseGen(
                 world,
-                Configuration.simplexFractalCave.fractalOctaves,
-                Configuration.simplexFractalCave.fractalGain,
-                Configuration.simplexFractalCave.fractalFrequency,
-                Configuration.simplexFractalCave.turbulenceOctaves,
-                Configuration.simplexFractalCave.turbulenceGain,
-                Configuration.simplexFractalCave.turbulenceFrequency,
-                Configuration.simplexFractalCave.enableTurbulence,
-                Configuration.simplexFractalCave.enableSmoothing
+                Configuration.caveSettings.simplexFractalCave.fractalOctaves,
+                Configuration.caveSettings.simplexFractalCave.fractalGain,
+                Configuration.caveSettings.simplexFractalCave.fractalFrequency,
+                Configuration.caveSettings.simplexFractalCave.turbulenceOctaves,
+                Configuration.caveSettings.simplexFractalCave.turbulenceGain,
+                Configuration.caveSettings.simplexFractalCave.turbulenceFrequency,
+                Configuration.caveSettings.simplexFractalCave.enableTurbulence,
+                Configuration.caveSettings.simplexFractalCave.enableSmoothing,
+                Configuration.caveSettings.simplexFractalCave.yCompression,
+                Configuration.caveSettings.simplexFractalCave.xzCompression
         );
 
         perlinNoiseGen = new PerlinNoiseGen(
                 world,
-                Configuration.invertedPerlinCavern.fractalOctaves,
-                Configuration.invertedPerlinCavern.fractalGain,
-                Configuration.invertedPerlinCavern.fractalFrequency,
-                Configuration.invertedPerlinCavern.turbulenceOctaves,
-                Configuration.invertedPerlinCavern.turbulenceGain,
-                Configuration.invertedPerlinCavern.turbulenceFrequency,
-                Configuration.invertedPerlinCavern.enableTurbulence,
-                Configuration.invertedPerlinCavern.enableSmoothing
+                Configuration.caveSettings.invertedPerlinCavern.fractalOctaves,
+                Configuration.caveSettings.invertedPerlinCavern.fractalGain,
+                Configuration.caveSettings.invertedPerlinCavern.fractalFrequency,
+                Configuration.caveSettings.invertedPerlinCavern.turbulenceOctaves,
+                Configuration.caveSettings.invertedPerlinCavern.turbulenceGain,
+                Configuration.caveSettings.invertedPerlinCavern.turbulenceFrequency,
+                Configuration.caveSettings.invertedPerlinCavern.enableTurbulence,
+                Configuration.caveSettings.invertedPerlinCavern.enableSmoothing
         );
     }
 
@@ -60,23 +60,24 @@ public class SimplexIPComboCavern extends BetterCave {
         int simplexCaveBottom = 20;
 //        int simplexCaveTop = minSurfaceHeight + ((maxSurfaceHeight - minSurfaceHeight) / 2);
         Random r = new Random((long) (chunkX + chunkZ));
-        int simplexCaveTop = minSurfaceHeight + ((maxSurfaceHeight - minSurfaceHeight) / 4);
+//        int simplexCaveTop = minSurfaceHeight + ((maxSurfaceHeight - minSurfaceHeight) / 4);
+        int simplexCaveTop = maxSurfaceHeight;
 
         int perlinCavernBottom = 1;
         int perlinCavernTransitionBoundary = 23;
         int perlinCavernTop = 30;
 
-        int easeInDepth = minSurfaceHeight - 5;
+        int easeInDepth = maxSurfaceHeight - 20;
 
-        int perlinNumGens = Configuration.invertedPerlinCavern.numGenerators;
-        int simplexNumGens = Configuration.simplexFractalCave.numGenerators;
+        int perlinNumGens = Configuration.caveSettings.invertedPerlinCavern.numGenerators;
+        int simplexNumGens = Configuration.caveSettings.simplexFractalCave.numGenerators;
 
-        List<NoiseTuple[][]> perlinNoises = perlinNoiseGen.generateNoise(chunkX, chunkZ, perlinCavernBottom, simplexCaveTop, perlinNumGens);
-        List<NoiseTuple[][]> simplexNoises = simplexNoiseGen.generateNoise(chunkX, chunkZ, perlinCavernBottom, simplexCaveTop, simplexNumGens);
+        List<NoiseTuple[][]> perlinNoises = perlinNoiseGen.generateNoise(chunkX, chunkZ, perlinCavernBottom, perlinCavernTop, perlinNumGens);
+        List<NoiseTuple[][]> simplexNoises = simplexNoiseGen.generateNoise(chunkX, chunkZ, simplexCaveBottom, simplexCaveTop, simplexNumGens);
 
 
         /* Adjust simplex noise values based on horizontal neighbors. This might help prevent cave fracturing.*/
-        for (int realY = simplexCaveTop; realY >= perlinCavernBottom; realY--) {
+        for (int realY = simplexCaveTop; realY >= simplexCaveBottom; realY--) {
             for (int localX = 0; localX < 16; localX++) {
                 for (int localZ = 0; localZ < 16; localZ++) {
                     NoiseTuple sBlockNoise = simplexNoises.get(simplexCaveTop - realY)[localX][localZ];
@@ -87,7 +88,7 @@ public class SimplexIPComboCavern extends BetterCave {
 
                     avgSNoise /= sBlockNoise.size();
 
-                    if (avgSNoise > Configuration.simplexFractalCave.noiseThreshold) {
+                    if (avgSNoise > Configuration.caveSettings.simplexFractalCave.noiseThreshold) {
                         /* Adjust noise values of blocks above to give the player more head room */
                         if (realY < simplexCaveTop) {
                             NoiseTuple tupleAbove = simplexNoises.get(simplexCaveTop - realY - 1)[localX][localZ];
@@ -100,19 +101,6 @@ public class SimplexIPComboCavern extends BetterCave {
                             for (int i = 0; i < simplexNumGens; i++)
                                 tupleTwoAbove.set(i, (.15f * tupleTwoAbove.get(i)) + (.85f * sBlockNoise.get(i)));
                         }
-
-//                        /* Adjust noise values based on horizontal neighbors. This might help prevent cave fracturing.*/
-//                        if (localX > 0) {
-//                            NoiseTuple neighbor = simplexNoises.get(simplexCaveTop - realY)[localX - 1][localZ];
-//                            for (int i = 0; i < simplexNumGens; i++)
-//                                neighbor.set(i, (neighbor.get(i) * .75f) + (sBlockNoise.get(i) * .25f));
-//                        }
-//
-//                        if (localZ > 0) {
-//                            NoiseTuple neighbor = simplexNoises.get(simplexCaveTop - realY)[localX][localZ - 1];
-//                            for (int i = 0; i < simplexNumGens; i++)
-//                                neighbor.set(i, (neighbor.get(i) * .75f) + (sBlockNoise.get(i) * .25f));
-//                        }
                     }
                 }
             }
@@ -129,9 +117,9 @@ public class SimplexIPComboCavern extends BetterCave {
                     // Process inverse perlin noise
                     if (realY <= perlinCavernTop) {
                         float pNoise = 1;
-                        float noiseThreshold = Configuration.invertedPerlinCavern.noiseThreshold;
+                        float noiseThreshold = Configuration.caveSettings.invertedPerlinCavern.noiseThreshold;
 
-                        pBlockNoise = perlinNoises.get(simplexCaveTop - realY)[localX][localZ].getNoiseValues();
+                        pBlockNoise = perlinNoises.get(perlinCavernTop - realY)[localX][localZ].getNoiseValues();
 
                         for (float noise : pBlockNoise)
                             pNoise *= noise;
@@ -141,9 +129,9 @@ public class SimplexIPComboCavern extends BetterCave {
                             noiseThreshold *= Math.max((float) (realY - perlinCavernTop) / (perlinCavernTransitionBoundary - perlinCavernTop), .5f);
                         }
 
-                        if (realY >= easeInDepth) {
+                        if (realY >= minSurfaceHeight - 5) {
                             // Close off caverns if we're in ease-in depth range (probably means this is under the ocean)
-                            noiseThreshold *= (float) (realY - perlinCavernTop) / (easeInDepth - perlinCavernTop);
+                            noiseThreshold *= (float) (realY - perlinCavernTop) / (minSurfaceHeight - 5 - perlinCavernTop);
                         }
 
                         if (pNoise < noiseThreshold)
@@ -153,7 +141,7 @@ public class SimplexIPComboCavern extends BetterCave {
                     // Process simplex noise
                     if (realY >= simplexCaveBottom && !digBlock) {
                         float sNoise = 0;
-                        float noiseThreshold = Configuration.simplexFractalCave.noiseThreshold;
+                        float noiseThreshold = Configuration.caveSettings.simplexFractalCave.noiseThreshold;
 
                         sBlockNoise= simplexNoises.get(simplexCaveTop - realY)[localX][localZ].getNoiseValues();
 
@@ -165,7 +153,7 @@ public class SimplexIPComboCavern extends BetterCave {
                         if (realY >= easeInDepth) {
                             // Close off caves if we're in ease-in depth range
 //                            noiseThreshold *= (1 + Math.max((float) (simplexCaveTop - realY) / (simplexCaveTop- easeInDepth), .5f));
-                            noiseThreshold *= (1 + .2f * ((float)(realY - easeInDepth) / (simplexCaveTop - easeInDepth)));
+                            noiseThreshold *= (1 + .3f * ((float)(realY - easeInDepth) / (simplexCaveTop - easeInDepth)));
                         }
 
                         if (sNoise > noiseThreshold)
@@ -173,12 +161,6 @@ public class SimplexIPComboCavern extends BetterCave {
                     }
 
                     if (digBlock) {
-                        IBlockState blockState = primer.getBlockState(localX, realY, localZ);
-                        IBlockState blockStateAbove = primer.getBlockState(localX, realY + 1, localZ);
-                        boolean foundTopBlock = BetterCaveUtil.isTopBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
-
-                        if (blockStateAbove.getMaterial() == Material.WATER)
-                            continue;
                         if (localX < 15 && primer.getBlockState(localX + 1, realY, localZ).getMaterial() == Material.WATER)
                             continue;
                         if (localX > 0 && primer.getBlockState(localX - 1, realY, localZ).getMaterial() == Material.WATER)
@@ -188,9 +170,7 @@ public class SimplexIPComboCavern extends BetterCave {
                         if (localZ > 0 && primer.getBlockState(localX, realY, localZ - 1).getMaterial() == Material.WATER)
                             continue;
 
-                        boolean lava = true;
-
-                        BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ, foundTopBlock, blockState, blockStateAbove, lava);
+                        BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
                     }
                 }
             }
@@ -204,17 +184,11 @@ public class SimplexIPComboCavern extends BetterCave {
                     IBlockState currBlock = primer.getBlockState(localX, realY, localZ);
 
                     if (BetterCaveUtil.canReplaceBlock(currBlock, BlockStateAir)
-//                      && primer.getBlockState(localX, realY, localZ - 1) == BlockStateAir
-//                      && primer.getBlockState(localX, realY, localZ + 1) == BlockStateAir
-//                      && primer.getBlockState(localX - 1, realY, localZ) == BlockStateAir
-//                      && primer.getBlockState(localX + 1, realY, localZ) == BlockStateAir
-                      && primer.getBlockState(localX, realY + 1, localZ) == BlockStateAir
-                      && primer.getBlockState(localX, realY - 1, localZ) == BlockStateAir
-                    ) {
-                        boolean foundTopBlock = BetterCaveUtil.isTopBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
-                        IBlockState blockStateAbove = primer.getBlockState(localX, realY + 1, localZ);
-                        BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ, foundTopBlock, currBlock, blockStateAbove);
-                    }
+                            && primer.getBlockState(localX, realY + 1, localZ) == BlockStateAir
+                            && primer.getBlockState(localX, realY - 1, localZ) == BlockStateAir
+                    )
+                        BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
+
                 }
             }
         }

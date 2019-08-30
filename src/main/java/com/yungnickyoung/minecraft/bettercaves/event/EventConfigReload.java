@@ -8,7 +8,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /**
  * Synchronize changes to the config.
- * Should be registered to the {@code EVENT_BUS}.
+ * Should be registered to the {@code EVENT_BUS} on the client side.
  */
 public class EventConfigReload {
     /**

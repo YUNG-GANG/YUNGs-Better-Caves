@@ -1,6 +1,5 @@
 package com.yungnickyoung.minecraft.bettercaves.noise;
 
-import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.util.FastNoise;
 import net.minecraft.world.World;
 
@@ -13,13 +12,15 @@ public class SimplexNoiseGen extends NoiseGen {
     private List<FastNoise> listNoiseGens = new ArrayList<>();
     private FastNoise turbulenceGen = new FastNoise();
 
-    public SimplexNoiseGen (long seed, int fOctaves, float fGain, float fFreq, int tOctaves, float tGain, float tFreq, boolean useTurb, boolean useSmooth) {
-        super(seed, fOctaves, fGain, fFreq, tOctaves, tGain, tFreq, useTurb, useSmooth);
+    public SimplexNoiseGen (long seed, int fOctaves, float fGain, float fFreq, int tOctaves, float tGain, float tFreq,
+                            boolean useTurb, boolean useSmooth, float yComp, float xzComp) {
+        super(seed, fOctaves, fGain, fFreq, tOctaves, tGain, tFreq, useTurb, useSmooth, yComp, xzComp);
         initializeTurbulenceGen();
     }
 
-    public SimplexNoiseGen(World world, int fOctaves, float fGain, float fFreq, int tOctaves, float tGain, float tFreq, boolean useTurb, boolean useSmooth) {
-        this(world.getSeed(), fOctaves, fGain, fFreq, tOctaves, tGain, tFreq, useTurb, useSmooth);
+    public SimplexNoiseGen(World world, int fOctaves, float fGain, float fFreq, int tOctaves, float tGain, float tFreq,
+                           boolean useTurb, boolean useSmooth, float yComp, float xzComp) {
+        this(world.getSeed(), fOctaves, fGain, fFreq, tOctaves, tGain, tFreq, useTurb, useSmooth, yComp, xzComp);
     }
 
     @Override
@@ -38,7 +39,7 @@ public class SimplexNoiseGen extends NoiseGen {
                 for (int localZ = 0; localZ < 16; localZ++) {
                     int realZ = localZ + 16 * chunkZ;
 
-                    Vector3f f = new Vector3f(realX * Configuration.simplexFractalCave.xzCompression, y * Configuration.simplexFractalCave.yCompression, realZ * Configuration.simplexFractalCave.xzCompression);
+                    Vector3f f = new Vector3f(realX * xzCompression, y * yCompression, realZ * xzCompression);
 
                     // Use turbulence function to apply gradient perturbation, if enabled
                     if (this.enableTurbulence)

@@ -14,10 +14,9 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 /**
- * Proxy for client-only code. Unused as of 1.0.0
+ * Proxy for client-only code.
  */
 public class ClientProxy implements IProxy {
-    // mouse helper
     @Override
     public void preInit(FMLPreInitializationEvent event) {
         MinecraftForge.EVENT_BUS.register(new EventConfigReload());

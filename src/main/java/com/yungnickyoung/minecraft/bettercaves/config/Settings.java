@@ -8,7 +8,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * Class containing information for Better Caves.
+ * Class containing settings and information for Better Caves.
  * All fields are {@code static}.
  */
 public class Settings {

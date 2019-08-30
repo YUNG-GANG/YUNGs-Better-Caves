@@ -8,7 +8,7 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 /**
- * Interface for specifynig proxy functionality.
+ * Interface for specifying proxy functionality.
  *
  * This code taken from Jabelar's proxy tutorial. Check out their blog at http://jabelarminecraft.blogspot.com/.
  */

@@ -11,7 +11,7 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 /**
- * Proxy for common code (client or server)
+ * Proxy for server code
  */
 public class ServerProxy implements IProxy {
     @Override

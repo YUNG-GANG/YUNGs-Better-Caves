@@ -22,14 +22,14 @@ public class PerlinCavern extends BetterCave {
         super(world);
         noiseGen = new PerlinNoiseGen(
                 world,
-                Configuration.perlinCavern.fractalOctaves,
-                Configuration.perlinCavern.fractalGain,
-                Configuration.perlinCavern.fractalFrequency,
-                Configuration.perlinCavern.turbulenceOctaves,
-                Configuration.perlinCavern.turbulenceGain,
-                Configuration.perlinCavern.turbulenceFrequency,
-                Configuration.perlinCavern.enableTurbulence,
-                Configuration.perlinCavern.enableSmoothing
+                Configuration.caveSettings.perlinCavern.fractalOctaves,
+                Configuration.caveSettings.perlinCavern.fractalGain,
+                Configuration.caveSettings.perlinCavern.fractalFrequency,
+                Configuration.caveSettings.perlinCavern.turbulenceOctaves,
+                Configuration.caveSettings.perlinCavern.turbulenceGain,
+                Configuration.caveSettings.perlinCavern.turbulenceFrequency,
+                Configuration.caveSettings.perlinCavern.enableTurbulence,
+                Configuration.caveSettings.perlinCavern.enableSmoothing
         );
     }
 
@@ -40,9 +40,9 @@ public class PerlinCavern extends BetterCave {
 //            return;
 //        }
 
-        int maxHeight = Configuration.perlinCavern.maxHeight;
-        int minHeight = Configuration.perlinCavern.minHeight;
-        int numGenerators = Configuration.perlinCavern.numGenerators;
+        int maxHeight = Configuration.caveSettings.perlinCavern.maxHeight;
+        int minHeight = Configuration.caveSettings.perlinCavern.minHeight;
+        int numGenerators = Configuration.caveSettings.perlinCavern.numGenerators;
 
         List<NoiseTuple[][]> noises = noiseGen.generateNoise(chunkX, chunkZ, minHeight, maxHeight, numGenerators);
 
@@ -71,7 +71,7 @@ public class PerlinCavern extends BetterCave {
                     for (float noise : blockNoise)
                         totalNoise *= noise;
 
-                    if (totalNoise < Configuration.perlinCavern.noiseThreshold)
+                    if (totalNoise < Configuration.caveSettings.perlinCavern.noiseThreshold)
                         digBlock = false;
 
                     if (digBlock) {
@@ -92,7 +92,7 @@ public class PerlinCavern extends BetterCave {
 
                         boolean lava = true;
 
-                        BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ, foundTopBlock, blockState, blockStateAbove, lava);
+                        BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
                     }
 
 

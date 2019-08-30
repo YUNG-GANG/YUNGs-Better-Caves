@@ -20,26 +20,28 @@ public class SimplexPerlinComboCavern extends BetterCave {
         super(world);
         simplexNoiseGen = new SimplexNoiseGen(
                 world,
-                Configuration.simplexFractalCave.fractalOctaves,
-                Configuration.simplexFractalCave.fractalGain,
-                Configuration.simplexFractalCave.fractalFrequency,
-                Configuration.simplexFractalCave.turbulenceOctaves,
-                Configuration.simplexFractalCave.turbulenceGain,
-                Configuration.simplexFractalCave.turbulenceFrequency,
-                Configuration.simplexFractalCave.enableTurbulence,
-                Configuration.simplexFractalCave.enableSmoothing
+                Configuration.caveSettings.simplexFractalCave.fractalOctaves,
+                Configuration.caveSettings.simplexFractalCave.fractalGain,
+                Configuration.caveSettings.simplexFractalCave.fractalFrequency,
+                Configuration.caveSettings.simplexFractalCave.turbulenceOctaves,
+                Configuration.caveSettings.simplexFractalCave.turbulenceGain,
+                Configuration.caveSettings.simplexFractalCave.turbulenceFrequency,
+                Configuration.caveSettings.simplexFractalCave.enableTurbulence,
+                Configuration.caveSettings.simplexFractalCave.enableSmoothing,
+                Configuration.caveSettings.simplexFractalCave.yCompression,
+                Configuration.caveSettings.simplexFractalCave.xzCompression
         );
 
         perlinNoiseGen = new PerlinNoiseGen(
                 world,
-                Configuration.perlinCavern.fractalOctaves,
-                Configuration.perlinCavern.fractalGain,
-                Configuration.perlinCavern.fractalFrequency,
-                Configuration.perlinCavern.turbulenceOctaves,
-                Configuration.perlinCavern.turbulenceGain,
-                Configuration.perlinCavern.turbulenceFrequency,
-                Configuration.perlinCavern.enableTurbulence,
-                Configuration.perlinCavern.enableSmoothing
+                Configuration.caveSettings.perlinCavern.fractalOctaves,
+                Configuration.caveSettings.perlinCavern.fractalGain,
+                Configuration.caveSettings.perlinCavern.fractalFrequency,
+                Configuration.caveSettings.perlinCavern.turbulenceOctaves,
+                Configuration.caveSettings.perlinCavern.turbulenceGain,
+                Configuration.caveSettings.perlinCavern.turbulenceFrequency,
+                Configuration.caveSettings.perlinCavern.enableTurbulence,
+                Configuration.caveSettings.perlinCavern.enableSmoothing
         );
     }
 
@@ -61,8 +63,8 @@ public class SimplexPerlinComboCavern extends BetterCave {
         int simplexCaveTransitionBoundary = 45;
         int simplexCaveTop = 60;
 
-        int perlinNumGens = Configuration.perlinCavern.numGenerators;
-        int simplexNumGens = Configuration.simplexFractalCave.numGenerators;
+        int perlinNumGens = Configuration.caveSettings.perlinCavern.numGenerators;
+        int simplexNumGens = Configuration.caveSettings.simplexFractalCave.numGenerators;
 
         List<NoiseTuple[][]> perlinNoises = perlinNoiseGen.generateNoise(chunkX, chunkZ, perlinCavernBottom, simplexCaveTop, perlinNumGens);
         List<NoiseTuple[][]> simplexNoises = simplexNoiseGen.generateNoise(chunkX, chunkZ, perlinCavernBottom, simplexCaveTop, simplexNumGens);
@@ -76,7 +78,7 @@ public class SimplexPerlinComboCavern extends BetterCave {
                     // Process inverse perlin noise
                     if (realY <= perlinCavernTop) {
                         float pNoise = 1;
-                        float noiseThreshold = Configuration.perlinCavern.noiseThreshold;
+                        float noiseThreshold = Configuration.caveSettings.perlinCavern.noiseThreshold;
 
                         pBlockNoise = perlinNoises.get(simplexCaveTop - realY)[localX][localZ].getNoiseValues();
 
@@ -101,7 +103,7 @@ public class SimplexPerlinComboCavern extends BetterCave {
 
                         sNoise /= sBlockNoise.size();
 
-                        if (sNoise > Configuration.simplexFractalCave.noiseThreshold)
+                        if (sNoise > Configuration.caveSettings.simplexFractalCave.noiseThreshold)
                             digBlock = true;
                     }
 
@@ -123,7 +125,7 @@ public class SimplexPerlinComboCavern extends BetterCave {
 
                         boolean lava = true;
 
-                        BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ, foundTopBlock, blockState, blockStateAbove, lava);
+                        BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
                     }
                 }
             }

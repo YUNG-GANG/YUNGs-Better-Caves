@@ -21,40 +21,40 @@ public class ValueFractalCave extends BetterCave {
         super(world);
 
         noiseGenerator1.SetNoiseType(FastNoise.NoiseType.ValueFractal);
-        noiseGenerator1.SetFractalOctaves(Configuration.valueFractalCave.fractalOctaves);
-        noiseGenerator1.SetFractalGain(Configuration.valueFractalCave.fractalGain);
-        noiseGenerator1.SetFrequency(Configuration.valueFractalCave.fractalFrequency);
+        noiseGenerator1.SetFractalOctaves(Configuration.caveSettings.valueFractalCave.fractalOctaves);
+        noiseGenerator1.SetFractalGain(Configuration.caveSettings.valueFractalCave.fractalGain);
+        noiseGenerator1.SetFrequency(Configuration.caveSettings.valueFractalCave.fractalFrequency);
 
         noiseGenerator2.SetNoiseType(FastNoise.NoiseType.ValueFractal);
-        noiseGenerator2.SetFractalOctaves(Configuration.valueFractalCave.fractalOctaves);
-        noiseGenerator2.SetFractalGain(Configuration.valueFractalCave.fractalGain);
-        noiseGenerator2.SetFrequency(Configuration.valueFractalCave.fractalFrequency);
+        noiseGenerator2.SetFractalOctaves(Configuration.caveSettings.valueFractalCave.fractalOctaves);
+        noiseGenerator2.SetFractalGain(Configuration.caveSettings.valueFractalCave.fractalGain);
+        noiseGenerator2.SetFrequency(Configuration.caveSettings.valueFractalCave.fractalFrequency);
 
-        turbulence.SetFractalOctaves(Configuration.valueFractalCave.turbulenceOctaves);
-        turbulence.SetFractalGain(Configuration.valueFractalCave.turbulenceGain);
-        turbulence.SetFrequency(Configuration.valueFractalCave.turbulenceFrequency);
+        turbulence.SetFractalOctaves(Configuration.caveSettings.valueFractalCave.turbulenceOctaves);
+        turbulence.SetFractalGain(Configuration.caveSettings.valueFractalCave.turbulenceGain);
+        turbulence.SetFrequency(Configuration.caveSettings.valueFractalCave.turbulenceFrequency);
 
 
         noiseGenerator3.SetFractalType(FastNoise.FractalType.RigidMulti);
         noiseGenerator3.SetSeed((int)(world.getSeed()) + 2);
         noiseGenerator3.SetNoiseType(FastNoise.NoiseType.ValueFractal);
-        noiseGenerator3.SetFractalOctaves(Configuration.valueFractalCave.fractalOctaves);
-        noiseGenerator3.SetFractalGain(Configuration.valueFractalCave.fractalGain);
-        noiseGenerator3.SetFrequency(Configuration.valueFractalCave.fractalFrequency);
+        noiseGenerator3.SetFractalOctaves(Configuration.caveSettings.valueFractalCave.fractalOctaves);
+        noiseGenerator3.SetFractalGain(Configuration.caveSettings.valueFractalCave.fractalGain);
+        noiseGenerator3.SetFrequency(Configuration.caveSettings.valueFractalCave.fractalFrequency);
 
         noiseGenerator4.SetFractalType(FastNoise.FractalType.RigidMulti);
         noiseGenerator4.SetSeed((int)(world.getSeed()) + 3);
         noiseGenerator4.SetNoiseType(FastNoise.NoiseType.ValueFractal);
-        noiseGenerator4.SetFractalOctaves(Configuration.valueFractalCave.fractalOctaves);
-        noiseGenerator4.SetFractalGain(Configuration.valueFractalCave.fractalGain);
-        noiseGenerator4.SetFrequency(Configuration.valueFractalCave.fractalFrequency);
+        noiseGenerator4.SetFractalOctaves(Configuration.caveSettings.valueFractalCave.fractalOctaves);
+        noiseGenerator4.SetFractalGain(Configuration.caveSettings.valueFractalCave.fractalGain);
+        noiseGenerator4.SetFrequency(Configuration.caveSettings.valueFractalCave.fractalFrequency);
 
         noiseGenerator5.SetFractalType(FastNoise.FractalType.RigidMulti);
         noiseGenerator5.SetSeed((int)(world.getSeed()) + 4);
         noiseGenerator5.SetNoiseType(FastNoise.NoiseType.ValueFractal);
-        noiseGenerator5.SetFractalOctaves(Configuration.valueFractalCave.fractalOctaves);
-        noiseGenerator5.SetFractalGain(Configuration.valueFractalCave.fractalGain);
-        noiseGenerator5.SetFrequency(Configuration.valueFractalCave.fractalFrequency);
+        noiseGenerator5.SetFractalOctaves(Configuration.caveSettings.valueFractalCave.fractalOctaves);
+        noiseGenerator5.SetFractalGain(Configuration.caveSettings.valueFractalCave.fractalGain);
+        noiseGenerator5.SetFrequency(Configuration.caveSettings.valueFractalCave.fractalFrequency);
 
         r = new Random(world.getSeed());
     }
@@ -78,7 +78,7 @@ public class ValueFractalCave extends BetterCave {
                     Vector3f f = new Vector3f(realX, realY, realZ);
 
                     // Use turbulence function to apply gradient perturbation, if enabled
-                    if (Configuration.valueFractalCave.enableTurbulence)
+                    if (Configuration.caveSettings.valueFractalCave.enableTurbulence)
                         turbulence.GradientPerturbFractal(f);
 
                     float noise1 = noiseGenerator1.GetNoise(f.x, f.y, f.z);
@@ -128,7 +128,7 @@ public class ValueFractalCave extends BetterCave {
         NoiseTriple[][][] noises = createNoise(chunkX, chunkZ, 64);
 
         float adjustment = (r.nextFloat() % .05f) - .025f;
-        float adjustedThreshold = Configuration.valueFractalCave.noiseThreshold + adjustment;
+        float adjustedThreshold = Configuration.caveSettings.valueFractalCave.noiseThreshold + adjustment;
 
         for (int localX = 0; localX < 16; localX++) {
             int realX = localX + 16*chunkX;
@@ -167,7 +167,7 @@ public class ValueFractalCave extends BetterCave {
                         if (localZ > 0 && primer.getBlockState(localX, realY, localZ - 1).getMaterial() == Material.WATER)
                             continue;
 
-                        BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ, foundTopBlock, blockState, blockStateAbove);
+                        BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
                     }
 
                     /*
@@ -227,9 +227,9 @@ public class ValueFractalCave extends BetterCave {
                         float noise2 = noises[localX][realY - 1][localZ].n2;
                         float noise3 = noises[localX][realY - 1][localZ].n3;
 
-                        int state1 = (noise1 > Configuration.valueFractalCave.noiseThreshold) ? 1 : 0;
-                        int state2 = (noise2 > Configuration.valueFractalCave.noiseThreshold) ? 1 : 0;
-                        int state3 = (noise3 > Configuration.valueFractalCave.noiseThreshold) ? 1 : 0;
+                        int state1 = (noise1 > Configuration.caveSettings.valueFractalCave.noiseThreshold) ? 1 : 0;
+                        int state2 = (noise2 > Configuration.caveSettings.valueFractalCave.noiseThreshold) ? 1 : 0;
+                        int state3 = (noise3 > Configuration.caveSettings.valueFractalCave.noiseThreshold) ? 1 : 0;
 
                         int state = state1 * state2 * state3;
 

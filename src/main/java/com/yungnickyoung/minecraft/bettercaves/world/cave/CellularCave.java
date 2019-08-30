@@ -21,48 +21,48 @@ public class CellularCave extends BetterCave {
         super(world);
 
         noiseGenerator1.SetNoiseType(FastNoise.NoiseType.Cellular);
-        noiseGenerator1.SetFractalOctaves(Configuration.cellularCave.fractalOctaves);
-        noiseGenerator1.SetFractalGain(Configuration.cellularCave.fractalGain);
-        noiseGenerator1.SetFrequency(Configuration.cellularCave.fractalFrequency);
+        noiseGenerator1.SetFractalOctaves(Configuration.caveSettings.cellularCave.fractalOctaves);
+        noiseGenerator1.SetFractalGain(Configuration.caveSettings.cellularCave.fractalGain);
+        noiseGenerator1.SetFrequency(Configuration.caveSettings.cellularCave.fractalFrequency);
         noiseGenerator1.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Euclidean);
         noiseGenerator1.SetCellularReturnType(FastNoise.CellularReturnType.Distance);
 
         noiseGenerator2.SetNoiseType(FastNoise.NoiseType.Cellular);
-        noiseGenerator2.SetFractalOctaves(Configuration.cellularCave.fractalOctaves);
-        noiseGenerator2.SetFractalGain(Configuration.cellularCave.fractalGain);
-        noiseGenerator2.SetFrequency(Configuration.cellularCave.fractalFrequency);
+        noiseGenerator2.SetFractalOctaves(Configuration.caveSettings.cellularCave.fractalOctaves);
+        noiseGenerator2.SetFractalGain(Configuration.caveSettings.cellularCave.fractalGain);
+        noiseGenerator2.SetFrequency(Configuration.caveSettings.cellularCave.fractalFrequency);
         noiseGenerator2.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Euclidean);
         noiseGenerator2.SetCellularReturnType(FastNoise.CellularReturnType.Distance);
 
-        turbulence.SetFractalOctaves(Configuration.cellularCave.turbulenceOctaves);
-        turbulence.SetFractalGain(Configuration.cellularCave.turbulenceGain);
-        turbulence.SetFrequency(Configuration.cellularCave.turbulenceFrequency);
+        turbulence.SetFractalOctaves(Configuration.caveSettings.cellularCave.turbulenceOctaves);
+        turbulence.SetFractalGain(Configuration.caveSettings.cellularCave.turbulenceGain);
+        turbulence.SetFrequency(Configuration.caveSettings.cellularCave.turbulenceFrequency);
 
 
         noiseGenerator3.SetFractalType(FastNoise.FractalType.RigidMulti);
         noiseGenerator3.SetSeed((int)(world.getSeed()) + 2);
         noiseGenerator3.SetNoiseType(FastNoise.NoiseType.Cellular);
-        noiseGenerator3.SetFractalOctaves(Configuration.cellularCave.fractalOctaves);
-        noiseGenerator3.SetFractalGain(Configuration.cellularCave.fractalGain);
-        noiseGenerator3.SetFrequency(Configuration.cellularCave.fractalFrequency);
+        noiseGenerator3.SetFractalOctaves(Configuration.caveSettings.cellularCave.fractalOctaves);
+        noiseGenerator3.SetFractalGain(Configuration.caveSettings.cellularCave.fractalGain);
+        noiseGenerator3.SetFrequency(Configuration.caveSettings.cellularCave.fractalFrequency);
         noiseGenerator3.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Euclidean);
         noiseGenerator3.SetCellularReturnType(FastNoise.CellularReturnType.Distance);
 
         noiseGenerator4.SetFractalType(FastNoise.FractalType.RigidMulti);
         noiseGenerator4.SetSeed((int)(world.getSeed()) + 3);
         noiseGenerator4.SetNoiseType(FastNoise.NoiseType.Cellular);
-        noiseGenerator4.SetFractalOctaves(Configuration.cellularCave.fractalOctaves);
-        noiseGenerator4.SetFractalGain(Configuration.cellularCave.fractalGain);
-        noiseGenerator4.SetFrequency(Configuration.cellularCave.fractalFrequency);
+        noiseGenerator4.SetFractalOctaves(Configuration.caveSettings.cellularCave.fractalOctaves);
+        noiseGenerator4.SetFractalGain(Configuration.caveSettings.cellularCave.fractalGain);
+        noiseGenerator4.SetFrequency(Configuration.caveSettings.cellularCave.fractalFrequency);
         noiseGenerator4.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Euclidean);
         noiseGenerator4.SetCellularReturnType(FastNoise.CellularReturnType.Distance);
 
         noiseGenerator5.SetFractalType(FastNoise.FractalType.RigidMulti);
         noiseGenerator5.SetSeed((int)(world.getSeed()) + 4);
         noiseGenerator5.SetNoiseType(FastNoise.NoiseType.Cellular);
-        noiseGenerator5.SetFractalOctaves(Configuration.cellularCave.fractalOctaves);
-        noiseGenerator5.SetFractalGain(Configuration.cellularCave.fractalGain);
-        noiseGenerator5.SetFrequency(Configuration.cellularCave.fractalFrequency);
+        noiseGenerator5.SetFractalOctaves(Configuration.caveSettings.cellularCave.fractalOctaves);
+        noiseGenerator5.SetFractalGain(Configuration.caveSettings.cellularCave.fractalGain);
+        noiseGenerator5.SetFrequency(Configuration.caveSettings.cellularCave.fractalFrequency);
         noiseGenerator5.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Euclidean);
         noiseGenerator5.SetCellularReturnType(FastNoise.CellularReturnType.Distance);
 //
@@ -88,7 +88,7 @@ public class CellularCave extends BetterCave {
                     Vector3f f = new Vector3f(realX, realY, realZ);
 
                     // Use turbulence function to apply gradient perturbation, if enabled
-                    if (Configuration.cellularCave.enableTurbulence)
+                    if (Configuration.caveSettings.cellularCave.enableTurbulence)
                         turbulence.GradientPerturbFractal(f);
 
                     float noise1 = noiseGenerator1.GetNoise(f.x, f.y, f.z);
@@ -139,7 +139,7 @@ public class CellularCave extends BetterCave {
 
 //        float adjustment = (r.nextFloat() % .05f) - .025f;
 //        float adjustedThreshold = Configuration.simplexFractalCave.noiseThreshold + adjustment;
-        float adjustedThreshold = Configuration.cellularCave.noiseThreshold;
+        float adjustedThreshold = Configuration.caveSettings.cellularCave.noiseThreshold;
 
         for (int localX = 0; localX < 16; localX++) {
             int realX = localX + 16*chunkX;
@@ -154,10 +154,10 @@ public class CellularCave extends BetterCave {
                     float noise4 = noises[localX][realY - 1][localZ].n4;
 //                    float noise5 = noises[localX][realY - 1][localZ].n5;
 
-                    int state1 = (noise1 > adjustedThreshold && noise1 < Configuration.cellularCave.topThreshold) ? 1 : 0;
-                    int state2 = (noise2 > adjustedThreshold && noise2 < Configuration.cellularCave.topThreshold) ? 1 : 0;
-                    int state3 = (noise3 > adjustedThreshold && noise3 < Configuration.cellularCave.topThreshold) ? 1 : 0;
-                    int state4 = (noise4 > adjustedThreshold && noise4 < Configuration.cellularCave.topThreshold) ? 1 : 0;
+                    int state1 = (noise1 > adjustedThreshold && noise1 < Configuration.caveSettings.cellularCave.topThreshold) ? 1 : 0;
+                    int state2 = (noise2 > adjustedThreshold && noise2 < Configuration.caveSettings.cellularCave.topThreshold) ? 1 : 0;
+                    int state3 = (noise3 > adjustedThreshold && noise3 < Configuration.caveSettings.cellularCave.topThreshold) ? 1 : 0;
+                    int state4 = (noise4 > adjustedThreshold && noise4 < Configuration.caveSettings.cellularCave.topThreshold) ? 1 : 0;
 //                    int state5 = (noise5 > adjustedThreshold && noise5 < Configuration.cellularCave.topThreshold) ? 1 : 0;
 
                     int state = state1 * state2 * state3 * state4;
@@ -178,7 +178,7 @@ public class CellularCave extends BetterCave {
                         if (localZ > 0 && primer.getBlockState(localX, realY, localZ - 1).getMaterial() == Material.WATER)
                             continue;
 
-                        BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ, foundTopBlock, blockState, blockStateAbove);
+                        BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
                     }
 
 

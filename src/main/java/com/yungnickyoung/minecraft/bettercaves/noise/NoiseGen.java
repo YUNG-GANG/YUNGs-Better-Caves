@@ -16,7 +16,11 @@ public abstract class NoiseGen {
     boolean enableTurbulence;
     boolean enableSmoothing;
 
-    public NoiseGen(long seed, int fOctaves, float fGain, float fFreq, int tOctaves, float tGain, float tFreq, boolean useTurb, boolean useSmooth) {
+    float yCompression;
+    float xzCompression;
+
+    public NoiseGen(long seed, int fOctaves, float fGain, float fFreq, int tOctaves, float tGain, float tFreq,
+                    boolean useTurb, boolean useSmooth, float yComp, float xzComp) {
         this.seed = seed;
 
         this.fractalOctaves = fOctaves;
@@ -29,6 +33,9 @@ public abstract class NoiseGen {
 
         this.enableTurbulence = useTurb;
         this.enableSmoothing = useSmooth;
+
+        this.yCompression = yComp;
+        this.xzCompression = xzComp;
     }
 
     /**

@@ -19,14 +19,16 @@ public class SimplexFractalCave extends BetterCave {
         super(world);
         noiseGen = new SimplexNoiseGen(
                 world,
-                Configuration.simplexFractalCave.fractalOctaves,
-                Configuration.simplexFractalCave.fractalGain,
-                Configuration.simplexFractalCave.fractalFrequency,
-                Configuration.simplexFractalCave.turbulenceOctaves,
-                Configuration.simplexFractalCave.turbulenceGain,
-                Configuration.simplexFractalCave.turbulenceFrequency,
-                Configuration.simplexFractalCave.enableTurbulence,
-                Configuration.simplexFractalCave.enableSmoothing
+                Configuration.caveSettings.simplexFractalCave.fractalOctaves,
+                Configuration.caveSettings.simplexFractalCave.fractalGain,
+                Configuration.caveSettings.simplexFractalCave.fractalFrequency,
+                Configuration.caveSettings.simplexFractalCave.turbulenceOctaves,
+                Configuration.caveSettings.simplexFractalCave.turbulenceGain,
+                Configuration.caveSettings.simplexFractalCave.turbulenceFrequency,
+                Configuration.caveSettings.simplexFractalCave.enableTurbulence,
+                Configuration.caveSettings.simplexFractalCave.enableSmoothing,
+                Configuration.caveSettings.simplexFractalCave.yCompression,
+                Configuration.caveSettings.simplexFractalCave.xzCompression
         );
     }
 
@@ -37,9 +39,9 @@ public class SimplexFractalCave extends BetterCave {
 //            return;
 //        }
 
-        int maxHeight = Configuration.simplexFractalCave.maxHeight;
-        int minHeight = Configuration.simplexFractalCave.minHeight;
-        int numGenerators = Configuration.simplexFractalCave.numGenerators;
+        int maxHeight = Configuration.caveSettings.simplexFractalCave.maxHeight;
+        int minHeight = Configuration.caveSettings.simplexFractalCave.minHeight;
+        int numGenerators = Configuration.caveSettings.simplexFractalCave.numGenerators;
 
         List<NoiseTuple[][]> noises = noiseGen.generateNoise(chunkX, chunkZ, minHeight, maxHeight, numGenerators);
 
@@ -69,7 +71,7 @@ public class SimplexFractalCave extends BetterCave {
 
 
 
-                    if (totalNoise < Configuration.simplexFractalCave.noiseThreshold)
+                    if (totalNoise < Configuration.caveSettings.simplexFractalCave.noiseThreshold)
                         digBlock = false;
 
                     if (digBlock) {
@@ -90,7 +92,7 @@ public class SimplexFractalCave extends BetterCave {
 
                         boolean lava = true;
 
-                        BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ, foundTopBlock, blockState, blockStateAbove, lava);
+                        BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
                     }
 
 

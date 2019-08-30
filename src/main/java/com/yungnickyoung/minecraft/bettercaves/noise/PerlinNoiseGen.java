@@ -13,7 +13,7 @@ public class PerlinNoiseGen extends NoiseGen {
     private FastNoise turbulenceGen = new FastNoise();
 
     public PerlinNoiseGen (long seed, int fOctaves, float fGain, float fFreq, int tOctaves, float tGain, float tFreq, boolean useTurb, boolean useSmooth) {
-        super(seed, fOctaves, fGain, fFreq, tOctaves, tGain, tFreq, useTurb, useSmooth);
+        super(seed, fOctaves, fGain, fFreq, tOctaves, tGain, tFreq, useTurb, useSmooth, 0, 0);
         initializeTurbulenceGen();
     }
 

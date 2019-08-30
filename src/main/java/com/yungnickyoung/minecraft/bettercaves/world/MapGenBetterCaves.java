@@ -46,10 +46,7 @@ public class MapGenBetterCaves extends MapGenCaves {
             this.simplexIPComboCavern = new SimplexIPComboCavern(world);
             this.simplexPerlinComboCavern = new SimplexPerlinComboCavern(world);
         }
-
-//        CaveType caveType = CaveType.InvertedPerlinCavern; // TODO: have this be chosen based on another noise generator that
-                                                    // partitions off cave biomes based on real x-y-z coords
-
+        
         CaveType caveType = Configuration.caveType;
 
         switch (caveType) {

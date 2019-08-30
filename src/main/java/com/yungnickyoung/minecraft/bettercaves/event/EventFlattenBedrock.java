@@ -11,7 +11,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /**
  * Replaces ordinary bedrock generation with a flattened layer based on the user's specification.
- * Should be registered to the {@code EVENT_BUS} in the client proxy.
+ * Should be registered to the {@code EVENT_BUS}.
  */
 public class EventFlattenBedrock {
     /**

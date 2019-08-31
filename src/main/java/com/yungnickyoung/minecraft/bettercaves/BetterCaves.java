@@ -3,7 +3,6 @@ package com.yungnickyoung.minecraft.bettercaves;
 // Better Caves
 import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.event.EventBetterCaveGen;
-import com.yungnickyoung.minecraft.bettercaves.event.EventConfigReload;
 import com.yungnickyoung.minecraft.bettercaves.event.EventFlattenBedrock;
 import com.yungnickyoung.minecraft.bettercaves.proxy.IProxy;
 

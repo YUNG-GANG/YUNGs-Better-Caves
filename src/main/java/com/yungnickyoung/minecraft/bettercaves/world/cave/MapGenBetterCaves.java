@@ -21,6 +21,7 @@ public class MapGenBetterCaves extends MapGenCaves {
             defaultCaveGen = new MapGenCaves();
         }
 
+        // Only use Better Caves generation in overworld
         if (worldIn.provider.getDimension() == 0)
             simplexCavePerlinCavern.generate(chunkX, chunkZ, primer);
         else

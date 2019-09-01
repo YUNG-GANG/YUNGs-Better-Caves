@@ -97,12 +97,18 @@ public class BetterCaveUtil {
     public static boolean canReplaceBlock(IBlockState blockState, IBlockState blockStateAbove) {
         Block block = blockState.getBlock();
 
+        // Avoid damaging trees
         if (block == Blocks.LEAVES
                 || block == Blocks.LEAVES2
                 || block == Blocks.LOG
                 || block == Blocks.LOG2)
             return false;
 
+        // Accept stone-like blocks added from other mods
+        if (blockState.getMaterial() == Material.ROCK)
+            return true;
+
+        // Minable blocks
         if (block == Blocks.STONE
                 || block == Blocks.DIRT
                 || block == Blocks.GRASS
@@ -114,6 +120,7 @@ public class BetterCaveUtil {
                 || block  == Blocks.SNOW_LAYER)
             return true;
 
+        // Only accept gravel and sand if water is not directly above it
         return (block == Blocks.SAND || block == Blocks.GRAVEL)
                     && blockStateAbove.getMaterial() != Material.WATER;
     }

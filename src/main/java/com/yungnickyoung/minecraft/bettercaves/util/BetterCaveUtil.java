@@ -62,7 +62,7 @@ public class BetterCaveUtil {
         IBlockState blockState = primer.getBlockState(x, y, z);
         IBlockState blockStateAbove = primer.getBlockState(x, y + 1, z);
 
-        Biome biome = world.getBiome(new BlockPos(x + chunkX * 16, 0, z + chunkZ * 16));
+        Biome biome = world.getBiome(new BlockPos(x + chunkX * 16, y, z + chunkZ * 16));
         Block biomeTopBlock = biome.topBlock.getBlock();
         Block biomeFillerBlock = biome.fillerBlock.getBlock();
 

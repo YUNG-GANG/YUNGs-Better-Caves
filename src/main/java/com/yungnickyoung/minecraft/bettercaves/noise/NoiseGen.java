@@ -5,7 +5,9 @@ import net.minecraft.world.World;
 
 import javax.vecmath.Vector3f;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class used to generate NoiseTuples for blocks in a specified range within a chunk.
@@ -130,6 +132,66 @@ public class NoiseGen {
         }
 
         return noises;
+    }
+
+    public List<NoiseTuple[][]> generateNoiseRegion(int chunkX, int chunkZ, int minHeight, int maxHeight, int numGenerators, int startX, int endX, int startZ, int endZ) {
+        initializeNoiseGens(numGenerators);
+
+        List<NoiseTuple[][]> noises = new ArrayList<>();
+
+        for (int y = maxHeight; y >= minHeight; y--) {
+            NoiseTuple[][] noiseLayer = new NoiseTuple[endX - startX + 1][endZ - startZ + 1];
+
+            for (int localX = startX; localX <= endX; localX++) {
+                int realX = localX + (16 * chunkX);
+
+                for (int localZ = startZ; localZ <= endZ; localZ++) {
+                    int realZ = localZ + (16 * chunkZ);
+
+                    Vector3f f = new Vector3f(realX * xzCompression, y * yCompression, realZ * xzCompression);
+
+                    // Use turbulence function to apply gradient perturbation, if enabled
+                    if (this.enableTurbulence)
+                        turbulenceGen.GradientPerturbFractal(f);
+
+                    // Create NoiseTuple for this block
+                    NoiseTuple newTuple = new NoiseTuple();
+                    for (int i = 0; i < numGenerators; i++)
+                        newTuple.put(listNoiseGens.get(i).GetNoise(f.x, f.y, f.z));
+
+                    noiseLayer[localX - startX][localZ - startZ] = newTuple;
+                }
+            }
+            noises.add(noiseLayer);
+        }
+
+        return noises;
+    }
+
+    public Map<Integer, NoiseTuple> generateNoiseCol(int chunkX, int chunkZ, int minHeight, int maxHeight, int numGenerators, int localX, int localZ) {
+        initializeNoiseGens(numGenerators);
+
+        Map<Integer, NoiseTuple> altitudeToNoiseMap = new HashMap<>();
+
+        for (int y = minHeight; y <= maxHeight; y++) {
+            int realX = localX + 16 * chunkX;
+            int realZ = localZ + 16 * chunkZ;
+
+            Vector3f f = new Vector3f(realX * xzCompression, y * yCompression, realZ * xzCompression);
+
+            // Use turbulence function to apply gradient perturbation, if enabled
+            if (this.enableTurbulence)
+                turbulenceGen.GradientPerturbFractal(f);
+
+            // Create NoiseTuple for this block
+            NoiseTuple newTuple = new NoiseTuple();
+            for (int i = 0; i < numGenerators; i++)
+                newTuple.put(listNoiseGens.get(i).GetNoise(f.x, f.y, f.z));
+
+            altitudeToNoiseMap.put(y, newTuple);
+        }
+
+        return altitudeToNoiseMap;
     }
 
     public long getSeed() {

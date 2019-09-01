@@ -16,5 +16,5 @@ public class Configuration {
     @Config.Comment("Lava spawns at and below this y-coordinate.")
     @Config.RangeInt(min = 1)
     @Config.RequiresWorldRestart
-    public static int lavaDepth = 10;
+    public static int lavaDepth = 8;
 }

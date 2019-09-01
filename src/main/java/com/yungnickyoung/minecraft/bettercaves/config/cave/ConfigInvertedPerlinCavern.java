@@ -3,6 +3,40 @@ package com.yungnickyoung.minecraft.bettercaves.config.cave;
 import net.minecraftforge.common.config.Config;
 
 public class ConfigInvertedPerlinCavern {
+    @Config.Name("Cavern Top Altitude")
+    @Config.Comment("The top y-coordinate at which large caverns start generating. Note that caverns will attempt " +
+            "to close off anyway if this value is greater than the surface y-coordinate.")
+    @Config.RequiresWorldRestart
+    public int caveTop = 30;
+
+    @Config.Name("Cavern Top Transition Altitude")
+    @Config.Comment("The y-coordinate at which Caverns begin closing off. Note that caverns will attempt to " +
+            "close off anyway if this value is greater than the surface y-coordinate.")
+    @Config.RequiresWorldRestart
+    public int caveTransitionTop = 23;
+
+    @Config.Name("Cavern Bottom Transition Altitude")
+    @Config.Comment("The y-coordinate at which Floored Caverns begin closing off on the bottom.")
+    @Config.RequiresWorldRestart
+    public int caveTransitionBottom = 12;
+
+    @Config.Name("Cavern Bottom Altitude")
+    @Config.Comment("The bottom y-coordinate at which large caverns start generating.")
+    @Config.RequiresWorldRestart
+    public int caveBottom = 1;
+
+    @Config.Name("Vertical Compression")
+    @Config.Comment("Changes height of caves. Lower value = taller caves with steeper drops")
+    @Config.RangeDouble(min = 0)
+    @Config.RequiresWorldRestart
+    public float yCompression = 1.0f;
+
+    @Config.Name("Horizontal Compression")
+    @Config.Comment("Changes width of caves. Lower value = wider caves")
+    @Config.RangeDouble(min = 0)
+    @Config.RequiresWorldRestart
+    public float xzCompression = 1.0f;
+
     @Config.Ignore
     @Config.Name("Noise Threshold")
     @Config.Comment("Threshold for determining which blocks get mined out as part of cave generation. Higher value = less caves.")
@@ -52,39 +86,10 @@ public class ConfigInvertedPerlinCavern {
     @Config.RequiresWorldRestart
     public float turbulenceFrequency = 0.03f;
 
-    @Config.Name("Cavern Top Altitude")
-    @Config.Comment("The top y-coordinate at which large caverns start generating. Note that caverns will attempt " +
-            "to close off anyway if this value is greater than the surface y-coordinate.")
-    @Config.RequiresWorldRestart
-    public int caveTop = 30;
-
-    @Config.Name("Cavern Transition Altitude")
-    @Config.Comment("The y-coordinate at which large caverns begin closing off. Note that caverns will attempt to " +
-            "close off anyway if this value is greater than the surface y-coordinate.")
-    @Config.RequiresWorldRestart
-    public int caveTransition = 23;
-
-    @Config.Name("Cavern Bottom Altitude")
-    @Config.Comment("The bottom y-coordinate at which large caverns start generating.")
-    @Config.RequiresWorldRestart
-    public int caveBottom = 1;
-
     @Config.Ignore
     @Config.Name("Number of Generators")
     @Config.Comment("The number of noise generation functions used. The intersection of these functions is" +
             "used to calculate a single noise value.")
     @Config.RequiresWorldRestart
     public int numGenerators = 2;
-
-    @Config.Name("Vertical Compression")
-    @Config.Comment("Changes height of caves. Lower value = taller caves with steeper drops")
-    @Config.RangeDouble(min = 0)
-    @Config.RequiresWorldRestart
-    public float yCompression = 1.0f;
-
-    @Config.Name("Horizontal Compression")
-    @Config.Comment("Changes width of caves. Lower value = wider caves")
-    @Config.RangeDouble(min = 0)
-    @Config.RequiresWorldRestart
-    public float xzCompression = 1.0f;
 }

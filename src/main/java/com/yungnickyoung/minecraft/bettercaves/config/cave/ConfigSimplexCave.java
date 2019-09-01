@@ -3,6 +3,23 @@ package com.yungnickyoung.minecraft.bettercaves.config.cave;
 import net.minecraftforge.common.config.Config;
 
 public class ConfigSimplexCave {
+    @Config.Name("Cave Bottom Altitude")
+    @Config.Comment("The minimum y-coordinate at which caves start generating. Default: 20")
+    @Config.RequiresWorldRestart
+    public int caveBottom = 13;
+
+    @Config.Name("Vertical Compression")
+    @Config.Comment("Changes height of caves. Lower value = taller caves with steeper drops.")
+    @Config.RangeDouble(min = 0)
+    @Config.RequiresWorldRestart
+    public float yCompression = 1.80f;
+
+    @Config.Name("Horizontal Compression")
+    @Config.Comment("Changes width of caves. Lower value = wider caves.")
+    @Config.RangeDouble(min = 0)
+    @Config.RequiresWorldRestart
+    public float xzCompression = 0.60f;
+
     @Config.Ignore
     @Config.Name("Noise Threshold")
     @Config.Comment("Threshold for determining which blocks get mined out as part of cave generation. Higher value" +
@@ -55,27 +72,10 @@ public class ConfigSimplexCave {
     @Config.RequiresWorldRestart
     public float turbulenceFrequency = 0.01f;
 
-    @Config.Name("Cave Bottom Altitude")
-    @Config.Comment("The minimum y-coordinate at which caves start generating. Default: 20")
-    @Config.RequiresWorldRestart
-    public int caveBottom = 20;
-
     @Config.Ignore
     @Config.Name("Number of Generators")
     @Config.Comment("The number of noise generation functions used. The intersection of these functions is" +
             "used to calculate a single noise value.")
     @Config.RequiresWorldRestart
     public int numGenerators = 8;
-
-    @Config.Name("Vertical Compression")
-    @Config.Comment("Changes height of caves. Lower value = taller caves with steeper drops.")
-    @Config.RangeDouble(min = 0)
-    @Config.RequiresWorldRestart
-    public float yCompression = 1.80f;
-
-    @Config.Name("Horizontal Compression")
-    @Config.Comment("Changes width of caves. Lower value = wider caves.")
-    @Config.RangeDouble(min = 0)
-    @Config.RequiresWorldRestart
-    public float xzCompression = 0.60f;
 }

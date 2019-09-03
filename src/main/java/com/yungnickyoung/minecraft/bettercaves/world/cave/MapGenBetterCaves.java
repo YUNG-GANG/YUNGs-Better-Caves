@@ -36,7 +36,7 @@ public class MapGenBetterCaves extends MapGenCaves {
 
             this.caveBiomeController = new FastNoise();
             this.caveBiomeController.SetSeed((int)worldIn.getSeed());
-            this.caveBiomeController.SetFrequency(.01f);
+            this.caveBiomeController.SetFrequency(.0025f);
             this.caveBiomeController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
             this.controllerJitter = new FastNoise();
@@ -56,12 +56,12 @@ public class MapGenBetterCaves extends MapGenCaves {
                     Vector2f f = new Vector2f(((chunkX * 16) + localX), ((chunkZ * 16) + localZ));
 //                    controllerJitter.GradientPerturb(f);
                     float noiseVal = caveBiomeController.GetNoise(f.x, f.y);
-                    if (noiseVal < -.3f)
+                    if (noiseVal < -.6f)
                         caveBiomeLavaCavern.generateColumn(chunkX, chunkZ, primer, localX, localZ, maxSurfaceHeight, minSurfaceHeight);
-                    else if (noiseVal >= -.3f && noiseVal <= .3f)
-                        caveBiomeFlooredCavern.generateColumn(chunkX, chunkZ, primer, localX, localZ, maxSurfaceHeight, minSurfaceHeight);
-                    else
+                    else if (noiseVal >= -.6f && noiseVal <= .6f)
                         caveBiomeOnlyCaves.generateColumn(chunkX, chunkZ, primer, localX, localZ, maxSurfaceHeight, minSurfaceHeight);
+                    else
+                        caveBiomeFlooredCavern.generateColumn(chunkX, chunkZ, primer, localX, localZ, maxSurfaceHeight, minSurfaceHeight);
                 }
             }
         } else

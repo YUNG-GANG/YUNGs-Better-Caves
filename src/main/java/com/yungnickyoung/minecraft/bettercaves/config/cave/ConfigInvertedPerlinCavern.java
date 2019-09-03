@@ -18,7 +18,7 @@ public class ConfigInvertedPerlinCavern {
     @Config.Name("Cavern Bottom Transition Altitude")
     @Config.Comment("The y-coordinate at which Floored Caverns begin closing off on the bottom.")
     @Config.RequiresWorldRestart
-    public int caveTransitionBottom = 12;
+    public int caveTransitionBottom = 14;
 
     @Config.Name("Cavern Bottom Altitude")
     @Config.Comment("The bottom y-coordinate at which large caverns start generating.")

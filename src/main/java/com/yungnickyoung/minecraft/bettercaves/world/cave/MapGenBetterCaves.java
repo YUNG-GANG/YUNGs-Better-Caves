@@ -1,5 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.world.cave;
 
+import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
 import com.yungnickyoung.minecraft.bettercaves.util.FastNoise;
@@ -49,6 +50,40 @@ public class MapGenBetterCaves extends MapGenCaves {
         int maxSurfaceHeight = BetterCaveUtil.getMaxSurfaceHeight(primer);
         int minSurfaceHeight = BetterCaveUtil.getMinSurfaceHeight(primer);
 
+        // Determine noise thresholds for cavern spawns
+        float lavaCavernThreshold = -.6f;
+        float flooredCavernThreshold = .6f;
+
+        switch (Configuration.caveSettings.lavaCavernFrequency) {
+            case VeryRare:
+                lavaCavernThreshold = -.8f;
+                break;
+            case Rare:
+                lavaCavernThreshold = -.6f;
+                break;
+            case Common:
+                lavaCavernThreshold = -.3f;
+                break;
+            case VeryCommon:
+                lavaCavernThreshold = -.1f;
+                break;
+        }
+
+        switch (Configuration.caveSettings.flooredCavernFrequency) {
+            case VeryRare:
+                flooredCavernThreshold = .8f;
+                break;
+            case Rare:
+                flooredCavernThreshold = .6f;
+                break;
+            case Common:
+                flooredCavernThreshold = .3f;
+                break;
+            case VeryCommon:
+                flooredCavernThreshold = .1f;
+                break;
+        }
+
         // Only use Better Caves generation in overworld
         if (worldIn.provider.getDimension() == 0) {
             for (int localX = 0; localX < 16; localX++) {
@@ -56,9 +91,9 @@ public class MapGenBetterCaves extends MapGenCaves {
                     Vector2f f = new Vector2f(((chunkX * 16) + localX), ((chunkZ * 16) + localZ));
 //                    controllerJitter.GradientPerturb(f);
                     float noiseVal = caveBiomeController.GetNoise(f.x, f.y);
-                    if (noiseVal < -.6f)
+                    if (noiseVal < lavaCavernThreshold)
                         caveBiomeLavaCavern.generateColumn(chunkX, chunkZ, primer, localX, localZ, maxSurfaceHeight, minSurfaceHeight);
-                    else if (noiseVal >= -.6f && noiseVal <= .6f)
+                    else if (noiseVal >= lavaCavernThreshold && noiseVal <= flooredCavernThreshold)
                         caveBiomeOnlyCaves.generateColumn(chunkX, chunkZ, primer, localX, localZ, maxSurfaceHeight, minSurfaceHeight);
                     else
                         caveBiomeFlooredCavern.generateColumn(chunkX, chunkZ, primer, localX, localZ, maxSurfaceHeight, minSurfaceHeight);

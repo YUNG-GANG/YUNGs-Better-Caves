@@ -13,6 +13,21 @@ public class ConfigCaveGen {
     @Config.Comment("Parameters used in the generation of large caverns found at low altitudes.")
     public ConfigInvertedPerlinCavern invertedPerlinCavern = new ConfigInvertedPerlinCavern();
 
+    @Config.Name("Lava Cavern Frequency")
+    @Config.Comment("Determines how frequently Lava Caverns spawn.")
+    public cavernFrequency lavaCavernFrequency = cavernFrequency.Rare;
+
+    @Config.Name("Floored Cavern Frequency")
+    @Config.Comment("Determines how frequently Floored Caverns spawn.")
+    public cavernFrequency flooredCavernFrequency = cavernFrequency.Rare;
+
+    public enum cavernFrequency {
+         VeryRare, Rare, Common, VeryCommon
+     }
+
+
+
+
     /* DEBUG OPTIONS -- UNUSED IN PRODUCTION */
     @Config.Ignore
     @Config.Name("Perlin Cavern Settings")

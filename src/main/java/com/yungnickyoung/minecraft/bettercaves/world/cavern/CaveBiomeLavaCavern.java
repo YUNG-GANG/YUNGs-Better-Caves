@@ -1,4 +1,4 @@
-package com.yungnickyoung.minecraft.bettercaves.world.cave;
+package com.yungnickyoung.minecraft.bettercaves.world.cavern;
 
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.config.Settings;
@@ -15,14 +15,14 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import java.util.List;
 import java.util.Map;
 
-public class CaveBiomeFlooredCavern {
+public class CaveBiomeLavaCavern {
     private World world;
     private long seed;
 
     private NoiseGen simplexNoiseGen;
     private NoiseGen perlinNoiseGen;
 
-    public CaveBiomeFlooredCavern(World world) {
+    public CaveBiomeLavaCavern(World world) {
         this.world = world;
         this.seed = world.getSeed();
 
@@ -58,7 +58,7 @@ public class CaveBiomeFlooredCavern {
     /**
      * Generates caves and caverns for a given chunk. Note that the coordinate parameters are
      * on the chunk grid; they are NOT block coordinates.
-     * @param chunkX the chunk x-coordinate
+     * @param chunkX the hunk x-coordinate
      * @param chunkZ the chunk z-coordinate
      * @param primer the chunk's primer object
      */
@@ -92,11 +92,8 @@ public class CaveBiomeFlooredCavern {
         // Top y-coordinate at which caverns (not caves) close off
         int perlinCavernTop = Configuration.caveSettings.invertedPerlinCavern.caveTop;
 
-        // Altitude at which caverns start closing off at the top
-        int perlinCavernTopTransitionBoundary = Configuration.caveSettings.invertedPerlinCavern.caveTransitionTop;
-
-        // Altitude at which caverns start closing off at the bottom to provide "floors"
-        int perlinCavernBottomTransitionBoundary = Configuration.caveSettings.invertedPerlinCavern.caveTransitionBottom;
+        // Altitude at which caverns start closing off
+        int perlinCavernTransitionBoundary = Configuration.caveSettings.invertedPerlinCavern.caveTransitionTop;
 
         // Number of noise values to calculate. Their intersection will be taken to determine a single noise value
         int perlinNumGens = Configuration.caveSettings.invertedPerlinCavern.numGenerators;
@@ -130,16 +127,12 @@ public class CaveBiomeFlooredCavern {
 
                         // Adjust threshold if we're in the transition range to provide smoother transition into ceiling
                         float noiseThreshold = Configuration.caveSettings.invertedPerlinCavern.noiseThreshold;
-                        if (realY >= perlinCavernTopTransitionBoundary)
-                            noiseThreshold *= Math.max((float) (realY - perlinCavernTop) / (perlinCavernTopTransitionBoundary - perlinCavernTop), .5f);
+                        if (realY >= perlinCavernTransitionBoundary)
+                            noiseThreshold *= Math.max((float) (realY - perlinCavernTop) / (perlinCavernTransitionBoundary - perlinCavernTop), .5f);
 
                         // Close off caverns if we're in ease-in depth range (probably means this is under the ocean)
                         if (realY >= minSurfaceHeight - 5)
                             noiseThreshold *= (float) (realY - perlinCavernTop) / (minSurfaceHeight - 5 - perlinCavernTop);
-
-                        // Close off caverns at the bottom to provide floors for the player to walk on
-                        if (realY <= perlinCavernBottomTransitionBoundary)
-                            noiseThreshold *= Math.max((float) (realY - perlinCavernBottom) / (perlinCavernBottomTransitionBoundary - perlinCavernBottom), .5f);
 
                         // Mark block for removal if the noise passes the threshold check
                         if (perlinNoise < noiseThreshold)
@@ -206,7 +199,6 @@ public class CaveBiomeFlooredCavern {
         return this.seed;
     }
 
-
     private void debugGenerate(int chunkX, int chunkZ, ChunkPrimer primer) {
         int maxSurfaceHeight = 128;
         int simplexCaveBottom = Configuration.caveSettings.simplexFractalCave.caveBottom;
@@ -214,7 +206,7 @@ public class CaveBiomeFlooredCavern {
         int simplexNumGens = Configuration.caveSettings.simplexFractalCave.numGenerators;
         int perlinCavernBottom = Configuration.caveSettings.invertedPerlinCavern.caveBottom;
         int perlinCavernTop = Configuration.caveSettings.invertedPerlinCavern.caveTop;
-        int perlinCavernTopTransitionBoundary = Configuration.caveSettings.invertedPerlinCavern.caveTransitionTop;
+        int perlinCavernTransitionBoundary = Configuration.caveSettings.invertedPerlinCavern.caveTransitionTop;
         int perlinNumGens = Configuration.caveSettings.invertedPerlinCavern.numGenerators;
 
         List<NoiseTuple[][]> perlinNoises =
@@ -242,8 +234,8 @@ public class CaveBiomeFlooredCavern {
 
                         // Adjust threshold if we're in the transition range to provide smoother transition into ceiling
                         float noiseThreshold = Configuration.caveSettings.invertedPerlinCavern.noiseThreshold;
-                        if (realY >= perlinCavernTopTransitionBoundary)
-                            noiseThreshold *= Math.max((float) (realY - perlinCavernTop) / (perlinCavernTopTransitionBoundary - perlinCavernTop), .5f);
+                        if (realY >= perlinCavernTransitionBoundary)
+                            noiseThreshold *= Math.max((float) (realY - perlinCavernTop) / (perlinCavernTransitionBoundary - perlinCavernTop), .5f);
 
                         // Mark block for removal if the noise passes the threshold check
                         if (perlinNoise < noiseThreshold)
@@ -322,38 +314,11 @@ public class CaveBiomeFlooredCavern {
     }
 
 
-
-
-    public void generateRegion(int chunkX, int chunkZ, ChunkPrimer primer, int startX, int endX, int startZ, int endZ) {
-        // Find the lowest and highest surface altitudes in this chunk
-        int maxSurfaceHeight = BetterCaveUtil.getMaxSurfaceHeight(primer);
-        int minSurfaceHeight = BetterCaveUtil.getMinSurfaceHeight(primer);
-
-        /* ========================= Import cave variables from the config ========================= */
-        // Bottom y-coordinate at which caves (not caverns) should start spawning
-        int simplexCaveBottom = Configuration.caveSettings.simplexFractalCave.caveBottom;
-
-        // Top y-coordinate at which caves (not caverns) should start spawning
-        int simplexCaveTop = maxSurfaceHeight;
-
-        // Altitude at which caves start closing off so they aren't all open to the surface
-        int simplexCaveTransitionBoundary = maxSurfaceHeight - 20;
-
-        // Number of noise values to calculate. Their intersection will be taken to determine a single noise value
-        int simplexNumGens = Configuration.caveSettings.simplexFractalCave.numGenerators;
-
+    public void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
+                               int topY, int maxSurfaceHeight, int minSurfaceHeight) {
         /* ======================== Import cavern variables from the config ======================== */
-        // Bottom y-coordinate at which caverns (not caves) should start spawning
-        int perlinCavernBottom = Configuration.caveSettings.invertedPerlinCavern.caveBottom;
-
-        // Top y-coordinate at which caverns (not caves) close off
-        int perlinCavernTop = Configuration.caveSettings.invertedPerlinCavern.caveTop;
-
-        // Altitude at which caverns start closing off at the top
-        int perlinCavernTopTransitionBoundary = Configuration.caveSettings.invertedPerlinCavern.caveTransitionTop;
-
-        // Altitude at which caverns start closing off at the bottom to provide "floors"
-        int perlinCavernBottomTransitionBoundary = Configuration.caveSettings.invertedPerlinCavern.caveTransitionBottom;
+        // Altitude at which caverns start closing off
+        int perlinCavernTransitionBoundary = Configuration.caveSettings.invertedPerlinCavern.caveTransitionTop;
 
         // Number of noise values to calculate. Their intersection will be taken to determine a single noise value
         int perlinNumGens = Configuration.caveSettings.invertedPerlinCavern.numGenerators;
@@ -361,104 +326,80 @@ public class CaveBiomeFlooredCavern {
         /* ========== Generate noise for caves (using Simplex noise) and caverns (using Perlin noise) ========== */
         // The noise for an individual block is represented by a NoiseTuple, which is essentially an n-tuple of
         // floats, where n is equal to the number of generators passed to the function (perlinNumGens or simplexNumGens)
-        List<NoiseTuple[][]> perlinNoises =
-                perlinNoiseGen.generateNoiseRegion(chunkX, chunkZ, perlinCavernBottom, perlinCavernTop, perlinNumGens, startX, endX, startZ, endZ);
-        List<NoiseTuple[][]> simplexNoises =
-                simplexNoiseGen.generateNoiseRegion(chunkX, chunkZ, simplexCaveBottom, simplexCaveTop, simplexNumGens, startX, endX, startZ, endZ);
-
-        // Do some pre-processing on the simplex noises to facilitate better cave generation.
-        // See the javadoc for the function for more info.
-        simplexNoises = preprocessCaveNoiseRegion(simplexNoises, simplexCaveTop, simplexCaveBottom, simplexNumGens, startX, endX, startZ, endZ);
+        Map<Integer, NoiseTuple> perlinNoises =
+                perlinNoiseGen.generateNoiseCol(chunkX, chunkZ, bottomY, topY, perlinNumGens, localX, localZ);
 
         /* =============== Dig out caves and caverns in this chunk, based on noise values =============== */
-        for (int realY = simplexCaveTop; realY >= perlinCavernBottom; realY--) {
-            for (int localX = startX; localX <= endX; localX++) {
-                for (int localZ = startZ; localZ <= endZ; localZ++) {
-                    List<Float> perlinNoiseLayer, simplexNoiseLayer;
-                    boolean digBlock = false;
+        for (int realY = topY; realY >= bottomY; realY--) {
+            List<Float> perlinNoiseBlock;
+            boolean digBlock = false;
 
-                    // Process inverse perlin noise for big caverns at low altitudes
-                    if (realY <= perlinCavernTop) {
-                        // Compute a single noise value to represent all the noise values in the NoiseTuple
-                        float perlinNoise = 1;
-                        perlinNoiseLayer = perlinNoises.get(perlinCavernTop - realY)[localX - startX][localZ - startZ].getNoiseValues();
-                        for (float noise : perlinNoiseLayer)
-                            perlinNoise *= noise;
+            // Compute a single noise value to represent all the noise values in the NoiseTuple
+            float perlinNoise = 1;
+            perlinNoiseBlock = perlinNoises.get(realY).getNoiseValues();
+            for (float noise : perlinNoiseBlock)
+                perlinNoise *= noise;
 
-                        // Adjust threshold if we're in the transition range to provide smoother transition into ceiling
-                        float noiseThreshold = Configuration.caveSettings.invertedPerlinCavern.noiseThreshold;
-                        if (realY >= perlinCavernTopTransitionBoundary)
-                            noiseThreshold *= Math.max((float) (realY - perlinCavernTop) / (perlinCavernTopTransitionBoundary - perlinCavernTop), .5f);
+            // Adjust threshold if we're in the transition range to provide smoother transition into ceiling
+            float noiseThreshold = Configuration.caveSettings.invertedPerlinCavern.noiseThreshold;
+            if (realY >= perlinCavernTransitionBoundary)
+                noiseThreshold *= Math.max((float) (realY - topY) / (perlinCavernTransitionBoundary - topY), .5f);
 
-                        // Close off caverns if we're in ease-in depth range (probably means this is under the ocean)
-                        if (realY >= minSurfaceHeight - 5)
-                            noiseThreshold *= (float) (realY - perlinCavernTop) / (minSurfaceHeight - 5 - perlinCavernTop);
+            // Close off caverns if we're in ease-in depth range (probably means this is under the ocean)
+            if (realY >= minSurfaceHeight - 5)
+                noiseThreshold *= (float) (realY - topY) / (minSurfaceHeight - 5 - topY);
 
-                        // Close off caverns at the bottom to provide floors for the player to walk on
-                        if (realY <= perlinCavernBottomTransitionBoundary)
-                            noiseThreshold *= Math.max((float) (realY - perlinCavernBottom) / (perlinCavernBottomTransitionBoundary - perlinCavernBottom), .5f);
+            // Mark block for removal if the noise passes the threshold check
+            if (perlinNoise < noiseThreshold)
+                digBlock = true;
 
-                        // Mark block for removal if the noise passes the threshold check
-                        if (perlinNoise < noiseThreshold)
-                            digBlock = true;
-                    }
+            // Dig/remove the block if it passed the threshold check
+            if (digBlock) {
+                // Check for adjacent water blocks to avoid breaking into lakes or oceans
+                if (primer.getBlockState(localX, realY + 1, localZ).getMaterial() == Material.WATER)
+                    continue;
+                if (localX < 15 && primer.getBlockState(localX + 1, realY, localZ).getMaterial() == Material.WATER)
+                    continue;
+                if (localX > 0 && primer.getBlockState(localX - 1, realY, localZ).getMaterial() == Material.WATER)
+                    continue;
+                if (localZ < 15 && primer.getBlockState(localX, realY, localZ + 1).getMaterial() == Material.WATER)
+                    continue;
+                if (localZ > 0 && primer.getBlockState(localX, realY, localZ - 1).getMaterial() == Material.WATER)
+                    continue;
 
-                    // Process simplex noise. We can ignore this if
-                    // we've already determined we need to dig this block.
-                    if (realY >= simplexCaveBottom && !digBlock) {
-                        // Compute a single noise value to represent all the noise values in the NoiseTuple
-                        float simplexNoise = 0;
-                        simplexNoiseLayer= simplexNoises.get(simplexCaveTop - realY)[localX - startX][localZ - startZ].getNoiseValues();
-                        for (float noise : simplexNoiseLayer)
-                            simplexNoise += noise;
+                BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
+            }
+        }
+    }
 
-                        simplexNoise /= simplexNoiseLayer.size();
 
-                        // Close off caves if we're in ease-in depth range
-                        float noiseThreshold = Configuration.caveSettings.simplexFractalCave.noiseThreshold;
-                        if (realY >= simplexCaveTransitionBoundary)
-                            noiseThreshold *= (1 + .3f * ((float)(realY - simplexCaveTransitionBoundary) / (simplexCaveTop - simplexCaveTransitionBoundary)));
+    private Map<Integer, NoiseTuple> preprocessCaveNoiseCol(Map<Integer, NoiseTuple> noises, int caveTop, int caveBottom, int numGens) {
+        /* Adjust simplex noise values based on blocks above in order to give the player more headroom */
+        for (int realY = caveTop; realY >= caveBottom; realY--) {
+            NoiseTuple sBlockNoise = noises.get(realY);
+            float avgSNoise = 0;
 
-                        // Mark block for removal if the noise passes the threshold check
-                        if (simplexNoise > noiseThreshold)
-                            digBlock = true;
-                    }
+            for (float noise : sBlockNoise.getNoiseValues())
+                avgSNoise += noise;
 
-                    // Dig/remove the block if it passed the threshold check
-                    if (digBlock) {
-                        // Check for adjacent water blocks to avoid breaking into lakes or oceans
-                        if (primer.getBlockState(localX, realY + 1, localZ).getMaterial() == Material.WATER)
-                            continue;
-                        if (localX < 15 && primer.getBlockState(localX + 1, realY, localZ).getMaterial() == Material.WATER)
-                            continue;
-                        if (localX > 0 && primer.getBlockState(localX - 1, realY, localZ).getMaterial() == Material.WATER)
-                            continue;
-                        if (localZ < 15 && primer.getBlockState(localX, realY, localZ + 1).getMaterial() == Material.WATER)
-                            continue;
-                        if (localZ > 0 && primer.getBlockState(localX, realY, localZ - 1).getMaterial() == Material.WATER)
-                            continue;
+            avgSNoise /= sBlockNoise.size();
 
-                        BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
-                    }
+            if (avgSNoise > Configuration.caveSettings.simplexFractalCave.noiseThreshold) {
+                /* Adjust noise values of blocks above to give the player more head room */
+                if (realY < caveTop) {
+                    NoiseTuple tupleAbove = noises.get(realY + 1);
+                    for (int i = 0; i < numGens; i++)
+                        tupleAbove.set(i, (.1f * tupleAbove.get(i)) + (.9f * sBlockNoise.get(i)));
+                }
+
+                if (realY < caveTop - 1) {
+                    NoiseTuple tupleTwoAbove = noises.get(realY + 2);
+                    for (int i = 0; i < numGens; i++)
+                        tupleTwoAbove.set(i, (.15f * tupleTwoAbove.get(i)) + (.85f * sBlockNoise.get(i)));
                 }
             }
         }
-
-        /* ============ Post-Processing to remove any singular floating blocks in the ease-in range ============ */
-        IBlockState BlockStateAir = Blocks.AIR.getDefaultState();
-        for (int realY = simplexCaveTransitionBoundary + 1; realY < simplexCaveTop - 1; realY++) {
-            for (int localX = startX; localX <= endX; localX++) {
-                for (int localZ = startZ; localZ <= endZ; localZ++) {
-                    IBlockState currBlock = primer.getBlockState(localX, realY, localZ);
-
-                    if (BetterCaveUtil.canReplaceBlock(currBlock, BlockStateAir)
-                            && primer.getBlockState(localX, realY + 1, localZ) == BlockStateAir
-                            && primer.getBlockState(localX, realY - 1, localZ) == BlockStateAir
-                    )
-                        BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
-                }
-            }
-        }
+        return noises;
     }
 
     private List<NoiseTuple[][]> preprocessCaveNoiseRegion(List<NoiseTuple[][]> noises, int caveTop, int caveBottom, int numGens, int startX, int endX, int startZ, int endZ) {
@@ -488,160 +429,6 @@ public class CaveBiomeFlooredCavern {
                                 tupleTwoAbove.set(i, (.15f * tupleTwoAbove.get(i)) + (.85f * sBlockNoise.get(i)));
                         }
                     }
-                }
-            }
-        }
-        return noises;
-    }
-
-    public void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int maxSurfaceHeight, int minSurfaceHeight) {
-        /* ========================= Import cave variables from the config ========================= */
-        // Bottom y-coordinate at which caves (not caverns) should start spawning
-        int simplexCaveBottom = Configuration.caveSettings.simplexFractalCave.caveBottom;
-
-        // Top y-coordinate at which caves (not caverns) should start spawning
-        int simplexCaveTop = maxSurfaceHeight;
-
-        // Altitude at which caves start closing off so they aren't all open to the surface
-        int simplexCaveTransitionBoundary = maxSurfaceHeight - 20;
-
-        // Number of noise values to calculate. Their intersection will be taken to determine a single noise value
-        int simplexNumGens = Configuration.caveSettings.simplexFractalCave.numGenerators;
-
-        /* ======================== Import cavern variables from the config ======================== */
-        // Bottom y-coordinate at which caverns (not caves) should start spawning
-        int perlinCavernBottom = Configuration.caveSettings.invertedPerlinCavern.caveBottom;
-
-        // Top y-coordinate at which caverns (not caves) close off
-        int perlinCavernTop = Configuration.caveSettings.invertedPerlinCavern.caveTop;
-
-        // Altitude at which caverns start closing off at the top
-        int perlinCavernTopTransitionBoundary = Configuration.caveSettings.invertedPerlinCavern.caveTransitionTop;
-
-        // Altitude at which caverns start closing off at the bottom to provide "floors"
-        int perlinCavernBottomTransitionBoundary = Configuration.caveSettings.invertedPerlinCavern.caveTransitionBottom;
-
-        // Number of noise values to calculate. Their intersection will be taken to determine a single noise value
-        int perlinNumGens = Configuration.caveSettings.invertedPerlinCavern.numGenerators;
-
-        /* ========== Generate noise for caves (using Simplex noise) and caverns (using Perlin noise) ========== */
-        // The noise for an individual block is represented by a NoiseTuple, which is essentially an n-tuple of
-        // floats, where n is equal to the number of generators passed to the function (perlinNumGens or simplexNumGens)
-        Map<Integer, NoiseTuple> perlinNoises =
-                perlinNoiseGen.generateNoiseCol(chunkX, chunkZ, perlinCavernBottom, perlinCavernTop, perlinNumGens, localX, localZ);
-        Map<Integer, NoiseTuple> simplexNoises =
-                simplexNoiseGen.generateNoiseCol(chunkX, chunkZ, simplexCaveBottom, simplexCaveTop, simplexNumGens, localX, localZ);
-
-        // Do some pre-processing on the simplex noises to facilitate better cave generation.
-        // See the javadoc for the function for more info.
-        simplexNoises = preprocessCaveNoiseCol(simplexNoises, simplexCaveTop, simplexCaveBottom, simplexNumGens);
-
-        /* =============== Dig out caves and caverns in this chunk, based on noise values =============== */
-        for (int realY = simplexCaveTop; realY >= perlinCavernBottom; realY--) {
-            List<Float> perlinNoiseBlock, simplexNoiseBlock;
-            boolean digBlock = false;
-
-            // Process inverse perlin noise for big caverns at low altitudes
-            if (realY <= perlinCavernTop) {
-                // Compute a single noise value to represent all the noise values in the NoiseTuple
-                float perlinNoise = 1;
-                perlinNoiseBlock = perlinNoises.get(realY).getNoiseValues();
-                for (float noise : perlinNoiseBlock)
-                    perlinNoise *= noise;
-
-                // Adjust threshold if we're in the transition range to provide smoother transition into ceiling
-                float noiseThreshold = Configuration.caveSettings.invertedPerlinCavern.noiseThreshold;
-                if (realY >= perlinCavernTopTransitionBoundary)
-                    noiseThreshold *= Math.max((float) (realY - perlinCavernTop) / (perlinCavernTopTransitionBoundary - perlinCavernTop), .5f);
-
-                // Close off caverns if we're in ease-in depth range (probably means this is under the ocean)
-                if (realY >= minSurfaceHeight - 5)
-                    noiseThreshold *= (float) (realY - perlinCavernTop) / (minSurfaceHeight - 5 - perlinCavernTop);
-
-                // Close off caverns at the bottom to provide floors for the player to walk on
-                if (realY <= perlinCavernBottomTransitionBoundary)
-                    noiseThreshold *= Math.max((float) (realY - perlinCavernBottom) / (perlinCavernBottomTransitionBoundary - perlinCavernBottom), .5f);
-
-                // Mark block for removal if the noise passes the threshold check
-                if (perlinNoise < noiseThreshold)
-                    digBlock = true;
-            }
-
-            // Process simplex noise. We can ignore this if
-            // we've already determined we need to dig this block.
-            if (realY >= simplexCaveBottom && !digBlock) {
-                // Compute a single noise value to represent all the noise values in the NoiseTuple
-                float simplexNoise = 0;
-                simplexNoiseBlock = simplexNoises.get(realY).getNoiseValues();
-                for (float noise : simplexNoiseBlock)
-                    simplexNoise += noise;
-
-                simplexNoise /= simplexNoiseBlock.size();
-
-                // Close off caves if we're in ease-in depth range
-                float noiseThreshold = Configuration.caveSettings.simplexFractalCave.noiseThreshold;
-                if (realY >= simplexCaveTransitionBoundary)
-                    noiseThreshold *= (1 + .3f * ((float)(realY - simplexCaveTransitionBoundary) / (simplexCaveTop - simplexCaveTransitionBoundary)));
-
-                // Mark block for removal if the noise passes the threshold check
-                if (simplexNoise > noiseThreshold)
-                    digBlock = true;
-            }
-
-            // Dig/remove the block if it passed the threshold check
-            if (digBlock) {
-                // Check for adjacent water blocks to avoid breaking into lakes or oceans
-                if (primer.getBlockState(localX, realY + 1, localZ).getMaterial() == Material.WATER)
-                    continue;
-                if (localX < 15 && primer.getBlockState(localX + 1, realY, localZ).getMaterial() == Material.WATER)
-                    continue;
-                if (localX > 0 && primer.getBlockState(localX - 1, realY, localZ).getMaterial() == Material.WATER)
-                    continue;
-                if (localZ < 15 && primer.getBlockState(localX, realY, localZ + 1).getMaterial() == Material.WATER)
-                    continue;
-                if (localZ > 0 && primer.getBlockState(localX, realY, localZ - 1).getMaterial() == Material.WATER)
-                    continue;
-
-                BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
-            }
-        }
-
-        /* ============ Post-Processing to remove any singular floating blocks in the ease-in range ============ */
-        IBlockState BlockStateAir = Blocks.AIR.getDefaultState();
-        for (int realY = simplexCaveTransitionBoundary + 1; realY < simplexCaveTop - 1; realY++) {
-            IBlockState currBlock = primer.getBlockState(localX, realY, localZ);
-
-            if (BetterCaveUtil.canReplaceBlock(currBlock, BlockStateAir)
-                    && primer.getBlockState(localX, realY + 1, localZ) == BlockStateAir
-                    && primer.getBlockState(localX, realY - 1, localZ) == BlockStateAir
-            )
-                BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
-        }
-    }
-
-    private Map<Integer, NoiseTuple> preprocessCaveNoiseCol(Map<Integer, NoiseTuple> noises, int caveTop, int caveBottom, int numGens) {
-        /* Adjust simplex noise values based on blocks above in order to give the player more headroom */
-        for (int realY = caveTop; realY >= caveBottom; realY--) {
-            NoiseTuple sBlockNoise = noises.get(realY);
-            float avgSNoise = 0;
-
-            for (float noise : sBlockNoise.getNoiseValues())
-                avgSNoise += noise;
-
-            avgSNoise /= sBlockNoise.size();
-
-            if (avgSNoise > Configuration.caveSettings.simplexFractalCave.noiseThreshold) {
-                /* Adjust noise values of blocks above to give the player more head room */
-                if (realY < caveTop) {
-                    NoiseTuple tupleAbove = noises.get(realY + 1);
-                    for (int i = 0; i < numGens; i++)
-                        tupleAbove.set(i, (.1f * tupleAbove.get(i)) + (.9f * sBlockNoise.get(i)));
-                }
-
-                if (realY < caveTop - 1) {
-                    NoiseTuple tupleTwoAbove = noises.get(realY + 2);
-                    for (int i = 0; i < numGens; i++)
-                        tupleTwoAbove.set(i, (.15f * tupleTwoAbove.get(i)) + (.85f * sBlockNoise.get(i)));
                 }
             }
         }

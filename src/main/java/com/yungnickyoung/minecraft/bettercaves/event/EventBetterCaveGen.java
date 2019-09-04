@@ -1,6 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.event;
 
-import com.yungnickyoung.minecraft.bettercaves.world.cave.MapGenBetterCaves;
+import com.yungnickyoung.minecraft.bettercaves.world.MapGenBetterCaves;
 import net.minecraftforge.event.terraingen.InitMapGenEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;

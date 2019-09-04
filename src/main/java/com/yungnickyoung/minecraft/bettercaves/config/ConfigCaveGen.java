@@ -23,10 +23,7 @@ public class ConfigCaveGen {
 
     public enum cavernFrequency {
          VeryRare, Rare, Common, VeryCommon
-     }
-
-
-
+    }
 
     /* DEBUG OPTIONS -- UNUSED IN PRODUCTION */
     @Config.Ignore

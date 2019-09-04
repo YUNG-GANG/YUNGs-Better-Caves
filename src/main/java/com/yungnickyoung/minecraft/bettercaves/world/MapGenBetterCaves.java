@@ -4,6 +4,8 @@ import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
 import com.yungnickyoung.minecraft.bettercaves.util.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.world.cave.OGSimplexCave;
+import com.yungnickyoung.minecraft.bettercaves.world.cave.SimplexCave2;
+import com.yungnickyoung.minecraft.bettercaves.world.cave.TestCave;
 import com.yungnickyoung.minecraft.bettercaves.world.cavern.CaveBiomeFlooredCavern;
 import com.yungnickyoung.minecraft.bettercaves.world.cavern.CaveBiomeLavaCavern;
 import net.minecraft.world.World;
@@ -18,6 +20,8 @@ public class MapGenBetterCaves extends MapGenCaves {
     private CaveBiomeFlooredCavern caveBiomeFlooredCavern;
     private MapGenCaves defaultCaveGen;
     private OGSimplexCave ogSimplexCave;
+    private TestCave testCave;
+    private SimplexCave2 simplexCave2;
 
     private FastNoise cavernBiomeController;
     private FastNoise controllerJitter;
@@ -44,6 +48,8 @@ public class MapGenBetterCaves extends MapGenCaves {
             this.controllerJitter.SetFrequency(.01f);
 
             this.ogSimplexCave = new OGSimplexCave(worldIn);
+            this.testCave = new TestCave(worldIn);
+            this.simplexCave2 = new SimplexCave2(worldIn);
         }
 
         // Find the lowest and highest surface altitudes in this chunk
@@ -62,7 +68,7 @@ public class MapGenBetterCaves extends MapGenCaves {
                 lavaCavernThreshold = -.6f;
                 break;
             case Common:
-                lavaCavernThreshold = -.3f;
+                lavaCavernThreshold = -.4f;
                 break;
             case VeryCommon:
                 lavaCavernThreshold = -.1f;
@@ -77,7 +83,7 @@ public class MapGenBetterCaves extends MapGenCaves {
                 flooredCavernThreshold = .6f;
                 break;
             case Common:
-                flooredCavernThreshold = .3f;
+                flooredCavernThreshold = .4f;
                 break;
             case VeryCommon:
                 flooredCavernThreshold = .1f;
@@ -88,29 +94,29 @@ public class MapGenBetterCaves extends MapGenCaves {
         if (worldIn.provider.getDimension() == 0) {
             for (int localX = 0; localX < 16; localX++) {
                 for (int localZ = 0; localZ < 16; localZ++) {
+//                    Vector2f f = new Vector2f(((chunkX * 16) + localX), ((chunkZ * 16) + localZ));
+////                    controllerJitter.GradientPerturb(f);
+//                    float noiseVal = cavernBiomeController.GetNoise(f.x, f.y);
+//
+//                    if (noiseVal < lavaCavernThreshold) {
+//                        caveBiomeLavaCavern.generateColumn(chunkX, chunkZ, primer, localX, localZ,
+//                                Configuration.caveSettings.invertedPerlinCavern.caveBottom,
+//                                Configuration.caveSettings.invertedPerlinCavern.caveTop, maxSurfaceHeight,
+//                                minSurfaceHeight);
+//                        ogSimplexCave.generateColumn(chunkX, chunkZ, primer,localX, localZ, Configuration.caveSettings.simplexFractalCave.caveBottom, maxSurfaceHeight, maxSurfaceHeight, minSurfaceHeight);
+//                    } else if (noiseVal >= lavaCavernThreshold && noiseVal <= flooredCavernThreshold) {
+//                        ogSimplexCave.generateColumn(chunkX, chunkZ, primer, localX, localZ, 1, maxSurfaceHeight, maxSurfaceHeight, minSurfaceHeight);
+//                    } else {
+//                        caveBiomeFlooredCavern.generateColumn(chunkX, chunkZ, primer, localX, localZ,
+//                                Configuration.caveSettings.invertedPerlinCavern.caveBottom,
+//                                Configuration.caveSettings.invertedPerlinCavern.caveTop, maxSurfaceHeight,
+//                                minSurfaceHeight);
+//                        ogSimplexCave.generateColumn(chunkX, chunkZ, primer,localX, localZ, Configuration.caveSettings.simplexFractalCave.caveBottom, maxSurfaceHeight, maxSurfaceHeight, minSurfaceHeight);
+//                    }
 
-                    Vector2f f = new Vector2f(((chunkX * 16) + localX), ((chunkZ * 16) + localZ));
-//                    controllerJitter.GradientPerturb(f);
-                    float noiseVal = cavernBiomeController.GetNoise(f.x, f.y);
-
-                    if (noiseVal < lavaCavernThreshold) {
-                        caveBiomeLavaCavern.generateColumn(chunkX, chunkZ, primer, localX, localZ,
-                                Configuration.caveSettings.invertedPerlinCavern.caveBottom,
-                                Configuration.caveSettings.invertedPerlinCavern.caveTop, maxSurfaceHeight,
-                                minSurfaceHeight);
-                        ogSimplexCave.generateColumn(chunkX, chunkZ, primer,localX, localZ, Configuration.caveSettings.simplexFractalCave.caveBottom, maxSurfaceHeight, maxSurfaceHeight, minSurfaceHeight);
-                    } else if (noiseVal >= lavaCavernThreshold && noiseVal <= flooredCavernThreshold) {
-                        ogSimplexCave.generateColumn(chunkX, chunkZ, primer, localX, localZ, 1, maxSurfaceHeight, maxSurfaceHeight, minSurfaceHeight);
-                    } else {
-                        caveBiomeFlooredCavern.generateColumn(chunkX, chunkZ, primer, localX, localZ,
-                                Configuration.caveSettings.invertedPerlinCavern.caveBottom,
-                                Configuration.caveSettings.invertedPerlinCavern.caveTop, maxSurfaceHeight,
-                                minSurfaceHeight);
-                        ogSimplexCave.generateColumn(chunkX, chunkZ, primer,localX, localZ, Configuration.caveSettings.simplexFractalCave.caveBottom, maxSurfaceHeight, maxSurfaceHeight, minSurfaceHeight);
-                    }
+                    testCave.generateColumn(chunkX, chunkZ, primer, localX, localZ, 1, maxSurfaceHeight, maxSurfaceHeight, minSurfaceHeight);
                 }
             }
-
         } else
             defaultCaveGen.generate(worldIn, chunkX, chunkZ, primer);
     }

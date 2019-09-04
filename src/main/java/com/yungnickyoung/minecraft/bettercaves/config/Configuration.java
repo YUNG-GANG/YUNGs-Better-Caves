@@ -17,4 +17,6 @@ public class Configuration {
     @Config.RangeInt(min = 1)
     @Config.RequiresWorldRestart
     public static int lavaDepth = 10;
+
+    public static ConfigTest testSettings = new ConfigTest();
 }

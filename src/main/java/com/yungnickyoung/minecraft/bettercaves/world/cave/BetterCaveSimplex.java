@@ -13,12 +13,12 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import java.util.List;
 import java.util.Map;
 
-public class CaveSimplex extends BetterCave {
+public class BetterCaveSimplex extends BetterCave {
     private NoiseGen simplexNoiseGen;
 
-    public CaveSimplex(World world, int fOctaves, float fGain, float fFreq, int numGens, float threshold, int tOctaves,
-                        float tGain, float tFreq, boolean enableTurbulence, float yComp, float xzComp, boolean yAdj,
-                        float yAdjF1, float yAdjF2) {
+    public BetterCaveSimplex(World world, int fOctaves, float fGain, float fFreq, int numGens, float threshold, int tOctaves,
+                             float tGain, float tFreq, boolean enableTurbulence, float yComp, float xzComp, boolean yAdj,
+                             float yAdjF1, float yAdjF2) {
         super(world, fOctaves, fGain, fFreq, numGens, threshold, tOctaves, tGain, tFreq, enableTurbulence, yComp,
                 xzComp, yAdj, yAdjF1, yAdjF2);
 
@@ -44,20 +44,18 @@ public class CaveSimplex extends BetterCave {
         // Altitude at which caves start closing off so they aren't all open to the surface
         int simplexCaveTransitionBoundary = maxSurfaceHeight - 20;
 
-        // Number of noise values to calculate. Their intersection will be taken to determine a single noise value
-        int simplexNumGens = this.numGens;
-
-        /* ========== Generate noise for caves (using Simplex noise) and caverns (using Perlin noise) ========== */
+        /* ========== Generate noise for caves (using Simplex noise) ========== */
         // The noise for an individual block is represented by a NoiseTuple, which is essentially an n-tuple of
-        // floats, where n is equal to the number of generators passed to the function (perlinNumGens or simplexNumGens)
+        // floats, where n is equal to the number of generators passed to the function
         Map<Integer, NoiseTuple> simplexNoises =
-                simplexNoiseGen.generateNoiseCol(chunkX, chunkZ, bottomY, topY, simplexNumGens, localX, localZ);
+                simplexNoiseGen.generateNoiseCol(chunkX, chunkZ, bottomY, topY, this.numGens, localX, localZ);
 
         // Do some pre-processing on the simplex noises to facilitate better cave generation.
+        // Basically this makes caves taller to give players more headroom.
         // See the javadoc for the function for more info.
-        preprocessCaveNoiseCol(simplexNoises, topY, bottomY, simplexNumGens);
+        preprocessCaveNoiseCol(simplexNoises, topY, bottomY, this.numGens);
 
-        /* =============== Dig out caves and caverns in this chunk, based on noise values =============== */
+        /* =============== Dig out caves and caverns in this column, based on noise values =============== */
         for (int realY = topY; realY >= bottomY; realY--) {
             List<Float> simplexNoiseBlock;
             boolean digBlock = false;

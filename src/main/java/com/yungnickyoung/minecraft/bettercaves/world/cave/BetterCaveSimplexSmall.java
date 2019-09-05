@@ -13,12 +13,12 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import java.util.List;
 import java.util.Map;
 
-public class SimplexCave2 extends BetterCave {
+public class BetterCaveSimplexSmall extends BetterCave {
     private NoiseGen simplexNoiseGen;
 
-    public SimplexCave2(World world, int fOctaves, float fGain, float fFreq, int numGens, float threshold, int tOctaves,
-                        float tGain, float tFreq, boolean enableTurbulence, float yComp, float xzComp, boolean yAdj,
-                        float yAdjF1, float yAdjF2) {
+    public BetterCaveSimplexSmall(World world, int fOctaves, float fGain, float fFreq, int numGens, float threshold, int tOctaves,
+                                  float tGain, float tFreq, boolean enableTurbulence, float yComp, float xzComp, boolean yAdj,
+                                  float yAdjF1, float yAdjF2) {
         super(world, fOctaves, fGain, fFreq, numGens, threshold, tOctaves, tGain, tFreq, enableTurbulence, yComp,
                 xzComp, yAdj, yAdjF1, yAdjF2);
 

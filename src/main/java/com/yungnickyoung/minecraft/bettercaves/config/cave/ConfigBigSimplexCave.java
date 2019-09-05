@@ -2,9 +2,9 @@ package com.yungnickyoung.minecraft.bettercaves.config.cave;
 
 import net.minecraftforge.common.config.Config;
 
-public class ConfigSimplexCave {
+public class ConfigBigSimplexCave {
     @Config.Name("Cave Bottom Altitude")
-    @Config.Comment("The minimum y-coordinate at which caves start generating. Default: 20")
+    @Config.Comment("The minimum y-coordinate at which caves start generating.")
     @Config.RequiresWorldRestart
     public int caveBottom = 13;
 
@@ -78,4 +78,21 @@ public class ConfigSimplexCave {
             "used to calculate a single noise value.")
     @Config.RequiresWorldRestart
     public int numGenerators = 8;
+
+    @Config.Ignore
+    @Config.Name("Enable y-adjustment")
+    @Config.Comment("Enable y-adjustment, giving players more headroom in caves.")
+    public boolean yAdjust = true;
+
+    @Config.Ignore
+    @Config.Name("y-adjustment Variable 1")
+    @Config.Comment("Factor affecting the block immediately above a given block.")
+    @Config.RangeDouble(min = 0, max = 1f)
+    public float yAdjustF1 = .9f;
+
+    @Config.Ignore
+    @Config.Name("y-adjustment Variable 1")
+    @Config.Comment("Factor affecting the block two blocks above a given block.")
+    @Config.RangeDouble(min = 0, max = 1f)
+    public float yAdjustF2 = .85f;
 }

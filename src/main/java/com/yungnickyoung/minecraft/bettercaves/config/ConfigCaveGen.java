@@ -4,10 +4,15 @@ import com.yungnickyoung.minecraft.bettercaves.config.cave.*;
 import net.minecraftforge.common.config.Config;
 
 public class ConfigCaveGen {
-    @Config.Name("Caves")
-    @Config.Comment("Parameters used in the generation of cave systems. Does not include the large caverns " +
+    @Config.Name("Big Caves")
+    @Config.Comment("Parameters used in the generation of big caves. Does not include the large caverns " +
             "found at low altitudes.")
-    public ConfigSimplexCave simplexFractalCave = new ConfigSimplexCave();
+    public ConfigBigSimplexCave bigSimplexCave = new ConfigBigSimplexCave();
+
+    @Config.Name("Small Caves")
+    @Config.Comment("Parameters used in the generation of small caves. Does not include the large caverns " +
+            "found at low altitudes.")
+    public ConfigSmallSimplexCave smallSimplexCave = new ConfigSmallSimplexCave();
 
     @Config.Name("Caverns")
     @Config.Comment("Parameters used in the generation of large caverns found at low altitudes.")

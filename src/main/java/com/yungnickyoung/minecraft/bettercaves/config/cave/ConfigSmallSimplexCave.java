@@ -1,16 +1,10 @@
-package com.yungnickyoung.minecraft.bettercaves.config;
+package com.yungnickyoung.minecraft.bettercaves.config.cave;
 
-import com.yungnickyoung.minecraft.bettercaves.util.FastNoise;
 import net.minecraftforge.common.config.Config;
 
-public class ConfigTest {
-    @Config.Name("Noise Type")
-    @Config.Comment("The type of noise to test with.")
-    @Config.RequiresWorldRestart
-    public FastNoise.NoiseType testnoiseType = FastNoise.NoiseType.CubicFractal;
-
+public class ConfigSmallSimplexCave {
     @Config.Name("Cave Bottom Altitude")
-    @Config.Comment("The minimum y-coordinate at which caves start generating. Default: 20")
+    @Config.Comment("The minimum y-coordinate at which caves start generating.")
     @Config.RequiresWorldRestart
     public int caveBottom = 13;
 
@@ -18,13 +12,13 @@ public class ConfigTest {
     @Config.Comment("Changes height of caves. Lower value = taller caves with steeper drops.")
     @Config.RangeDouble(min = 0)
     @Config.RequiresWorldRestart
-    public float yCompression = 1.0f;
+    public float yCompression = 4.5f;
 
     @Config.Name("Horizontal Compression")
     @Config.Comment("Changes width of caves. Lower value = wider caves.")
     @Config.RangeDouble(min = 0)
     @Config.RequiresWorldRestart
-    public float xzCompression = 1.0f;
+    public float xzCompression = 2.5f;
 
     @Config.Ignore
     @Config.Name("Noise Threshold")
@@ -32,13 +26,13 @@ public class ConfigTest {
             " = less caves.")
     @Config.RangeDouble(min = -1.0, max = 1.0)
     @Config.RequiresWorldRestart
-    public float noiseThreshold = .7f;
+    public float noiseThreshold = .61f;
 
     @Config.Ignore
     @Config.Name("Fractal Octaves")
     @Config.Comment("The number of octaves used for ridged multi-fractal noise generation.")
     @Config.RequiresWorldRestart
-    public int fractalOctaves = 1;
+    public int fractalOctaves = 2;
 
     @Config.Ignore
     @Config.Name("Fractal Gain")
@@ -51,7 +45,7 @@ public class ConfigTest {
     @Config.Comment("The frequency for ridged multi-fractal noise generation. This determines how spread out or" +
             " tightly knit cave systems are.")
     @Config.RequiresWorldRestart
-    public float fractalFrequency = 0.03f;
+    public float fractalFrequency = 0.01f;
 
     @Config.Ignore
     @Config.Name("Use Turbulence")
@@ -83,7 +77,7 @@ public class ConfigTest {
     @Config.Comment("The number of noise generation functions used. The intersection of these functions is" +
             "used to calculate a single noise value.")
     @Config.RequiresWorldRestart
-    public int numGenerators = 9;
+    public int numGenerators = 8;
 
     @Config.Ignore
     @Config.Name("Enable y-adjustment")
@@ -94,7 +88,7 @@ public class ConfigTest {
     @Config.Name("y-adjustment Variable 1")
     @Config.Comment("Factor affecting the block immediately above a given block.")
     @Config.RangeDouble(min = 0, max = 1f)
-    public float yAdjustF1 = .9f;
+    public float yAdjustF1 = .85f;
 
     @Config.Ignore
     @Config.Name("y-adjustment Variable 1")

@@ -14,21 +14,24 @@ import java.util.Map;
 public class TestCave extends BetterCave {
     private NoiseGen testNoiseGen;
 
-    public TestCave(World world) {
-        super(world);
+    public TestCave(World world, int fOctaves, float fGain, float fFreq, int numGens, float threshold, int tOctaves,
+                    float tGain, float tFreq, boolean enableTurbulence, float yComp, float xzComp, boolean yAdj,
+                    float yAdjF1, float yAdjF2) {
+        super(world, fOctaves, fGain, fFreq, numGens, threshold, tOctaves, tGain, tFreq, enableTurbulence, yComp,
+                xzComp, yAdj, yAdjF1, yAdjF2);
 
         testNoiseGen = new NoiseGen(
                 Configuration.testSettings.testnoiseType,
                 world,
-                Configuration.testSettings.testOctaves,
-                Configuration.testSettings.testGain,
-                Configuration.testSettings.testFrequency,
-                0,
-                0,
-                0,
-                false,
-                Configuration.testSettings.testYComp,
-                Configuration.testSettings.testXZComp
+                this.fractalOctaves,
+                this.fractalGain,
+                this.fractalFreq,
+                this.turbOctaves,
+                this.turbGain,
+                this.turbFreq,
+                this.enableTurbulence,
+                this.yCompression,
+                this.xzCompression
         );
     }
 
@@ -39,19 +42,16 @@ public class TestCave extends BetterCave {
         // Altitude at which caves start closing off so they aren't all open to the surface
         int transitionBoundary = maxSurfaceHeight - 20;
 
-        // Number of noise values to calculate. Their intersection will be taken to determine a single noise value
-        int testNumGens = Configuration.testSettings.testNumGens;
-
-        /* ========== Generate noise for caves (using Simplex noise) and caverns (using Perlin noise) ========== */
+        /* ========================== Generate noise using test noise type ========================= */
         // The noise for an individual block is represented by a NoiseTuple, which is essentially an n-tuple of
         // floats, where n is equal to the number of generators passed to the function (perlinNumGens or simplexNumGens)
         Map<Integer, NoiseTuple> testNoises =
-                testNoiseGen.generateNoiseCol(chunkX, chunkZ, bottomY, topY, testNumGens, localX, localZ);
+                testNoiseGen.generateNoiseCol(chunkX, chunkZ, bottomY, topY, this.numGens, localX, localZ);
 
         // Do some pre-processing on the noises to facilitate better cave generation.
         // See the javadoc for the function for more info.
-        if (Configuration.testSettings.yAdjust)
-            preprocessCaveNoiseCol(testNoises, topY, bottomY, testNumGens);
+        if (this.enableYAdjust)
+            this.preprocessCaveNoiseCol(testNoises, topY, bottomY, this.numGens);
 
         /* =============== Dig out caves and caverns in this chunk, based on noise values =============== */
         for (int realY = topY; realY >= bottomY; realY--) {
@@ -68,7 +68,7 @@ public class TestCave extends BetterCave {
             testNoise /= testNoiseBlock.size();
 
             // Close off caves if we're in ease-in depth range
-            float noiseThreshold = Configuration.testSettings.testThreshold;
+            float noiseThreshold = this.noiseThreshold;
             if (realY >= transitionBoundary)
                 noiseThreshold *= (1 + .3f * ((float)(realY - transitionBoundary) / (topY - transitionBoundary)));
 
@@ -105,36 +105,5 @@ public class TestCave extends BetterCave {
 //            )
 //                BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
 //        }
-    }
-
-    private void preprocessCaveNoiseCol(Map<Integer, NoiseTuple> noises, int topY, int bottomY, int numGens) {
-        /* Adjust simplex noise values based on blocks above in order to give the player more headroom */
-        for (int realY = topY; realY >= bottomY; realY--) {
-            NoiseTuple sBlockNoise = noises.get(realY);
-            float avgSNoise = 0;
-
-            for (float noise : sBlockNoise.getNoiseValues())
-                avgSNoise += noise;
-
-            avgSNoise /= sBlockNoise.size();
-
-            if (avgSNoise > Configuration.testSettings.testThreshold) {
-                /* Adjust noise values of blocks above to give the player more head room */
-                float f1 = Configuration.testSettings.yAdjustF1;
-                float f2 = Configuration.testSettings.yAdjustF2;
-
-                if (realY < topY) {
-                    NoiseTuple tupleAbove = noises.get(realY + 1);
-                    for (int i = 0; i < numGens; i++)
-                        tupleAbove.set(i, ((1 - f1) * tupleAbove.get(i)) + (f1 * sBlockNoise.get(i)));
-                }
-
-                if (realY < topY - 1) {
-                    NoiseTuple tupleTwoAbove = noises.get(realY + 2);
-                    for (int i = 0; i < numGens; i++)
-                        tupleTwoAbove.set(i, ((1 - f2) * tupleTwoAbove.get(i)) + (f2 * sBlockNoise.get(i)));
-                }
-            }
-        }
     }
 }

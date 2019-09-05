@@ -16,21 +16,24 @@ import java.util.Map;
 public class SimplexCave2 extends BetterCave {
     private NoiseGen simplexNoiseGen;
 
-    public SimplexCave2(World world) {
-        super(world);
+    public SimplexCave2(World world, int fOctaves, float fGain, float fFreq, int numGens, float threshold, int tOctaves,
+                        float tGain, float tFreq, boolean enableTurbulence, float yComp, float xzComp, boolean yAdj,
+                        float yAdjF1, float yAdjF2) {
+        super(world, fOctaves, fGain, fFreq, numGens, threshold, tOctaves, tGain, tFreq, enableTurbulence, yComp,
+                xzComp, yAdj, yAdjF1, yAdjF2);
 
         simplexNoiseGen = new NoiseGen(
                 FastNoise.NoiseType.SimplexFractal,
                 world,
-                2,
-                .3f,
-                .01f,
-                0,
-                0,
-                0,
-                false,
-                4.5f,
-                2.5f
+                this.fractalOctaves,
+                this.fractalGain,
+                this.fractalFreq,
+                this.turbOctaves,
+                this.turbGain,
+                this.turbFreq,
+                this.enableTurbulence,
+                this.yCompression,
+                this.xzCompression
         );
     }
 
@@ -105,35 +108,6 @@ public class SimplexCave2 extends BetterCave {
                     && primer.getBlockState(localX, realY - 1, localZ) == BlockStateAir
             )
                 BetterCaveUtil.digBlock(this.getWorld(), primer, localX, realY, localZ, chunkX, chunkZ);
-        }
-    }
-
-    private void preprocessCaveNoiseCol(Map<Integer, NoiseTuple> noises, int topY, int bottomY, int numGens) {
-        /* Adjust simplex noise values based on blocks above in order to give the player more headroom */
-        for (int realY = topY; realY >= bottomY; realY--) {
-            NoiseTuple sBlockNoise = noises.get(realY);
-            float avgSNoise = 0;
-
-            for (float noise : sBlockNoise.getNoiseValues())
-                avgSNoise += noise;
-
-            avgSNoise /= sBlockNoise.size();
-
-            if (avgSNoise > .61f) {
-                /* Adjust noise values of blocks above to give the player more head room */
-
-                if (realY < topY) {
-                    NoiseTuple tupleAbove = noises.get(realY + 1);
-                    for (int i = 0; i < numGens; i++)
-                        tupleAbove.set(i, (.15f * tupleAbove.get(i)) + (.85f * sBlockNoise.get(i)));
-                }
-
-                if (realY < topY - 1) {
-                    NoiseTuple tupleTwoAbove = noises.get(realY + 2);
-                    for (int i = 0; i < numGens; i++)
-                        tupleTwoAbove.set(i, (.4f * tupleTwoAbove.get(i)) + (.6f * sBlockNoise.get(i)));
-                }
-            }
         }
     }
 }

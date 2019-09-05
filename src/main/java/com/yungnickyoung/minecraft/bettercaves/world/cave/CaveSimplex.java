@@ -1,6 +1,5 @@
 package com.yungnickyoung.minecraft.bettercaves.world.cave;
 
-import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
@@ -14,24 +13,27 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import java.util.List;
 import java.util.Map;
 
-public class OGSimplexCave extends BetterCave {
+public class CaveSimplex extends BetterCave {
     private NoiseGen simplexNoiseGen;
 
-    public OGSimplexCave(World world) {
-        super(world);
+    public CaveSimplex(World world, int fOctaves, float fGain, float fFreq, int numGens, float threshold, int tOctaves,
+                        float tGain, float tFreq, boolean enableTurbulence, float yComp, float xzComp, boolean yAdj,
+                        float yAdjF1, float yAdjF2) {
+        super(world, fOctaves, fGain, fFreq, numGens, threshold, tOctaves, tGain, tFreq, enableTurbulence, yComp,
+                xzComp, yAdj, yAdjF1, yAdjF2);
 
         simplexNoiseGen = new NoiseGen(
                 FastNoise.NoiseType.SimplexFractal,
                 world,
-                Configuration.caveSettings.simplexFractalCave.fractalOctaves,
-                Configuration.caveSettings.simplexFractalCave.fractalGain,
-                Configuration.caveSettings.simplexFractalCave.fractalFrequency,
-                Configuration.caveSettings.simplexFractalCave.turbulenceOctaves,
-                Configuration.caveSettings.simplexFractalCave.turbulenceGain,
-                Configuration.caveSettings.simplexFractalCave.turbulenceFrequency,
-                Configuration.caveSettings.simplexFractalCave.enableTurbulence,
-                Configuration.caveSettings.simplexFractalCave.yCompression,
-                Configuration.caveSettings.simplexFractalCave.xzCompression
+                this.fractalOctaves,
+                this.fractalGain,
+                this.fractalFreq,
+                this.turbOctaves,
+                this.turbGain,
+                this.turbFreq,
+                this.enableTurbulence,
+                this.yCompression,
+                this.xzCompression
         );
     }
 
@@ -43,7 +45,7 @@ public class OGSimplexCave extends BetterCave {
         int simplexCaveTransitionBoundary = maxSurfaceHeight - 20;
 
         // Number of noise values to calculate. Their intersection will be taken to determine a single noise value
-        int simplexNumGens = Configuration.caveSettings.simplexFractalCave.numGenerators;
+        int simplexNumGens = this.numGens;
 
         /* ========== Generate noise for caves (using Simplex noise) and caverns (using Perlin noise) ========== */
         // The noise for an individual block is represented by a NoiseTuple, which is essentially an n-tuple of
@@ -70,7 +72,7 @@ public class OGSimplexCave extends BetterCave {
             simplexNoise /= simplexNoiseBlock.size();
 
             // Close off caves if we're in ease-in depth range
-            float noiseThreshold = Configuration.caveSettings.simplexFractalCave.noiseThreshold;
+            float noiseThreshold = this.noiseThreshold;
             if (realY >= simplexCaveTransitionBoundary)
                 noiseThreshold *= (1 + .3f * ((float)(realY - simplexCaveTransitionBoundary) / (topY - simplexCaveTransitionBoundary)));
 
@@ -107,34 +109,5 @@ public class OGSimplexCave extends BetterCave {
             )
                 BetterCaveUtil.digBlock(this.getWorld(), primer, localX, realY, localZ, chunkX, chunkZ);
         }
-    }
-
-    private Map<Integer, NoiseTuple> preprocessCaveNoiseCol(Map<Integer, NoiseTuple> noises, int topY, int bottomY, int numGens) {
-        /* Adjust simplex noise values based on blocks above in order to give the player more headroom */
-        for (int realY = topY; realY >= bottomY; realY--) {
-            NoiseTuple sBlockNoise = noises.get(realY);
-            float avgSNoise = 0;
-
-            for (float noise : sBlockNoise.getNoiseValues())
-                avgSNoise += noise;
-
-            avgSNoise /= sBlockNoise.size();
-
-            if (avgSNoise > Configuration.caveSettings.simplexFractalCave.noiseThreshold) {
-                /* Adjust noise values of blocks above to give the player more head room */
-                if (realY < topY) {
-                    NoiseTuple tupleAbove = noises.get(realY + 1);
-                    for (int i = 0; i < numGens; i++)
-                        tupleAbove.set(i, (.1f * tupleAbove.get(i)) + (.9f * sBlockNoise.get(i)));
-                }
-
-                if (realY < topY - 1) {
-                    NoiseTuple tupleTwoAbove = noises.get(realY + 2);
-                    for (int i = 0; i < numGens; i++)
-                        tupleTwoAbove.set(i, (.15f * tupleTwoAbove.get(i)) + (.85f * sBlockNoise.get(i)));
-                }
-            }
-        }
-        return noises;
     }
 }

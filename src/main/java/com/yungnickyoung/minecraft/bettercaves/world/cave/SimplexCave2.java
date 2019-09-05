@@ -11,7 +11,7 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import java.util.List;
 import java.util.Map;
 
-public class SimplexCave2 {
+public class SimplexCave2 extends BetterCave {
     private World world;
     private long seed;
     private NoiseGen simplexNoiseGen;
@@ -35,6 +35,7 @@ public class SimplexCave2 {
         );
     }
 
+    @Override
     public void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
                                int topY, int maxSurfaceHeight, int minSurfaceHeight) {
         /* ========================= Import cave variables from the config ========================= */

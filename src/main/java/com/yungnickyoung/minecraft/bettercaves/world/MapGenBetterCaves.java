@@ -3,9 +3,11 @@ package com.yungnickyoung.minecraft.bettercaves.world;
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
 import com.yungnickyoung.minecraft.bettercaves.util.FastNoise;
+import com.yungnickyoung.minecraft.bettercaves.world.cave.BetterCave;
 import com.yungnickyoung.minecraft.bettercaves.world.cave.OGSimplexCave;
 import com.yungnickyoung.minecraft.bettercaves.world.cave.SimplexCave2;
 import com.yungnickyoung.minecraft.bettercaves.world.cave.TestCave;
+import com.yungnickyoung.minecraft.bettercaves.world.cavern.BetterCavern;
 import com.yungnickyoung.minecraft.bettercaves.world.cavern.CaveBiomeFlooredCavern;
 import com.yungnickyoung.minecraft.bettercaves.world.cavern.CaveBiomeLavaCavern;
 import net.minecraft.world.World;
@@ -24,6 +26,7 @@ public class MapGenBetterCaves extends MapGenCaves {
     private SimplexCave2 simplexCave2;
 
     private FastNoise cavernBiomeController;
+    private FastNoise caveBiomeController;
     private FastNoise controllerJitter;
 
     public MapGenBetterCaves() {
@@ -41,6 +44,11 @@ public class MapGenBetterCaves extends MapGenCaves {
             this.cavernBiomeController.SetSeed((int)worldIn.getSeed());
             this.cavernBiomeController.SetFrequency(.0025f);
             this.cavernBiomeController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
+
+            this.caveBiomeController = new FastNoise();
+            this.caveBiomeController.SetSeed((int)worldIn.getSeed() + 999);
+            this.caveBiomeController.SetFrequency(.005f);
+            this.caveBiomeController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
             this.controllerJitter = new FastNoise();
             this.controllerJitter.SetSeed((int)(worldIn.getSeed()) + 69420);
@@ -90,31 +98,41 @@ public class MapGenBetterCaves extends MapGenCaves {
                 break;
         }
 
+        BetterCave caveGen;
+        BetterCavern cavernGen;
+
         // Only use Better Caves generation in overworld
         if (worldIn.provider.getDimension() == 0) {
             for (int localX = 0; localX < 16; localX++) {
                 for (int localZ = 0; localZ < 16; localZ++) {
-//                    Vector2f f = new Vector2f(((chunkX * 16) + localX), ((chunkZ * 16) + localZ));
-////                    controllerJitter.GradientPerturb(f);
-//                    float noiseVal = cavernBiomeController.GetNoise(f.x, f.y);
-//
-//                    if (noiseVal < lavaCavernThreshold) {
-//                        caveBiomeLavaCavern.generateColumn(chunkX, chunkZ, primer, localX, localZ,
-//                                Configuration.caveSettings.invertedPerlinCavern.caveBottom,
-//                                Configuration.caveSettings.invertedPerlinCavern.caveTop, maxSurfaceHeight,
-//                                minSurfaceHeight);
-//                        ogSimplexCave.generateColumn(chunkX, chunkZ, primer,localX, localZ, Configuration.caveSettings.simplexFractalCave.caveBottom, maxSurfaceHeight, maxSurfaceHeight, minSurfaceHeight);
-//                    } else if (noiseVal >= lavaCavernThreshold && noiseVal <= flooredCavernThreshold) {
-//                        ogSimplexCave.generateColumn(chunkX, chunkZ, primer, localX, localZ, 1, maxSurfaceHeight, maxSurfaceHeight, minSurfaceHeight);
-//                    } else {
-//                        caveBiomeFlooredCavern.generateColumn(chunkX, chunkZ, primer, localX, localZ,
-//                                Configuration.caveSettings.invertedPerlinCavern.caveBottom,
-//                                Configuration.caveSettings.invertedPerlinCavern.caveTop, maxSurfaceHeight,
-//                                minSurfaceHeight);
-//                        ogSimplexCave.generateColumn(chunkX, chunkZ, primer,localX, localZ, Configuration.caveSettings.simplexFractalCave.caveBottom, maxSurfaceHeight, maxSurfaceHeight, minSurfaceHeight);
-//                    }
+                    Vector2f blockPos = new Vector2f(((chunkX * 16) + localX), ((chunkZ * 16) + localZ));
+                    controllerJitter.GradientPerturb(blockPos);
+                    float cavernBiomeNoise = cavernBiomeController.GetNoise(blockPos.x, blockPos.y);
+                    float caveBiomeNoise = caveBiomeController.GetNoise(blockPos.x, blockPos.y);
 
-                    testCave.generateColumn(chunkX, chunkZ, primer, localX, localZ, 1, maxSurfaceHeight, maxSurfaceHeight, minSurfaceHeight);
+                    // Determine cave type for this column
+                    if (caveBiomeNoise < 0)
+                        caveGen = this.ogSimplexCave;
+                    else
+                        caveGen = this.simplexCave2;
+
+
+                    // Dig out caverns
+                    if (cavernBiomeNoise < lavaCavernThreshold) {
+                        caveBiomeLavaCavern.generateColumn(chunkX, chunkZ, primer, localX, localZ,
+                                Configuration.caveSettings.invertedPerlinCavern.caveBottom,
+                                Configuration.caveSettings.invertedPerlinCavern.caveTop, maxSurfaceHeight,
+                                minSurfaceHeight);
+                        caveGen.generateColumn(chunkX, chunkZ, primer,localX, localZ, Configuration.caveSettings.simplexFractalCave.caveBottom, maxSurfaceHeight, maxSurfaceHeight, minSurfaceHeight);
+                    } else if (cavernBiomeNoise >= lavaCavernThreshold && cavernBiomeNoise <= flooredCavernThreshold) {
+                        caveGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, 1, maxSurfaceHeight, maxSurfaceHeight, minSurfaceHeight);
+                    } else {
+                        caveBiomeFlooredCavern.generateColumn(chunkX, chunkZ, primer, localX, localZ,
+                                Configuration.caveSettings.invertedPerlinCavern.caveBottom,
+                                Configuration.caveSettings.invertedPerlinCavern.caveTop, maxSurfaceHeight,
+                                minSurfaceHeight);
+                        caveGen.generateColumn(chunkX, chunkZ, primer,localX, localZ, Configuration.caveSettings.simplexFractalCave.caveBottom, maxSurfaceHeight, maxSurfaceHeight, minSurfaceHeight);
+                    }
                 }
             }
         } else

@@ -15,13 +15,13 @@ public class ConfigCaveGen {
 
     @Config.Name("Lava Cavern Frequency")
     @Config.Comment("Determines how frequently Lava Caverns spawn.")
-    public cavernFrequency lavaCavernFrequency = cavernFrequency.Rare;
+    public CavernFrequency lavaCavernFrequency = CavernFrequency.Rare;
 
     @Config.Name("Floored Cavern Frequency")
     @Config.Comment("Determines how frequently Floored Caverns spawn.")
-    public cavernFrequency flooredCavernFrequency = cavernFrequency.Rare;
+    public CavernFrequency flooredCavernFrequency = CavernFrequency.Rare;
 
-    public enum cavernFrequency {
+    public enum CavernFrequency {
          VeryRare, Rare, Common, VeryCommon
     }
 

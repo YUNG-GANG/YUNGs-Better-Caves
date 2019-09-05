@@ -14,7 +14,7 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import java.util.List;
 import java.util.Map;
 
-public class OGSimplexCave {
+public class OGSimplexCave extends BetterCave {
     private World world;
     private long seed;
     private NoiseGen simplexNoiseGen;
@@ -38,6 +38,7 @@ public class OGSimplexCave {
         );
     }
 
+    @Override
     public void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
                                int topY, int maxSurfaceHeight, int minSurfaceHeight) {
         /* ========================= Import cave variables from the config ========================= */

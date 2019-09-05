@@ -15,7 +15,7 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import java.util.List;
 import java.util.Map;
 
-public class CaveBiomeFlooredCavern {
+public class CaveBiomeFlooredCavern extends BetterCavern {
     private World world;
     private long seed;
 
@@ -494,6 +494,7 @@ public class CaveBiomeFlooredCavern {
         return noises;
     }
 
+    @Override
     public void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
                                int topY, int maxSurfaceHeight, int minSurfaceHeight) {
         /* ======================== Import cavern variables from the config ======================== */

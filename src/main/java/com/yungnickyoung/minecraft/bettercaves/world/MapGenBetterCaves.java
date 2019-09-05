@@ -3,7 +3,6 @@ package com.yungnickyoung.minecraft.bettercaves.world;
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
 import com.yungnickyoung.minecraft.bettercaves.util.FastNoise;
-import com.yungnickyoung.minecraft.bettercaves.world.cave.BetterCave;
 import com.yungnickyoung.minecraft.bettercaves.world.cave.BetterCaveSimplex;
 import com.yungnickyoung.minecraft.bettercaves.world.cave.TestCave;
 import com.yungnickyoung.minecraft.bettercaves.world.cavern.BetterCavern;
@@ -28,7 +27,9 @@ public class MapGenBetterCaves extends MapGenCaves {
     private MapGenCaves defaultCaveGen;
 
     private FastNoise cavernBiomeController;
-    private FastNoise caveBiomeController;
+    private FastNoise midCaveBiomeController;
+    private FastNoise topCaveBiomeController;
+
     private FastNoise controllerJitter;
 
     public MapGenBetterCaves() {
@@ -78,25 +79,28 @@ public class MapGenBetterCaves extends MapGenCaves {
                 break;
         }
 
-        BetterCave caveGen;
         BetterCavern cavernGen;
+        BetterCave midCaveGen;
+        BetterCave topCaveGen;
         int caveBottom;
 
         // Only use Better Caves generation in overworld
         if (worldIn.provider.getDimension() == 0) {
             for (int localX = 0; localX < 16; localX++) {
                 for (int localZ = 0; localZ < 16; localZ++) {
-                    Vector2f blockPos = new Vector2f(((chunkX * 16) + localX), ((chunkZ * 16) + localZ));
-                    controllerJitter.GradientPerturb(blockPos);
-                    float cavernBiomeNoise = cavernBiomeController.GetNoise(blockPos.x, blockPos.y);
-                    float caveBiomeNoise = caveBiomeController.GetNoise(blockPos.x, blockPos.y);
+                    Vector2f columnPos = new Vector2f(((chunkX * 16) + localX), ((chunkZ * 16) + localZ));
+
+                    controllerJitter.GradientPerturb(columnPos);
+
+                    float cavernBiomeNoise = cavernBiomeController.GetNoise(columnPos.x, columnPos.y);
+                    float topCaveBiomeNoise = topCaveBiomeController.GetNoise(columnPos.x, columnPos.y);
 
                     // Determine cave type for this column
-                    if (caveBiomeNoise < -.1f) {
-                        caveGen = this.caveSimplexBig;
+                    if (topCaveBiomeNoise < -.1f) {
+                        topCaveGen = this.caveSimplexBig;
                         caveBottom = Configuration.caveSettings.bigSimplexCave.caveBottom;
                     } else {
-                        caveGen = this.caveSimplexSmall;
+                        topCaveGen = this.caveSimplexSmall;
                         caveBottom = Configuration.caveSettings.smallSimplexCave.caveBottom;
                     }
 
@@ -107,17 +111,17 @@ public class MapGenBetterCaves extends MapGenCaves {
                                 Configuration.caveSettings.lavaCavern.caveBottom,
                                 Configuration.caveSettings.lavaCavern.caveTop, maxSurfaceHeight, minSurfaceHeight);
                         // Generate caves the rest of the way up
-                        caveGen.generateColumn(chunkX, chunkZ, primer,localX, localZ, caveBottom, maxSurfaceHeight, maxSurfaceHeight, minSurfaceHeight);
+                        topCaveGen.generateColumn(chunkX, chunkZ, primer,localX, localZ, caveBottom, maxSurfaceHeight, maxSurfaceHeight, minSurfaceHeight);
                     } else if (cavernBiomeNoise >= lavaCavernThreshold && cavernBiomeNoise <= flooredCavernThreshold) {
                         // Generate caves all the way down
-                        caveGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, 1, maxSurfaceHeight, maxSurfaceHeight, minSurfaceHeight);
+                        topCaveGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, 1, maxSurfaceHeight, maxSurfaceHeight, minSurfaceHeight);
                     } else {
                         // Generate lava caverns at the bottom
                         cavernFloored.generateColumn(chunkX, chunkZ, primer, localX, localZ,
                                 Configuration.caveSettings.flooredCavern.caveBottom,
                                 Configuration.caveSettings.flooredCavern.caveTop, maxSurfaceHeight, minSurfaceHeight);
                         // Generate caves the rest of the way up
-                        caveGen.generateColumn(chunkX, chunkZ, primer,localX, localZ, caveBottom, maxSurfaceHeight, maxSurfaceHeight, minSurfaceHeight);
+                        topCaveGen.generateColumn(chunkX, chunkZ, primer,localX, localZ, caveBottom, maxSurfaceHeight, maxSurfaceHeight, minSurfaceHeight);
                     }
                 }
             }
@@ -131,13 +135,18 @@ public class MapGenBetterCaves extends MapGenCaves {
 
         this.cavernBiomeController = new FastNoise();
         this.cavernBiomeController.SetSeed((int)worldIn.getSeed());
-        this.cavernBiomeController.SetFrequency(.0025f);
+        this.cavernBiomeController.SetFrequency(.005f);
         this.cavernBiomeController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
-        this.caveBiomeController = new FastNoise();
-        this.caveBiomeController.SetSeed((int)worldIn.getSeed() + 999);
-        this.caveBiomeController.SetFrequency(.005f);
-        this.caveBiomeController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
+        this.midCaveBiomeController = new FastNoise();
+        this.midCaveBiomeController.SetSeed((int)worldIn.getSeed() + 111);
+        this.midCaveBiomeController.SetFrequency(.01f);
+        this.midCaveBiomeController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
+
+        this.topCaveBiomeController = new FastNoise();
+        this.topCaveBiomeController.SetSeed((int)worldIn.getSeed() + 222);
+        this.topCaveBiomeController.SetFrequency(.01f);
+        this.topCaveBiomeController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
         this.controllerJitter = new FastNoise();
         this.controllerJitter.SetSeed((int)(worldIn.getSeed()) + 69420);

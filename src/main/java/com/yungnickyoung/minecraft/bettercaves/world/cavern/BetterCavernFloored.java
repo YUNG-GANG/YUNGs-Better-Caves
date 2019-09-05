@@ -5,6 +5,7 @@ import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
 import com.yungnickyoung.minecraft.bettercaves.util.FastNoise;
+import com.yungnickyoung.minecraft.bettercaves.world.BetterCave;
 import net.minecraft.block.material.Material;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
@@ -12,7 +13,7 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import java.util.List;
 import java.util.Map;
 
-public class BetterCavernFloored extends BetterCavern {
+public class BetterCavernFloored extends BetterCave {
     private NoiseGen perlinNoiseGen;
 
     public BetterCavernFloored(World world, int fOctaves, float fGain, float fFreq, int numGens, float threshold,
@@ -25,10 +26,10 @@ public class BetterCavernFloored extends BetterCavern {
                 this.fractalOctaves,
                 this.fractalGain,
                 this.fractalFreq,
-                0,
-                0,
-                0,
-                false,
+                this.turbOctaves,
+                this.turbGain,
+                this.turbFreq,
+                this.enableTurbulence,
                 this.yCompression,
                 this.xzCompression
         );

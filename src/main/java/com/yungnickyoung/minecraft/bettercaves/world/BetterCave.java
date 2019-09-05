@@ -1,4 +1,4 @@
-package com.yungnickyoung.minecraft.bettercaves.world.cave;
+package com.yungnickyoung.minecraft.bettercaves.world;
 
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
 import net.minecraft.world.World;
@@ -12,29 +12,29 @@ public abstract class BetterCave {
 
     /* ============================== Values passed in through config ============================== */
     /* ------------- Ridged Multifractal Params ------------- */
-    int fractalOctaves;            // Number of ridged multifractal octaves
-    float fractalGain;             // Ridged multifractal gain
-    float fractalFreq;             // Ridged multifractal frequency
-    int numGens;                   // Number of noise values to generate per iteration (block, sub-chunk, etc)
+    protected int fractalOctaves;            // Number of ridged multifractal octaves
+    protected float fractalGain;             // Ridged multifractal gain
+    protected float fractalFreq;             // Ridged multifractal frequency
+    protected int numGens;                   // Number of noise values to generate per iteration (block, sub-chunk, etc)
 
     /* ----------------- Turbulence Params ----------------- */
-    int turbOctaves;               // Number of octaves in turbulence function
-    float turbGain;                // Gain of turbulence function
-    float turbFreq;                // Frequency of turbulence function
-    boolean enableTurbulence;      // Set true to enable turbulence (adds performance overhead, generally not worth it)
+    protected int turbOctaves;               // Number of octaves in turbulence function
+    protected float turbGain;                // Gain of turbulence function
+    protected float turbFreq;                // Frequency of turbulence function
+    protected boolean enableTurbulence;      // Set true to enable turbulence (adds performance overhead, generally not worth it)
 
     /* -------------- Noise Processing Params -------------- */
-    float yCompression;            // Vertical cave gen compression
-    float xzCompression;           // Horizontal cave gen compression
-    private float yAdjustF1;       // Adjustment value for the block immediately above. Must be between 0 and 1.0
-    private float yAdjustF2;       // Adjustment value for the block two blocks above. Must be between 0 and 1.0
-    float noiseThreshold;          // Noise threshold for determining whether or not a block gets dug out
-    boolean enableYAdjust;         // Set true to perform preprocessing on noise values, adjusting them to increase
-                                   // headroom in the y direction. This is generally useful for caves (esp. Simplex),
-                                   // but not really necessary for caverns
+    protected float yCompression;            // Vertical cave gen compression
+    protected float xzCompression;           // Horizontal cave gen compression
+    private float yAdjustF1;                 // Adjustment value for the block immediately above. Must be between 0 and 1.0
+    private float yAdjustF2;                 // Adjustment value for the block two blocks above. Must be between 0 and 1.0
+    protected float noiseThreshold;          // Noise threshold for determining whether or not a block gets dug out
+    protected boolean enableYAdjust;         // Set true to perform preprocessing on noise values, adjusting them to increase
+                                             // headroom in the y direction. This is generally useful for caves (esp. Simplex),
+                                             // but not really necessary for caverns
 
     /**
-     *
+     * Primary constructor, used for caves. See other constructor for caverns.
      * @param world the Minecraft World
      * @param fOctaves Number of fractal octaves to use in ridged multifractal noise generation
      * @param fGain Amount of gain to use in ridged multifractal noise generation
@@ -52,9 +52,9 @@ public abstract class BetterCave {
      * @param yAdjF1 Adjustment value for the block immediately above. Must be between 0 and 1.0
      * @param yAdjF2 Adjustment value for the block two blocks above. Must be between 0 and 1.0
      */
-    public BetterCave(World world, int fOctaves, float fGain, float fFreq, int numGens, float threshold, int tOctaves, float tGain,
-                      float tFreq, boolean enableTurbulence, float yComp, float xzComp, boolean yAdj, float yAdjF1,
-                      float yAdjF2) {
+    public BetterCave(World world, int fOctaves, float fGain, float fFreq, int numGens, float threshold, int tOctaves,
+                      float tGain, float tFreq, boolean enableTurbulence, float yComp, float xzComp, boolean yAdj,
+                      float yAdjF1, float yAdjF2) {
         this.world = world;
         this.seed = world.getSeed();
         this.fractalOctaves = fOctaves;
@@ -71,6 +71,25 @@ public abstract class BetterCave {
         this.enableYAdjust = yAdj;
         this.yAdjustF1 = yAdjF1;
         this.yAdjustF2 = yAdjF2;
+    }
+
+    /**
+     * Constructor for caverns.
+     * Disables turbulence and sets all turbulence-related fields to zero (shouldn't matter anyway).
+     * Disables vertical adjustment and sets all y-adjust related fields to one (shouldn't matter anyway).
+     * @param world the Minecraft World
+     * @param fOctaves Number of fractal octaves to use in ridged multifractal noise generation
+     * @param fGain Amount of gain to use in ridged multifractal noise generation
+     * @param fFreq Frequency to use in ridged multifractal noise generation
+     * @param numGens Number of noise values to calculate for a given block
+     * @param threshold Noise threshold to determine whether or not a given block will be dug out
+     * @param yComp Vertical cave gen compression. Use 1.0 for default generation
+     * @param xzComp Horizontal cave gen compression. Use 1.0 for default generation
+     */
+    public BetterCave(World world, int fOctaves, float fGain, float fFreq, int numGens, float threshold, float yComp,
+                        float xzComp) {
+        this(world, fOctaves, fGain, fFreq, numGens, threshold, 0, 0, 0, false,
+                yComp, xzComp, false, 1, 1);
     }
 
     public World getWorld() {
@@ -111,7 +130,7 @@ public abstract class BetterCave {
      * @param numGens Number of noise values to create per block. This is equal to the number of floats held
      *                in each NoiseTuple for each block in the noise column.
      */
-    void preprocessCaveNoiseCol(Map<Integer, NoiseTuple> noises, int topY, int bottomY, int numGens) {
+    protected void preprocessCaveNoiseCol(Map<Integer, NoiseTuple> noises, int topY, int bottomY, int numGens) {
         /* Adjust simplex noise values based on blocks above in order to give the player more headroom */
         for (int realY = topY; realY >= bottomY; realY--) {
             NoiseTuple sBlockNoise = noises.get(realY);

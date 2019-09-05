@@ -5,7 +5,6 @@ import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
 import com.yungnickyoung.minecraft.bettercaves.util.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.world.cave.BetterCaveSimplex;
 import com.yungnickyoung.minecraft.bettercaves.world.cave.TestCave;
-import com.yungnickyoung.minecraft.bettercaves.world.cavern.BetterCavern;
 import com.yungnickyoung.minecraft.bettercaves.world.cavern.BetterCavernFloored;
 import com.yungnickyoung.minecraft.bettercaves.world.cavern.BetterCavernLava;
 import net.minecraft.world.World;
@@ -19,8 +18,8 @@ public class MapGenBetterCaves extends MapGenCaves {
     private BetterCave caveSimplexBig;
     private BetterCave caveSimplexSmall;
 
-    private BetterCavern cavernLava;
-    private BetterCavern cavernFloored;
+    private BetterCave cavernLava;
+    private BetterCave cavernFloored;
 
     private BetterCave testCave;
 
@@ -79,10 +78,17 @@ public class MapGenBetterCaves extends MapGenCaves {
                 break;
         }
 
-        BetterCavern cavernGen;
+        BetterCave cavernGen;
         BetterCave midCaveGen;
         BetterCave topCaveGen;
-        int caveBottom;
+
+        int cavernBottomY;
+        int cavernTopY;
+
+        int midCaveBottomY = 30;
+        int midCaveTopY = 60;
+
+        int topCaveBottomY;
 
         // Only use Better Caves generation in overworld
         if (worldIn.provider.getDimension() == 0) {
@@ -93,36 +99,53 @@ public class MapGenBetterCaves extends MapGenCaves {
                     controllerJitter.GradientPerturb(columnPos);
 
                     float cavernBiomeNoise = cavernBiomeController.GetNoise(columnPos.x, columnPos.y);
+                    float midCaveBiomeNoise = midCaveBiomeController.GetNoise(columnPos.x, columnPos.y);
                     float topCaveBiomeNoise = topCaveBiomeController.GetNoise(columnPos.x, columnPos.y);
 
-                    // Determine cave type for this column
-                    if (topCaveBiomeNoise < -.1f) {
-                        topCaveGen = this.caveSimplexBig;
-                        caveBottom = Configuration.caveSettings.bigSimplexCave.caveBottom;
+                    // Determine cavern type for this column
+                    if (cavernBiomeNoise < lavaCavernThreshold) { // .3
+                        cavernGen = this.cavernLava;
+                        cavernBottomY = Configuration.caveSettings.lavaCavern.caveBottom;
+                        cavernTopY = Configuration.caveSettings.lavaCavern.caveTop;
+                    } else if (cavernBiomeNoise >= lavaCavernThreshold && cavernBiomeNoise <= flooredCavernThreshold) {
+                        cavernGen = this.caveSimplexBig;
+                        cavernBottomY = 1;
+                        cavernTopY = 30;
                     } else {
-                        topCaveGen = this.caveSimplexSmall;
-                        caveBottom = Configuration.caveSettings.smallSimplexCave.caveBottom;
+                        cavernGen = this.cavernFloored;
+                        cavernBottomY = Configuration.caveSettings.flooredCavern.caveBottom;
+                        cavernTopY = Configuration.caveSettings.flooredCavern.caveTop;
                     }
 
-                    // Dig out caverns based on noise
-                    if (cavernBiomeNoise < lavaCavernThreshold) {
-                        // Generate lava caverns at the bottom
-                        cavernLava.generateColumn(chunkX, chunkZ, primer, localX, localZ,
-                                Configuration.caveSettings.lavaCavern.caveBottom,
-                                Configuration.caveSettings.lavaCavern.caveTop, maxSurfaceHeight, minSurfaceHeight);
-                        // Generate caves the rest of the way up
-                        topCaveGen.generateColumn(chunkX, chunkZ, primer,localX, localZ, caveBottom, maxSurfaceHeight, maxSurfaceHeight, minSurfaceHeight);
-                    } else if (cavernBiomeNoise >= lavaCavernThreshold && cavernBiomeNoise <= flooredCavernThreshold) {
-                        // Generate caves all the way down
-                        topCaveGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, 1, maxSurfaceHeight, maxSurfaceHeight, minSurfaceHeight);
+                    // Determine mid cave type for this column
+                    if (midCaveBiomeNoise < -.1f) { // .3
+                        midCaveGen = this.cavernFloored;
+                    } else if (midCaveBiomeNoise >= -.1f && midCaveBiomeNoise <= .1f) {
+                        midCaveGen = this.caveSimplexBig;
                     } else {
-                        // Generate lava caverns at the bottom
-                        cavernFloored.generateColumn(chunkX, chunkZ, primer, localX, localZ,
-                                Configuration.caveSettings.flooredCavern.caveBottom,
-                                Configuration.caveSettings.flooredCavern.caveTop, maxSurfaceHeight, minSurfaceHeight);
-                        // Generate caves the rest of the way up
-                        topCaveGen.generateColumn(chunkX, chunkZ, primer,localX, localZ, caveBottom, maxSurfaceHeight, maxSurfaceHeight, minSurfaceHeight);
+                        midCaveGen = this.caveSimplexSmall;
                     }
+
+                    // Determine top cave type for this column
+                    if (topCaveBiomeNoise < -.1f) {
+                        topCaveGen = this.caveSimplexBig;
+                        topCaveBottomY = Configuration.caveSettings.bigSimplexCave.caveBottom;
+                    } else {
+                        topCaveGen = this.caveSimplexSmall;
+                        topCaveBottomY = Configuration.caveSettings.smallSimplexCave.caveBottom;
+                    }
+
+                    // Dig out caves and caverns
+                    // Bottom layer:
+                    cavernGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, cavernBottomY, cavernTopY,
+                            maxSurfaceHeight, minSurfaceHeight);
+                    // Mid layer:
+                    midCaveGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, midCaveBottomY, midCaveTopY,
+                            maxSurfaceHeight, minSurfaceHeight);
+                    // Top layer:
+                    topCaveGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, topCaveBottomY, maxSurfaceHeight,
+                            maxSurfaceHeight, minSurfaceHeight);
+
                 }
             }
         } else

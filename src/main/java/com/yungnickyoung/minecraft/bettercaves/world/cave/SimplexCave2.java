@@ -5,6 +5,8 @@ import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
 import com.yungnickyoung.minecraft.bettercaves.util.FastNoise;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 
@@ -12,13 +14,10 @@ import java.util.List;
 import java.util.Map;
 
 public class SimplexCave2 extends BetterCave {
-    private World world;
-    private long seed;
     private NoiseGen simplexNoiseGen;
 
     public SimplexCave2(World world) {
-        this.world = world;
-        this.seed = world.getSeed();
+        super(world);
 
         simplexNoiseGen = new NoiseGen(
                 FastNoise.NoiseType.SimplexFractal,
@@ -92,21 +91,21 @@ public class SimplexCave2 extends BetterCave {
                 if (localZ > 0 && primer.getBlockState(localX, realY, localZ - 1).getMaterial() == Material.WATER)
                     continue;
 
-                BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
+                BetterCaveUtil.digBlock(this.getWorld(), primer, localX, realY, localZ, chunkX, chunkZ);
             }
         }
 
         /* ============ Post-Processing to remove any singular floating blocks in the ease-in range ============ */
-//        IBlockState BlockStateAir = Blocks.AIR.getDefaultState();
-//        for (int realY = simplexCaveTransitionBoundary + 1; realY < topY - 1; realY++) {
-//            IBlockState currBlock = primer.getBlockState(localX, realY, localZ);
-//
-//            if (BetterCaveUtil.canReplaceBlock(currBlock, BlockStateAir)
-//                    && primer.getBlockState(localX, realY + 1, localZ) == BlockStateAir
-//                    && primer.getBlockState(localX, realY - 1, localZ) == BlockStateAir
-//            )
-//                BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
-//        }
+        IBlockState BlockStateAir = Blocks.AIR.getDefaultState();
+        for (int realY = transitionBoundary + 1; realY < topY - 1; realY++) {
+            IBlockState currBlock = primer.getBlockState(localX, realY, localZ);
+
+            if (BetterCaveUtil.canReplaceBlock(currBlock, BlockStateAir)
+                    && primer.getBlockState(localX, realY + 1, localZ) == BlockStateAir
+                    && primer.getBlockState(localX, realY - 1, localZ) == BlockStateAir
+            )
+                BetterCaveUtil.digBlock(this.getWorld(), primer, localX, realY, localZ, chunkX, chunkZ);
+        }
     }
 
     private void preprocessCaveNoiseCol(Map<Integer, NoiseTuple> noises, int topY, int bottomY, int numGens) {

@@ -65,15 +65,15 @@ public class MapGenBetterCaves extends MapGenCaves {
         int minSurfaceHeight = BetterCaveUtil.getMinSurfaceHeight(primer);
 
         // Determine noise thresholds for cavern spawns based on config
-        float lavaCavernThreshold = -.6f;
-        float flooredCavernThreshold = .6f;
+        float lavaCavernThreshold = -.5f;
+        float flooredCavernThreshold = .5f;
 
         switch (Configuration.caveSettings.lavaCavernFrequency) {
             case VeryRare:
                 lavaCavernThreshold = -.8f;
                 break;
             case Rare:
-                lavaCavernThreshold = -.6f;
+                lavaCavernThreshold = -.5f;
                 break;
             case Common:
                 lavaCavernThreshold = -.4f;
@@ -88,7 +88,7 @@ public class MapGenBetterCaves extends MapGenCaves {
                 flooredCavernThreshold = .8f;
                 break;
             case Rare:
-                flooredCavernThreshold = .6f;
+                flooredCavernThreshold = .5f;
                 break;
             case Common:
                 flooredCavernThreshold = .4f;
@@ -111,7 +111,7 @@ public class MapGenBetterCaves extends MapGenCaves {
                     float caveBiomeNoise = caveBiomeController.GetNoise(blockPos.x, blockPos.y);
 
                     // Determine cave type for this column
-                    if (caveBiomeNoise < 0)
+                    if (caveBiomeNoise < -.1f)
                         caveGen = this.ogSimplexCave;
                     else
                         caveGen = this.simplexCave2;

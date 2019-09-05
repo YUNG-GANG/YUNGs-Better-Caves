@@ -4,7 +4,6 @@ import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
-import com.yungnickyoung.minecraft.bettercaves.util.FastNoise;
 import net.minecraft.block.material.Material;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
@@ -13,13 +12,10 @@ import java.util.List;
 import java.util.Map;
 
 public class TestCave extends BetterCave {
-    private World world;
-    private long seed;
     private NoiseGen testNoiseGen;
 
     public TestCave(World world) {
-        this.world = world;
-        this.seed = world.getSeed();
+        super(world);
 
         testNoiseGen = new NoiseGen(
                 Configuration.testSettings.testnoiseType,
@@ -94,7 +90,7 @@ public class TestCave extends BetterCave {
                 if (localZ > 0 && primer.getBlockState(localX, realY, localZ - 1).getMaterial() == Material.WATER)
                     continue;
 
-                BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
+                BetterCaveUtil.digBlock(this.getWorld(), primer, localX, realY, localZ, chunkX, chunkZ);
             }
         }
 

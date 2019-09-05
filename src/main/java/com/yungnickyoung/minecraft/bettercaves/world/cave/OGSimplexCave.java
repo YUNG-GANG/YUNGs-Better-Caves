@@ -15,13 +15,10 @@ import java.util.List;
 import java.util.Map;
 
 public class OGSimplexCave extends BetterCave {
-    private World world;
-    private long seed;
     private NoiseGen simplexNoiseGen;
 
     public OGSimplexCave(World world) {
-        this.world = world;
-        this.seed = world.getSeed();
+        super(world);
 
         simplexNoiseGen = new NoiseGen(
                 FastNoise.NoiseType.SimplexFractal,
@@ -95,7 +92,7 @@ public class OGSimplexCave extends BetterCave {
                 if (localZ > 0 && primer.getBlockState(localX, realY, localZ - 1).getMaterial() == Material.WATER)
                     continue;
 
-                BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
+                BetterCaveUtil.digBlock(this.getWorld(), primer, localX, realY, localZ, chunkX, chunkZ);
             }
         }
 
@@ -108,7 +105,7 @@ public class OGSimplexCave extends BetterCave {
                     && primer.getBlockState(localX, realY + 1, localZ) == BlockStateAir
                     && primer.getBlockState(localX, realY - 1, localZ) == BlockStateAir
             )
-                BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
+                BetterCaveUtil.digBlock(this.getWorld(), primer, localX, realY, localZ, chunkX, chunkZ);
         }
     }
 

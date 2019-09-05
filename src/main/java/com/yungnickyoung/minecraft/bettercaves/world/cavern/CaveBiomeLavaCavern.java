@@ -16,15 +16,11 @@ import java.util.List;
 import java.util.Map;
 
 public class CaveBiomeLavaCavern extends BetterCavern {
-    private World world;
-    private long seed;
-
     private NoiseGen simplexNoiseGen;
     private NoiseGen perlinNoiseGen;
 
     public CaveBiomeLavaCavern(World world) {
-        this.world = world;
-        this.seed = world.getSeed();
+        super(world);
 
         simplexNoiseGen = new NoiseGen(
                 FastNoise.NoiseType.SimplexFractal,
@@ -172,7 +168,7 @@ public class CaveBiomeLavaCavern extends BetterCavern {
                         if (localZ > 0 && primer.getBlockState(localX, realY, localZ - 1).getMaterial() == Material.WATER)
                             continue;
 
-                        BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
+                        BetterCaveUtil.digBlock(this.getWorld(), primer, localX, realY, localZ, chunkX, chunkZ);
                     }
                 }
             }
@@ -189,14 +185,10 @@ public class CaveBiomeLavaCavern extends BetterCavern {
                             && primer.getBlockState(localX, realY + 1, localZ) == BlockStateAir
                             && primer.getBlockState(localX, realY - 1, localZ) == BlockStateAir
                     )
-                        BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
+                        BetterCaveUtil.digBlock(this.getWorld(), primer, localX, realY, localZ, chunkX, chunkZ);
                 }
             }
         }
-    }
-
-    public long getSeed() {
-        return this.seed;
     }
 
     private void debugGenerate(int chunkX, int chunkZ, ChunkPrimer primer) {
@@ -367,7 +359,7 @@ public class CaveBiomeLavaCavern extends BetterCavern {
                 if (localZ > 0 && primer.getBlockState(localX, realY, localZ - 1).getMaterial() == Material.WATER)
                     continue;
 
-                BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
+                BetterCaveUtil.digBlock(this.getWorld(), primer, localX, realY, localZ, chunkX, chunkZ);
             }
         }
     }

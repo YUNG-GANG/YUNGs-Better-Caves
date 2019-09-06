@@ -6,6 +6,7 @@ import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
 import com.yungnickyoung.minecraft.bettercaves.util.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.world.cave.BetterCaveCubic;
 import com.yungnickyoung.minecraft.bettercaves.world.cave.BetterCaveSimplex;
+import com.yungnickyoung.minecraft.bettercaves.world.cave.BetterCaveSimplex3;
 import com.yungnickyoung.minecraft.bettercaves.world.cave.TestCave;
 import com.yungnickyoung.minecraft.bettercaves.world.cavern.BetterCavernFloored;
 import com.yungnickyoung.minecraft.bettercaves.world.cavern.BetterCavernLava;
@@ -20,6 +21,7 @@ public class MapGenBetterCaves extends MapGenCaves {
     private BetterCave caveSimplexBig;
     private BetterCave caveSimplexSmall;
     private BetterCave caveCubic;
+    private BetterCave caveSimplex3;
 
     private BetterCave cavernLava;
     private BetterCave cavernFloored;
@@ -42,7 +44,7 @@ public class MapGenBetterCaves extends MapGenCaves {
         if (worldIn.provider.getDimension() == 0) {
             for (int localX = 0; localX < 16; localX++) {
                 for (int localZ = 0; localZ < 16; localZ++) {
-                    caveCubic.generateColumn(chunkX, chunkZ, primer, localX, localZ, 1, maxSurfaceHeight, maxSurfaceHeight, minSurfaceHeight);
+                    caveSimplexBig.generateColumn(chunkX, chunkZ, primer, localX, localZ, 1, maxSurfaceHeight, maxSurfaceHeight, minSurfaceHeight);
                 }
             }
         }
@@ -246,6 +248,24 @@ public class MapGenBetterCaves extends MapGenCaves {
                 Configuration.caveSettings.crampedCave.yAdjust,
                 Configuration.caveSettings.crampedCave.yAdjustF1,
                 Configuration.caveSettings.crampedCave.yAdjustF2
+        );
+
+        this.caveSimplex3 = new BetterCaveSimplex3(
+                world,
+                Configuration.caveSettings.simplex3Cave.fractalOctaves,
+                Configuration.caveSettings.simplex3Cave.fractalGain,
+                Configuration.caveSettings.simplex3Cave.fractalFrequency,
+                Configuration.caveSettings.simplex3Cave.numGenerators,
+                Configuration.caveSettings.simplex3Cave.noiseThreshold,
+                Configuration.caveSettings.simplex3Cave.turbulenceOctaves,
+                Configuration.caveSettings.simplex3Cave.turbulenceGain,
+                Configuration.caveSettings.simplex3Cave.turbulenceFrequency,
+                Configuration.caveSettings.simplex3Cave.enableTurbulence,
+                Configuration.caveSettings.simplex3Cave.yCompression,
+                Configuration.caveSettings.simplex3Cave.xzCompression,
+                Configuration.caveSettings.simplex3Cave.yAdjust,
+                Configuration.caveSettings.simplex3Cave.yAdjustF1,
+                Configuration.caveSettings.simplex3Cave.yAdjustF2
         );
 
         this.testCave = new TestCave(

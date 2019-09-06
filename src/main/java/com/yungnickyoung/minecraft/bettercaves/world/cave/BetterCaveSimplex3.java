@@ -15,17 +15,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class BetterCaveCubic extends BetterCave {
-    private NoiseGen cubicNoiseGen;
+public class BetterCaveSimplex3 extends BetterCave {
+    private NoiseGen simplexNoiseGen;
 
-    public BetterCaveCubic(World world, int fOctaves, float fGain, float fFreq, int numGens, float threshold, int tOctaves,
-                             float tGain, float tFreq, boolean enableTurbulence, float yComp, float xzComp, boolean yAdj,
-                             float yAdjF1, float yAdjF2) {
+    public BetterCaveSimplex3(World world, int fOctaves, float fGain, float fFreq, int numGens, float threshold, int tOctaves,
+                              float tGain, float tFreq, boolean enableTurbulence, float yComp, float xzComp, boolean yAdj,
+                              float yAdjF1, float yAdjF2) {
         super(world, fOctaves, fGain, fFreq, numGens, threshold, tOctaves, tGain, tFreq, enableTurbulence, yComp,
                 xzComp, yAdj, yAdjF1, yAdjF2);
 
-        cubicNoiseGen = new NoiseGen(
-                FastNoise.NoiseType.CubicFractal,
+        simplexNoiseGen = new NoiseGen(
+                FastNoise.NoiseType.SimplexFractal,
                 world,
                 this.fractalOctaves,
                 this.fractalGain,
@@ -44,28 +44,28 @@ public class BetterCaveCubic extends BetterCave {
                                int topY, int maxSurfaceHeight, int minSurfaceHeight) {
         /* ========================= Import cave variables from the config ========================= */
         // Altitude at which caves start closing off so they aren't all open to the surface
-        int transitionBoundary = maxSurfaceHeight - 20;
+        int simplexCaveTransitionBoundary = maxSurfaceHeight - 20;
 
-        /* ========== Generate noise for caves ========== */
+        /* ========== Generate noise for caves (using Simplex noise) ========== */
         // The noise for an individual block is represented by a NoiseTuple, which is essentially an n-tuple of
         // floats, where n is equal to the number of generators passed to the function
-        Map<Integer, NoiseTuple> noises =
-                cubicNoiseGen.generateNoiseCol(chunkX, chunkZ, bottomY, topY, this.numGens, localX, localZ);
+        Map<Integer, NoiseTuple> simplexNoises =
+                simplexNoiseGen.generateNoiseCol(chunkX, chunkZ, bottomY, topY, this.numGens, localX, localZ);
 
-        Map<Integer, Float> thresholds = generateThresholds(topY, bottomY, transitionBoundary);
+        Map<Integer, Float> thresholds = generateThresholds(topY, bottomY, simplexCaveTransitionBoundary);
 
         // Do some pre-processing on the simplex noises to facilitate better cave generation.
         // Basically this makes caves taller to give players more headroom.
         // See the javadoc for the function for more info.
         if (this.enableYAdjust)
-            preprocessCaveNoiseCol(noises, topY, bottomY, thresholds, this.numGens);
+            preprocessCaveNoiseCol(simplexNoises, topY, bottomY, thresholds, this.numGens);
 
         /* =============== Dig out caves and caverns in this column, based on noise values =============== */
         for (int realY = topY; realY >= bottomY; realY--) {
-            List<Float> noiseBlock = noises.get(realY).getNoiseValues();
+            List<Float> simplexNoiseBlock = simplexNoises.get(realY).getNoiseValues();
             boolean digBlock = true;
 
-            for (float noise : noiseBlock) {
+            for (float noise : simplexNoiseBlock) {
                 if (noise < thresholds.get(realY)) {
                     digBlock = false;
                     break;
@@ -92,7 +92,7 @@ public class BetterCaveCubic extends BetterCave {
 
         /* ============ Post-Processing to remove any singular floating blocks in the ease-in range ============ */
         IBlockState BlockStateAir = Blocks.AIR.getDefaultState();
-        for (int realY = transitionBoundary + 1; realY < topY - 1; realY++) {
+        for (int realY = simplexCaveTransitionBoundary + 1; realY < topY - 1; realY++) {
             IBlockState currBlock = primer.getBlockState(localX, realY, localZ);
 
             if (BetterCaveUtil.canReplaceBlock(currBlock, BlockStateAir)
@@ -103,7 +103,7 @@ public class BetterCaveCubic extends BetterCave {
         }
     }
 
-    private void preprocessCaveNoiseCol(Map<Integer, NoiseTuple> noises, int topY, int bottomY, Map<Integer, Float> thresholds, int numGens) {
+    protected void preprocessCaveNoiseCol(Map<Integer, NoiseTuple> noises, int topY, int bottomY, Map<Integer, Float> thresholds, int numGens) {
         /* Adjust simplex noise values based on blocks above in order to give the player more headroom */
         for (int realY = topY; realY >= bottomY; realY--) {
             NoiseTuple noiseBlock = noises.get(realY);

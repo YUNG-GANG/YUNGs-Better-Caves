@@ -54,7 +54,8 @@ public class BetterCaveSimplex extends BetterCave {
         // Do some pre-processing on the simplex noises to facilitate better cave generation.
         // Basically this makes caves taller to give players more headroom.
         // See the javadoc for the function for more info.
-        preprocessCaveNoiseCol(simplexNoises, topY, bottomY, this.numGens);
+        if (this.enableYAdjust)
+            preprocessCaveNoiseCol(simplexNoises, topY, bottomY, this.numGens);
 
         /* =============== Dig out caves and caverns in this column, based on noise values =============== */
         for (int realY = topY; realY >= bottomY; realY--) {

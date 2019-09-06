@@ -9,6 +9,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,32 +50,31 @@ public class TestCave extends BetterCave {
         Map<Integer, NoiseTuple> testNoises =
                 testNoiseGen.generateNoiseCol(chunkX, chunkZ, bottomY, topY, this.numGens, localX, localZ);
 
+        Map<Integer, Float> thresholds = generateThresholds(topY, bottomY, transitionBoundary);
+
         // Do some pre-processing on the noises to facilitate better cave generation.
         // See the javadoc for the function for more info.
         if (this.enableYAdjust)
-            this.preprocessCaveNoiseCol(testNoises, topY, bottomY, this.numGens);
+            this.preprocessCaveNoiseCol(testNoises, topY, bottomY, thresholds, this.numGens);
 
         /* =============== Dig out caves and caverns in this chunk, based on noise values =============== */
         for (int realY = topY; realY >= bottomY; realY--) {
-            List<Float> testNoiseBlock;
+            List<Float> testNoiseBlock = testNoises.get(realY).getNoiseValues();
             boolean digBlock = true;
 
             // Process noise
 //            float testNoise = 0;
-            testNoiseBlock = testNoises.get(realY).getNoiseValues();
 //            for (float noise : testNoiseBlock)
 //                testNoise += noise;
 //
 //            testNoise /= testNoiseBlock.size();
 
-            // Close off caves if we're in ease-in depth range
-            float noiseThreshold = this.noiseThreshold;
-            if (realY >= transitionBoundary)
-                noiseThreshold *= (1 + .3f * ((float)(realY - transitionBoundary) / (topY - transitionBoundary)));
-
-            for (float noise : testNoiseBlock)
-                if (noise < noiseThreshold)
+            for (float noise : testNoiseBlock) {
+                if (noise < thresholds.get(realY)) {
                     digBlock = false;
+                    break;
+                }
+            }
 //
 //            // Mark block for removal if the noise passes the threshold check
 //            if (testNoise > noiseThreshold)
@@ -111,11 +111,12 @@ public class TestCave extends BetterCave {
 //        }
     }
 
-    @Override
-    protected void preprocessCaveNoiseCol(Map<Integer, NoiseTuple> noises, int topY, int bottomY, int numGens) {
+    protected void preprocessCaveNoiseCol(Map<Integer, NoiseTuple> noises, int topY, int bottomY, Map<Integer, Float> thresholds, int numGens) {
         /* Adjust simplex noise values based on blocks above in order to give the player more headroom */
         for (int realY = topY; realY >= bottomY; realY--) {
-            NoiseTuple sBlockNoise = noises.get(realY);
+            NoiseTuple noiseBlock = noises.get(realY);
+            float threshold = thresholds.get(realY);
+
 //            float avgSNoise = 0;
 //
 //            for (float noise : sBlockNoise.getNoiseValues())
@@ -124,10 +125,13 @@ public class TestCave extends BetterCave {
 //            avgSNoise /= sBlockNoise.size();
 
             boolean valid = true;
-            for (float noise : sBlockNoise.getNoiseValues())
-                if (noise < this.noiseThreshold)
+            for (float noise : noiseBlock.getNoiseValues()) {
+                if (noise < threshold) {
                     valid = false;
-
+                    break;
+                }
+            }
+            
             if (valid) {
                 /* Adjust noise values of blocks above to give the player more head room */
                 float f1 = this.yAdjustF1;
@@ -136,15 +140,27 @@ public class TestCave extends BetterCave {
                 if (realY < topY) {
                     NoiseTuple tupleAbove = noises.get(realY + 1);
                     for (int i = 0; i < numGens; i++)
-                        tupleAbove.set(i, ((1 - f1) * tupleAbove.get(i)) + (f1 * sBlockNoise.get(i)));
+                        tupleAbove.set(i, ((1 - f1) * tupleAbove.get(i)) + (f1 * noiseBlock.get(i)));
                 }
 
                 if (realY < topY - 1) {
                     NoiseTuple tupleTwoAbove = noises.get(realY + 2);
                     for (int i = 0; i < numGens; i++)
-                        tupleTwoAbove.set(i, ((1 - f2) * tupleTwoAbove.get(i)) + (f2 * sBlockNoise.get(i)));
+                        tupleTwoAbove.set(i, ((1 - f2) * tupleTwoAbove.get(i)) + (f2 * noiseBlock.get(i)));
                 }
             }
         }
+    }
+
+    private Map<Integer, Float> generateThresholds(int topY, int bottomY, int transitionBoundary) {
+        Map<Integer, Float> thresholds = new HashMap<>();
+        for (int realY = bottomY; realY <= topY; realY++) {
+            float noiseThreshold = this.noiseThreshold;
+            if (realY >= transitionBoundary)
+                noiseThreshold *= (1 + .3f * ((float)(realY - transitionBoundary) / (topY - transitionBoundary)));
+            thresholds.put(realY, noiseThreshold);
+        }
+
+        return thresholds;
     }
 }

@@ -19,6 +19,12 @@ public class ConfigCaveGen {
             "found at low altitudes.")
     public ConfigCubicCave crampedCave = new ConfigCubicCave();
 
+    @Config.Name("Simplex3 Caves")
+    @Config.Comment("Parameters used in the generation of simplex3 caves. Does not include the large caverns " +
+            "found at low altitudes.")
+    public ConfigSimplex3Cave simplex3Cave = new ConfigSimplex3Cave();
+
+
     @Config.Name("Lava Caverns")
     @Config.Comment("Parameters used in the generation of Lava Caverns found at low altitudes.")
     public ConfigLavaCavern lavaCavern = new ConfigLavaCavern();

@@ -26,8 +26,8 @@ public abstract class BetterCave {
     /* -------------- Noise Processing Params -------------- */
     protected float yCompression;            // Vertical cave gen compression
     protected float xzCompression;           // Horizontal cave gen compression
-    private float yAdjustF1;                 // Adjustment value for the block immediately above. Must be between 0 and 1.0
-    private float yAdjustF2;                 // Adjustment value for the block two blocks above. Must be between 0 and 1.0
+    protected float yAdjustF1;                 // Adjustment value for the block immediately above. Must be between 0 and 1.0
+    protected float yAdjustF2;                 // Adjustment value for the block two blocks above. Must be between 0 and 1.0
     protected float noiseThreshold;          // Noise threshold for determining whether or not a block gets dug out
     protected boolean enableYAdjust;         // Set true to perform preprocessing on noise values, adjusting them to increase
                                              // headroom in the y direction. This is generally useful for caves (esp. Simplex),

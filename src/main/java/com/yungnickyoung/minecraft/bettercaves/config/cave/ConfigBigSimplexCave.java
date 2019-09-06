@@ -91,7 +91,7 @@ public class ConfigBigSimplexCave {
     public float yAdjustF1 = .9f;
 
     @Config.Ignore
-    @Config.Name("y-adjustment Variable 1")
+    @Config.Name("y-adjustment Variable 2")
     @Config.Comment("Factor affecting the block two blocks above a given block.")
     @Config.RangeDouble(min = 0, max = 1f)
     public float yAdjustF2 = .85f;

@@ -1,8 +1,10 @@
 package com.yungnickyoung.minecraft.bettercaves.world;
 
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
+import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
 import com.yungnickyoung.minecraft.bettercaves.util.FastNoise;
+import com.yungnickyoung.minecraft.bettercaves.world.cave.BetterCaveCubic;
 import com.yungnickyoung.minecraft.bettercaves.world.cave.BetterCaveSimplex;
 import com.yungnickyoung.minecraft.bettercaves.world.cave.TestCave;
 import com.yungnickyoung.minecraft.bettercaves.world.cavern.BetterCavernFloored;
@@ -17,6 +19,7 @@ import javax.vecmath.Vector2f;
 public class MapGenBetterCaves extends MapGenCaves {
     private BetterCave caveSimplexBig;
     private BetterCave caveSimplexSmall;
+    private BetterCave caveCubic;
 
     private BetterCave cavernLava;
     private BetterCave cavernFloored;
@@ -33,10 +36,27 @@ public class MapGenBetterCaves extends MapGenCaves {
     public MapGenBetterCaves() {
     }
 
+    private void debugGenerate(World worldIn, int chunkX, int chunkZ, @Nonnull ChunkPrimer primer) {
+        int maxSurfaceHeight = BetterCaveUtil.getMaxSurfaceHeight(primer);
+        int minSurfaceHeight = BetterCaveUtil.getMinSurfaceHeight(primer);
+        if (worldIn.provider.getDimension() == 0) {
+            for (int localX = 0; localX < 16; localX++) {
+                for (int localZ = 0; localZ < 16; localZ++) {
+                    caveCubic.generateColumn(chunkX, chunkZ, primer, localX, localZ, 1, maxSurfaceHeight, maxSurfaceHeight, minSurfaceHeight);
+                }
+            }
+        }
+    }
+
     @Override
     public void generate(World worldIn, int chunkX, int chunkZ, @Nonnull ChunkPrimer primer) {
         if (world == null) { // First call - initialize all cave types
             this.initialize(worldIn);
+        }
+
+        if (Settings.DEBUG_WORLD_GEN) {
+            debugGenerate(worldIn, chunkX, chunkZ, primer);
+            return;
         }
 
         // Find the lowest and highest surface altitudes in this chunk
@@ -208,6 +228,24 @@ public class MapGenBetterCaves extends MapGenCaves {
                 Configuration.caveSettings.smallSimplexCave.yAdjust,
                 Configuration.caveSettings.smallSimplexCave.yAdjustF1,
                 Configuration.caveSettings.smallSimplexCave.yAdjustF2
+        );
+
+        this.caveCubic = new BetterCaveCubic(
+                world,
+                Configuration.caveSettings.crampedCave.fractalOctaves,
+                Configuration.caveSettings.crampedCave.fractalGain,
+                Configuration.caveSettings.crampedCave.fractalFrequency,
+                Configuration.caveSettings.crampedCave.numGenerators,
+                Configuration.caveSettings.crampedCave.noiseThreshold,
+                Configuration.caveSettings.crampedCave.turbulenceOctaves,
+                Configuration.caveSettings.crampedCave.turbulenceGain,
+                Configuration.caveSettings.crampedCave.turbulenceFrequency,
+                Configuration.caveSettings.crampedCave.enableTurbulence,
+                Configuration.caveSettings.crampedCave.yCompression,
+                Configuration.caveSettings.crampedCave.xzCompression,
+                Configuration.caveSettings.crampedCave.yAdjust,
+                Configuration.caveSettings.crampedCave.yAdjustF1,
+                Configuration.caveSettings.crampedCave.yAdjustF2
         );
 
         this.testCave = new TestCave(

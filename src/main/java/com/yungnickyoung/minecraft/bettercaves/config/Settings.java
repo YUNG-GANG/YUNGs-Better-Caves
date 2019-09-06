@@ -24,7 +24,7 @@ public class Settings {
 
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
     public static final boolean DEBUG_LOG_ENABLED = false;
-    public static final boolean DEBUG_WORLD_GEN = false;
+    public static final boolean DEBUG_WORLD_GEN = true;
 
     private Settings() {} // private constructor prevents instantiation
 }

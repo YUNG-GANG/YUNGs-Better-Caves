@@ -21,4 +21,14 @@ public class ConfigCaveGen {
     @Config.Name("Floored Caverns")
     @Config.Comment("Parameters used in the generation of Floored Caverns.")
     public ConfigFlooredCavern flooredCavern = new ConfigFlooredCavern();
+
+    @Config.Name("Cave Biome Size")
+    @Config.Comment("Determines how large cave biomes are. This includes all caves and caverns of different types and" +
+            "sizes.")
+    @Config.RequiresWorldRestart
+    public CaveBiomeSize caveBiomeSize = CaveBiomeSize.Medium;
+
+    public enum CaveBiomeSize {
+        Small, Medium, Large, ExtraLarge
+    }
 }

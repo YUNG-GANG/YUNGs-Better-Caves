@@ -4,7 +4,7 @@ import net.minecraftforge.common.config.Config;
 
 public class ConfigFlooredCavern {
     public enum CavernFrequency {
-        VeryRare, Rare, Common, VeryCommon
+        Rare, Normal, Common, VeryCommon
     }
 
     @Config.Name("Top Generation Altitude")
@@ -20,7 +20,7 @@ public class ConfigFlooredCavern {
 
     @Config.Name("Floored Cavern Frequency")
     @Config.Comment("Determines how frequently Floored Caverns spawn.")
-    public CavernFrequency caveFrequency = CavernFrequency.Rare;
+    public CavernFrequency caveFrequency = CavernFrequency.Normal;
 
     @Config.Name("Vertical Compression")
     @Config.Comment("Changes height of caves. Lower value = taller caves with steeper drops")

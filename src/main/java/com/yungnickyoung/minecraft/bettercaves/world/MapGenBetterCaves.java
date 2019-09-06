@@ -26,7 +26,6 @@ public class MapGenBetterCaves extends MapGenCaves {
     private MapGenCaves defaultCaveGen;
 
     private FastNoise cavernBiomeController;
-    private FastNoise midCaveBiomeController;
     private FastNoise topCaveBiomeController;
 
     private FastNoise controllerJitter;
@@ -49,11 +48,11 @@ public class MapGenBetterCaves extends MapGenCaves {
         float flooredCavernThreshold = .5f;
 
         switch (Configuration.caveSettings.lavaCavern.caveFrequency) {
-            case VeryRare:
+            case Rare:
                 lavaCavernThreshold = -.8f;
                 break;
-            case Rare:
-                lavaCavernThreshold = -.5f;
+            case Normal:
+                lavaCavernThreshold = -.6f;
                 break;
             case Common:
                 lavaCavernThreshold = -.4f;
@@ -64,14 +63,14 @@ public class MapGenBetterCaves extends MapGenCaves {
         }
 
         switch (Configuration.caveSettings.flooredCavern.caveFrequency) {
-            case VeryRare:
+            case Rare:
                 flooredCavernThreshold = .8f;
                 break;
-            case Rare:
-                flooredCavernThreshold = .5f;
+            case Normal:
+                flooredCavernThreshold = .4f;
                 break;
             case Common:
-                flooredCavernThreshold = .4f;
+                flooredCavernThreshold = .3f;
                 break;
             case VeryCommon:
                 flooredCavernThreshold = .1f;
@@ -79,15 +78,10 @@ public class MapGenBetterCaves extends MapGenCaves {
         }
 
         BetterCave cavernGen;
-        BetterCave midCaveGen;
         BetterCave topCaveGen;
 
         int cavernBottomY;
         int cavernTopY;
-
-        int midCaveBottomY = 30;
-        int midCaveTopY = 60;
-
         int topCaveBottomY;
 
         // Only use Better Caves generation in overworld
@@ -99,32 +93,7 @@ public class MapGenBetterCaves extends MapGenCaves {
                     controllerJitter.GradientPerturb(columnPos);
 
                     float cavernBiomeNoise = cavernBiomeController.GetNoise(columnPos.x, columnPos.y);
-                    float midCaveBiomeNoise = midCaveBiomeController.GetNoise(columnPos.x, columnPos.y);
                     float topCaveBiomeNoise = topCaveBiomeController.GetNoise(columnPos.x, columnPos.y);
-
-                    // Determine cavern type for this column
-                    if (cavernBiomeNoise < lavaCavernThreshold) { // .3
-                        cavernGen = this.cavernLava;
-                        cavernBottomY = Configuration.caveSettings.lavaCavern.caveBottom;
-                        cavernTopY = Configuration.caveSettings.lavaCavern.caveTop;
-                    } else if (cavernBiomeNoise >= lavaCavernThreshold && cavernBiomeNoise <= flooredCavernThreshold) {
-                        cavernGen = this.caveSimplexBig;
-                        cavernBottomY = 1;
-                        cavernTopY = 30;
-                    } else {
-                        cavernGen = this.cavernFloored;
-                        cavernBottomY = Configuration.caveSettings.flooredCavern.caveBottom;
-                        cavernTopY = Configuration.caveSettings.flooredCavern.caveTop;
-                    }
-
-                    // Determine mid cave type for this column
-                    if (midCaveBiomeNoise < -.1f) { // .3
-                        midCaveGen = this.cavernFloored;
-                    } else if (midCaveBiomeNoise >= -.1f && midCaveBiomeNoise <= .1f) {
-                        midCaveGen = this.caveSimplexBig;
-                    } else {
-                        midCaveGen = this.caveSimplexSmall;
-                    }
 
                     // Determine top cave type for this column
                     if (topCaveBiomeNoise < -.1f) {
@@ -135,12 +104,24 @@ public class MapGenBetterCaves extends MapGenCaves {
                         topCaveBottomY = Configuration.caveSettings.smallSimplexCave.caveBottom;
                     }
 
+                    // Determine cavern type for this column
+                    if (cavernBiomeNoise < lavaCavernThreshold) {
+                        cavernGen = this.cavernLava;
+                        cavernBottomY = Configuration.caveSettings.lavaCavern.caveBottom;
+                        cavernTopY = Configuration.caveSettings.lavaCavern.caveTop;
+                    } else if (cavernBiomeNoise >= lavaCavernThreshold && cavernBiomeNoise <= flooredCavernThreshold) {
+                        cavernGen = topCaveGen;
+                        cavernBottomY = 1;
+                        cavernTopY = topCaveBottomY;
+                    } else {
+                        cavernGen = this.cavernFloored;
+                        cavernBottomY = Configuration.caveSettings.flooredCavern.caveBottom;
+                        cavernTopY = Configuration.caveSettings.flooredCavern.caveTop;
+                    }
+
                     // Dig out caves and caverns
                     // Bottom layer:
                     cavernGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, cavernBottomY, cavernTopY,
-                            maxSurfaceHeight, minSurfaceHeight);
-                    // Mid layer:
-                    midCaveGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, midCaveBottomY, midCaveTopY,
                             maxSurfaceHeight, minSurfaceHeight);
                     // Top layer:
                     topCaveGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, topCaveBottomY, maxSurfaceHeight,
@@ -156,25 +137,42 @@ public class MapGenBetterCaves extends MapGenCaves {
         world = worldIn;
         this.defaultCaveGen = new MapGenCaves();
 
+        // Determine cave biome size
+        float caveBiomeSize = .007f;
+        float jitterFreq = .01f;
+        switch (Configuration.caveSettings.caveBiomeSize) {
+            case Small:
+                caveBiomeSize = .01f;
+                jitterFreq = .01f;
+                break;
+            case Medium:
+                caveBiomeSize = .007f;
+                jitterFreq = .01f;
+                break;
+            case Large:
+                caveBiomeSize = .005f;
+                jitterFreq = .0115f;
+                break;
+            case ExtraLarge:
+                caveBiomeSize = .001f;
+                jitterFreq = .015f;
+                break;
+        }
+
         this.cavernBiomeController = new FastNoise();
         this.cavernBiomeController.SetSeed((int)worldIn.getSeed());
-        this.cavernBiomeController.SetFrequency(.005f);
+        this.cavernBiomeController.SetFrequency(caveBiomeSize);
         this.cavernBiomeController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
-
-        this.midCaveBiomeController = new FastNoise();
-        this.midCaveBiomeController.SetSeed((int)worldIn.getSeed() + 111);
-        this.midCaveBiomeController.SetFrequency(.01f);
-        this.midCaveBiomeController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
         this.topCaveBiomeController = new FastNoise();
         this.topCaveBiomeController.SetSeed((int)worldIn.getSeed() + 222);
-        this.topCaveBiomeController.SetFrequency(.01f);
+        this.topCaveBiomeController.SetFrequency(caveBiomeSize);
         this.topCaveBiomeController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
         this.controllerJitter = new FastNoise();
         this.controllerJitter.SetSeed((int)(worldIn.getSeed()) + 69420);
-        this.controllerJitter.SetGradientPerturbAmp(60);
-        this.controllerJitter.SetFrequency(.01f);
+        this.controllerJitter.SetGradientPerturbAmp(30);
+        this.controllerJitter.SetFrequency(jitterFreq);
 
         this.caveSimplexBig = new BetterCaveSimplex(
                 world,

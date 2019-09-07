@@ -61,8 +61,9 @@ public class TestCave extends BetterCave {
         for (int realY = topY; realY >= bottomY; realY--) {
             List<Float> testNoiseBlock = testNoises.get(realY).getNoiseValues();
             boolean digBlock = true;
+//            boolean digBlock = false;
 
-            // Process noise
+//            // Process noise
 //            float testNoise = 0;
 //            for (float noise : testNoiseBlock)
 //                testNoise += noise;
@@ -77,7 +78,7 @@ public class TestCave extends BetterCave {
             }
 //
 //            // Mark block for removal if the noise passes the threshold check
-//            if (testNoise > noiseThreshold)
+//            if (testNoise > thresholds.get(realY))
 //                digBlock = true;
 
             // Dig/remove the block if it passed the threshold check
@@ -119,10 +120,10 @@ public class TestCave extends BetterCave {
 
 //            float avgSNoise = 0;
 //
-//            for (float noise : sBlockNoise.getNoiseValues())
+//            for (float noise : noiseBlock.getNoiseValues())
 //                avgSNoise += noise;
 //
-//            avgSNoise /= sBlockNoise.size();
+//            avgSNoise /= noiseBlock.size();
 
             boolean valid = true;
             for (float noise : noiseBlock.getNoiseValues()) {
@@ -131,8 +132,9 @@ public class TestCave extends BetterCave {
                     break;
                 }
             }
-            
+
             if (valid) {
+//            if (avgSNoise > threshold) {
                 /* Adjust noise values of blocks above to give the player more head room */
                 float f1 = this.yAdjustF1;
                 float f2 = this.yAdjustF2;

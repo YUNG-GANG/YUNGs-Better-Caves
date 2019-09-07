@@ -3,10 +3,14 @@ package com.yungnickyoung.minecraft.bettercaves.config.cave;
 import net.minecraftforge.common.config.Config;
 
 public class ConfigSimplex3Cave {
+    public enum CaveFrequency {
+        None, Rare, Common, VeryCommon
+    }
+
     @Config.Name("Cave Bottom Altitude")
     @Config.Comment("The minimum y-coordinate at which caves start generating.")
     @Config.RequiresWorldRestart
-    public int caveBottom = 13;
+    public int caveBottom = 1;
 
     @Config.Name("Vertical Compression")
     @Config.Comment("Changes height of caves. Lower value = taller caves with steeper drops.")
@@ -19,6 +23,12 @@ public class ConfigSimplex3Cave {
     @Config.RangeDouble(min = 0)
     @Config.RequiresWorldRestart
     public float xzCompression = 1.0f;
+
+    @Config.Name("Type 2 Cave Frequency")
+    @Config.Comment("Determines how frequently Type 2 Caves spawn. If this is anything but VeryCommon (the default), vanilla caves will " +
+            "replace some of the areas where Type 2 Caves would have generated. However, if vanilla caves are disabled, " +
+            "then these areas will instead not have any caves at all.")
+    public CaveFrequency caveFrequency = CaveFrequency.VeryCommon;
 
     @Config.Ignore
     @Config.Name("Noise Threshold")

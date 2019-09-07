@@ -5,7 +5,8 @@
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "",
-  "updateJSON": "",
-  "authorList": ["Yung"],
-  "credits": "${credits}"
+  "updateJSON": "https://github.com/yungnickyoung/Yungs-Better-Caves/blob/master/versions.json",
+  "authorList": ["YUNGNICKYOUNG"],
+  "credits": "${credits}",
+  "logoFile": "BetterCavesBanner.png"
 }]

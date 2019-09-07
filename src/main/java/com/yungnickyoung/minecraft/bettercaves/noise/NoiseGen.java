@@ -1,6 +1,5 @@
 package com.yungnickyoung.minecraft.bettercaves.noise;
 
-import com.yungnickyoung.minecraft.bettercaves.util.FastNoise;
 import net.minecraft.world.World;
 
 import javax.vecmath.Vector3f;

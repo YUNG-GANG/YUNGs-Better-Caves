@@ -18,5 +18,6 @@ public class Configuration {
     @Config.RequiresWorldRestart
     public static int lavaDepth = 10;
 
+    @Config.Ignore
     public static ConfigTest testSettings = new ConfigTest();
 }

@@ -1,6 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.config;
 
-import com.yungnickyoung.minecraft.bettercaves.util.FastNoise;
+import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import net.minecraftforge.common.config.Config;
 
 public class ConfigTest {

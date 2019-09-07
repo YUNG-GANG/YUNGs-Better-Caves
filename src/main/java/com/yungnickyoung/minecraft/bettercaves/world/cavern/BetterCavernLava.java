@@ -3,7 +3,7 @@ package com.yungnickyoung.minecraft.bettercaves.world.cavern;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
-import com.yungnickyoung.minecraft.bettercaves.util.FastNoise;
+import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.world.BetterCave;
 import net.minecraft.block.material.Material;
 import net.minecraft.world.World;

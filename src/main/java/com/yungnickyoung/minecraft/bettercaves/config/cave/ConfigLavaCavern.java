@@ -4,7 +4,7 @@ import net.minecraftforge.common.config.Config;
 
 public class ConfigLavaCavern {
     public enum CavernFrequency {
-        Rare, Normal, Common, VeryCommon
+        None, Rare, Normal, Common, VeryCommon
     }
 
     @Config.Name("Top Generation Altitude")
@@ -14,7 +14,7 @@ public class ConfigLavaCavern {
     public int caveTop = 30;
 
     @Config.Name("Bottom Generation Altitude")
-    @Config.Comment("The bottom y-coordinate at which Lava Caverns start generating.")
+    @Config.Comment("The bottom y-coordinate at which Lava Caverns stop generating.")
     @Config.RequiresWorldRestart
     public int caveBottom = 1;
 

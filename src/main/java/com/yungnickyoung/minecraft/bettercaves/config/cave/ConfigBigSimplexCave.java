@@ -18,7 +18,7 @@ public class ConfigBigSimplexCave {
     @Config.Comment("Changes width of caves. Lower value = wider caves.")
     @Config.RangeDouble(min = 0)
     @Config.RequiresWorldRestart
-    public float xzCompression = 0.60f;
+    public float xzCompression = 0.7f;
 
     @Config.Ignore
     @Config.Name("Noise Threshold")
@@ -77,7 +77,7 @@ public class ConfigBigSimplexCave {
     @Config.Comment("The number of noise generation functions used. The intersection of these functions is" +
             "used to calculate a single noise value.")
     @Config.RequiresWorldRestart
-    public int numGenerators = 8;
+    public int numGenerators = 2;
 
     @Config.Ignore
     @Config.Name("Enable y-adjustment")

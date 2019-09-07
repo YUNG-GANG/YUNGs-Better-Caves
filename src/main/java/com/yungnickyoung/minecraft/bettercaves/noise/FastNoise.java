@@ -26,12 +26,10 @@
 // off every 'zix'.)
 //
 
-package com.yungnickyoung.minecraft.bettercaves.util;
+package com.yungnickyoung.minecraft.bettercaves.noise;
 
 import javax.vecmath.Vector2f;
 import javax.vecmath.Vector3f;
-import java.util.ArrayList;
-import java.util.Random;
 
 public class FastNoise {
     public enum NoiseType {Value, ValueFractal, Perlin, PerlinFractal, Simplex, SimplexFractal, Cellular, WhiteNoise, Cubic, CubicFractal}

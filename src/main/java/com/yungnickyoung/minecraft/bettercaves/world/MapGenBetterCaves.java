@@ -205,11 +205,11 @@ public class MapGenBetterCaves extends MapGenCaves {
             case Rare:
                 return -.8f;
             case Common:
-                return -.4f;
+                return -.3f;
             case VeryCommon:
                 return -.1f;
             default: // Normal
-                return -.6f;
+                return -.4f;
         }
     }
 

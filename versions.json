@@ -3,10 +3,11 @@
   "1.12.2": {
     "0.0.1.0":"      Initial WIP",
     "0.0.2.0":"      Two types of caves and two types of caverns using \"biomes.\"\n      Add version JSON and finalize config to be user-friendly.",
-    "0.0.2.1":"      Update version to test version checker."
+    "0.0.2.1":"      Update version to test version checker.",
+    "1.0.0.0":"      Public release"
   },
   "promos": {
-    "1.12.2-latest": "0.0.2.1",
-    "1.12.2-recommended": "0.0.2.1"
+    "1.12.2-latest": "1.0.0.0",
+    "1.12.2-recommended": "1.0.0.0"
   }
 }

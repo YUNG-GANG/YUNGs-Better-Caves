@@ -23,7 +23,7 @@ These settings can be found in the Mods option in Minecraft's main menu screen.
 - Includes options for "bedrock flattening" in both the overworld and the nether, getting rid of annoying scattered bedrock and replacing it with a flat layer of the user's preferred width
 - Supports integration with Minecraft's vanilla caves, if enabled
 - Control cave biomes' sizes with the click of a button
-
+---
 ![Floored Caverns](https://i.imgur.com/bL9NLK4.png)
 ![Cave System](https://i.imgur.com/lqcESRJ.png)
 

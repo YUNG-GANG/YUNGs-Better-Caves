@@ -29,13 +29,18 @@ public class ConfigCaveGen {
     public ConfigVanillaCave vanillaCave = new ConfigVanillaCave();
 
     @Config.Name("Cave Biome Size")
-    @Config.Comment("Determines how large cave biomes are. This controls the average size of caverns. It also" +
-            " determines how long a cave system of a certain cave type extends before intersecting with a cave" +
-            " system of the other type.")
+    @Config.Comment("Determines how large cave biomes are. Controls how long a cave system of a certain cave type" +
+            " extends before intersecting with a cave system of another type. Larger Biome Size = more " +
+            "cave interconnectivity.")
     @Config.RequiresWorldRestart
-    public CaveBiomeSize caveBiomeSize = CaveBiomeSize.Medium;
+    public BiomeSize caveBiomeSize = BiomeSize.Large;
 
-    public enum CaveBiomeSize {
+    @Config.Name("Cavern Biome Size")
+    @Config.Comment("Determines how large cavern biomes are. This controls the average size of caverns.")
+    @Config.RequiresWorldRestart
+    public BiomeSize cavernBiomeSize = BiomeSize.Medium;
+
+    public enum BiomeSize {
         Small, Medium, Large, ExtraLarge
     }
 }

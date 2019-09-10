@@ -30,11 +30,12 @@ public class MapGenBetterCaves extends MapGenCaves {
 
     // Cellular noise (basically Voronoi diagrams) generators to group caves into cave "biomes" based on xz-coordinates
     private FastNoise cavernBiomeController;
-    private FastNoise topCaveBiomeController;
+    private FastNoise caveBiomeController;
 
     // Noise generator for adding gradient perturbations to the Voronoi regions, effectively adding some jitter
     // to make the Voronoi regions' shapes vary more
-    private FastNoise controllerJitter;
+    private FastNoise cavernControllerJitter;
+    private FastNoise caveControllerJitter;
 
     // Biome generation noise thresholds, based on user config
     private float cubicCaveThreshold;
@@ -108,11 +109,10 @@ public class MapGenBetterCaves extends MapGenCaves {
 
                     // Perturb the col position. This has the effect of applying jitter to the
                     // cave biome's Voronoi region to add variety.
-                    controllerJitter.GradientPerturb(columnPos);
+                    caveControllerJitter.GradientPerturb(columnPos);
 
-                    // Get noise values used to determine cave biome and cavern biome for this column
-                    float cavernBiomeNoise = cavernBiomeController.GetNoise(columnPos.x, columnPos.y);
-                    float caveBiomeNoise = topCaveBiomeController.GetNoise(columnPos.x, columnPos.y);
+                    // Get noise values used to determine cave biome
+                    float caveBiomeNoise = caveBiomeController.GetNoise(columnPos.x, columnPos.y);
 
                     /* Determine cave type for this column. We have two thresholds, one for cubic caves and one for
                      * simplex caves. Since the noise value generated for the biome is between -1 and 1, we (by
@@ -137,6 +137,14 @@ public class MapGenBetterCaves extends MapGenCaves {
                         continue;
                     }
 
+                    // Reset columnPos and apply cavern jitter
+                    columnPos.setX((chunkX * 16) + localX);
+                    columnPos.setY((chunkZ * 16) + localZ);
+                    cavernControllerJitter.GradientPerturb(columnPos);
+
+                    // Get noise values used to determine cavern biome
+                    float cavernBiomeNoise = cavernBiomeController.GetNoise(columnPos.x, columnPos.y);
+
                     // Determine cavern type for this column. Caverns generate at low altitudes only.
                     if (cavernBiomeNoise < lavaCavernThreshold) {
                         // Generate lava cavern in this column
@@ -159,7 +167,7 @@ public class MapGenBetterCaves extends MapGenCaves {
                         cavernTopY = Configuration.caveSettings.flooredCavern.caveTop;
                     }
 
-                    // Dig out caves and caverns
+                    // Dig out caves and caverns for this column
                     // Bottom (Cavern) layer:
                     cavernGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, cavernBottomY, cavernTopY,
                             maxSurfaceHeight, minSurfaceHeight);
@@ -245,44 +253,68 @@ public class MapGenBetterCaves extends MapGenCaves {
         this.simplexCaveThreshold = calcSimplexCaveThreshold();
         this.enableVanillaCaves = Configuration.caveSettings.vanillaCave.enableVanillaCaves;
 
-        // Determine cave biome size. Biome controller jitter will also change based on this
-        float caveBiomeSize;
-        float jitterFreq;
+        // Determine cave and cavern biome size. Biome controller jitter will also change based on this
+        float caveBiomeSize, cavernBiomeSize, caveJitterFreq, cavernJitterFreq;
+
         switch (Configuration.caveSettings.caveBiomeSize) {
             case Small:
                 caveBiomeSize = .01f;
-                jitterFreq = .01f;
+                caveJitterFreq = .01f;
                 break;
             case Large:
                 caveBiomeSize = .005f;
-                jitterFreq = .0115f;
+                caveJitterFreq = .0115f;
                 break;
             case ExtraLarge:
                 caveBiomeSize = .001f;
-                jitterFreq = .015f;
+                caveJitterFreq = .015f;
                 break;
             default: // Normal
                 caveBiomeSize = .007f;
-                jitterFreq = .01f;
+                caveJitterFreq = .01f;
+                break;
+        }
+
+        switch (Configuration.caveSettings.cavernBiomeSize) {
+            case Small:
+                cavernBiomeSize = .01f;
+                cavernJitterFreq = .01f;
+                break;
+            case Large:
+                cavernBiomeSize = .005f;
+                cavernJitterFreq = .0115f;
+                break;
+            case ExtraLarge:
+                cavernBiomeSize = .001f;
+                cavernJitterFreq = .015f;
+                break;
+            default: // Normal
+                cavernBiomeSize = .007f;
+                cavernJitterFreq = .01f;
                 break;
         }
 
         // Initialize Biome Controllers using world seed and user config option for cave biome size
+        this.caveBiomeController = new FastNoise();
+        this.caveBiomeController.SetSeed((int)worldIn.getSeed() + 222);
+        this.caveBiomeController.SetFrequency(caveBiomeSize);
+        this.caveBiomeController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
+
         this.cavernBiomeController = new FastNoise();
-        this.cavernBiomeController.SetSeed((int)worldIn.getSeed());
-        this.cavernBiomeController.SetFrequency(caveBiomeSize);
+        this.cavernBiomeController.SetSeed((int)worldIn.getSeed() + 333);
+        this.cavernBiomeController.SetFrequency(cavernBiomeSize);
         this.cavernBiomeController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
-        this.topCaveBiomeController = new FastNoise();
-        this.topCaveBiomeController.SetSeed((int)worldIn.getSeed() + 222);
-        this.topCaveBiomeController.SetFrequency(caveBiomeSize);
-        this.topCaveBiomeController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
+        // Initialize noise generator for adding jitter to cave and cavern biome regions to create variety in shape and size
+        this.caveControllerJitter = new FastNoise();
+        this.caveControllerJitter.SetSeed((int)(worldIn.getSeed()) + 69420);
+        this.caveControllerJitter.SetGradientPerturbAmp(30);
+        this.caveControllerJitter.SetFrequency(caveJitterFreq);
 
-        // Initialize noise generator for adding jitter to cave biome regions to create variety in shape and size
-        this.controllerJitter = new FastNoise();
-        this.controllerJitter.SetSeed((int)(worldIn.getSeed()) + 69420);
-        this.controllerJitter.SetGradientPerturbAmp(30);
-        this.controllerJitter.SetFrequency(jitterFreq);
+        this.cavernControllerJitter = new FastNoise();
+        this.cavernControllerJitter.SetSeed((int)(worldIn.getSeed()) + 42069);
+        this.cavernControllerJitter.SetGradientPerturbAmp(30);
+        this.cavernControllerJitter.SetFrequency(cavernJitterFreq);
 
         // Initialize all Better Cave generators using config options
         this.caveCubic = new BetterCaveCubic(

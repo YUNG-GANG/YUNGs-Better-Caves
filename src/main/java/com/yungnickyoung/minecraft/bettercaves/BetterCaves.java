@@ -3,6 +3,7 @@ package com.yungnickyoung.minecraft.bettercaves;
 // Better Caves
 import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.event.EventBetterCaveGen;
+import com.yungnickyoung.minecraft.bettercaves.event.EventBetterRavineGen;
 import com.yungnickyoung.minecraft.bettercaves.event.EventFlattenBedrock;
 import com.yungnickyoung.minecraft.bettercaves.proxy.IProxy;
 
@@ -50,6 +51,7 @@ public class BetterCaves {
         // Register world generation events
         MinecraftForge.EVENT_BUS.register(new EventFlattenBedrock()); // Flatten bedrock
         MinecraftForge.TERRAIN_GEN_BUS.register(new EventBetterCaveGen()); // Replace vanilla cave generation
+        MinecraftForge.TERRAIN_GEN_BUS.register(new EventBetterRavineGen()); // Replace vanilla ravine gen if enabled
         proxy.init(event);
     }
 

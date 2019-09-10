@@ -10,4 +10,8 @@ public class ConfigVanillaCave {
             "WARNING - THIS WILL CAUSE CHUNKS TO BLEND INCORRECTLY WITH BETTER CAVES, RESULTING IN NOTICEABLE UNPROCESSED" +
             " CHUNK FORMATIONS UNDERGROUND. ONLY USE IF YOU ARE OK WITH THIS.")
     public boolean enableVanillaCaves = false;
+
+    @Config.Name("Enable Ravines")
+    @Config.Comment("Set to true to enable ravine generation alongside Better Caves.")
+    public boolean enableVanillaRavines = true;
 }

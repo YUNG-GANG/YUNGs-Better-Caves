@@ -12,6 +12,20 @@ public class ConfigVanillaCave {
     public boolean enableVanillaCaves = false;
 
     @Config.Name("Enable Ravines")
-    @Config.Comment("Set to true to enable ravine generation alongside Better Caves.")
+    @Config.Comment("Set to true to enable ravine generation.")
     public boolean enableVanillaRavines = true;
+
+
+    /* Couldnt get to work, ignore for now. Seems like Forge/MC is bugged for lakes gen? */
+    @Config.Ignore
+    @Config.Name("Enable Water Lakes")
+    @Config.Comment("Set to true to enable small water lakes found on the surface and underground in vanilla" +
+            " Minecraft.")
+    public boolean enableWaterLakes = true;
+
+    @Config.Ignore
+    @Config.Name("Enable Lava Lakes")
+    @Config.Comment("Set to true to enable small lava lakes found on the surface and underground in vanilla" +
+            " Minecraft.")
+    public boolean enableLavaLakes = true;
 }

@@ -1,6 +1,10 @@
 package com.yungnickyoung.minecraft.bettercaves.world;
 
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
+import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 
@@ -159,5 +163,37 @@ public abstract class BetterCave {
                 }
             }
         }
+    }
+
+    /**
+     * Calls util digBlock function if there are no water blocks adjacent, to avoid breaking into oceans and lakes.
+     * @param primer The ChunkPrimer for this chunk
+     * @param chunkX The chunk's x-coordinate
+     * @param chunkZ The chunk's z-coordinate
+     * @param localX the chunk-local x-coordinate of the block
+     * @param localZ the chunk-local z-coordinate of the block
+     * @param realY the real Y-coordinate of the block
+     */
+    protected void digBlock(ChunkPrimer primer, int chunkX, int chunkZ, int localX, int localZ, int realY) {
+        // Check for adjacent water blocks to avoid breaking into lakes or oceans
+        if (primer.getBlockState(localX, realY + 1, localZ).getMaterial() == Material.WATER)
+            return;
+        if (localX < 15 && primer.getBlockState(localX + 1, realY, localZ).getMaterial() == Material.WATER)
+            return;
+        if (localX > 0 && primer.getBlockState(localX - 1, realY, localZ).getMaterial() == Material.WATER)
+            return;
+        if (localZ < 15 && primer.getBlockState(localX, realY, localZ + 1).getMaterial() == Material.WATER)
+            return;
+        if (localZ > 0 && primer.getBlockState(localX, realY, localZ - 1).getMaterial() == Material.WATER)
+            return;
+
+        BetterCaveUtil.digBlock(this.getWorld(), primer, localX, realY, localZ, chunkX, chunkZ);
+    }
+
+    protected void visualizeDigBlock(boolean digBlock, IBlockState blockState, ChunkPrimer primer, int localX, int realY, int localZ) {
+        if (digBlock)
+            primer.setBlockState(localX, realY, localZ, blockState);
+        else
+            primer.setBlockState(localX, realY, localZ, Blocks.AIR.getDefaultState());
     }
 }

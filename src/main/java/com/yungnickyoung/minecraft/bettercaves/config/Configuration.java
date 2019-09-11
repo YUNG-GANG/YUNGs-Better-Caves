@@ -1,5 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.config;
 
+import com.yungnickyoung.minecraft.bettercaves.config.cave.ConfigDebug;
 import net.minecraftforge.common.config.Config;
 
 @Config(modid = Settings.MOD_ID, name = Settings.NAME)
@@ -11,6 +12,10 @@ public class Configuration {
     @Config.Name("Bedrock Generation")
     @Config.Comment("Configure how bedrock generates in the overworld and nether.")
     public static ConfigBedrockGen bedrockSettings = new ConfigBedrockGen();
+
+    @Config.Name("Debug settings")
+    @Config.Comment("Don't mess with these settings for normal gameplay.")
+    public static ConfigDebug debugsettings = new ConfigDebug();
 
     @Config.Name("Lava Depth")
     @Config.Comment("Lava spawns at and below this y-coordinate.")

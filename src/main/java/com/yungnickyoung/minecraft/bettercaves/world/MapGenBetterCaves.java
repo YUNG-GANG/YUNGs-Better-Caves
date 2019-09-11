@@ -89,6 +89,12 @@ public class MapGenBetterCaves extends MapGenCaves {
         int maxSurfaceHeight = BetterCaveUtil.getMaxSurfaceHeight(primer);
         int minSurfaceHeight = BetterCaveUtil.getMinSurfaceHeight(primer);
 
+        // Debug visualizer options
+        if (Configuration.debugsettings.debugVisualizer) {
+            maxSurfaceHeight = 128;
+            minSurfaceHeight = 60;
+        }
+
         // Cave generators - we will determine exactly what type these are based on the cave biome for each column
         BetterCave cavernGen;
         BetterCave caveGen;
@@ -168,12 +174,13 @@ public class MapGenBetterCaves extends MapGenCaves {
                     }
 
                     // Dig out caves and caverns for this column
-                    // Bottom (Cavern) layer:
-                    cavernGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, cavernBottomY, cavernTopY,
-                            maxSurfaceHeight, minSurfaceHeight);
                     // Top (Cave) layer:
                     caveGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, caveBottomY, maxSurfaceHeight,
                             maxSurfaceHeight, minSurfaceHeight);
+                    // Bottom (Cavern) layer:
+                    cavernGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, cavernBottomY, cavernTopY,
+                            maxSurfaceHeight, minSurfaceHeight);
+
 
                 }
             }

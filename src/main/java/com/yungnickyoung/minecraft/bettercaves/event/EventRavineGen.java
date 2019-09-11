@@ -6,17 +6,16 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /**
- * Replaces vanilla ravine generation with Better Caves ravine generation if enabled (which essentially disables ravines).
+ * Replaces vanilla ravine generation with Better Caves ravine generation if enabled (which just disables ravines).
  * Should be registered to the {@code TERRAIN_GEN_BUS}.
  */
-public class EventBetterRavineGen {
+public class EventRavineGen {
     /**
-     * Replaces ravine gen events with Better Caves ravine gen (nothing)
+     * Disables ravine gen events if config option is enabled
      * @param event Map generation event
      */
     @SubscribeEvent(priority = EventPriority.NORMAL)
-    public void onCaveEvent(InitMapGenEvent event) {
-        // Only replace cave gen if the original gen passed isn't a Better Cave
+    public void onRavineEvent(InitMapGenEvent event) {
         if (event.getType() == InitMapGenEvent.EventType.RAVINE && !event.getOriginalGen().getClass().equals(MapGenBetterRavine.class)) {
             event.setNewGen(new MapGenBetterRavine());
         }

@@ -1,11 +1,13 @@
 package com.yungnickyoung.minecraft.bettercaves.world.cavern;
 
+import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.world.BetterCave;
 import net.minecraft.block.material.Material;
+import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 
@@ -71,22 +73,11 @@ public class BetterCavernLava extends BetterCave {
             if (perlinNoise < noiseThreshold)
                 digBlock = true;
 
-            // Dig/remove the block if it passed the threshold check
-            if (digBlock) {
-                // Check for adjacent water blocks to avoid breaking into lakes or oceans
-                if (primer.getBlockState(localX, realY + 1, localZ).getMaterial() == Material.WATER)
-                    continue;
-                if (localX < 15 && primer.getBlockState(localX + 1, realY, localZ).getMaterial() == Material.WATER)
-                    continue;
-                if (localX > 0 && primer.getBlockState(localX - 1, realY, localZ).getMaterial() == Material.WATER)
-                    continue;
-                if (localZ < 15 && primer.getBlockState(localX, realY, localZ + 1).getMaterial() == Material.WATER)
-                    continue;
-                if (localZ > 0 && primer.getBlockState(localX, realY, localZ - 1).getMaterial() == Material.WATER)
-                    continue;
-
-                BetterCaveUtil.digBlock(this.getWorld(), primer, localX, realY, localZ, chunkX, chunkZ);
-            }
+            // Dig/remove the block if it passed the threshold check, using the visualizer if enabled
+            if (Configuration.debugsettings.debugVisualizer)
+                visualizeDigBlock(digBlock, Blocks.REDSTONE_BLOCK.getDefaultState(), primer, localX, realY, localZ);
+            else if (digBlock)
+                this.digBlock(primer, chunkX, chunkZ, localX, localZ, realY);
         }
     }
 }

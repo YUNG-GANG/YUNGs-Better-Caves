@@ -1,12 +1,13 @@
 {
-  "homepage": "http://www.yungnickyoung.com",
+  "homepage": "https://www.curseforge.com/minecraft/mc-mods/yungs-better-caves",
   "1.12.2": {
     "1.0.0.0":"      Public release",
     "1.0.1.0":"      Adjusted spawn rate of Lava Caverns to match Floored Caverns",
-    "1.0.1.1":"      Fix version number"
+    "1.0.1.1":"      Fix version number",
+    "1.0.1.2":"      Add vanilla ravine removal option, debug visualizer, logic for water caverns. Update homepage. Potentially fix version checking"
   },
   "promos": {
-    "1.12.2-latest": "1.0.1.1",
-    "1.12.2-recommended": "1.0.1.1"
+    "1.12.2-latest": "1.0.1.2",
+    "1.12.2-recommended": "1.0.1.2"
   }
 }

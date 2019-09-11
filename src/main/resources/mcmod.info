@@ -4,8 +4,8 @@
   "description": "${description}",
   "version": "${version}",
   "mcversion": "${mcversion}",
-  "url": "",
-  "updateJSON": "https://github.com/yungnickyoung/Yungs-Better-Caves/blob/master/versions.json",
+  "url": "https://www.curseforge.com/minecraft/mc-mods/yungs-better-caves",
+  "updateJSON": "https://raw.githubusercontent.com/yungnickyoung/YUNGs-Better-Caves/1.12.2/versions.json",
   "authorList": ["YUNGNICKYOUNG"],
   "credits": "${credits}",
   "logoFile": "BetterCavesBanner.png"

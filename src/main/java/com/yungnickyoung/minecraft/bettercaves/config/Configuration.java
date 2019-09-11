@@ -1,6 +1,5 @@
 package com.yungnickyoung.minecraft.bettercaves.config;
 
-import com.yungnickyoung.minecraft.bettercaves.config.cave.ConfigDebug;
 import net.minecraftforge.common.config.Config;
 
 @Config(modid = Settings.MOD_ID, name = Settings.NAME)

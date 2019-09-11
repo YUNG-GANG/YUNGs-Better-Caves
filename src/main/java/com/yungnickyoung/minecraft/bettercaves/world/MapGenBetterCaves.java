@@ -43,6 +43,7 @@ public class MapGenBetterCaves extends MapGenCaves {
     private float simplexCaveThreshold;
     private float lavaCavernThreshold;
     private float flooredCavernThreshold;
+    private float waterCavernThreshold;
 
     // Config option for using vanilla cave gen in some areas
     private boolean enableVanillaCaves;
@@ -182,7 +183,6 @@ public class MapGenBetterCaves extends MapGenCaves {
                     cavernGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, cavernBottomY, cavernTopY,
                             maxSurfaceHeight, minSurfaceHeight);
 
-
                 }
             }
         } else // use vanilla generation in other dimensions
@@ -216,6 +216,21 @@ public class MapGenBetterCaves extends MapGenCaves {
 
     private float calcLavaCavernThreshold() {
         switch (Configuration.caveSettings.lavaCavern.caveFrequency) {
+            case None:
+                return -99f;
+            case Rare:
+                return -.8f;
+            case Common:
+                return -.3f;
+            case VeryCommon:
+                return -.1f;
+            default: // Normal
+                return -.4f;
+        }
+    }
+
+    private float calcWaterCavernThreshold() {
+        switch (Configuration.caveSettings.waterCavern.caveFrequency) {
             case None:
                 return -99f;
             case Rare:

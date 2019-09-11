@@ -174,7 +174,7 @@ public abstract class BetterCave {
      * @param localZ the chunk-local z-coordinate of the block
      * @param realY the real Y-coordinate of the block
      */
-    protected void digBlock(ChunkPrimer primer, int chunkX, int chunkZ, int localX, int localZ, int realY) {
+    protected void digBlock(ChunkPrimer primer, IBlockState lavaBlock, int chunkX, int chunkZ, int localX, int localZ, int realY) {
         // Check for adjacent water blocks to avoid breaking into lakes or oceans
         if (primer.getBlockState(localX, realY + 1, localZ).getMaterial() == Material.WATER)
             return;
@@ -187,7 +187,12 @@ public abstract class BetterCave {
         if (localZ > 0 && primer.getBlockState(localX, realY, localZ - 1).getMaterial() == Material.WATER)
             return;
 
-        BetterCaveUtil.digBlock(this.getWorld(), primer, localX, realY, localZ, chunkX, chunkZ);
+        BetterCaveUtil.digBlock(this.getWorld(), primer, lavaBlock, localX, realY, localZ, chunkX, chunkZ);
+    }
+
+    // Wrapper function for BetterCave#digBlock with default lava block
+    protected void digBlock(ChunkPrimer primer, int chunkX, int chunkZ, int localX, int localZ, int realY) {
+        digBlock(primer, Blocks.LAVA.getDefaultState(), chunkX, chunkZ, localX, localZ, realY);
     }
 
     protected void visualizeDigBlock(boolean digBlock, IBlockState blockState, ChunkPrimer primer, int localX, int realY, int localZ) {

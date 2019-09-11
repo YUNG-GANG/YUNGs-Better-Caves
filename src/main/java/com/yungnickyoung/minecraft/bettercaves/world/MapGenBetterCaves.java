@@ -24,6 +24,7 @@ public class MapGenBetterCaves extends MapGenCaves {
     // Cavern types
     private BetterCave cavernLava;
     private BetterCave cavernFloored;
+    private BetterCave cavernWater;
 
     // Vanilla cave gen if user sets config to use it
     private MapGenCaves defaultCaveGen;
@@ -380,6 +381,17 @@ public class MapGenBetterCaves extends MapGenCaves {
                 Configuration.caveSettings.flooredCavern.noiseThreshold,
                 Configuration.caveSettings.flooredCavern.yCompression,
                 Configuration.caveSettings.flooredCavern.xzCompression
+        );
+
+        this.cavernFloored = new BetterCavernFloored(
+                world,
+                Configuration.caveSettings.waterCavern.fractalOctaves,
+                Configuration.caveSettings.waterCavern.fractalGain,
+                Configuration.caveSettings.waterCavern.fractalFrequency,
+                Configuration.caveSettings.waterCavern.numGenerators,
+                Configuration.caveSettings.waterCavern.noiseThreshold,
+                Configuration.caveSettings.waterCavern.yCompression,
+                Configuration.caveSettings.waterCavern.xzCompression
         );
 
         this.testCave = new TestCave(

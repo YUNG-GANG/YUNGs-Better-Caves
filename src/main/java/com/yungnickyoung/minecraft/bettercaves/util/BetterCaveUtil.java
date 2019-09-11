@@ -23,6 +23,7 @@ public class BetterCaveUtil {
     /* Common IBlockStates used in this class */
     private static final IBlockState BLOCKSTATE_AIR = Blocks.AIR.getDefaultState();
     private static final IBlockState BLOCKSTATE_LAVA = Blocks.LAVA.getDefaultState();
+    private static final IBlockState BLOCKSTATE_WATER = Blocks.WATER.getDefaultState();
     private static final IBlockState BLOCKSTATE_SAND = Blocks.SAND.getDefaultState();
     private static final IBlockState BLOCKSTATE_SANDSTONE = Blocks.SANDSTONE.getDefaultState();
     private static final IBlockState BLOCKSTATE_REDSANDSTONE = Blocks.RED_SANDSTONE.getDefaultState();
@@ -52,13 +53,15 @@ public class BetterCaveUtil {
      *
      * @param world the Minecraft world this block is in
      * @param primer the ChunkPrimer containing the block
+     * @param lavaBlockState the BlockState to use as lava. If you want regular lava, you can use the wrapper function
+     *                       without this param
      * @param x the block's chunk-local x coordinate
      * @param y the block's chunk-local y coordinate
      * @param z the block's chunk-local z coordinate
      * @param chunkX the chunk's x coordinate
      * @param chunkZ the chunk's z coordinate
      */
-    public static void digBlock(World world, ChunkPrimer primer, int x, int y, int z, int chunkX, int chunkZ) {
+    public static void digBlock(World world, ChunkPrimer primer, IBlockState lavaBlockState, int x, int y, int z, int chunkX, int chunkZ) {
         IBlockState blockState = primer.getBlockState(x, y, z);
         IBlockState blockStateAbove = primer.getBlockState(x, y + 1, z);
 
@@ -69,7 +72,7 @@ public class BetterCaveUtil {
         // Only continue if the block is replaceable
         if (canReplaceBlock(blockState, blockStateAbove) || blockState.getBlock() == biomeTopBlock || blockState.getBlock() == biomeFillerBlock) {
             if (y <= Configuration.lavaDepth) { // Replace any block below the lava depth with lava
-                primer.setBlockState(x, y, z, BLOCKSTATE_LAVA);
+                primer.setBlockState(x, y, z, lavaBlockState);
             } else {
                 // Adjust block below if block removed is biome top block
                 if (isTopBlock(world, primer, x, y, z, chunkX, chunkZ) && canReplaceBlock(primer.getBlockState(x, y - 1, z), BLOCKSTATE_AIR))
@@ -87,13 +90,18 @@ public class BetterCaveUtil {
         }
     }
 
-    /**
-     * Determines if the Block of a given IBlockState is suitable to be replaced during cave generation.
-     * Basically returns true for most common world-get blocks, false if the block is air.
-     * @param blockState the block's IBlockState
-     * @param blockStateAbove the IBlockState of the block above this one
-     * @return true if the blockState can be replaced
-     */
+    // Wrapper function for digBlock with default lava block
+    public static void digBlock(World world, ChunkPrimer primer, int x, int y, int z, int chunkX, int chunkZ) {
+        digBlock(world, primer, BLOCKSTATE_LAVA, x, y, z, chunkX, chunkZ);
+    }
+
+        /**
+         * Determines if the Block of a given IBlockState is suitable to be replaced during cave generation.
+         * Basically returns true for most common world-get blocks, false if the block is air.
+         * @param blockState the block's IBlockState
+         * @param blockStateAbove the IBlockState of the block above this one
+         * @return true if the blockState can be replaced
+         */
     public static boolean canReplaceBlock(IBlockState blockState, IBlockState blockStateAbove) {
         Block block = blockState.getBlock();
 

@@ -24,6 +24,7 @@ public class ConfigCaveGen {
             " than Lava Caverns.")
     public ConfigFlooredCavern flooredCavern = new ConfigFlooredCavern();
 
+    @Config.Ignore
     @Config.Name("Water Caverns")
     @Config.Comment("Parameters used in the generation of Water Caverns. These are similar to lava caverns, but " +
             "with water instead of lava.")

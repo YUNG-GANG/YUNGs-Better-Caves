@@ -77,7 +77,8 @@ public class BetterCavernWater extends BetterCave {
             if (Configuration.debugsettings.debugVisualizer)
                 visualizeDigBlock(digBlock, Blocks.LAPIS_BLOCK.getDefaultState(), primer, localX, realY, localZ);
             else if (digBlock)
-                this.digBlock(primer, Blocks.WATER.getDefaultState(), chunkX, chunkZ, localX, localZ, realY);
+                BetterCaveUtil.digBlock(this.getWorld(), primer, Blocks.WATER.getDefaultState(), localX, realY, localZ, chunkX, chunkZ);
+
         }
     }
 }

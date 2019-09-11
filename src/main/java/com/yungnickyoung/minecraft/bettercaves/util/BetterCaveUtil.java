@@ -23,7 +23,6 @@ public class BetterCaveUtil {
     /* Common IBlockStates used in this class */
     private static final IBlockState BLOCKSTATE_AIR = Blocks.AIR.getDefaultState();
     private static final IBlockState BLOCKSTATE_LAVA = Blocks.LAVA.getDefaultState();
-    private static final IBlockState BLOCKSTATE_WATER = Blocks.WATER.getDefaultState();
     private static final IBlockState BLOCKSTATE_SAND = Blocks.SAND.getDefaultState();
     private static final IBlockState BLOCKSTATE_SANDSTONE = Blocks.SANDSTONE.getDefaultState();
     private static final IBlockState BLOCKSTATE_REDSANDSTONE = Blocks.RED_SANDSTONE.getDefaultState();
@@ -71,7 +70,7 @@ public class BetterCaveUtil {
 
         // Only continue if the block is replaceable
         if (canReplaceBlock(blockState, blockStateAbove) || blockState.getBlock() == biomeTopBlock || blockState.getBlock() == biomeFillerBlock) {
-            if (y <= Configuration.lavaDepth) { // Replace any block below the lava depth with lava
+            if (y <= Configuration.lavaDepth) { // Replace any block below the lava depth with the lava block passed in
                 primer.setBlockState(x, y, z, lavaBlockState);
             } else {
                 // Adjust block below if block removed is biome top block

@@ -1,6 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves.config;
 
 import com.yungnickyoung.minecraft.bettercaves.config.cave.*;
+import com.yungnickyoung.minecraft.bettercaves.enums.CaveBiomeSize;
 import net.minecraftforge.common.config.Config;
 
 public class ConfigCaveGen {
@@ -12,7 +13,7 @@ public class ConfigCaveGen {
     @Config.Name("Type 2 Caves (Simplex)")
     @Config.Comment("Parameters used in the generation of caves generated with simplex noise. Does not include the" +
             " large caverns found at low altitudes.")
-    public ConfigSimplex3Cave simplexCave = new ConfigSimplex3Cave();
+    public ConfigSimplexCave simplexCave = new ConfigSimplexCave();
 
     @Config.Name("Lava Caverns")
     @Config.Comment("Parameters used in the generation of Lava Caverns found at low altitudes. These are caverns" +
@@ -39,14 +40,10 @@ public class ConfigCaveGen {
             " extends before intersecting with a cave system of another type. Larger Biome Size = more " +
             "cave interconnectivity.")
     @Config.RequiresWorldRestart
-    public BiomeSize caveBiomeSize = BiomeSize.Large;
+    public CaveBiomeSize caveBiomeSize = CaveBiomeSize.Large;
 
     @Config.Name("Cavern Biome Size")
     @Config.Comment("Determines how large cavern biomes are. This controls the average size of caverns.")
     @Config.RequiresWorldRestart
-    public BiomeSize cavernBiomeSize = BiomeSize.Medium;
-
-    public enum BiomeSize {
-        Small, Medium, Large, ExtraLarge
-    }
+    public CaveBiomeSize cavernBiomeSize = CaveBiomeSize.Medium;
 }

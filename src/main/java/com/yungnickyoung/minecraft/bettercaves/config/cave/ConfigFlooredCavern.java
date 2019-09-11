@@ -1,12 +1,9 @@
 package com.yungnickyoung.minecraft.bettercaves.config.cave;
 
+import com.yungnickyoung.minecraft.bettercaves.enums.CavernFrequency;
 import net.minecraftforge.common.config.Config;
 
 public class ConfigFlooredCavern {
-    public enum CavernFrequency {
-        None, Rare, Normal, Common, VeryCommon
-    }
-
     @Config.Name("Top Generation Altitude")
     @Config.Comment("The top y-coordinate at which Floored Caverns start generating. Note that caverns will attempt " +
             "to close off anyway if this value is greater than the surface y-coordinate.")

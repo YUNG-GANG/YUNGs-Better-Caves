@@ -1,12 +1,9 @@
 package com.yungnickyoung.minecraft.bettercaves.config.cave;
 
+import com.yungnickyoung.minecraft.bettercaves.enums.CaveFrequency;
 import net.minecraftforge.common.config.Config;
 
 public class ConfigCubicCave {
-    public enum CaveFrequency {
-        None, Rare, Common, VeryCommon
-    }
-
     @Config.Name("Cave Bottom Altitude")
     @Config.Comment("The minimum y-coordinate at which caves start generating.")
     @Config.RequiresWorldRestart

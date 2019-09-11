@@ -173,11 +173,13 @@ public class BetterCaveUtil {
      * @return The y-coordinate of the surface block
      */
     private static int getSurfaceHeight(ChunkPrimer primer, int x, int z) {
-        return recursiveBinarySurfaceSearch(primer, x, z, 255, 0);
+//        return recursiveBinarySurfaceSearch(primer, x, z, 255, 0);
+        return linarSurfaceSearch(primer, x, z, 255, 0);
     }
 
     /**
-     * Recursive binary search, this search always converges on the surface in 8 in cycles for the range 255 >= y >= 0
+     * Recursive binary search, this search always converges on the surface in 8 in cycles for the range 255 >= y >= 0.
+     * Thanks to Worley's Caves for this idea.
      * @param primer Chunk's ChunkPrimer
      * @param x Chunk-local x-coordinate
      * @param z Chunk-local z-coordinate
@@ -195,5 +197,14 @@ public class BetterCaveUtil {
                 top = recursiveBinarySurfaceSearch(primer, x, z, mid, bottom);
         }
         return top;
+    }
+
+    private static int linarSurfaceSearch(ChunkPrimer primer, int x, int z, int top, int bottom) {
+        for (int y = bottom; y <= top; y++) {
+            if (primer.getBlockState(x, y, z) == Blocks.AIR.getDefaultState())
+                return y;
+        }
+
+        return -1; // Surface somehow not found
     }
 }

@@ -9,6 +9,7 @@ import com.yungnickyoung.minecraft.bettercaves.world.cave.BetterCaveSimplex;
 import com.yungnickyoung.minecraft.bettercaves.world.cave.TestCave;
 import com.yungnickyoung.minecraft.bettercaves.world.cavern.BetterCavernFloored;
 import com.yungnickyoung.minecraft.bettercaves.world.cavern.BetterCavernLava;
+import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.MapGenCaves;
@@ -25,6 +26,8 @@ public class MapGenBetterCaves extends MapGenCaves {
     private BetterCave cavernLava;
     private BetterCave cavernFloored;
     private BetterCave cavernWater;
+
+    private int surfaceCutoff;
 
     // Vanilla cave gen if user sets config to use it
     private MapGenCaves defaultCaveGen;
@@ -61,7 +64,7 @@ public class MapGenBetterCaves extends MapGenCaves {
         if (worldIn.provider.getDimension() == 0) {
             for (int localX = 0; localX < 16; localX++) {
                 for (int localZ = 0; localZ < 16; localZ++) {
-                    testCave.generateColumn(chunkX, chunkZ, primer, localX, localZ, 1, maxSurfaceHeight, maxSurfaceHeight, minSurfaceHeight);
+                    testCave.generateColumn(chunkX, chunkZ, primer, localX, localZ, 1, maxSurfaceHeight, maxSurfaceHeight, minSurfaceHeight, surfaceCutoff);
                 }
             }
         }
@@ -88,14 +91,14 @@ public class MapGenBetterCaves extends MapGenCaves {
         }
 
         // Find the (approximate) lowest and highest surface altitudes in this chunk
-        int maxSurfaceHeight = BetterCaveUtil.getMaxSurfaceHeight(primer);
-        int minSurfaceHeight = BetterCaveUtil.getMinSurfaceHeight(primer);
+//        int maxSurfaceHeight = BetterCaveUtil.getMaxSurfaceHeight(primer);
+//        int minSurfaceHeight = BetterCaveUtil.getMinSurfaceHeight(primer);
 
         // Debug visualizer options
-        if (Configuration.debugsettings.debugVisualizer) {
-            maxSurfaceHeight = 128;
-            minSurfaceHeight = 60;
-        }
+//        if (Configuration.debugsettings.debugVisualizer) {
+//            maxSurfaceHeight = 128;
+//            minSurfaceHeight = 60;
+//        }
 
         // Cave generators - we will determine exactly what type these are based on the cave biome for each column
         BetterCave cavernGen;
@@ -112,6 +115,14 @@ public class MapGenBetterCaves extends MapGenCaves {
         if (worldIn.provider.getDimension() == 0) { // Only use Better Caves generation in overworld
             for (int localX = 0; localX < 16; localX++) {
                 for (int localZ = 0; localZ < 16; localZ++) {
+                    int surfaceHeight = 0;
+                    for (int y = 1; y <= 255; y++) {
+                        if (primer.getBlockState(localX, y, localZ) == Blocks.AIR.getDefaultState()) {
+                            surfaceHeight = y;
+                            break;
+                        }
+                    }
+
                     // Store column position (block coords) in vector
                     Vector2f columnPos = new Vector2f(((chunkX * 16) + localX), ((chunkZ * 16) + localZ));
 
@@ -177,11 +188,11 @@ public class MapGenBetterCaves extends MapGenCaves {
 
                     // Dig out caves and caverns for this column
                     // Top (Cave) layer:
-                    caveGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, caveBottomY, maxSurfaceHeight,
-                            maxSurfaceHeight, minSurfaceHeight);
+                    caveGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, caveBottomY, surfaceHeight,
+                            surfaceHeight, 60, surfaceCutoff);
                     // Bottom (Cavern) layer:
                     cavernGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, cavernBottomY, cavernTopY,
-                            maxSurfaceHeight, minSurfaceHeight);
+                            surfaceHeight, 60, surfaceCutoff);
 
                 }
             }
@@ -266,6 +277,7 @@ public class MapGenBetterCaves extends MapGenCaves {
     private void initialize(World worldIn) {
         world = worldIn;
         this.defaultCaveGen = new MapGenCaves();
+        this.surfaceCutoff = Configuration.caveSettings.surfaceCutoff;
 
         // Determine noise thresholds for cavern spawns based on user config
         this.lavaCavernThreshold = calcLavaCavernThreshold();

@@ -40,10 +40,10 @@ public class TestCave extends BetterCave {
 
     @Override
     public void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
-                               int topY, int maxSurfaceHeight, int minSurfaceHeight) {
+                               int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff) {
         /* ========================= Import cave variables from the config ========================= */
         // Altitude at which caves start closing off so they aren't all open to the surface
-        int transitionBoundary = maxSurfaceHeight - 20;
+        int transitionBoundary = maxSurfaceHeight - surfaceCutoff;
 
         /* ========================== Generate noise using test noise type ========================= */
         // The noise for an individual block is represented by a NoiseTuple, which is essentially an n-tuple of

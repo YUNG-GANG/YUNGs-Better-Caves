@@ -38,7 +38,7 @@ public class BetterCavernLava extends BetterCave {
 
     @Override
     public void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
-                               int topY, int maxSurfaceHeight, int minSurfaceHeight) {
+                               int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff) {
         /* ======================== Import cavern variables from the config ======================== */
         // Altitude at which caverns start closing off
         int perlinCavernTransitionBoundary = topY - 7;

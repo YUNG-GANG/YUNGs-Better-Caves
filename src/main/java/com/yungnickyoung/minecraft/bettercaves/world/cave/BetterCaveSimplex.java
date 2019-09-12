@@ -42,10 +42,10 @@ public class BetterCaveSimplex extends BetterCave {
 
     @Override
     public void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
-                               int topY, int maxSurfaceHeight, int minSurfaceHeight) {
+                               int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff) {
         /* ========================= Import cave variables from the config ========================= */
         // Altitude at which caves start closing off so they aren't all open to the surface
-        int simplexCaveTransitionBoundary = maxSurfaceHeight - 20;
+        int simplexCaveTransitionBoundary = maxSurfaceHeight - surfaceCutoff;
 
         /* ========== Generate noise for caves (using Simplex noise) ========== */
         // The noise for an individual block is represented by a NoiseTuple, which is essentially an n-tuple of

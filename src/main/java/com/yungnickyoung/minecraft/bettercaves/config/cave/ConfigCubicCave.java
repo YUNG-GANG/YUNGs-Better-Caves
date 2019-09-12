@@ -33,7 +33,7 @@ public class ConfigCubicCave {
             " = less caves.")
     @Config.RangeDouble(min = -1.0, max = 1.0)
     @Config.RequiresWorldRestart
-    public float noiseThreshold = .96f;
+    public float noiseThreshold = .95f;
 
     @Config.Ignore
     @Config.Name("Fractal Octaves")

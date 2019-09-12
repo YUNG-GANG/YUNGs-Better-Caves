@@ -29,78 +29,99 @@ public class BetterCaveUtil {
 
     /**
      * Determine if the block at the specified location is the designated top block for the biome.
+     *
      * @param world the Minecraft world this block is in
      * @param primer the ChunkPrimer containing the block
-     * @param x the block's x coordinate
-     * @param y the block's y coordinate
-     * @param z the block's z coordinate
+     * @param localX the block's chunk-local x-coordinate
+     * @param y the block's chunk-local y-coordinate (same as real y-coordinate)
+     * @param localZ the block's chunk-local z-coordinate
      * @param chunkX the chunk's x coordinate
      * @param chunkZ the chunk's z coordinate
      * @return true if this block is the same type as the biome's designated top block
      */
-    public static boolean isTopBlock(World world, ChunkPrimer primer, int x, int y, int z, int chunkX, int chunkZ) {
-        Biome biome = world.getBiome(new BlockPos(x + chunkX * 16, 0, z + chunkZ * 16));
-        IBlockState blockState = primer.getBlockState(x, y, z);
+    public static boolean isTopBlock(World world, ChunkPrimer primer, int localX, int y, int localZ, int chunkX, int chunkZ) {
+        int realX = (chunkX * 16) + localX;
+        int realZ = (chunkZ * 16) + localZ;
+        Biome biome = world.getBiome(new BlockPos(realX, y, realZ));
+        IBlockState blockState = primer.getBlockState(localX, y, localZ);
         return blockState == biome.topBlock;
     }
 
     /**
      * Digs out the current block, default implementation removes stone, filler, and top block.
-     * Sets the block to lava if y is less then 10, and air other wise.
+     * Sets the block to lavaBlockState if y is less then the lavaDepth in the Config, and air other wise.
      * If setting to air, it also checks to see if we've broken the surface, and if so,
      * tries to make the floor the biome's top block.
      *
      * @param world the Minecraft world this block is in
      * @param primer the ChunkPrimer containing the block
-     * @param lavaBlockState the BlockState to use as lava. If you want regular lava, you can use the wrapper function
-     *                       without this param
-     * @param x the block's chunk-local x coordinate
-     * @param y the block's chunk-local y coordinate
-     * @param z the block's chunk-local z coordinate
+     * @param lavaBlockState the BlockState to use as lava. If you want regular lava, you can either specify it, or
+     *                       use the wrapper function without this param
+     * @param localX the block's chunk-local x coordinate
+     * @param y the block's chunk-local y coordinate (same as real y-coordinate)
+     * @param localZ the block's chunk-local z coordinate
      * @param chunkX the chunk's x coordinate
      * @param chunkZ the chunk's z coordinate
      */
-    public static void digBlock(World world, ChunkPrimer primer, IBlockState lavaBlockState, int x, int y, int z, int chunkX, int chunkZ) {
-        IBlockState blockState = primer.getBlockState(x, y, z);
-        IBlockState blockStateAbove = primer.getBlockState(x, y + 1, z);
+    public static void digBlock(World world, ChunkPrimer primer, IBlockState lavaBlockState, int localX, int y, int localZ, int chunkX, int chunkZ) {
+        IBlockState blockState = primer.getBlockState(localX, y, localZ);
+        IBlockState blockStateAbove = primer.getBlockState(localX, y + 1, localZ);
 
-        Biome biome = world.getBiome(new BlockPos(x + chunkX * 16, y, z + chunkZ * 16));
+        int realX = (chunkX * 16) + localX;
+        int realZ = (chunkZ * 16) + localZ;
+
+        Biome biome = world.getBiome(new BlockPos(realX, y, realZ));
         Block biomeTopBlock = biome.topBlock.getBlock();
         Block biomeFillerBlock = biome.fillerBlock.getBlock();
 
         // Only continue if the block is replaceable
         if (canReplaceBlock(blockState, blockStateAbove) || blockState.getBlock() == biomeTopBlock || blockState.getBlock() == biomeFillerBlock) {
             if (y <= Configuration.lavaDepth) { // Replace any block below the lava depth with the lava block passed in
-                primer.setBlockState(x, y, z, lavaBlockState);
+                primer.setBlockState(localX, y, localZ, lavaBlockState);
             } else {
                 // Adjust block below if block removed is biome top block
-                if (isTopBlock(world, primer, x, y, z, chunkX, chunkZ) && canReplaceBlock(primer.getBlockState(x, y - 1, z), BLOCKSTATE_AIR))
-                    primer.setBlockState(x, y - 1, z, biome.topBlock);
+                if (isTopBlock(world, primer, localX, y, localZ, chunkX, chunkZ) && canReplaceBlock(primer.getBlockState(localX, y - 1, localZ), BLOCKSTATE_AIR))
+                    primer.setBlockState(localX, y - 1, localZ, biome.topBlock);
 
                 // Replace this block with air, effectively "digging" it out
-                primer.setBlockState(x, y, z, BLOCKSTATE_AIR);
+                primer.setBlockState(localX, y, localZ, BLOCKSTATE_AIR);
 
                 // If we caused floating sand to form, replace it with sandstone
                 if (blockStateAbove == BLOCKSTATE_SAND)
-                    primer.setBlockState(x, y + 1, z, BLOCKSTATE_SANDSTONE);
+                    primer.setBlockState(localX, y + 1, localZ, BLOCKSTATE_SANDSTONE);
                 else if (blockStateAbove == BLOCKSTATE_SAND.withProperty(BlockSand.VARIANT, BlockSand.EnumType.RED_SAND))
-                    primer.setBlockState(x, y + 1, z, BLOCKSTATE_REDSANDSTONE);
+                    primer.setBlockState(localX, y + 1, localZ, BLOCKSTATE_REDSANDSTONE);
             }
         }
     }
 
-    // Wrapper function for digBlock with default lava block
-    public static void digBlock(World world, ChunkPrimer primer, int x, int y, int z, int chunkX, int chunkZ) {
-        digBlock(world, primer, BLOCKSTATE_LAVA, x, y, z, chunkX, chunkZ);
+    /**
+     * Wrapper function for digBlock with default lava block.
+     * Digs out the current block, default implementation removes stone, filler, and top block.
+     * Sets the block to lavaBlockState if y is less then the lavaDepth in the Config, and air other wise.
+     * If setting to air, it also checks to see if we've broken the surface, and if so,
+     * tries to make the floor the biome's top block.
+     *
+     * @param world the Minecraft world this block is in
+     * @param primer the ChunkPrimer containing the block
+     * @param localX the block's chunk-local x coordinate
+     * @param y the block's chunk-local y coordinate (same as real y-coordinate)
+     * @param localZ the block's chunk-local z coordinate
+     * @param chunkX the chunk's x coordinate
+     * @param chunkZ the chunk's z coordinate
+     */
+    public static void digBlock(World world, ChunkPrimer primer, int localX, int y, int localZ, int chunkX, int chunkZ) {
+        digBlock(world, primer, BLOCKSTATE_LAVA, localX, y, localZ, chunkX, chunkZ);
     }
 
-        /**
-         * Determines if the Block of a given IBlockState is suitable to be replaced during cave generation.
-         * Basically returns true for most common world-get blocks, false if the block is air.
-         * @param blockState the block's IBlockState
-         * @param blockStateAbove the IBlockState of the block above this one
-         * @return true if the blockState can be replaced
-         */
+    /**
+     * Determines if the Block of a given IBlockState is suitable to be replaced during cave generation.
+     * Basically returns true for most common worldgen blocks (e.g. stone, dirt, sand), false if the block is air.
+     *
+     * @param blockState the block's IBlockState
+     * @param blockStateAbove the IBlockState of the block above this one
+     * @return true if the blockState can be replaced
+     */
     public static boolean canReplaceBlock(IBlockState blockState, IBlockState blockStateAbove) {
         Block block = blockState.getBlock();
 
@@ -111,11 +132,16 @@ public class BetterCaveUtil {
                 || block == Blocks.LOG2)
             return false;
 
+        // Avoid digging out under trees
+        if (blockStateAbove == Blocks.LOG.getDefaultState()
+                || blockStateAbove == Blocks.LOG2.getDefaultState())
+            return false;
+
         // Accept stone-like blocks added from other mods
         if (blockState.getMaterial() == Material.ROCK)
             return true;
 
-        // Minable blocks
+        // Mine-able blocks
         if (block == Blocks.STONE
                 || block == Blocks.DIRT
                 || block == Blocks.GRASS
@@ -151,7 +177,7 @@ public class BetterCaveUtil {
     /**
      * Tests 8 edge points and center of chunk to approximate min surface height of the chunk.
      * @param primer primer for chunk
-     * @return Max surface height of chunk
+     * @return Min surface height of chunk
      */
     public static int getMinSurfaceHeight(ChunkPrimer primer) {
         int minHeight = 256;
@@ -165,17 +191,14 @@ public class BetterCaveUtil {
     }
 
     /**
-     * Returns the y-coordinate of the surface block for a given local block coordinate for a given chunk.
-     * @param primer The ChunkPrimer containing the block
-     * @param x The block's chunk-local x-coordinate
-     * @param z The block's chunk-local z-coordinate
-     * @return The y-coordinate of the surface block
+     * Tests every block in a 2x2 "sub-chunk" to get the max height of the sub-chunk.
+     * @param primer primer for chunk
+     * @param subX The x-coordinate of the sub-chunk. Note that this is regular chunk-local x-coordinate divided
+     *             by 2. E.g. If you want the last 2 blocks on the x-axis in the chunk (blocks 14 and 15), use subX = 7.
+     * @param subZ The z-coordinate of the sub-chunk. Note that this is regular chunk-local z-coordinate divided
+     *             by 2. E.g. If you want the last 2 blocks on the z-axis in the chunk (blocks 14 and 15), use subZ = 7.
+     * @return Max surface height of the sub-chunk
      */
-    private static int getSurfaceHeight(ChunkPrimer primer, int x, int z) {
-//        return recursiveBinarySurfaceSearch(primer, x, z, 255, 0);
-        return linarSurfaceSearch(primer, x, z, 255, 0);
-    }
-
     public static int getMaxSurfaceHeightSubChunk(ChunkPrimer primer, int subX, int subZ)  {
         int maxHeight = 0;
         int[] testCoords = {0, 1}; // chunk-local x/z coordinates to test for max height
@@ -185,6 +208,18 @@ public class BetterCaveUtil {
                 maxHeight = Math.max(maxHeight, getSurfaceHeight(primer, (subX * 2) + x, (subZ * 2) + z));
 
         return maxHeight;
+    }
+
+    /**
+     * Returns the y-coordinate of the surface block for a given local block coordinate for a given chunk.
+     * @param primer The ChunkPrimer containing the block
+     * @param x The block's chunk-local x-coordinate
+     * @param z The block's chunk-local z-coordinate
+     * @return The y-coordinate of the surface block
+     */
+    private static int getSurfaceHeight(ChunkPrimer primer, int x, int z) {
+//        return recursiveBinarySurfaceSearch(primer, x, z, 255, 0);
+        return linarSurfaceSearch(primer, x, z, 255, 0);
     }
 
     /**
@@ -209,9 +244,19 @@ public class BetterCaveUtil {
         return top;
     }
 
-    private static int linarSurfaceSearch(ChunkPrimer primer, int x, int z, int top, int bottom) {
-        for (int y = bottom; y <= top; y++) {
-            if (primer.getBlockState(x, y, z) == Blocks.AIR.getDefaultState())
+    /**
+     * Linear search from the bottom up to find the surface y-coordinate for a given block.
+     * Slower than binary search, but more reliable since it also works for areas with overhangs or floating islands.
+     * @param primer The ChunkPrimer containing the block
+     * @param localX The chunk-local x-coordinate
+     * @param localZ The chunk-local z-coordinate
+     * @param topY The top y-coordinate to stop searching at
+     * @param bottomY The bottom y-coordinate to start searching at
+     * @return Surface height at given coordinate
+     */
+    private static int linarSurfaceSearch(ChunkPrimer primer, int localX, int localZ, int topY, int bottomY) {
+        for (int y = bottomY; y <= topY; y++) {
+            if (primer.getBlockState(localX, y, localZ) == Blocks.AIR.getDefaultState())
                 return y;
         }
 

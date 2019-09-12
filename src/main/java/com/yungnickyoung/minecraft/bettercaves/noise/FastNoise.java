@@ -64,11 +64,6 @@ public class FastNoise {
         m_seed = seed;
 
         CalculateFractalBounding();
-        /*
-        SetSeed(seed);
-        CalculateFractalBounding();
-        CalculateSpectralGain();
-        */
     }
 
     // Returns a 0 float/double
@@ -81,28 +76,10 @@ public class FastNoise {
         return m_seed;
     }
 
-//    private int[] m_perm = new int[512];
-//    private int[] m_perm12 = new int[512];
-
     // Sets seed used for all noise types
     // Default: 1337
     public void SetSeed(int seed) {
         m_seed = seed;
-
-        /*
-        Random r = new Random(seed);
-
-        for (int i = 0; i < 256; i++)
-            m_perm[i] = i;
-
-        for (int i = 0; i < 256; i++) {
-            int k = r.nextInt(256 - i) + i;
-            int l = m_perm[i];
-            m_perm[i] = m_perm[i + 256] = m_perm[k];
-            m_perm[k] = l;
-            m_perm12[i] = m_perm12[i + 256] = m_perm[i] % 12;
-        }
-        */
     }
 
     // Sets frequency for all noise types
@@ -322,22 +299,6 @@ public class FastNoise {
         }
         m_fractalBounding = 1.0f / ampFractal;
     }
-
-    /*
-    private ArrayList<Float> m_pSpectralWeights = new ArrayList<>();
-
-    private void CalculateSpectralGain() {
-        float h = 1.0f;
-        float frequency = 1.0f;
-
-        m_pSpectralWeights.clear();
-        for (int i = 0; i < m_octaves; i++) {
-            // Compute weight for each frequency
-            m_pSpectralWeights.add((float)(Math.pow(frequency, -h)));
-            frequency *= m_lacunarity;
-        }
-    }
-    */
 
     // Hashing
     private final static int X_PRIME = 1619;
@@ -917,35 +878,6 @@ public class FastNoise {
 
         return sum * m_fractalBounding;
     }
-
-    /*
-    private float SinglePerlinFractalRigidMulti(float x, float y, float z) {
-        float sig = 1 - Math.abs(SinglePerlin(m_seed, x, y, z));
-        sig *= sig;
-        float sum = sig * m_pSpectralWeights.get(0);
-        float amp = sig * m_gain;
-
-        if (amp > 1.0f) amp = 1.0f;
-        if (amp < 0.0f) amp = 0.0f;
-
-        for (int i = 1; i < m_octaves; i++) {
-            x *= m_lacunarity;
-            y *= m_lacunarity;
-            z *= m_lacunarity;
-
-            sig = 1 - Math.abs(SinglePerlin(m_seed, x, y, z));
-            sig *= sig;
-            sig *= amp;
-
-            amp = sig * m_gain;
-            if (amp > 1.0f) amp = 1.0f;
-            if (amp < 0.0f) amp = 0.0f;
-
-            sum += (sig * m_pSpectralWeights.get(i));
-        }
-
-        return (sum * 1.25f) - 1.0f;
-    }*/
 
     private float SinglePerlinFractalRigidMulti(float x, float y, float z) {
         int seed = m_seed;

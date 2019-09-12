@@ -9,6 +9,7 @@ import com.yungnickyoung.minecraft.bettercaves.world.cave.BetterCaveSimplex;
 import com.yungnickyoung.minecraft.bettercaves.world.cave.TestCave;
 import com.yungnickyoung.minecraft.bettercaves.world.cavern.BetterCavernFloored;
 import com.yungnickyoung.minecraft.bettercaves.world.cavern.BetterCavernLava;
+import com.yungnickyoung.minecraft.bettercaves.world.cavern.BetterCavernWater;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.MapGenCaves;
@@ -38,7 +39,6 @@ public class MapGenBetterCaves extends MapGenCaves {
     // Noise generator for adding gradient perturbations to the Voronoi regions, effectively adding some jitter
     // to make the Voronoi regions' shapes vary more
     private FastNoise cavernControllerJitter;
-    private FastNoise caveControllerJitter;
 
     // Biome generation noise thresholds, based on user config
     private float cubicCaveThreshold;
@@ -93,11 +93,13 @@ public class MapGenBetterCaves extends MapGenCaves {
 //        int maxSurfaceHeight = BetterCaveUtil.getMaxSurfaceHeight(primer);
 //        int minSurfaceHeight = BetterCaveUtil.getMinSurfaceHeight(primer);
 
+        int maxSurfaceHeight = 128;
+        int minSurfaceHeight = 60;
+
         // Debug visualizer options
-//        if (Configuration.debugsettings.debugVisualizer) {
-//            maxSurfaceHeight = 128;
-//            minSurfaceHeight = 60;
-//        }
+        if (Configuration.debugsettings.debugVisualizer) {
+            maxSurfaceHeight = 128;
+        }
 
         // Cave generators - we will determine exactly what type these are based on the cave biome for each column
         BetterCave cavernGen;
@@ -112,20 +114,22 @@ public class MapGenBetterCaves extends MapGenCaves {
         int caveBottomY;
 
         if (worldIn.provider.getDimension() == 0) { // Only use Better Caves generation in overworld
+            // We split chunks into 2x2 subchunks for surface height calculations
             for (int subX = 0; subX < 8; subX++) {
                 for (int subZ = 0; subZ < 8; subZ++) {
-                    int surfaceHeight = BetterCaveUtil.getMaxSurfaceHeightSubChunk(primer, subX, subZ);
+                    if (!Configuration.debugsettings.debugVisualizer)
+                        maxSurfaceHeight = BetterCaveUtil.getMaxSurfaceHeightSubChunk(primer, subX, subZ);
+
                     for (int offsetX = 0; offsetX < 2; offsetX++) {
                         for (int offsetZ = 0; offsetZ < 2; offsetZ++) {
-                            int localX = (subX * 2) + offsetX;
-                            int localZ = (subZ * 2) + offsetZ;
+                            int localX = (subX * 2) + offsetX; // chunk-local x-coordinate (0-15, inclusive)
+                            int localZ = (subZ * 2) + offsetZ; // chunk-local z-coordinate (0-15, inclusive)
 
                             // Store column position (block coords) in vector
                             Vector2f columnPos = new Vector2f(((chunkX * 16) + localX), ((chunkZ * 16) + localZ));
 
-                            // Perturb the col position. This has the effect of applying jitter to the
-                            // cave biome's Voronoi region to add variety.
-//                            caveControllerJitter.GradientPerturb(columnPos);
+
+                            /* --------------------------- Configure Caves --------------------------- */
 
                             // Get noise values used to determine cave biome
                             float caveBiomeNoise = caveBiomeController.GetNoise(columnPos.x, columnPos.y);
@@ -153,9 +157,9 @@ public class MapGenBetterCaves extends MapGenCaves {
                                 continue;
                             }
 
-                            // Reset columnPos and apply cavern jitter
-                            columnPos.setX((chunkX * 16) + localX);
-                            columnPos.setY((chunkZ * 16) + localZ);
+                            /* --------------------------- Configure Caverns --------------------------- */
+
+                            // Apply jitter to position for cavern formation
                             cavernControllerJitter.GradientPerturb(columnPos);
 
                             // Get noise values used to determine cavern biome
@@ -183,13 +187,13 @@ public class MapGenBetterCaves extends MapGenCaves {
                                 cavernTopY = Configuration.caveSettings.flooredCavern.caveTop;
                             }
 
-                            // Dig out caves and caverns for this column
+                            /* --------------- Dig out caves and caverns for this column --------------- */
                             // Top (Cave) layer:
-                            caveGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, caveBottomY, surfaceHeight,
-                                    surfaceHeight, 60, surfaceCutoff);
+                            caveGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, caveBottomY, maxSurfaceHeight,
+                                    maxSurfaceHeight, minSurfaceHeight, surfaceCutoff);
                             // Bottom (Cavern) layer:
                             cavernGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, cavernBottomY, cavernTopY,
-                                    surfaceHeight, 60, surfaceCutoff);
+                                    maxSurfaceHeight, minSurfaceHeight, surfaceCutoff);
 
                         }
                     }
@@ -199,6 +203,9 @@ public class MapGenBetterCaves extends MapGenCaves {
             defaultCaveGen.generate(worldIn, chunkX, chunkZ, primer);
     }
 
+    /**
+     * @return threshold value for cubic cave spawn rate based on Config setting
+     */
     private float calcCubicCaveThreshold() {
         switch (Configuration.caveSettings.cubicCave.caveFrequency) {
             case None:
@@ -211,6 +218,10 @@ public class MapGenBetterCaves extends MapGenCaves {
                 return 0;
         }
     }
+
+    /**
+     * @return threshold value for simplex cave spawn rate based on Config setting
+     */
     private float calcSimplexCaveThreshold() {
         switch (Configuration.caveSettings.simplexCave.caveFrequency) {
             case None:
@@ -224,6 +235,9 @@ public class MapGenBetterCaves extends MapGenCaves {
         }
     }
 
+    /**
+     * @return threshold value for lava cavern spawn rate based on Config setting
+     */
     private float calcLavaCavernThreshold() {
         switch (Configuration.caveSettings.lavaCavern.caveFrequency) {
             case None:
@@ -239,21 +253,9 @@ public class MapGenBetterCaves extends MapGenCaves {
         }
     }
 
-    private float calcWaterCavernThreshold() {
-        switch (Configuration.caveSettings.waterCavern.caveFrequency) {
-            case None:
-                return -99f;
-            case Rare:
-                return -.8f;
-            case Common:
-                return -.3f;
-            case VeryCommon:
-                return -.1f;
-            default: // Normal
-                return -.4f;
-        }
-    }
-
+    /**
+     * @return threshold value for floored cavern spawn rate based on Config setting
+     */
     private float calcFlooredCavernThreshold() {
         switch (Configuration.caveSettings.flooredCavern.caveFrequency) {
             case None:
@@ -270,13 +272,30 @@ public class MapGenBetterCaves extends MapGenCaves {
     }
 
     /**
+     * @return threshold value for water cavern spawn rate based on Config setting (unused)
+     */
+    private float calcWaterCavernThreshold() {
+        switch (Configuration.caveSettings.waterCavern.caveFrequency) {
+            case None:
+                return -99f;
+            case Rare:
+                return -.8f;
+            case Common:
+                return -.3f;
+            case VeryCommon:
+                return -.1f;
+            default: // Normal
+                return -.4f;
+        }
+    }
+
+    /**
      * Initialize Better Caves generators and cave biome controllers for this world.
      * @param worldIn The minecraft world
      */
     private void initialize(World worldIn) {
-        world = worldIn;
+        this.world = worldIn;
         this.defaultCaveGen = new MapGenCaves();
-        this.surfaceCutoff = Configuration.caveSettings.surfaceCutoff;
 
         // Determine noise thresholds for cavern spawns based on user config
         this.lavaCavernThreshold = calcLavaCavernThreshold();
@@ -287,28 +306,28 @@ public class MapGenBetterCaves extends MapGenCaves {
         this.simplexCaveThreshold = calcSimplexCaveThreshold();
         this.enableVanillaCaves = Configuration.caveSettings.vanillaCave.enableVanillaCaves;
 
-        // Determine cave and cavern biome size. Biome controller jitter will also change based on this
-        float caveBiomeSize, cavernBiomeSize, caveJitterFreq, cavernJitterFreq;
+        // Get user setting for surface cutoff depth used to close caves off towards the surface
+        this.surfaceCutoff = Configuration.caveSettings.surfaceCutoff;
 
+        // Determine cave biome size
+        float caveBiomeSize;
         switch (Configuration.caveSettings.caveBiomeSize) {
             case Small:
                 caveBiomeSize = .007f;
-                caveJitterFreq = .01f;
                 break;
             case Large:
                 caveBiomeSize = .0032f;
-                caveJitterFreq = .008f;
                 break;
             case ExtraLarge:
                 caveBiomeSize = .001f;
-                caveJitterFreq = .015f;
                 break;
             default: // Medium
                 caveBiomeSize = .005f;
-                caveJitterFreq = .01f;
                 break;
         }
 
+        // Determine cavern biome size, as well as jitter to make Voronoi regions more varied in shape
+        float cavernBiomeSize, cavernJitterFreq;
         switch (Configuration.caveSettings.cavernBiomeSize) {
             case Small:
                 cavernBiomeSize = .01f;
@@ -328,7 +347,7 @@ public class MapGenBetterCaves extends MapGenCaves {
                 break;
         }
 
-        // Initialize Biome Controllers using world seed and user config option for cave biome size
+        // Initialize Biome Controllers using world seed and user config option for biome size
         this.caveBiomeController = new FastNoise();
         this.caveBiomeController.SetSeed((int)worldIn.getSeed() + 222);
         this.caveBiomeController.SetFrequency(caveBiomeSize);
@@ -339,18 +358,13 @@ public class MapGenBetterCaves extends MapGenCaves {
         this.cavernBiomeController.SetFrequency(cavernBiomeSize);
         this.cavernBiomeController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
-        // Initialize noise generator for adding jitter to cave and cavern biome regions to create variety in shape and size
-        this.caveControllerJitter = new FastNoise();
-        this.caveControllerJitter.SetSeed((int)(worldIn.getSeed()) + 69420);
-        this.caveControllerJitter.SetGradientPerturbAmp(30);
-        this.caveControllerJitter.SetFrequency(caveJitterFreq);
-
+        // Initialize noise generator for adding jitter to cavern biome regions to create variety in shape and size
         this.cavernControllerJitter = new FastNoise();
         this.cavernControllerJitter.SetSeed((int)(worldIn.getSeed()) + 42069);
         this.cavernControllerJitter.SetGradientPerturbAmp(30);
         this.cavernControllerJitter.SetFrequency(cavernJitterFreq);
 
-        // Initialize all Better Cave generators using config options
+        /* ---------- Initialize all Better Cave generators using config options ---------- */
         this.caveCubic = new BetterCaveCubic(
                 world,
                 Configuration.caveSettings.cubicCave.fractalOctaves,
@@ -409,7 +423,7 @@ public class MapGenBetterCaves extends MapGenCaves {
                 Configuration.caveSettings.flooredCavern.xzCompression
         );
 
-        this.cavernFloored = new BetterCavernFloored(
+        this.cavernWater = new BetterCavernWater(
                 world,
                 Configuration.caveSettings.waterCavern.fractalOctaves,
                 Configuration.caveSettings.waterCavern.fractalGain,

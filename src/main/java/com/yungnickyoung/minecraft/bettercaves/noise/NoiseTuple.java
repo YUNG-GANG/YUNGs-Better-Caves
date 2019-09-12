@@ -59,7 +59,7 @@ public class NoiseTuple {
     }
 
     /**
-     * Retrieves all the noise values of this tuple as a List
+     * Retrieves all the noise values of this tuple as a List of Floats
      * @return {@code List<Float>} of all noise values in this tuple
      */
     public List<Float> getNoiseValues() {

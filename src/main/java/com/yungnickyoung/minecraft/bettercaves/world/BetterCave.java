@@ -8,6 +8,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public abstract class BetterCave {
@@ -30,8 +31,8 @@ public abstract class BetterCave {
     /* -------------- Noise Processing Params -------------- */
     protected float yCompression;            // Vertical cave gen compression
     protected float xzCompression;           // Horizontal cave gen compression
-    protected float yAdjustF1;                 // Adjustment value for the block immediately above. Must be between 0 and 1.0
-    protected float yAdjustF2;                 // Adjustment value for the block two blocks above. Must be between 0 and 1.0
+    private float yAdjustF1;                 // Adjustment value for the block immediately above. Must be between 0 and 1.0
+    private float yAdjustF2;                 // Adjustment value for the block two blocks above. Must be between 0 and 1.0
     protected float noiseThreshold;          // Noise threshold for determining whether or not a block gets dug out
     protected boolean enableYAdjust;         // Set true to perform preprocessing on noise values, adjusting them to increase
                                              // headroom in the y direction. This is generally useful for caves (esp. Simplex),
@@ -96,18 +97,9 @@ public abstract class BetterCave {
                 yComp, xzComp, false, 1, 1);
     }
 
-    public World getWorld() {
-        return this.world;
-    }
-
-    public long getSeed() {
-        return this.seed;
-    }
-
     /**
      * Dig out caves for the column of blocks at x-z position (chunkX*16 + localX, chunkZ*16 + localZ).
      * A given block will be calculated based on the noise value and noise threshold of this BetterCave object.
-     * All of these params, including the noise function params, are attributes of this object.
      * @param chunkX The chunk's x-coordinate
      * @param chunkZ The chunk's z-coordinate
      * @param primer The ChunkPrimer for this chunk
@@ -125,27 +117,31 @@ public abstract class BetterCave {
 
     /**
      * Preprocessing performed on a column of noise to adjust its values before comparing them to the threshold.
-     * This function adjusts the noise value of blocks based on the noise values of blocks below and nearby.
+     * This function adjusts the noise value of blocks based on the noise values of blocks below.
      * This has the effect of raising the ceilings of caves, giving the player more headroom.
      * Big shoutouts to the guys behind Worley's Caves for this great idea.
      * @param noises The column of noises as a map, mapping the y-coordinate of a block to its NoiseTuple
      * @param topY Top y-coordinate of the noise column
-     * @param bottomY Bottom y-coodinate of the noise column
+     * @param bottomY Bottom y-coordinate of the noise column
+     * @param thresholds Map of y-coordinates to noise thresholds. This is the output of the generateThresholds method.
      * @param numGens Number of noise values to create per block. This is equal to the number of floats held
      *                in each NoiseTuple for each block in the noise column.
      */
-    protected void preprocessCaveNoiseCol(Map<Integer, NoiseTuple> noises, int topY, int bottomY, int numGens) {
+    protected void preprocessCaveNoiseCol(Map<Integer, NoiseTuple> noises, int topY, int bottomY, Map<Integer, Float> thresholds, int numGens) {
         /* Adjust simplex noise values based on blocks above in order to give the player more headroom */
         for (int realY = topY; realY >= bottomY; realY--) {
-            NoiseTuple sBlockNoise = noises.get(realY);
-            float avgSNoise = 0;
+            NoiseTuple noiseBlock = noises.get(realY);
+            float threshold = thresholds.get(realY);
 
-            for (float noise : sBlockNoise.getNoiseValues())
-                avgSNoise += noise;
+            boolean valid = true;
+            for (float noise : noiseBlock.getNoiseValues()) {
+                if (noise < threshold) {
+                    valid = false;
+                    break;
+                }
+            }
 
-            avgSNoise /= sBlockNoise.size();
-
-            if (avgSNoise > this.noiseThreshold) {
+            if (valid) {
                 /* Adjust noise values of blocks above to give the player more head room */
                 float f1 = this.yAdjustF1;
                 float f2 = this.yAdjustF2;
@@ -153,13 +149,13 @@ public abstract class BetterCave {
                 if (realY < topY) {
                     NoiseTuple tupleAbove = noises.get(realY + 1);
                     for (int i = 0; i < numGens; i++)
-                        tupleAbove.set(i, ((1 - f1) * tupleAbove.get(i)) + (f1 * sBlockNoise.get(i)));
+                        tupleAbove.set(i, ((1 - f1) * tupleAbove.get(i)) + (f1 * noiseBlock.get(i)));
                 }
 
                 if (realY < topY - 1) {
                     NoiseTuple tupleTwoAbove = noises.get(realY + 2);
                     for (int i = 0; i < numGens; i++)
-                        tupleTwoAbove.set(i, ((1 - f2) * tupleTwoAbove.get(i)) + (f2 * sBlockNoise.get(i)));
+                        tupleTwoAbove.set(i, ((1 - f2) * tupleTwoAbove.get(i)) + (f2 * noiseBlock.get(i)));
                 }
             }
         }
@@ -168,6 +164,8 @@ public abstract class BetterCave {
     /**
      * Calls util digBlock function if there are no water blocks adjacent, to avoid breaking into oceans and lakes.
      * @param primer The ChunkPrimer for this chunk
+     * @param lavaBlock The IBlockState to use for lava. If you want regular lava, either pass it in or use the other
+     *                  wrapper digBlock function
      * @param chunkX The chunk's x-coordinate
      * @param chunkZ The chunk's z-coordinate
      * @param localX the chunk-local x-coordinate of the block
@@ -190,15 +188,64 @@ public abstract class BetterCave {
         BetterCaveUtil.digBlock(this.getWorld(), primer, lavaBlock, localX, realY, localZ, chunkX, chunkZ);
     }
 
-    // Wrapper function for BetterCave#digBlock with default lava block
+    /**
+     * Wrapper function for BetterCave#digBlock with default lava block.
+     * Calls util digBlock function if there are no water blocks adjacent, to avoid breaking into oceans and lakes.
+     * @param primer The ChunkPrimer for this chunk
+     * @param chunkX The chunk's x-coordinate
+     * @param chunkZ The chunk's z-coordinate
+     * @param localX the chunk-local x-coordinate of the block
+     * @param localZ the chunk-local z-coordinate of the block
+     * @param realY the real Y-coordinate of the block
+     */
     protected void digBlock(ChunkPrimer primer, int chunkX, int chunkZ, int localX, int localZ, int realY) {
         digBlock(primer, Blocks.LAVA.getDefaultState(), chunkX, chunkZ, localX, localZ, realY);
     }
 
+    /**
+     * Generate a map of y-coordinates to thresholds for a column of blocks.
+     * This is useful because the threshold will decrease near the surface, and it is useful (and more accurate)
+     * to have a precomputed threshold value when doing y-adjustments for caves.
+     * @param topY Top y-coordinate of the column
+     * @param bottomY Bottom y-coordinate of the column
+     * @param transitionBoundary The y-coordinate at which the caves start to close off
+     * @return Map of y-coordinates to noise thresholds
+     */
+    protected Map<Integer, Float> generateThresholds(int topY, int bottomY, int transitionBoundary) {
+        Map<Integer, Float> thresholds = new HashMap<>();
+        for (int realY = bottomY; realY <= topY; realY++) {
+            float noiseThreshold = this.noiseThreshold;
+            if (realY >= transitionBoundary)
+                noiseThreshold *= (1 + .3f * ((float)(realY - transitionBoundary) / (topY - transitionBoundary)));
+            thresholds.put(realY, noiseThreshold);
+        }
+
+        return thresholds;
+    }
+
+    /**
+     * DEBUG method for visualizing cave systems. Used as a replacement for BetterCave#digblock if the
+     * debugVisualizer config option is enabled.
+     * @param digBlock Whether or not this block should be considered removed (i.e. surpassed the threshold)
+     * @param blockState The blockState to set dug out blocks to
+     * @param primer Chunk containing the block
+     * @param localX Chunk-local x-coordinate of the block
+     * @param realY y-coordainte of the block
+     * @param localZ Chunk-local z-coordinate of the block
+     */
     protected void visualizeDigBlock(boolean digBlock, IBlockState blockState, ChunkPrimer primer, int localX, int realY, int localZ) {
         if (digBlock)
             primer.setBlockState(localX, realY, localZ, blockState);
         else
             primer.setBlockState(localX, realY, localZ, Blocks.AIR.getDefaultState());
+    }
+
+    /* ------------------------- Public Getters -------------------------*/
+    public World getWorld() {
+        return this.world;
+    }
+
+    public long getSeed() {
+        return this.seed;
     }
 }

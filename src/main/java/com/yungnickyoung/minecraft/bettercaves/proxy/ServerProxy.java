@@ -20,8 +20,6 @@ public class ServerProxy implements IProxy {
 
     @Override
     public void init(FMLInitializationEvent event) {
-
-
     }
 
     @Override

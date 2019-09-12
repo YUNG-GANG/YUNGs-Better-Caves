@@ -9,7 +9,6 @@ import com.yungnickyoung.minecraft.bettercaves.world.cave.BetterCaveSimplex;
 import com.yungnickyoung.minecraft.bettercaves.world.cave.TestCave;
 import com.yungnickyoung.minecraft.bettercaves.world.cavern.BetterCavernFloored;
 import com.yungnickyoung.minecraft.bettercaves.world.cavern.BetterCavernLava;
-import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.MapGenCaves;
@@ -113,87 +112,87 @@ public class MapGenBetterCaves extends MapGenCaves {
         int caveBottomY;
 
         if (worldIn.provider.getDimension() == 0) { // Only use Better Caves generation in overworld
-            for (int localX = 0; localX < 16; localX++) {
-                for (int localZ = 0; localZ < 16; localZ++) {
-                    int surfaceHeight = 0;
-                    for (int y = 1; y <= 255; y++) {
-                        if (primer.getBlockState(localX, y, localZ) == Blocks.AIR.getDefaultState()) {
-                            surfaceHeight = y;
-                            break;
+            for (int subX = 0; subX < 8; subX++) {
+                for (int subZ = 0; subZ < 8; subZ++) {
+                    int surfaceHeight = BetterCaveUtil.getMaxSurfaceHeightSubChunk(primer, subX, subZ);
+                    for (int offsetX = 0; offsetX < 2; offsetX++) {
+                        for (int offsetZ = 0; offsetZ < 2; offsetZ++) {
+                            int localX = (subX * 2) + offsetX;
+                            int localZ = (subZ * 2) + offsetZ;
+
+                            // Store column position (block coords) in vector
+                            Vector2f columnPos = new Vector2f(((chunkX * 16) + localX), ((chunkZ * 16) + localZ));
+
+                            // Perturb the col position. This has the effect of applying jitter to the
+                            // cave biome's Voronoi region to add variety.
+                            caveControllerJitter.GradientPerturb(columnPos);
+
+                            // Get noise values used to determine cave biome
+                            float caveBiomeNoise = caveBiomeController.GetNoise(columnPos.x, columnPos.y);
+
+                            /* Determine cave type for this column. We have two thresholds, one for cubic caves and one for
+                             * simplex caves. Since the noise value generated for the biome is between -1 and 1, we (by
+                             * default) designate all negative values as cubic caves, and all positive as simplex. However,
+                             * we allow the user to tweak the cutoff values based on the frequency they designate for each cave
+                             * type, so we must also check for values between the two thresholds,
+                             * e.g. if (cubicCaveThreshold <= noiseValue < simplexCaveThreshold).
+                             * In this case, we use vanilla cave generation if it is enabled; otherwise we dig no caves
+                             * out of this chunk.
+                             */
+                            if (caveBiomeNoise < this.cubicCaveThreshold) {
+                                caveGen = this.caveCubic;
+                                caveBottomY = Configuration.caveSettings.cubicCave.caveBottom;
+                            } else if (caveBiomeNoise >= this.simplexCaveThreshold) {
+                                caveGen = this.caveSimplex;
+                                caveBottomY = Configuration.caveSettings.simplexCave.caveBottom;
+                            } else {
+                                if (this.enableVanillaCaves) {
+                                    defaultCaveGen.generate(worldIn, chunkX, chunkZ, primer);
+                                    return;
+                                }
+                                continue;
+                            }
+
+                            // Reset columnPos and apply cavern jitter
+                            columnPos.setX((chunkX * 16) + localX);
+                            columnPos.setY((chunkZ * 16) + localZ);
+                            cavernControllerJitter.GradientPerturb(columnPos);
+
+                            // Get noise values used to determine cavern biome
+                            float cavernBiomeNoise = cavernBiomeController.GetNoise(columnPos.x, columnPos.y);
+
+                            // Determine cavern type for this column. Caverns generate at low altitudes only.
+                            if (cavernBiomeNoise < lavaCavernThreshold) {
+                                // Generate lava cavern in this column
+                                cavernGen = this.cavernLava;
+                                cavernBottomY = Configuration.caveSettings.lavaCavern.caveBottom;
+                                cavernTopY = Configuration.caveSettings.lavaCavern.caveTop;
+                            } else if (cavernBiomeNoise >= lavaCavernThreshold && cavernBiomeNoise <= flooredCavernThreshold) {
+                                /* Similar to determining cave type above, we must check for values between the two adjusted
+                                 * thresholds, i.e. lavaCavernThreshold < noiseValue <= flooredCavernThreshold.
+                                 * In this case, we just continue generating the caves we were generating above, instead
+                                 * of generating a cavern.
+                                 */
+                                cavernGen = caveGen;
+                                cavernBottomY = caveBottomY;
+                                cavernTopY = caveBottomY;
+                            } else {
+                                // Generate floored cavern in this column
+                                cavernGen = this.cavernFloored;
+                                cavernBottomY = Configuration.caveSettings.flooredCavern.caveBottom;
+                                cavernTopY = Configuration.caveSettings.flooredCavern.caveTop;
+                            }
+
+                            // Dig out caves and caverns for this column
+                            // Top (Cave) layer:
+                            caveGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, caveBottomY, surfaceHeight,
+                                    surfaceHeight, 60, surfaceCutoff);
+                            // Bottom (Cavern) layer:
+                            cavernGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, cavernBottomY, cavernTopY,
+                                    surfaceHeight, 60, surfaceCutoff);
+
                         }
                     }
-
-                    // Store column position (block coords) in vector
-                    Vector2f columnPos = new Vector2f(((chunkX * 16) + localX), ((chunkZ * 16) + localZ));
-
-                    // Perturb the col position. This has the effect of applying jitter to the
-                    // cave biome's Voronoi region to add variety.
-                    caveControllerJitter.GradientPerturb(columnPos);
-
-                    // Get noise values used to determine cave biome
-                    float caveBiomeNoise = caveBiomeController.GetNoise(columnPos.x, columnPos.y);
-
-                    /* Determine cave type for this column. We have two thresholds, one for cubic caves and one for
-                     * simplex caves. Since the noise value generated for the biome is between -1 and 1, we (by
-                     * default) designate all negative values as cubic caves, and all positive as simplex. However,
-                     * we allow the user to tweak the cutoff values based on the frequency they designate for each cave
-                     * type, so we must also check for values between the two thresholds,
-                     * e.g. if (cubicCaveThreshold <= noiseValue < simplexCaveThreshold).
-                     * In this case, we use vanilla cave generation if it is enabled; otherwise we dig no caves
-                     * out of this chunk.
-                     */
-                    if (caveBiomeNoise < this.cubicCaveThreshold) {
-                        caveGen = this.caveCubic;
-                        caveBottomY = Configuration.caveSettings.cubicCave.caveBottom;
-                    } else if (caveBiomeNoise >= this.simplexCaveThreshold){
-                        caveGen = this.caveSimplex;
-                        caveBottomY = Configuration.caveSettings.simplexCave.caveBottom;
-                    } else {
-                        if (this.enableVanillaCaves) {
-                            defaultCaveGen.generate(worldIn, chunkX, chunkZ, primer);
-                            return;
-                        }
-                        continue;
-                    }
-
-                    // Reset columnPos and apply cavern jitter
-                    columnPos.setX((chunkX * 16) + localX);
-                    columnPos.setY((chunkZ * 16) + localZ);
-                    cavernControllerJitter.GradientPerturb(columnPos);
-
-                    // Get noise values used to determine cavern biome
-                    float cavernBiomeNoise = cavernBiomeController.GetNoise(columnPos.x, columnPos.y);
-
-                    // Determine cavern type for this column. Caverns generate at low altitudes only.
-                    if (cavernBiomeNoise < lavaCavernThreshold) {
-                        // Generate lava cavern in this column
-                        cavernGen = this.cavernLava;
-                        cavernBottomY = Configuration.caveSettings.lavaCavern.caveBottom;
-                        cavernTopY = Configuration.caveSettings.lavaCavern.caveTop;
-                    } else if (cavernBiomeNoise >= lavaCavernThreshold && cavernBiomeNoise <= flooredCavernThreshold) {
-                        /* Similar to determining cave type above, we must check for values between the two adjusted
-                         * thresholds, i.e. lavaCavernThreshold < noiseValue <= flooredCavernThreshold.
-                         * In this case, we just continue generating the caves we were generating above, instead
-                         * of generating a cavern.
-                         */
-                        cavernGen = caveGen;
-                        cavernBottomY = caveBottomY;
-                        cavernTopY = caveBottomY;
-                    } else {
-                        // Generate floored cavern in this column
-                        cavernGen = this.cavernFloored;
-                        cavernBottomY = Configuration.caveSettings.flooredCavern.caveBottom;
-                        cavernTopY = Configuration.caveSettings.flooredCavern.caveTop;
-                    }
-
-                    // Dig out caves and caverns for this column
-                    // Top (Cave) layer:
-                    caveGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, caveBottomY, surfaceHeight,
-                            surfaceHeight, 60, surfaceCutoff);
-                    // Bottom (Cavern) layer:
-                    cavernGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, cavernBottomY, cavernTopY,
-                            surfaceHeight, 60, surfaceCutoff);
-
                 }
             }
         } else // use vanilla generation in other dimensions

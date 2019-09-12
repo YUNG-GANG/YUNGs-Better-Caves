@@ -176,6 +176,17 @@ public class BetterCaveUtil {
         return linarSurfaceSearch(primer, x, z, 255, 0);
     }
 
+    public static int getMaxSurfaceHeightSubChunk(ChunkPrimer primer, int subX, int subZ)  {
+        int maxHeight = 0;
+        int[] testCoords = {0, 1}; // chunk-local x/z coordinates to test for max height
+
+        for (int x : testCoords)
+            for (int z : testCoords)
+                maxHeight = Math.max(maxHeight, getSurfaceHeight(primer, (subX * 2) + x, (subZ * 2) + z));
+
+        return maxHeight;
+    }
+
     /**
      * Recursive binary search, this search always converges on the surface in 8 in cycles for the range 255 >= y >= 0.
      * Thanks to Worley's Caves for this idea.

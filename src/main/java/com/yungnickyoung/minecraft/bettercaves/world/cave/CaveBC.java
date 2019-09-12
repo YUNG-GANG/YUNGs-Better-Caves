@@ -1,11 +1,11 @@
 package com.yungnickyoung.minecraft.bettercaves.world.cave;
 
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
+import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
-import com.yungnickyoung.minecraft.bettercaves.world.BetterCave;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
@@ -15,19 +15,30 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Class for generation of Type 1 (Cubic) caves.
+ * Class for generation of Better Caves caves.
  */
-public class BetterCaveCubic extends BetterCave {
+public class CaveBC extends AbstractBC {
     private NoiseGen noiseGen;
 
-    public BetterCaveCubic(World world, int fOctaves, float fGain, float fFreq, int numGens, float threshold, int tOctaves,
-                             float tGain, float tFreq, boolean enableTurbulence, float yComp, float xzComp, boolean yAdj,
-                             float yAdjF1, float yAdjF2) {
+    public CaveBC(World world, CaveType caveType, int fOctaves, float fGain, float fFreq, int numGens, float threshold, int tOctaves,
+                  float tGain, float tFreq, boolean enableTurbulence, float yComp, float xzComp, boolean yAdj,
+                  float yAdjF1, float yAdjF2, IBlockState vBlock) {
         super(world, fOctaves, fGain, fFreq, numGens, threshold, tOctaves, tGain, tFreq, enableTurbulence, yComp,
-                xzComp, yAdj, yAdjF1, yAdjF2);
+                xzComp, yAdj, yAdjF1, yAdjF2, vBlock);
+
+        // Determine noise to use based on cave type
+        switch (caveType) {
+            case CUBIC:
+                this.noiseType = FastNoise.NoiseType.CubicFractal;
+                break;
+            default:
+            case SIMPLEX:
+                this.noiseType = FastNoise.NoiseType.SimplexFractal;
+                break;
+        }
 
         noiseGen = new NoiseGen(
-                FastNoise.NoiseType.CubicFractal,
+                this.noiseType,
                 world,
                 this.fractalOctaves,
                 this.fractalGain,
@@ -76,7 +87,7 @@ public class BetterCaveCubic extends BetterCave {
 
             // Consider digging out the block if it passed the threshold check, using the debug visualizer if enabled
             if (Configuration.debugsettings.debugVisualizer)
-                visualizeDigBlock(digBlock, Blocks.QUARTZ_BLOCK.getDefaultState(), primer, localX, realY, localZ);
+                visualizeDigBlock(digBlock, this.vBlock, primer, localX, realY, localZ);
             else if (digBlock)
                 this.digBlock(primer, chunkX, chunkZ, localX, localZ, realY);
         }
@@ -90,7 +101,7 @@ public class BetterCaveCubic extends BetterCave {
                     && primer.getBlockState(localX, realY + 1, localZ) == BlockStateAir
                     && primer.getBlockState(localX, realY - 1, localZ) == BlockStateAir
             )
-                BetterCaveUtil.digBlock(this.getWorld(), primer, localX, realY, localZ, chunkX, chunkZ);
+                this.digBlock(primer, chunkX, chunkZ, localX, localZ, realY);
         }
     }
 }

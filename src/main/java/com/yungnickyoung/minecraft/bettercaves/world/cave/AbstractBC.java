@@ -1,5 +1,6 @@
-package com.yungnickyoung.minecraft.bettercaves.world;
+package com.yungnickyoung.minecraft.bettercaves.world.cave;
 
+import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
 import net.minecraft.block.material.Material;
@@ -11,32 +12,38 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class BetterCave {
+/**
+ * Abstract base class for Better Caves caves and caverns
+ */
+public abstract class AbstractBC {
     private World world;
     private long seed;
 
-    /* ============================== Values passed in through config ============================== */
+    /* ============================== Values determined through config ============================== */
     /* ------------- Ridged Multifractal Params ------------- */
-    protected int fractalOctaves;            // Number of ridged multifractal octaves
-    protected float fractalGain;             // Ridged multifractal gain
-    protected float fractalFreq;             // Ridged multifractal frequency
-    protected int numGens;                   // Number of noise values to generate per iteration (block, sub-chunk, etc)
+    FastNoise.NoiseType noiseType;
+    int fractalOctaves;            // Number of ridged multifractal octaves
+    float fractalGain;             // Ridged multifractal gain
+    float fractalFreq;                       // Ridged multifractal frequency
+    int numGens;                             // Number of noise values to generate per iteration (block, sub-chunk, etc)
 
     /* ----------------- Turbulence Params ----------------- */
-    protected int turbOctaves;               // Number of octaves in turbulence function
-    protected float turbGain;                // Gain of turbulence function
-    protected float turbFreq;                // Frequency of turbulence function
-    protected boolean enableTurbulence;      // Set true to enable turbulence (adds performance overhead, generally not worth it)
+    int turbOctaves;               // Number of octaves in turbulence function
+    float turbGain;                // Gain of turbulence function
+    float turbFreq;                // Frequency of turbulence function
+    boolean enableTurbulence;      // Set true to enable turbulence (adds performance overhead, generally not worth it)
 
     /* -------------- Noise Processing Params -------------- */
     protected float yCompression;            // Vertical cave gen compression
     protected float xzCompression;           // Horizontal cave gen compression
     private float yAdjustF1;                 // Adjustment value for the block immediately above. Must be between 0 and 1.0
     private float yAdjustF2;                 // Adjustment value for the block two blocks above. Must be between 0 and 1.0
-    protected float noiseThreshold;          // Noise threshold for determining whether or not a block gets dug out
-    protected boolean enableYAdjust;         // Set true to perform preprocessing on noise values, adjusting them to increase
+    float noiseThreshold;                // Noise threshold for determining whether or not a block gets dug out
+    boolean enableYAdjust;         // Set true to perform preprocessing on noise values, adjusting them to increase
                                              // headroom in the y direction. This is generally useful for caves (esp. Simplex),
                                              // but not really necessary for caverns
+
+    IBlockState vBlock;            // Block used to represent this cave/cavern type in the debug visualizer
 
     /**
      * Primary constructor, used for caves. See other constructor for caverns.
@@ -57,9 +64,9 @@ public abstract class BetterCave {
      * @param yAdjF1 Adjustment value for the block immediately above. Must be between 0 and 1.0
      * @param yAdjF2 Adjustment value for the block two blocks above. Must be between 0 and 1.0
      */
-    public BetterCave(World world, int fOctaves, float fGain, float fFreq, int numGens, float threshold, int tOctaves,
+    public AbstractBC(World world, int fOctaves, float fGain, float fFreq, int numGens, float threshold, int tOctaves,
                       float tGain, float tFreq, boolean enableTurbulence, float yComp, float xzComp, boolean yAdj,
-                      float yAdjF1, float yAdjF2) {
+                      float yAdjF1, float yAdjF2, IBlockState vBlock) {
         this.world = world;
         this.seed = world.getSeed();
         this.fractalOctaves = fOctaves;
@@ -76,30 +83,12 @@ public abstract class BetterCave {
         this.enableYAdjust = yAdj;
         this.yAdjustF1 = yAdjF1;
         this.yAdjustF2 = yAdjF2;
-    }
-
-    /**
-     * Constructor for caverns.
-     * Disables turbulence and sets all turbulence-related fields to zero (shouldn't matter anyway).
-     * Disables vertical adjustment and sets all y-adjust related fields to one (shouldn't matter anyway).
-     * @param world the Minecraft World
-     * @param fOctaves Number of fractal octaves to use in ridged multifractal noise generation
-     * @param fGain Amount of gain to use in ridged multifractal noise generation
-     * @param fFreq Frequency to use in ridged multifractal noise generation
-     * @param numGens Number of noise values to calculate for a given block
-     * @param threshold Noise threshold to determine whether or not a given block will be dug out
-     * @param yComp Vertical cave gen compression. Use 1.0 for default generation
-     * @param xzComp Horizontal cave gen compression. Use 1.0 for default generation
-     */
-    public BetterCave(World world, int fOctaves, float fGain, float fFreq, int numGens, float threshold, float yComp,
-                        float xzComp) {
-        this(world, fOctaves, fGain, fFreq, numGens, threshold, 0, 0, 0, false,
-                yComp, xzComp, false, 1, 1);
+        this.vBlock = vBlock;
     }
 
     /**
      * Dig out caves for the column of blocks at x-z position (chunkX*16 + localX, chunkZ*16 + localZ).
-     * A given block will be calculated based on the noise value and noise threshold of this BetterCave object.
+     * A given block will be calculated based on the noise value and noise threshold of this AbstractBC object.
      * @param chunkX The chunk's x-coordinate
      * @param chunkZ The chunk's z-coordinate
      * @param primer The ChunkPrimer for this chunk
@@ -189,7 +178,7 @@ public abstract class BetterCave {
     }
 
     /**
-     * Wrapper function for BetterCave#digBlock with default lava block.
+     * Wrapper function for AbstractBC#digBlock with default lava block.
      * Calls util digBlock function if there are no water blocks adjacent, to avoid breaking into oceans and lakes.
      * @param primer The ChunkPrimer for this chunk
      * @param chunkX The chunk's x-coordinate
@@ -224,7 +213,7 @@ public abstract class BetterCave {
     }
 
     /**
-     * DEBUG method for visualizing cave systems. Used as a replacement for BetterCave#digblock if the
+     * DEBUG method for visualizing cave systems. Used as a replacement for AbstractBC#digblock if the
      * debugVisualizer config option is enabled.
      * @param digBlock Whether or not this block should be considered removed (i.e. surpassed the threshold)
      * @param blockState The blockState to set dug out blocks to

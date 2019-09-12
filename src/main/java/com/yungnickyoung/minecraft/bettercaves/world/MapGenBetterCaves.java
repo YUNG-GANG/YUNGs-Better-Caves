@@ -2,14 +2,12 @@ package com.yungnickyoung.minecraft.bettercaves.world;
 
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.config.Settings;
+import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
+import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
-import com.yungnickyoung.minecraft.bettercaves.world.cave.BetterCaveCubic;
-import com.yungnickyoung.minecraft.bettercaves.world.cave.BetterCaveSimplex;
-import com.yungnickyoung.minecraft.bettercaves.world.cave.TestCave;
-import com.yungnickyoung.minecraft.bettercaves.world.cavern.BetterCavernFloored;
-import com.yungnickyoung.minecraft.bettercaves.world.cavern.BetterCavernLava;
-import com.yungnickyoung.minecraft.bettercaves.world.cavern.BetterCavernWater;
+import com.yungnickyoung.minecraft.bettercaves.world.cave.*;
+import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.MapGenCaves;
@@ -24,13 +22,13 @@ import javax.vecmath.Vector2f;
  */
 public class MapGenBetterCaves extends MapGenCaves {
     // Cave types
-    private BetterCave caveCubic;
-    private BetterCave caveSimplex;
+    private AbstractBC caveCubic;
+    private AbstractBC caveSimplex;
 
     // Cavern types
-    private BetterCave cavernLava;
-    private BetterCave cavernFloored;
-    private BetterCave cavernWater;
+    private AbstractBC cavernLava;
+    private AbstractBC cavernFloored;
+    private AbstractBC cavernWater;
 
     private int surfaceCutoff;
 
@@ -56,7 +54,7 @@ public class MapGenBetterCaves extends MapGenCaves {
     private boolean enableVanillaCaves;
 
     // DEBUG
-    private BetterCave testCave;
+    private AbstractBC testCave;
 
     public MapGenBetterCaves() {
     }
@@ -107,8 +105,8 @@ public class MapGenBetterCaves extends MapGenCaves {
         }
 
         // Cave generators - we will determine exactly what type these are based on the cave biome for each column
-        BetterCave cavernGen;
-        BetterCave caveGen;
+        AbstractBC cavernGen;
+        AbstractBC caveGen;
 
         // These values probably could be hardcoded, but are kept as vars for future extensibility.
         // These values are later set to the correct cave type's config vars for
@@ -370,8 +368,9 @@ public class MapGenBetterCaves extends MapGenCaves {
         this.cavernControllerJitter.SetFrequency(cavernJitterFreq);
 
         /* ---------- Initialize all Better Cave generators using config options ---------- */
-        this.caveCubic = new BetterCaveCubic(
+        this.caveCubic = new CaveBC(
                 world,
+                CaveType.CUBIC,
                 Configuration.caveSettings.cubicCave.fractalOctaves,
                 Configuration.caveSettings.cubicCave.fractalGain,
                 Configuration.caveSettings.cubicCave.fractalFrequency,
@@ -385,11 +384,13 @@ public class MapGenBetterCaves extends MapGenCaves {
                 Configuration.caveSettings.cubicCave.xzCompression,
                 Configuration.caveSettings.cubicCave.yAdjust,
                 Configuration.caveSettings.cubicCave.yAdjustF1,
-                Configuration.caveSettings.cubicCave.yAdjustF2
+                Configuration.caveSettings.cubicCave.yAdjustF2,
+                Blocks.QUARTZ_BLOCK.getDefaultState()
         );
 
-        this.caveSimplex = new BetterCaveSimplex(
+        this.caveSimplex = new CaveBC(
                 world,
+                CaveType.SIMPLEX,
                 Configuration.caveSettings.simplexCave.fractalOctaves,
                 Configuration.caveSettings.simplexCave.fractalGain,
                 Configuration.caveSettings.simplexCave.fractalFrequency,
@@ -403,40 +404,47 @@ public class MapGenBetterCaves extends MapGenCaves {
                 Configuration.caveSettings.simplexCave.xzCompression,
                 Configuration.caveSettings.simplexCave.yAdjust,
                 Configuration.caveSettings.simplexCave.yAdjustF1,
-                Configuration.caveSettings.simplexCave.yAdjustF2
+                Configuration.caveSettings.simplexCave.yAdjustF2,
+                Blocks.COBBLESTONE.getDefaultState()
         );
 
-        this.cavernLava = new BetterCavernLava(
+        this.cavernLava = new CavernBC(
                 world,
+                CavernType.LAVA,
                 Configuration.caveSettings.lavaCavern.fractalOctaves,
                 Configuration.caveSettings.lavaCavern.fractalGain,
                 Configuration.caveSettings.lavaCavern.fractalFrequency,
                 Configuration.caveSettings.lavaCavern.numGenerators,
                 Configuration.caveSettings.lavaCavern.noiseThreshold,
                 Configuration.caveSettings.lavaCavern.yCompression,
-                Configuration.caveSettings.lavaCavern.xzCompression
+                Configuration.caveSettings.lavaCavern.xzCompression,
+                Blocks.REDSTONE_BLOCK.getDefaultState()
         );
 
-        this.cavernFloored = new BetterCavernFloored(
+        this.cavernFloored = new CavernBC(
                 world,
+                CavernType.FLOORED,
                 Configuration.caveSettings.flooredCavern.fractalOctaves,
                 Configuration.caveSettings.flooredCavern.fractalGain,
                 Configuration.caveSettings.flooredCavern.fractalFrequency,
                 Configuration.caveSettings.flooredCavern.numGenerators,
                 Configuration.caveSettings.flooredCavern.noiseThreshold,
                 Configuration.caveSettings.flooredCavern.yCompression,
-                Configuration.caveSettings.flooredCavern.xzCompression
+                Configuration.caveSettings.flooredCavern.xzCompression,
+                Blocks.GOLD_BLOCK.getDefaultState()
         );
 
-        this.cavernWater = new BetterCavernWater(
+        this.cavernWater = new CavernBC(
                 world,
+                CavernType.WATER,
                 Configuration.caveSettings.waterCavern.fractalOctaves,
                 Configuration.caveSettings.waterCavern.fractalGain,
                 Configuration.caveSettings.waterCavern.fractalFrequency,
                 Configuration.caveSettings.waterCavern.numGenerators,
                 Configuration.caveSettings.waterCavern.noiseThreshold,
                 Configuration.caveSettings.waterCavern.yCompression,
-                Configuration.caveSettings.waterCavern.xzCompression
+                Configuration.caveSettings.waterCavern.xzCompression,
+                Blocks.LAPIS_BLOCK.getDefaultState()
         );
 
         this.testCave = new TestCave(

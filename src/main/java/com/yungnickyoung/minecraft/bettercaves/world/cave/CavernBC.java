@@ -1,10 +1,12 @@
-package com.yungnickyoung.minecraft.bettercaves.world.cavern;
+package com.yungnickyoung.minecraft.bettercaves.world.cave;
 
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
+import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
+import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
-import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
-import com.yungnickyoung.minecraft.bettercaves.world.BetterCave;
+import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
@@ -12,12 +14,30 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import java.util.List;
 import java.util.Map;
 
-public class BetterCavernFloored extends BetterCave {
+public class CavernBC extends AbstractBC {
     private NoiseGen noiseGen;
+    private CavernType cavernType;
 
-    public BetterCavernFloored(World world, int fOctaves, float fGain, float fFreq, int numGens, float threshold,
-                               float yComp, float xzComp) {
-        super(world, fOctaves, fGain, fFreq, numGens, threshold, yComp, xzComp);
+    public CavernBC(World world, CavernType cavernType, int fOctaves, float fGain, float fFreq, int numGens, float threshold,
+                    float yComp, float xzComp, IBlockState vBlock) {
+        super(world, fOctaves, fGain, fFreq, numGens, threshold, 0, 0, 0, false,
+                yComp, xzComp, false, 1, 1, vBlock);
+
+        this.cavernType = cavernType;
+
+        // Determine noise to use based on cavern type
+        switch (cavernType) {
+            case LAVA:
+                this.noiseType = FastNoise.NoiseType.PerlinFractal;
+                break;
+            case FLOORED:
+                this.noiseType = FastNoise.NoiseType.PerlinFractal;
+                break;
+            default:
+            case WATER:
+                this.noiseType = FastNoise.NoiseType.PerlinFractal;
+                break;
+        }
 
         noiseGen = new NoiseGen(
                 FastNoise.NoiseType.PerlinFractal,
@@ -69,8 +89,8 @@ public class BetterCavernFloored extends BetterCave {
             if (realY >= minSurfaceHeight - 5)
                 noiseThreshold *= (float) (realY - topY) / (minSurfaceHeight - 5 - topY);
 
-            // Close off caverns at the bottom to provide floors for the player to walk on
-            if (realY <= bottomTransitionBoundary)
+            // For floored caverns, close off caverns at the bottom to provide floors for the player to walk on
+            if (this.cavernType == CavernType.FLOORED && realY <= bottomTransitionBoundary)
                 noiseThreshold *= Math.max((float) (realY - bottomY) / (bottomTransitionBoundary - bottomY), .5f);
 
             // Mark block for removal if the noise passes the threshold check
@@ -79,9 +99,14 @@ public class BetterCavernFloored extends BetterCave {
 
             // Consider digging out the block if it passed the threshold check, using the debug visualizer if enabled
             if (Configuration.debugsettings.debugVisualizer)
-                visualizeDigBlock(digBlock, Blocks.GOLD_BLOCK.getDefaultState(), primer, localX, realY, localZ);
-            else if (digBlock)
-                this.digBlock(primer, chunkX, chunkZ, localX, localZ, realY);
+                visualizeDigBlock(digBlock, this.vBlock, primer, localX, realY, localZ);
+            else if (digBlock) {
+                if (this.cavernType == CavernType.WATER)
+                    // Here we make a direct call to BetterCaveUtil#digBlock to avoid any adjacent water block checks for water caverns
+                    BetterCaveUtil.digBlock(this.getWorld(), primer, Blocks.WATER.getDefaultState(), localX, realY, localZ, chunkX, chunkZ);
+                else
+                    this.digBlock(primer, chunkX, chunkZ, localX, localZ, realY);
+            }
         }
     }
 }

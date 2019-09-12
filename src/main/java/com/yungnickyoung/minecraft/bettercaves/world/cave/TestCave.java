@@ -3,7 +3,6 @@ package com.yungnickyoung.minecraft.bettercaves.world.cave;
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
-import com.yungnickyoung.minecraft.bettercaves.world.BetterCave;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
@@ -11,14 +10,14 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import java.util.List;
 import java.util.Map;
 
-public class TestCave extends BetterCave {
+public class TestCave extends AbstractBC {
     private NoiseGen noiseGen;
 
     public TestCave(World world, int fOctaves, float fGain, float fFreq, int numGens, float threshold, int tOctaves,
                     float tGain, float tFreq, boolean enableTurbulence, float yComp, float xzComp, boolean yAdj,
                     float yAdjF1, float yAdjF2) {
         super(world, fOctaves, fGain, fFreq, numGens, threshold, tOctaves, tGain, tFreq, enableTurbulence, yComp,
-                xzComp, yAdj, yAdjF1, yAdjF2);
+                xzComp, yAdj, yAdjF1, yAdjF2, Blocks.DIRT.getDefaultState());
 
         noiseGen = new NoiseGen(
                 Configuration.testSettings.testnoiseType,
@@ -81,7 +80,7 @@ public class TestCave extends BetterCave {
 
             // Consider digging out the block if it passed the threshold check, using the debug visualizer if enabled
             if (Configuration.debugsettings.debugVisualizer)
-                visualizeDigBlock(digBlock, Blocks.DIRT.getDefaultState(), primer, localX, realY, localZ);
+                visualizeDigBlock(digBlock, this.vBlock, primer, localX, realY, localZ);
             else if (digBlock)
                 this.digBlock(primer, chunkX, chunkZ, localX, localZ, realY);
         }
@@ -95,7 +94,7 @@ public class TestCave extends BetterCave {
 //                    && primer.getBlockState(localX, realY + 1, localZ) == BlockStateAir
 //                    && primer.getBlockState(localX, realY - 1, localZ) == BlockStateAir
 //            )
-//                BetterCaveUtil.digBlock(world, primer, localX, realY, localZ, chunkX, chunkZ);
+//                this.digBlock(primer, chunkX, chunkZ, localX, localZ, realY);
 //        }
     }
 }

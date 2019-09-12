@@ -125,7 +125,7 @@ public class MapGenBetterCaves extends MapGenCaves {
 
                             // Perturb the col position. This has the effect of applying jitter to the
                             // cave biome's Voronoi region to add variety.
-                            caveControllerJitter.GradientPerturb(columnPos);
+//                            caveControllerJitter.GradientPerturb(columnPos);
 
                             // Get noise values used to determine cave biome
                             float caveBiomeNoise = caveBiomeController.GetNoise(columnPos.x, columnPos.y);
@@ -292,19 +292,19 @@ public class MapGenBetterCaves extends MapGenCaves {
 
         switch (Configuration.caveSettings.caveBiomeSize) {
             case Small:
-                caveBiomeSize = .01f;
+                caveBiomeSize = .007f;
                 caveJitterFreq = .01f;
                 break;
             case Large:
-                caveBiomeSize = .005f;
-                caveJitterFreq = .0115f;
+                caveBiomeSize = .0032f;
+                caveJitterFreq = .008f;
                 break;
             case ExtraLarge:
                 caveBiomeSize = .001f;
                 caveJitterFreq = .015f;
                 break;
-            default: // Normal
-                caveBiomeSize = .007f;
+            default: // Medium
+                caveBiomeSize = .005f;
                 caveJitterFreq = .01f;
                 break;
         }
@@ -322,7 +322,7 @@ public class MapGenBetterCaves extends MapGenCaves {
                 cavernBiomeSize = .001f;
                 cavernJitterFreq = .015f;
                 break;
-            default: // Normal
+            default: // Medium
                 cavernBiomeSize = .007f;
                 cavernJitterFreq = .01f;
                 break;

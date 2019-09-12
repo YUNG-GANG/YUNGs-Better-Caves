@@ -45,7 +45,7 @@ public class ConfigCaveGen {
     @Config.Name("Cavern Biome Size")
     @Config.Comment("Determines how large cavern biomes are. This controls the average size of caverns.")
     @Config.RequiresWorldRestart
-    public CaveBiomeSize cavernBiomeSize = CaveBiomeSize.Medium;
+    public CaveBiomeSize cavernBiomeSize = CaveBiomeSize.Small;
 
     @Config.Name("Cave Surface Cutoff")
     @Config.Comment("This is the number of blocks from a given point on the surface that caves start to close off." +

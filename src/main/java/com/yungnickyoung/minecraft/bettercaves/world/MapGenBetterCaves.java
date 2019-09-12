@@ -17,6 +17,11 @@ import net.minecraft.world.gen.MapGenCaves;
 import javax.annotation.Nonnull;
 import javax.vecmath.Vector2f;
 
+/**
+ * Class that overrides vanilla cave gen with Better Caves gen.
+ * Combines multiple types of caves and caverns using different types of noise to create diverse a
+ * diverse underground experience.
+ */
 public class MapGenBetterCaves extends MapGenCaves {
     // Cave types
     private BetterCave caveCubic;

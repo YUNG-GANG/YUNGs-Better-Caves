@@ -47,7 +47,7 @@ public class ConfigCaveGen {
     @Config.RequiresWorldRestart
     public CaveBiomeSize cavernBiomeSize = CaveBiomeSize.Small;
 
-    @Config.Name("Cave Surface Cutoff")
+    @Config.Name("Cave Surface Cutoff Depth")
     @Config.Comment("This is the number of blocks from a given point on the surface that caves start to close off." +
             " Decrease this to create more cave openings in the sides of mountains. Increase to create less" +
             " above-surface openings.")

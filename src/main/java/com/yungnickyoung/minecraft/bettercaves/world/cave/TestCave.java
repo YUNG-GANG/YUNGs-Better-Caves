@@ -3,6 +3,7 @@ package com.yungnickyoung.minecraft.bettercaves.world.cave;
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
@@ -36,7 +37,7 @@ public class TestCave extends AbstractBC {
 
     @Override
     public void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
-                               int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff) {
+                               int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff, IBlockState lavaBlock) {
         // Altitude at which caves start closing off so they aren't all open to the surface
         int transitionBoundary = maxSurfaceHeight - surfaceCutoff;
 

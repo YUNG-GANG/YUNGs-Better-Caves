@@ -6,6 +6,7 @@ import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
@@ -56,12 +57,16 @@ public class CavernBC extends AbstractBC {
 
     @Override
     public void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
-                               int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff) {
+                               int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff, IBlockState lavaBlock) {
         // Altitude at which caverns start closing off on the top
         int topTransitionBoundary = topY - 7;
 
         // Altitude at which caverns start closing off on the bottom to create "floors"
-        int bottomTransitionBoundary = (bottomY <= 10) ? Configuration.lavaDepth + 4 : bottomY + 7;
+        int bottomTransitionBoundary = 0;
+        if (cavernType == CavernType.FLOORED)
+            bottomTransitionBoundary = (bottomY <= 10) ? Configuration.lavaDepth + 4 : bottomY + 7;
+        else if (cavernType == CavernType.WATER)
+            bottomTransitionBoundary = bottomY + 3;
 
         // Generate noise for caverns.
         // The noise for an individual block is represented by a NoiseTuple, which is essentially an n-tuple of
@@ -90,7 +95,7 @@ public class CavernBC extends AbstractBC {
                 noiseThreshold *= (float) (realY - topY) / (minSurfaceHeight - 5 - topY);
 
             // For floored caverns, close off caverns at the bottom to provide floors for the player to walk on
-            if (this.cavernType == CavernType.FLOORED && realY <= bottomTransitionBoundary)
+            if ((this.cavernType == CavernType.FLOORED || this.cavernType == CavernType.WATER) && realY <= bottomTransitionBoundary)
                 noiseThreshold *= Math.max((float) (realY - bottomY) / (bottomTransitionBoundary - bottomY), .5f);
 
             // Mark block for removal if the noise passes the threshold check
@@ -101,11 +106,14 @@ public class CavernBC extends AbstractBC {
             if (Configuration.debugsettings.debugVisualizer)
                 visualizeDigBlock(digBlock, this.vBlock, primer, localX, realY, localZ);
             else if (digBlock) {
-                if (this.cavernType == CavernType.WATER)
-                    // Here we make a direct call to BetterCaveUtil#digBlock to avoid any adjacent water block checks for water caverns
-                    BetterCaveUtil.digBlock(this.getWorld(), primer, Blocks.WATER.getDefaultState(), localX, realY, localZ, chunkX, chunkZ);
-                else
-                    this.digBlock(primer, chunkX, chunkZ, localX, localZ, realY);
+                if (this.cavernType == CavernType.WATER) {
+                    // Make sure we replace any lava possibly generated from caves with water to avoid having lava under the water
+                    if (primer.getBlockState(localX, realY, localZ).getMaterial() == Material.LAVA && realY <= Configuration.lavaDepth)
+                        primer.setBlockState(localX, realY, localZ, Blocks.WATER.getDefaultState());
+                    else
+                        this.digBlock(primer, lavaBlock, chunkX, chunkZ, localX, localZ, realY);
+                } else
+                    this.digBlock(primer, lavaBlock, chunkX, chunkZ, localX, localZ, realY);
             }
         }
     }

@@ -102,7 +102,7 @@ public abstract class AbstractBC {
      *                         BetterCaveUtil#getMinSurfaceHeight
      */
     public abstract void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
-                      int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff);
+                      int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff, IBlockState lavaBlock);
 
     /**
      * Preprocessing performed on a column of noise to adjust its values before comparing them to the threshold.
@@ -162,17 +162,19 @@ public abstract class AbstractBC {
      * @param realY the real Y-coordinate of the block
      */
     protected void digBlock(ChunkPrimer primer, IBlockState lavaBlock, int chunkX, int chunkZ, int localX, int localZ, int realY) {
-        // Check for adjacent water blocks to avoid breaking into lakes or oceans
-        if (primer.getBlockState(localX, realY + 1, localZ).getMaterial() == Material.WATER)
-            return;
-        if (localX < 15 && primer.getBlockState(localX + 1, realY, localZ).getMaterial() == Material.WATER)
-            return;
-        if (localX > 0 && primer.getBlockState(localX - 1, realY, localZ).getMaterial() == Material.WATER)
-            return;
-        if (localZ < 15 && primer.getBlockState(localX, realY, localZ + 1).getMaterial() == Material.WATER)
-            return;
-        if (localZ > 0 && primer.getBlockState(localX, realY, localZ - 1).getMaterial() == Material.WATER)
-            return;
+        if (lavaBlock.getMaterial() != Material.WATER) {
+            // Check for adjacent water blocks to avoid breaking into lakes or oceans
+            if (primer.getBlockState(localX, realY + 1, localZ).getMaterial() == Material.WATER)
+                return;
+            if (localX < 15 && primer.getBlockState(localX + 1, realY, localZ).getMaterial() == Material.WATER)
+                return;
+            if (localX > 0 && primer.getBlockState(localX - 1, realY, localZ).getMaterial() == Material.WATER)
+                return;
+            if (localZ < 15 && primer.getBlockState(localX, realY, localZ + 1).getMaterial() == Material.WATER)
+                return;
+            if (localZ > 0 && primer.getBlockState(localX, realY, localZ - 1).getMaterial() == Material.WATER)
+                return;
+        }
 
         BetterCaveUtil.digBlock(this.getWorld(), primer, lavaBlock, localX, realY, localZ, chunkX, chunkZ);
     }

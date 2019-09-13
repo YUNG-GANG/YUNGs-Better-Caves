@@ -54,7 +54,7 @@ public class CaveBC extends AbstractBC {
 
     @Override
     public void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
-                               int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff) {
+                               int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff, IBlockState lavaBlock) {
         // Altitude at which caves start closing off so they aren't all open to the surface
         int transitionBoundary = maxSurfaceHeight - surfaceCutoff;
 
@@ -89,7 +89,7 @@ public class CaveBC extends AbstractBC {
             if (Configuration.debugsettings.debugVisualizer)
                 visualizeDigBlock(digBlock, this.vBlock, primer, localX, realY, localZ);
             else if (digBlock)
-                this.digBlock(primer, chunkX, chunkZ, localX, localZ, realY);
+                this.digBlock(primer, lavaBlock, chunkX, chunkZ, localX, localZ, realY);
         }
 
         /* ============ Post-Processing to remove any singular floating blocks in the ease-in range ============ */
@@ -101,7 +101,7 @@ public class CaveBC extends AbstractBC {
                     && primer.getBlockState(localX, realY + 1, localZ) == BlockStateAir
                     && primer.getBlockState(localX, realY - 1, localZ) == BlockStateAir
             )
-                this.digBlock(primer, chunkX, chunkZ, localX, localZ, realY);
+                this.digBlock(primer, lavaBlock, chunkX, chunkZ, localX, localZ, realY);
         }
     }
 }

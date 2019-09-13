@@ -25,11 +25,10 @@ public class ConfigCaveGen {
             " than Lava Caverns.")
     public ConfigFlooredCavern flooredCavern = new ConfigFlooredCavern();
 
-    @Config.Ignore
-    @Config.Name("Water Caverns")
-    @Config.Comment("Parameters used in the generation of Water Caverns. These are similar to lava caverns, but " +
-            "with water instead of lava.")
-    public ConfigWaterCavern waterCavern = new ConfigWaterCavern();
+    @Config.Name("Water Biomes")
+    @Config.Comment("Parameters used in the generation of water-based caves and caverns. These are similar to " +
+            "the regular Better Caves and Caverns, but with water instead of lava.")
+    public ConfigWaterBiomes waterBiomes = new ConfigWaterBiomes();
 
     @Config.Name("Vanilla Caves")
     @Config.Comment("Settings controlling vanilla Minecraft cave generation.")

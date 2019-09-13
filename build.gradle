@@ -1,99 +1,154 @@
 buildscript {
     repositories {
-        jcenter()
         maven { url = "http://files.minecraftforge.net/maven" }
+        jcenter()
+        mavenCentral()
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
     }
 }
-apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'idea'
 //Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
+apply plugin: 'maven-publish'
 
 // Import properties from resources/app.properties
-apply from: 'src/main/resources/app.properties' // all variables prepended with bc_ come from this file
+//apply from: 'src/main/resources/app.properties' // all variables prepended with bc_ come from this file
 
 // Maven info
-version = bc_version
+version = "${mcversion}-${version_majormod}.${version_majorapi}.${version_minor}.${version_patch}"
 group = "com.yungnickyoung.minecraft.bettercaves" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = bc_modid
+archivesBaseName = project.modid
 
-sourceCompatibility = targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
-compileJava {
-    sourceCompatibility = targetCompatibility = '1.8'
-}
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
 minecraft {
-    version = "1.12.2-14.23.5.2838"
-    runDir = "run"
-
-    // Fill in properties in source files
-    replace "{@modid}":bc_modid, "{@name}":bc_name, "{@version}":bc_version
-
-    // the mappings can be changed at any time, and must be in the following format.
-    // snapshot_YYYYMMDD   snapshot are built nightly.
-    // stable_#            stables are built at the discretion of the MCP team.
+    // The mappings can be changed at any time, and must be in the following format.
+    // snapshot_YYYYMMDD   Snapshot are built nightly.
+    // stable_#            Stables are built at the discretion of the MCP team.
     // Use non-default mappings at your own risk. they may not always work.
-    // simply re-run your setup task after changing the mappings to update your workspace.
-    mappings = "snapshot_20171003"
+    // Simply re-run your setup task after changing the mappings to update your workspace.
+    mappings channel: 'snapshot', version: mcp_mappings
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
+
+    // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+
+    // Default run configurations.
+    // These can be tweaked, removed, or duplicated as needed.
+    runs {
+        client {
+            workingDirectory project.file('run')
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                bettercaves {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        server {
+            workingDirectory project.file('run')
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                bettercaves {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        data {
+            workingDirectory project.file('run')
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+
+            args '--mod', 'bettercaves', '--all', '--output', file('src/generated/resources/')
+
+            mods {
+                bettercaves {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
 }
 
 dependencies {
-    // you may put jars on which you depend on in ./libs
-    // or you may define them like so..
-    //compile "some.group:artifact:version:classifier"
-    //compile "some.group:artifact:version"
-      
-    // real examples
-    //compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
-    //compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
+    // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
+    // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
+    // The userdev artifact is a special name and will get all sorts of transformations applied to it.
+    minecraft "net.minecraftforge:forge:${project.mcversion}-${project.forgeversion}"
 
-    // the 'provided' configuration is for optional dependencies that exist at compile-time but might not at runtime.
-    //provided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+    // You may put jars on which you depend on in ./libs or you may define them like so..
+    // compile "some.group:artifact:version:classifier"
+    // compile "some.group:artifact:version"
 
-    // the deobf configurations:  'deobfCompile' and 'deobfProvided' are the same as the normal compile and provided,
-    // except that these dependencies get remapped to your current MCP mappings
-    //deobfCompile 'com.mod-buildcraft:buildcraft:6.0.8:dev'
-    //deobfProvided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+    // Real examples
+    // compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
+    // compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
 
-    // for more info...
+    // The 'provided' configuration is for optional dependencies that exist at compile-time but might not at runtime.
+    // provided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+
+    // These dependencies get remapped to your current MCP mappings
+    // deobf 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+
+    // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
+
 }
 
-//sourceSets {
-//    main {
-//        java {
-//            srcDirs 'src'
-//        }
-//        resources {
-//            srcDirs 'src/mainresources'
-//        }
-//    }
-//}
-//
-//task updateVersion(type: Copy) {
-//    from 'src/main/java'
-//    into 'build/sources/main/java'
-//    filter(ReplaceTokens, tokens: [MOD_ID: bc_modid, VERSION: project.version, NAME: bc_name])
-//}
-//
-//compileJava.dependsOn updateVersion
+// Example for how to get properties into the manifest for reading by the runtime..
+jar {
+    manifest {
+        attributes([
+                "Specification-Title": project.modid,
+                "Specification-Vendor": "YUNGNICKYOUNG",
+                "Specification-Version": project.version,
+                "Implementation-Title": project.name,
+                "Implementation-Version": project.version,
+                "Implementation-Vendor" :"YUNGNICKYOUNG",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+}
+
+repositories {
+    maven {
+        name = "CurseForge"
+        url = "https://minecraft.curseforge.com/api/maven"
+    }}
 
 processResources {
     // this will ensure that this task is redone when any variables change
-    inputs.property "modid", bc_modid
-    inputs.property "name", bc_name
+    inputs.property "modid", project.modid
+    inputs.property "name", project.modname
     inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
-    inputs.property "description", bc_desc
-    inputs.property "credits", bc_credits
+    inputs.property "mcversion", project.mcversion
+    inputs.property "description", project.bc_desc
+    inputs.property "credits", project.bc_credits
 
     // replace vars in mcmod.info
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
-        expand 'modid':bc_modid, 'name':bc_name, 'description':bc_desc, 'credits':bc_credits,'version': project.version, 'mcversion': project.minecraft.version
+        expand 'modid':modid, 'name':modname, 'description':bc_desc, 'credits':bc_credits,'version': project.version, 'mcversion': mcversion
     }
 
     // copy everything else except the mcmod.info
@@ -101,4 +156,3 @@ processResources {
         exclude 'mcmod.info'
     }
 }
-

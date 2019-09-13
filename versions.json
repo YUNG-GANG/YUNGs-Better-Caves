@@ -5,11 +5,12 @@
     "1.0.1.0":"      Adjusted spawn rate of Lava Caverns to match Floored Caverns",
     "1.0.1.1":"      Fix version number",
     "1.0.1.2":"      Add vanilla ravine removal option, debug visualizer, logic for water caverns. Update homepage. Potentially fix version checking",
-    "1.0.2.0":"      Reduce noise thresholds. Surface height calculation upgraded. Add option for surface cutoff. Adjust default biome size vals."
-    "1.0.2.1":"      Fix bug with Floored Caverns not responding to Config. Big refactor. All caves/caverns are now just 3 classes."
+    "1.0.2.0":"      Reduce noise thresholds. Surface height calculation upgraded. Add option for surface cutoff. Adjust default biome size vals.",
+    "1.0.2.1":"      Fix bug with Floored Caverns not responding to Config. Big refactor. All caves/caverns are now just 3 classes.",
+    "1.0.3.0":"      Add water biomes with new user config."
   },
   "promos": {
-    "1.12.2-latest": "1.0.2.1",
-    "1.12.2-recommended": "1.0.2.1"
+    "1.12.2-latest": "1.0.3.0",
+    "1.12.2-recommended": "1.0.3.0"
   }
 }

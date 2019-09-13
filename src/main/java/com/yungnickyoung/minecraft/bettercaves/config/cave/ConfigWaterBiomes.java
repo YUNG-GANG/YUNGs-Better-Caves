@@ -8,7 +8,7 @@ public class ConfigWaterBiomes {
 
     @Config.Name("Enable Water Cave/Cavern Biomes")
     @Config.Comment("Set to true for caves/caverns to have a chance of spawning as their water-based variants, instead" +
-            "of having lava")
+            " of having lava")
     @Config.RequiresWorldRestart
     public boolean enableWaterBiomes = true;
 

@@ -1,1 +1,1 @@
-rootProject.name = "bettercaves-${mcversion}"
+rootProject.name = "BetterCaves-${modMinecraftVersion}"

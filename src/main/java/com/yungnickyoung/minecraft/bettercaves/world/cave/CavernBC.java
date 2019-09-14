@@ -58,6 +58,16 @@ public class CavernBC extends AbstractBC {
     @Override
     public void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
                                int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff, IBlockState lavaBlock) {
+        // Validate vars
+        if (localX < 0 || localX > 15)
+            return;
+        if (localZ < 0 || localZ > 15)
+            return;
+        if (bottomY < 0)
+            return;
+        if (topY > 255)
+            return;
+
         // Altitude at which caverns start closing off on the top
         int topTransitionBoundary = topY - 7;
 

@@ -12,12 +12,8 @@ import java.util.Properties;
  * All fields are {@code static}.
  */
 public class Settings {
-    // MOD INFORMATION CONSTANTS
-    // These will not be used if USE_META_DETA is true. Instead, data will be used from resources/mcmod.info
-    public static final boolean USE_META_DATA = true;
     public static final String MOD_ID = "bettercaves";
 
-    public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
     public static final boolean DEBUG_LOG_ENABLED = false;
     public static final boolean DEBUG_WORLD_GEN = false;
 

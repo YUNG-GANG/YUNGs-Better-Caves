@@ -5,24 +5,28 @@ import com.google.common.collect.Maps;
 import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.world.WorldCarverBC;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraft.world.gen.carver.WorldCarver;
 import net.minecraft.world.gen.feature.ProbabilityConfig;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Entry point for Better Caves
@@ -36,7 +40,7 @@ public class BetterCaves {
         LOGGER.error("CONSTRUCTOR");
         final ModLoadingContext modLoadingContext = ModLoadingContext.get();
         modLoadingContext.registerConfig(ModConfig.Type.CLIENT, ConfigHolder.CLIENT_SPEC);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(EventPriority.LOWEST, this::commonSetup);
     }
 
     public void commonSetup(final FMLCommonSetupEvent event) {
@@ -44,15 +48,10 @@ public class BetterCaves {
         WorldCarver<ProbabilityConfig> wc = new WorldCarverBC(ProbabilityConfig::deserialize, 256);
         ConfiguredCarver<ProbabilityConfig> confCarver = Biome.createCarver(wc, new ProbabilityConfig(0));
 
-        ForgeRegistries.BIOMES.getEntries()
-
-        for (Field biomeField : Biomes.class.getFields()) {
-            try {
-                Biome biome = (Biome)biomeField.get(null);
-                setCarvers(biome, confCarver);
-            } catch (IllegalAccessException e) {
-                LOGGER.error("NO ACCESS FOR BIOME RETRIEVAL");
-            }
+        Set<Map.Entry<ResourceLocation, Biome>> biomesList = ForgeRegistries.BIOMES.getEntries();
+        for (Map.Entry e : biomesList) {
+            Biome b = (Biome)e.getValue();
+            setCarvers(b, confCarver);
         }
     }
 

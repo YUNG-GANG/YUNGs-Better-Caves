@@ -52,6 +52,7 @@ public final class ConfigHelper {
         // Vanilla Gen settings
         BetterCavesConfig.enableVanillaCaves = ConfigHolder.CLIENT.configCaveGen.configVanillaCave.enableVanillaCaves.get();
         BetterCavesConfig.enableVanillaRavines = ConfigHolder.CLIENT.configCaveGen.configVanillaCave.enableVanillaRavines.get();
+        BetterCavesConfig.enableVanillaUnderwaterRavines = ConfigHolder.CLIENT.configCaveGen.configVanillaCave.enableVanillaUnderwaterRavines.get();
 
         // Water Biome settings
         BetterCavesConfig.enableWaterBiomes = ConfigHolder.CLIENT.configCaveGen.configWaterBiomes.enableWaterBiomes.get();

@@ -5,9 +5,10 @@ import net.minecraftforge.common.ForgeConfigSpec;
 public class ConfigVanillaCave {
     public final ForgeConfigSpec.ConfigValue<Boolean> enableVanillaCaves;
     public final ForgeConfigSpec.ConfigValue<Boolean> enableVanillaRavines;
+    public final ForgeConfigSpec.ConfigValue<Boolean> enableVanillaUnderwaterRavines;
 
     public ConfigVanillaCave(final ForgeConfigSpec.Builder builder) {
-        builder.push("Type 2 Caves (Simplex)");
+        builder.push("Vanilla Gen");
 
         enableVanillaCaves = builder
                 .comment(" Set to true to enable vanilla cave generation alongside Better Caves. Note that even if this is" +
@@ -22,6 +23,11 @@ public class ConfigVanillaCave {
                 .comment(" Set to true to enable ravine generation.")
                 .worldRestart()
                 .define("Enable Ravines", true);
+
+        enableVanillaUnderwaterRavines = builder
+                .comment(" Set to true to enable underwater ravine generation.")
+                .worldRestart()
+                .define("Enable Underwater Ravines", true);
 
         builder.pop();
     }

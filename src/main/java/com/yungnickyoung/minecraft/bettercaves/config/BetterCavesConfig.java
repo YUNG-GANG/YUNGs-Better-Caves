@@ -77,6 +77,7 @@ public final class BetterCavesConfig {
     // Vanilla gen vars
     public static boolean enableVanillaCaves;
     public static boolean enableVanillaRavines;
+    public static boolean enableVanillaUnderwaterRavines;
 
     // Water biome vars
     public static boolean enableWaterBiomes;

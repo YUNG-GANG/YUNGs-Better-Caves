@@ -2,21 +2,17 @@ package com.yungnickyoung.minecraft.bettercaves;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.yungnickyoung.minecraft.bettercaves.config.BetterCavesConfig;
 import com.yungnickyoung.minecraft.bettercaves.config.ConfigHelper;
 import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.config.Settings;
-import com.yungnickyoung.minecraft.bettercaves.world.CaveWorldCarverBC;
 import com.yungnickyoung.minecraft.bettercaves.world.WorldCarverBC;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.DefaultBiomeFeatures;
 import net.minecraft.world.gen.GenerationStage;
-import net.minecraft.world.gen.carver.CaveWorldCarver;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraft.world.gen.carver.WorldCarver;
 import net.minecraft.world.gen.feature.ProbabilityConfig;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -44,7 +40,6 @@ public final class ModEventSubscriber {
 
     @SubscribeEvent
     public static void onModConfigEvent(final ModConfig.ModConfigEvent event) {
-        LOGGER.error("MOD CONFIG EVENT");
         final ModConfig config = event.getConfig();
 
         // Rebake the configs when they change
@@ -56,7 +51,6 @@ public final class ModEventSubscriber {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onCommonSetupEvent(final FMLCommonSetupEvent event) {
-        LOGGER.info("COMMON SETUP EVENT");
         WorldCarver<ProbabilityConfig> wc = new WorldCarverBC(ProbabilityConfig::deserialize, 256);
         ConfiguredCarver<ProbabilityConfig> confCarver = Biome.createCarver(wc, new ProbabilityConfig(0));
 
@@ -69,9 +63,24 @@ public final class ModEventSubscriber {
 
     private static void setCarvers(Biome biomeIn, ConfiguredCarver<ProbabilityConfig> carver) {
         Map<GenerationStage.Carving, List<ConfiguredCarver<?>>> carvers = Maps.newHashMap();
+
         carvers.computeIfAbsent(GenerationStage.Carving.AIR, (p_203604_0_) ->
                 Lists.newArrayList()
         ).add(carver);
+
+        if (BetterCavesConfig.enableVanillaRavines) {
+            // Add regular ravines
+            carvers.computeIfAbsent(GenerationStage.Carving.AIR, (p_203604_0_) ->
+                    Lists.newArrayList()
+            ).add(Biome.createCarver(WorldCarver.CANYON, new ProbabilityConfig(0.02F)));
+        }
+
+        if (BetterCavesConfig.enableVanillaUnderwaterRavines) {
+            // Add ravines under oceans (these spawn separately from normal ravines in 1.14)
+            carvers.computeIfAbsent(GenerationStage.Carving.LIQUID, (p_203604_0_) ->
+                    Lists.newArrayList()
+            ).add(Biome.createCarver(WorldCarver.UNDERWATER_CANYON, new ProbabilityConfig(0.02F)));
+        }
 
         try {
             final Field field = biomeIn.getClass().getDeclaredField("carvers");

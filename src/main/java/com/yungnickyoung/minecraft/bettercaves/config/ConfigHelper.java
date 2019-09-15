@@ -17,6 +17,52 @@ public final class ConfigHelper {
     public static void bakeClient(final ModConfig config) {
         clientConfig = config;
         BetterCavesConfig.lavaDepth = ConfigHolder.CLIENT.lavaDepth.get();
+
+        // Cave gen settings
+        BetterCavesConfig.caveBiomeSize = ConfigHolder.CLIENT.configCaveGen.caveBiomeSize.get();
+        BetterCavesConfig.cavernBiomeSize = ConfigHolder.CLIENT.configCaveGen.cavernBiomeSize.get();
+        BetterCavesConfig.surfaceCutoff = ConfigHolder.CLIENT.configCaveGen.surfaceCutoff.get();
+
+        // Cubic Cave settings
+        BetterCavesConfig.cubicCaveBottom = ConfigHolder.CLIENT.configCaveGen.configCubicCave.caveBottom.get();
+        BetterCavesConfig.cubicYComp = ConfigHolder.CLIENT.configCaveGen.configCubicCave.yCompression.get();
+        BetterCavesConfig.cubicXZComp = ConfigHolder.CLIENT.configCaveGen.configCubicCave.xzCompression.get();
+        BetterCavesConfig.cubicCaveFreq = ConfigHolder.CLIENT.configCaveGen.configCubicCave.caveFrequency.get();
+
+        // Simplex Cave settings
+        BetterCavesConfig.simplexCaveBottom = ConfigHolder.CLIENT.configCaveGen.configSimplexCave.caveBottom.get();
+        BetterCavesConfig.simplexYComp = ConfigHolder.CLIENT.configCaveGen.configSimplexCave.yCompression.get();
+        BetterCavesConfig.simplexXZComp = ConfigHolder.CLIENT.configCaveGen.configSimplexCave.xzCompression.get();
+        BetterCavesConfig.simplexCaveFreq = ConfigHolder.CLIENT.configCaveGen.configSimplexCave.caveFrequency.get();
+
+        // Lava Cavern settings
+        BetterCavesConfig.lavaCavernCaveTop = ConfigHolder.CLIENT.configCaveGen.configLavaCavern.caveTop.get();
+        BetterCavesConfig.lavaCavernCaveBottom = ConfigHolder.CLIENT.configCaveGen.configLavaCavern.caveBottom.get();
+        BetterCavesConfig.lavaCavernYComp = ConfigHolder.CLIENT.configCaveGen.configLavaCavern.yCompression.get();
+        BetterCavesConfig.lavaCavernXZComp = ConfigHolder.CLIENT.configCaveGen.configLavaCavern.xzCompression.get();
+        BetterCavesConfig.lavaCavernCaveFreq = ConfigHolder.CLIENT.configCaveGen.configLavaCavern.caveFrequency.get();
+
+        // Floored Cavern settings
+        BetterCavesConfig.flooredCavernCaveTop = ConfigHolder.CLIENT.configCaveGen.configFlooredCavern.caveTop.get();
+        BetterCavesConfig.flooredCavernCaveBottom = ConfigHolder.CLIENT.configCaveGen.configFlooredCavern.caveBottom.get();
+        BetterCavesConfig.flooredCavernYComp = ConfigHolder.CLIENT.configCaveGen.configFlooredCavern.yCompression.get();
+        BetterCavesConfig.flooredCavernXZComp = ConfigHolder.CLIENT.configCaveGen.configFlooredCavern.xzCompression.get();
+        BetterCavesConfig.flooredCavernCaveFreq = ConfigHolder.CLIENT.configCaveGen.configFlooredCavern.caveFrequency.get();
+
+        // Vanilla Gen settings
+        BetterCavesConfig.enableVanillaCaves = ConfigHolder.CLIENT.configCaveGen.configVanillaCave.enableVanillaCaves.get();
+        BetterCavesConfig.enableVanillaRavines = ConfigHolder.CLIENT.configCaveGen.configVanillaCave.enableVanillaRavines.get();
+
+        // Water Biome settings
+        BetterCavesConfig.enableWaterBiomes = ConfigHolder.CLIENT.configCaveGen.configWaterBiomes.enableWaterBiomes.get();
+        BetterCavesConfig.waterBiomeFreq = ConfigHolder.CLIENT.configCaveGen.configWaterBiomes.waterBiomeFrequency.get();
+
+        // Water Cavern settings
+        BetterCavesConfig.waterCavernYComp = ConfigHolder.CLIENT.configCaveGen.configWaterBiomes.configWaterCavern.yCompression.get();
+        BetterCavesConfig.waterCavernXZComp = ConfigHolder.CLIENT.configCaveGen.configWaterBiomes.configWaterCavern.xzCompression.get();
+
+        // Debug settings
+        BetterCavesConfig.enableDebugVisualizer = ConfigHolder.CLIENT.configDebug.debugVisualizer.get();
     }
 
     private static void setValueAndSave(final ModConfig modConfig, final String path, final Object newValue) {

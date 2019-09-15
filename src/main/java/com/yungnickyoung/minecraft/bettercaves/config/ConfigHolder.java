@@ -11,11 +11,11 @@ import org.apache.commons.lang3.tuple.Pair;
  */
 public final class ConfigHolder {
     public static final ForgeConfigSpec CLIENT_SPEC;
-    static final ClientConfig CLIENT;
+    static final Configuration CLIENT;
 
     static {
         {
-            final Pair<ClientConfig, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(ClientConfig::new);
+            final Pair<Configuration, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Configuration::new);
             CLIENT = specPair.getLeft();
             CLIENT_SPEC = specPair.getRight();
         }

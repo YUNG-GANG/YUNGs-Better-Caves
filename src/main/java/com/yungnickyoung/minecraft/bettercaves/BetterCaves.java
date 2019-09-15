@@ -40,49 +40,5 @@ public class BetterCaves {
         LOGGER.error("CONSTRUCTOR");
         final ModLoadingContext modLoadingContext = ModLoadingContext.get();
         modLoadingContext.registerConfig(ModConfig.Type.CLIENT, ConfigHolder.CLIENT_SPEC);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(EventPriority.LOWEST, this::commonSetup);
-    }
-
-    public void commonSetup(final FMLCommonSetupEvent event) {
-        LOGGER.info("COMMON SETUP EVENT");
-        WorldCarver<ProbabilityConfig> wc = new WorldCarverBC(ProbabilityConfig::deserialize, 256);
-        ConfiguredCarver<ProbabilityConfig> confCarver = Biome.createCarver(wc, new ProbabilityConfig(0));
-
-        Set<Map.Entry<ResourceLocation, Biome>> biomesList = ForgeRegistries.BIOMES.getEntries();
-        for (Map.Entry e : biomesList) {
-            Biome b = (Biome)e.getValue();
-            setCarvers(b, confCarver);
-        }
-    }
-
-    public static void setCarvers(Biome biomeIn, ConfiguredCarver<ProbabilityConfig> carver) {
-        Map<GenerationStage.Carving, List<ConfiguredCarver<?>>> carvers = Maps.newHashMap();
-        carvers.computeIfAbsent(GenerationStage.Carving.AIR, (p_203604_0_) ->
-                Lists.newArrayList()
-        ).add(carver);
-
-        try {
-            final Field field = biomeIn.getClass().getDeclaredField("carvers");
-            field.setAccessible(true);
-            field.set(biomeIn, carvers);
-            LOGGER.error("SUCCESSFULLY GOT FIELD");
-        } catch (NoSuchFieldException e) {
-            Class superclass = biomeIn.getClass().getSuperclass();
-            if (superclass == null) {
-                LOGGER.error("ERROR GETTING FIELD " + e + " " + biomeIn.getClass().getName());
-            } else {
-                try {
-                    final Field field = superclass.getDeclaredField("carvers");
-                    field.setAccessible(true);
-                    field.set(biomeIn, carvers);
-                    LOGGER.error("SUCCESSFULLY GOT FIELD FROM SUPERCLASS");
-                } catch (Exception e2) {
-                    LOGGER.error("SECOND LAYER EXCEPTION?");
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.error("FALL THRU: " + e);
-        }
-
     }
 }

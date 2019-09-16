@@ -1,5 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.noise;
 
+import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 
 import javax.vecmath.Vector3f;
@@ -31,9 +32,9 @@ public class NoiseGen {
 
     /* ----- Compression values - these control the size of caves ----- */
     /** Determines how steep and tall caves are */
-    private float yCompression;
+    private double yCompression;
     /** Determines how horizontally large and stretched out caves are */
-    private float xzCompression;
+    private double xzCompression;
 
     /** List of all distinct noise generators */
     private List<FastNoise> listNoiseGens = new ArrayList<>();
@@ -55,8 +56,8 @@ public class NoiseGen {
      * @param yComp y-compression factor
      * @param xzComp xz-compression factor
      */
-    public NoiseGen(FastNoise.NoiseType noiseType, World world,int fOctaves, float fGain, float fFreq,
-                    int tOctaves, float tGain, float tFreq, boolean useTurb, float yComp, float xzComp) {
+    public NoiseGen(FastNoise.NoiseType noiseType, IWorld world, int fOctaves, float fGain, float fFreq,
+                    int tOctaves, float tGain, float tFreq, boolean useTurb, double yComp, double xzComp) {
         this.noiseType = noiseType;
         this.seed = world.getSeed();
         this.fractalOctaves = fOctaves;
@@ -92,7 +93,7 @@ public class NoiseGen {
             int realX = localX + 16 * chunkX;
             int realZ = localZ + 16 * chunkZ;
 
-            Vector3f f = new Vector3f(realX * xzCompression, y * yCompression, realZ * xzCompression);
+            Vector3f f = new Vector3f((float)(realX * xzCompression), (float)(y * yCompression), (float)(realZ * xzCompression));
 
             // Use turbulence function to apply gradient perturbation, if enabled
             if (this.enableTurbulence)

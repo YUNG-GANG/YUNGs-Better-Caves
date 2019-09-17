@@ -18,6 +18,7 @@ import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkPrimer;
+import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.carver.*;
@@ -77,14 +78,22 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
     }
 
     @Override
-    public boolean carve(IChunk chunkIn, Random rand, int seaLevel, int chunkX, int chunkZ, int centerChunkX, int centerChunkZ, BitSet carvingMask, ProbabilityConfig config) {
+    public boolean carve(IChunk chunkIn, Random rand, int seaLevel, int cX, int cZ, int chunkX, int chunkZ, BitSet carvingMask, ProbabilityConfig config) {
         Pair<Integer, Integer> pair = new Pair<>(chunkX, chunkZ);
         if (coordList.contains(pair))
-            return false;
+            return true;
+
+        boolean flag = false;
+
+//        IChunk chunkIn = world.getChunkProvider().getChunk(chunkX, chunkZ, ChunkStatus.CARVERS, true);
+//        if  (chunkIn == null) {
+//            return false;
+//        }
+
 
         coordList.add(pair);
 
-        LOGGER.info("(" + chunkX + ", " + chunkZ + ")  ---- (" + centerChunkX + ", " + centerChunkX + ")");
+//        LOGGER.info("(" + chunkX + ", " + chunkZ + ")  ---- (" + centerChunkX + ", " + centerChunkX + ")");
 
         // Find the (approximate) lowest and highest surface altitudes in this chunk
 //        int maxSurfaceHeight = BetterCaveUtil.getMaxSurfaceHeight(primer);
@@ -114,8 +123,8 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
             // We split chunks into 2x2 subchunks for surface height calculations
             for (int subX = 0; subX < 8; subX++) {
                 for (int subZ = 0; subZ < 8; subZ++) {
-                    if (!BetterCavesConfig.enableDebugVisualizer)
-                        maxSurfaceHeight = BetterCaveUtil.getMaxSurfaceHeightSubChunk(chunkIn, subX, subZ);
+//                    if (!BetterCavesConfig.enableDebugVisualizer)
+//                        maxSurfaceHeight = BetterCaveUtil.getMaxSurfaceHeightSubChunk(chunkIn, subX, subZ);
 
                     for (int offsetX = 0; offsetX < 2; offsetX++) {
                         for (int offsetZ = 0; offsetZ < 2; offsetZ++) {
@@ -198,18 +207,20 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
 //                                cavernTopY = BetterCavesConfig.flooredCavernCaveTop;
 //                            }
 
-                            cavernGen = caveGen;
-                            cavernBottomY = caveBottomY;
-                            cavernTopY = caveBottomY;
+                            cavernGen = this.cavernLava;
+                            cavernBottomY = 1;
+                            cavernTopY = 30;
                             BlockState lavaBlock = Blocks.LAVA.getDefaultState();
 
                             /* --------------- Dig out caves and caverns for this column --------------- */
                             // Top (Cave) layer:
                             caveGen.generateColumn(chunkX, chunkZ, chunkIn, localX, localZ, caveBottomY, maxSurfaceHeight,
-                                    maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, lavaBlock);
+                                    maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, lavaBlock, flag);
                             // Bottom (Cavern) layer:
                             cavernGen.generateColumn(chunkX, chunkZ, chunkIn, localX, localZ, cavernBottomY, cavernTopY,
-                                    maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, lavaBlock);
+                                    maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, lavaBlock, flag);
+
+                            flag = true;
 
                         }
                     }
@@ -310,8 +321,8 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
     /**
      * Initialize Better Caves generators and cave biome controllers for this world.
      */
-    public void initialize(IWorld worldIn) {
-        this.world = worldIn;
+    public void initialize(long seed) {
+        this.seed = seed;
         this.enableVanillaCaves = BetterCavesConfig.enableVanillaCaves;
         this.enableWaterBiomes = BetterCavesConfig.enableWaterBiomes;
 
@@ -365,23 +376,23 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
 
         // Initialize Biome Controllers using world seed and user config option for biome size
         this.caveBiomeController = new FastNoise();
-        this.caveBiomeController.SetSeed((int)world.getSeed() + 222);
+        this.caveBiomeController.SetSeed((int)seed + 222);
         this.caveBiomeController.SetFrequency(caveBiomeSize);
         this.caveBiomeController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
         this.cavernBiomeController = new FastNoise();
-        this.cavernBiomeController.SetSeed((int)world.getSeed() + 333);
+        this.cavernBiomeController.SetSeed((int)seed + 333);
         this.cavernBiomeController.SetFrequency(cavernBiomeSize);
         this.cavernBiomeController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
         this.waterCavernController = new FastNoise();
-        this.waterCavernController.SetSeed((int)world.getSeed() + 444);
+        this.waterCavernController.SetSeed((int)seed + 444);
         this.waterCavernController.SetFrequency(waterCavernBiomeSize);
         this.waterCavernController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
         /* ---------- Initialize all Better Cave generators using config options ---------- */
         this.caveCubic = new CaveBC(
-                world,
+                seed,
                 CaveType.CUBIC,
                 BetterCavesConfig.cubicFractalOctaves,
                 BetterCavesConfig.cubicFractalGain,
@@ -401,7 +412,7 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
         );
 
         this.caveSimplex = new CaveBC(
-                world,
+                seed,
                 CaveType.SIMPLEX,
                 BetterCavesConfig.simplexFractalOctaves,
                 BetterCavesConfig.simplexFractalGain,
@@ -421,7 +432,7 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
         );
 
         this.cavernLava = new CavernBC(
-                world,
+                seed,
                 CavernType.LAVA,
                 BetterCavesConfig.lavaCavernFractalOctaves,
                 BetterCavesConfig.lavaCavernFractalGain,
@@ -434,7 +445,7 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
         );
 
         this.cavernFloored = new CavernBC(
-                world,
+                seed,
                 CavernType.FLOORED,
                 BetterCavesConfig.flooredCavernFractalOctaves,
                 BetterCavesConfig.flooredCavernFractalGain,
@@ -447,7 +458,7 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
         );
 
         this.cavernWater = new CavernBC(
-                world,
+                seed,
                 CavernType.WATER,
                 BetterCavesConfig.waterCavernFractalOctaves,
                 BetterCavesConfig.waterCavernFractalGain,

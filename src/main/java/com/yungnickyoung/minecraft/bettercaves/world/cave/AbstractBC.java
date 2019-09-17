@@ -17,7 +17,6 @@ import java.util.Map;
  * Abstract base class for Better Caves caves and caverns
  */
 public abstract class AbstractBC {
-    private IWorld world;
     private long seed;
 
     /* ============================== Values determined through config ============================== */
@@ -25,8 +24,8 @@ public abstract class AbstractBC {
     FastNoise.NoiseType noiseType;
     int fractalOctaves;            // Number of ridged multifractal octaves
     float fractalGain;             // Ridged multifractal gain
-    float fractalFreq;                       // Ridged multifractal frequency
-    int numGens;                             // Number of noise values to generate per iteration (block, sub-chunk, etc)
+    float fractalFreq;             // Ridged multifractal frequency
+    int numGens;                   // Number of noise values to generate per iteration (block, sub-chunk, etc)
 
     /* ----------------- Turbulence Params ----------------- */
     int turbOctaves;               // Number of octaves in turbulence function
@@ -35,19 +34,18 @@ public abstract class AbstractBC {
     boolean enableTurbulence;      // Set true to enable turbulence (adds performance overhead, generally not worth it)
 
     /* -------------- Noise Processing Params -------------- */
-    protected double yCompression;            // Vertical cave gen compression
-    protected double xzCompression;           // Horizontal cave gen compression
-    private float yAdjustF1;                 // Adjustment value for the block immediately above. Must be between 0 and 1.0
-    private float yAdjustF2;                 // Adjustment value for the block two blocks above. Must be between 0 and 1.0
-    float noiseThreshold;                // Noise threshold for determining whether or not a block gets dug out
-    boolean enableYAdjust;         // Set true to perform preprocessing on noise values, adjusting them to increase
-    // headroom in the y direction. This is generally useful for caves (esp. Simplex),
-    // but not really necessary for caverns
+    protected double yCompression;  // Vertical cave gen compression
+    protected double xzCompression; // Horizontal cave gen compression
+    private float yAdjustF1;        // Adjustment value for the block immediately above. Must be between 0 and 1.0
+    private float yAdjustF2;        // Adjustment value for the block two blocks above. Must be between 0 and 1.0
+    float noiseThreshold;           // Noise threshold for determining whether or not a block gets dug out
+    boolean enableYAdjust;          // Set true to perform preprocessing on noise values, adjusting them to increase
+                                    // headroom in the y direction. This is generally useful for caves (esp. Simplex),
+                                    // but not really necessary for caverns
 
-    BlockState vBlock;            // Block used to represent this cave/cavern type in the debug visualizer
+    BlockState vBlock;              // Block used to represent this cave/cavern type in the debug visualizer
 
     /**
-     * Primary constructor, used for caves. See other constructor for caverns.
      * @param world the Minecraft World
      * @param fOctaves Number of fractal octaves to use in ridged multifractal noise generation
      * @param fGain Amount of gain to use in ridged multifractal noise generation
@@ -68,8 +66,32 @@ public abstract class AbstractBC {
     public AbstractBC(IWorld world, int fOctaves, float fGain, float fFreq, int numGens, float threshold, int tOctaves,
                       float tGain, float tFreq, boolean enableTurbulence, double yComp, double xzComp, boolean yAdj,
                       float yAdjF1, float yAdjF2, BlockState vBlock) {
-        this.world = world;
-        this.seed = world.getSeed();
+        this(world.getSeed(), fOctaves, fGain, fFreq, numGens, threshold, tOctaves, tGain, tFreq, enableTurbulence,
+                yComp, xzComp, yAdj, yAdjF1, yAdjF2, vBlock);
+    }
+
+    /**
+     * @param seed the Minecraft World seed
+     * @param fOctaves Number of fractal octaves to use in ridged multifractal noise generation
+     * @param fGain Amount of gain to use in ridged multifractal noise generation
+     * @param fFreq Frequency to use in ridged multifractal noise generation
+     * @param numGens Number of noise values to calculate for a given block
+     * @param threshold Noise threshold to determine whether or not a given block will be dug out
+     * @param tOctaves Number of octaves in turbulence function
+     * @param tGain Gain of turbulence function
+     * @param tFreq Frequency of turbulence function
+     * @param enableTurbulence Whether or not to enable turbulence (adds performance overhead, generally not worth it).
+     *                         If set to false then other turbulence params don't matter.
+     * @param yComp Vertical cave gen compression. Use 1.0 for default generation
+     * @param xzComp Horizontal cave gen compression. Use 1.0 for default generation
+     * @param yAdj Whether or not to adjust/increase the height of caves.
+     * @param yAdjF1 Adjustment value for the block immediately above. Must be between 0 and 1.0
+     * @param yAdjF2 Adjustment value for the block two blocks above. Must be between 0 and 1.0
+     */
+    public AbstractBC(long seed, int fOctaves, float fGain, float fFreq, int numGens, float threshold, int tOctaves,
+                      float tGain, float tFreq, boolean enableTurbulence, double yComp, double xzComp, boolean yAdj,
+                      float yAdjF1, float yAdjF2, BlockState vBlock) {
+        this.seed = seed;
         this.fractalOctaves = fOctaves;
         this.fractalGain = fGain;
         this.fractalFreq = fFreq;
@@ -84,8 +106,7 @@ public abstract class AbstractBC {
         this.enableYAdjust = yAdj;
         this.yAdjustF1 = yAdjF1;
         this.yAdjustF2 = yAdjF2;
-        this.vBlock = vBlock;
-    }
+        this.vBlock = vBlock;    }
 
     /**
      * Dig out caves for the column of blocks at x-z position (chunkX*16 + localX, chunkZ*16 + localZ).
@@ -103,7 +124,7 @@ public abstract class AbstractBC {
      *                         BetterCaveUtil#getMinSurfaceHeight
      */
     public abstract void generateColumn(int chunkX, int chunkZ, IChunk chunkIn, int localX, int localZ, int bottomY,
-                                        int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff, BlockState lavaBlock);
+                                        int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff, BlockState lavaBlock, boolean flag);
 
     /**
      * Preprocessing performed on a column of noise to adjust its values before comparing them to the threshold.
@@ -234,10 +255,6 @@ public abstract class AbstractBC {
     }
 
     /* ------------------------- Public Getters -------------------------*/
-    public IWorld getWorld() {
-        return this.world;
-    }
-
     public long getSeed() {
         return this.seed;
     }

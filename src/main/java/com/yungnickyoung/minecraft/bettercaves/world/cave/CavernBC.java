@@ -1,5 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.world.cave;
 
+import com.yungnickyoung.minecraft.bettercaves.ModEventSubscriber;
 import com.yungnickyoung.minecraft.bettercaves.config.BetterCavesConfig;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
@@ -9,7 +10,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorld;
+
 import net.minecraft.world.chunk.IChunk;
 
 import java.util.List;
@@ -19,9 +20,9 @@ public class CavernBC extends AbstractBC {
     private NoiseGen noiseGen;
     private CavernType cavernType;
 
-    public CavernBC(IWorld world, CavernType cavernType, int fOctaves, float fGain, float fFreq, int numGens, float threshold,
+    public CavernBC(long seed, CavernType cavernType, int fOctaves, float fGain, float fFreq, int numGens, float threshold,
                     double yComp, double xzComp, BlockState vBlock) {
-        super(world, fOctaves, fGain, fFreq, numGens, threshold, 0, 0, 0, false,
+        super(seed, fOctaves, fGain, fFreq, numGens, threshold, 0, 0, 0, false,
                 yComp, xzComp, false, 1, 1, vBlock);
 
         this.cavernType = cavernType;
@@ -42,7 +43,7 @@ public class CavernBC extends AbstractBC {
 
         noiseGen = new NoiseGen(
                 FastNoise.NoiseType.PerlinFractal,
-                world,
+                seed,
                 this.fractalOctaves,
                 this.fractalGain,
                 this.fractalFreq,
@@ -57,16 +58,16 @@ public class CavernBC extends AbstractBC {
 
     @Override
     public void generateColumn(int chunkX, int chunkZ, IChunk chunkIn, int localX, int localZ, int bottomY,
-                               int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff, BlockState lavaBlock) {
-        // Validate vars
-        if (localX < 0 || localX > 15)
-            return;
-        if (localZ < 0 || localZ > 15)
-            return;
-        if (bottomY < 0)
-            return;
-        if (topY > 255)
-            return;
+                               int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff, BlockState lavaBlock, boolean flag) {
+//        // Validate vars
+//        if (localX < 0 || localX > 15)
+//            return;
+//        if (localZ < 0 || localZ > 15)
+//            return;
+//        if (bottomY < 0)
+//            return;
+//        if (topY > 255)
+//            return;
 
         // Altitude at which caverns start closing off on the top
         int topTransitionBoundary = topY - 7;
@@ -111,6 +112,11 @@ public class CavernBC extends AbstractBC {
             // Mark block for removal if the noise passes the threshold check
             if (noise < noiseThreshold)
                 digBlock = true;
+
+            if (!flag) {
+                ModEventSubscriber.LOGGER.info("(" + chunkX + ", " + chunkZ + ")  ---- (" + localX + ", " + localZ + ") --- " + noise);
+                flag = true;
+            }
 
             // Consider digging out the block if it passed the threshold check, using the debug visualizer if enabled
             if (BetterCavesConfig.enableDebugVisualizer)

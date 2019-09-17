@@ -9,7 +9,6 @@ import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorld;
 import net.minecraft.world.chunk.IChunk;
 
 import java.util.List;
@@ -22,10 +21,10 @@ public class CaveBC extends AbstractBC {
     private NoiseGen noiseGen;
     private BlockState AIR = Blocks.AIR.getDefaultState();
 
-    public CaveBC(IWorld world, CaveType caveType, int fOctaves, float fGain, float fFreq, int numGens, float threshold, int tOctaves,
+    public CaveBC(long seed, CaveType caveType, int fOctaves, float fGain, float fFreq, int numGens, float threshold, int tOctaves,
                   float tGain, float tFreq, boolean enableTurbulence, double yComp, double xzComp, boolean yAdj,
                   float yAdjF1, float yAdjF2, BlockState vBlock) {
-        super(world, fOctaves, fGain, fFreq, numGens, threshold, tOctaves, tGain, tFreq, enableTurbulence, yComp,
+        super(seed, fOctaves, fGain, fFreq, numGens, threshold, tOctaves, tGain, tFreq, enableTurbulence, yComp,
                 xzComp, yAdj, yAdjF1, yAdjF2, vBlock);
 
         // Determine noise to use based on cave type
@@ -41,7 +40,7 @@ public class CaveBC extends AbstractBC {
 
         noiseGen = new NoiseGen(
                 this.noiseType,
-                world,
+                seed,
                 this.fractalOctaves,
                 this.fractalGain,
                 this.fractalFreq,
@@ -56,7 +55,7 @@ public class CaveBC extends AbstractBC {
 
     @Override
     public void generateColumn(int chunkX, int chunkZ, IChunk chunkIn, int localX, int localZ, int bottomY,
-                               int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff, BlockState lavaBlock) {
+                               int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff, BlockState lavaBlock, boolean flag) {
 //        // Validate vars
 //        if (localX < 0 || localX > 15)
 //            return;

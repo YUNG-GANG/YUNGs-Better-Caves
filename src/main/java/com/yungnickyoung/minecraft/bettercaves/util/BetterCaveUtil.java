@@ -10,6 +10,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.Blocks;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.IChunk;
@@ -52,9 +53,11 @@ public class BetterCaveUtil {
     public static boolean isTopBlock(IChunk chunkIn, int localX, int y, int localZ, int chunkX, int chunkZ) {
         int realX = (chunkX * 16) + localX;
         int realZ = (chunkZ * 16) + localZ;
+
         BlockPos blockPos = new BlockPos(localX, y, localZ);
         Biome biome = chunkIn.getBiome(blockPos);
         BlockState blockState = chunkIn.getBlockState(blockPos);
+
         return blockState == biome.getSurfaceBuilderConfig().getTop();
     }
 
@@ -74,14 +77,17 @@ public class BetterCaveUtil {
      * @param chunkZ the chunk's z coordinate
      */
     public static void digBlock(IChunk chunkIn, BlockState lavaBlockState, int localX, int y, int localZ, int chunkX, int chunkZ) {
-        BlockPos blockPos = new BlockPos(localX, y, localZ);
-        BlockPos blockPosAbove = new BlockPos(localX, y + 1, localZ);
+        int realX = (chunkX * 16) + localX;
+        int realZ = (chunkZ * 16) + localZ;
+
+        BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos(localX, y, localZ);
+
+        BlockPos blockPos = new BlockPos(mutableBlockPos.getX(), mutableBlockPos.getY(), mutableBlockPos.getZ());
+        BlockPos blockPosAbove = mutableBlockPos.move(Direction.UP);
+        BlockPos blockPosBelow = mutableBlockPos.move(Direction.DOWN).move(Direction.DOWN);
 
         BlockState blockState = chunkIn.getBlockState(blockPos);
         BlockState blockStateAbove = chunkIn.getBlockState(blockPosAbove);
-
-        int realX = (chunkX * 16) + localX;
-        int realZ = (chunkZ * 16) + localZ;
 
         Biome biome = chunkIn.getBiome(blockPos);
         BlockState biomeTopBlockState = biome.getSurfaceBuilderConfig().getTop();
@@ -94,8 +100,8 @@ public class BetterCaveUtil {
             } else {
                 // Adjust block below if block removed is biome top block
                 if (isTopBlock(chunkIn, localX, y, localZ, chunkX, chunkZ)
-                        && canReplaceBlock(chunkIn.getBlockState(new BlockPos(localX, y - 1, localZ)), AIR))
-                    chunkIn.setBlockState(new BlockPos(localX, y - 1, localZ), biomeTopBlockState, false);
+                        && canReplaceBlock(chunkIn.getBlockState(blockPosBelow), AIR))
+                    chunkIn.setBlockState(blockPosBelow, biomeTopBlockState, false);
 
                 // Replace this block with air, effectively "digging" it out
                 chunkIn.setBlockState(blockPos, CAVE_AIR, false);

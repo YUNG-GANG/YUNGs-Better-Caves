@@ -45,7 +45,7 @@ public class NoiseGen {
     /**
      *
      * @param noiseType The type of noise to generate, e.g. PerlinFractal, SimplexFractal, etc.
-     * @param world World this generaton function will be used in
+     * @param seed Seed for the Minecraft world this gen will be used in
      * @param fOctaves Number of fractal octaves used in noise generation
      * @param fGain Amount of fractal gain used in noise generation
      * @param fFreq Fractal frequency used in noise generation
@@ -56,10 +56,10 @@ public class NoiseGen {
      * @param yComp y-compression factor
      * @param xzComp xz-compression factor
      */
-    public NoiseGen(FastNoise.NoiseType noiseType, IWorld world, int fOctaves, float fGain, float fFreq,
+    public NoiseGen(FastNoise.NoiseType noiseType, long seed, int fOctaves, float fGain, float fFreq,
                     int tOctaves, float tGain, float tFreq, boolean useTurb, double yComp, double xzComp) {
         this.noiseType = noiseType;
-        this.seed = world.getSeed();
+        this.seed = seed;
         this.fractalOctaves = fOctaves;
         this.fractalGain = fGain;
         this.fractalFrequency = fFreq;

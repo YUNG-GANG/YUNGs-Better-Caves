@@ -74,14 +74,6 @@ public final class BetterCavesConfig {
     public static float   flooredCavernFractalFreq    = .03f;
     public static int     flooredCavernNumGenerators  = 2;
 
-    // Vanilla gen vars
-    public static boolean enableVanillaRavines;
-    public static boolean enableVanillaUnderwaterRavines;
-
-    // Water biome vars
-    public static boolean enableWaterBiomes;
-    public static String waterBiomeFreq;
-
     // Water Cavern vars
     public static double  waterCavernYComp;
     public static double  waterCavernXZComp;
@@ -90,6 +82,17 @@ public final class BetterCavesConfig {
     public static float   waterCavernFractalGain    = .3f;
     public static float   waterCavernFractalFreq    = .03f;
     public static int     waterCavernNumGenerators  = 2;
+
+    // Vanilla gen vars
+    public static boolean enableVanillaRavines;
+    public static boolean enableVanillaUnderwaterRavines;
+
+    // Water biome vars
+    public static boolean enableWaterBiomes;
+    public static String waterBiomeFreq;
+
+    // Bedrock flattening var
+    public static boolean flattenBedrock;
 
     // Debug vars
     public static boolean enableDebugVisualizer;

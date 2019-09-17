@@ -14,28 +14,33 @@ public class ConfigLavaCavern {
 
         caveTop = builder
                 .comment(" The top y-coordinate at which Lava Caverns start generating. Note that caverns will attempt " +
-                        "to close off anyway if this value is greater than the surface y-coordinate.")
+                        "to close off anyway if this value is greater than the surface y-coordinate." +
+                        "\n Default: 30")
                 .worldRestart()
                 .define("Top Generation Altitude", 30);
 
         caveBottom = builder
-                .comment(" The bottom y-coordinate at which Lava Caverns stop generating.")
+                .comment(" The bottom y-coordinate at which Lava Caverns stop generating." +
+                        "\n Default: 1")
                 .worldRestart()
                 .define("Bottom Generation Altitude", 1);
 
         yCompression = builder
-                .comment(" Changes height of caves. Lower value = taller caves with steeper drops.")
+                .comment(" Changes height of caves. Lower value = taller caves with steeper drops." +
+                        "\n Default: 1.0")
                 .worldRestart()
                 .defineInRange("Vertical Compression", 1.0f, 0f, 20f);
 
         xzCompression = builder
-                .comment(" Changes width of caves. Lower value = wider caves.")
+                .comment(" Changes width of caves. Lower value = wider caves." +
+                        "\n Default: 1.0")
                 .worldRestart()
                 .defineInRange("Horizontal Compression", 1.0f, 0f, 20f);
 
         caveFrequency = builder
                 .comment(" Determines how frequently Lava Caverns spawn." +
-                        "\n Accepted values: None, Rare, Normal, Common, VeryCommon")
+                        "\n Accepted values: None, Rare, Normal, Common, VeryCommon" +
+                        "\n Default: Normal")
                 .worldRestart()
                 .define("Lava Cavern Frequency", "Normal");
 

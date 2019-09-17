@@ -2,6 +2,7 @@ package com.yungnickyoung.minecraft.bettercaves;
 
 import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import net.minecraft.world.IWorld;
+import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;

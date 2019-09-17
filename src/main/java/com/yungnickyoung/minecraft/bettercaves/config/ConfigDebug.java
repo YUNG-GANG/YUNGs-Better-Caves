@@ -15,7 +15,9 @@ public class ConfigDebug {
                         " Type 1 Cave: Quartz Block\n" +
                         " Type 2 Cave: Cobblestone\n" +
                         " Lava Cavern: Redstone Block\n" +
-                        " Floored Cavern: Gold Block")
+                        " Floored Cavern: Gold Block\n" +
+                        " Water Cavern: Lapis Block" +
+                        "\n Default: false")
                 .worldRestart()
                 .define("Enable DEBUG Visualizer", false);
 

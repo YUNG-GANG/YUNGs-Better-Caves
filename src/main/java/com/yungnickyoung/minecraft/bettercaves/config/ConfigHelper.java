@@ -49,6 +49,10 @@ public final class ConfigHelper {
         BetterCavesConfig.flooredCavernXZComp = ConfigHolder.CLIENT.configCaveGen.configFlooredCavern.xzCompression.get();
         BetterCavesConfig.flooredCavernCaveFreq = ConfigHolder.CLIENT.configCaveGen.configFlooredCavern.caveFrequency.get();
 
+        // Water Cavern settings
+        BetterCavesConfig.waterCavernYComp = ConfigHolder.CLIENT.configCaveGen.configWaterBiomes.configWaterCavern.yCompression.get();
+        BetterCavesConfig.waterCavernXZComp = ConfigHolder.CLIENT.configCaveGen.configWaterBiomes.configWaterCavern.xzCompression.get();
+
         // Vanilla Gen settings
         BetterCavesConfig.enableVanillaRavines = ConfigHolder.CLIENT.configCaveGen.configVanillaCave.enableVanillaRavines.get();
         BetterCavesConfig.enableVanillaUnderwaterRavines = ConfigHolder.CLIENT.configCaveGen.configVanillaCave.enableVanillaUnderwaterRavines.get();
@@ -57,9 +61,8 @@ public final class ConfigHelper {
         BetterCavesConfig.enableWaterBiomes = ConfigHolder.CLIENT.configCaveGen.configWaterBiomes.enableWaterBiomes.get();
         BetterCavesConfig.waterBiomeFreq = ConfigHolder.CLIENT.configCaveGen.configWaterBiomes.waterBiomeFrequency.get();
 
-        // Water Cavern settings
-        BetterCavesConfig.waterCavernYComp = ConfigHolder.CLIENT.configCaveGen.configWaterBiomes.configWaterCavern.yCompression.get();
-        BetterCavesConfig.waterCavernXZComp = ConfigHolder.CLIENT.configCaveGen.configWaterBiomes.configWaterCavern.xzCompression.get();
+        // Flatten Bedrock settings
+        BetterCavesConfig.flattenBedrock = ConfigHolder.CLIENT.flattenBedrock.get();
 
         // Debug settings
         BetterCavesConfig.enableDebugVisualizer = ConfigHolder.CLIENT.configDebug.debugVisualizer.get();

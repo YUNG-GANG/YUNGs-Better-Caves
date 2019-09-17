@@ -13,13 +13,15 @@ public class ConfigWaterBiomes {
 
         enableWaterBiomes = builder
                 .comment(" Set to true for caves/caverns to have a chance of spawning as their water-based variants, instead" +
-                        " of having lava")
+                        " of having lava." +
+                        "\n Default: true")
                 .worldRestart()
                 .define("Enable Water Cave/Cavern Biomes", true);
 
         waterBiomeFrequency = builder
                 .comment(" Determines how frequently water biomes spawn\n" +
-                        " Accepted values: Rare, Normal, Common, VeryCommon, Always")
+                        " Accepted values: Rare, Normal, Common, VeryCommon, Always" +
+                        "\n Default: Normal")
                 .worldRestart()
                 .define("Water Biome Frequency", "Normal");
 
@@ -37,12 +39,14 @@ public class ConfigWaterBiomes {
             builder.push("Water Caverns");
 
             yCompression = builder
-                    .comment(" Changes height of caves. Lower value = taller caves with steeper drops.")
+                    .comment(" Changes height of caves. Lower value = taller caves with steeper drops." +
+                            "\n Default: 1.0")
                     .worldRestart()
                     .defineInRange("Vertical Compression", 1.0f, 0f, 20f);
 
             xzCompression = builder
-                    .comment(" Changes width of caves. Lower value = wider caves.")
+                    .comment(" Changes width of caves. Lower value = wider caves." +
+                            "\n Default: 1.0")
                     .worldRestart()
                     .defineInRange("Horizontal Compression", 1.0f, 0f, 20f);
 

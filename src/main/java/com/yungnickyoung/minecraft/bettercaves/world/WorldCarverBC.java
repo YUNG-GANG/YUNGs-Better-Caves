@@ -13,6 +13,7 @@ import com.yungnickyoung.minecraft.bettercaves.world.cave.CavernBC;
 import javafx.util.Pair;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.dimension.DimensionType;
@@ -70,6 +71,18 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
 
         coordList.add(pair);
 
+        if (BetterCavesConfig.flattenBedrock) {
+            for (int localX = 0; localX < 16; localX++) {
+                for (int localZ = 0; localZ < 16; localZ++) {
+                    for (int y = 1; y <= 4; y++) {
+                        BlockPos blockPos = new BlockPos(localX, y, localZ);
+                        if (chunkIn.getBlockState(blockPos) == Blocks.BEDROCK.getDefaultState())
+                            chunkIn.setBlockState(blockPos, Blocks.STONE.getDefaultState(), false);
+                    }
+                }
+            }
+        }
+
         int maxSurfaceHeight = 128;
         int minSurfaceHeight = 60;
 
@@ -113,8 +126,7 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
                          * we allow the user to tweak the cutoff values based on the frequency they designate for each cave
                          * type, so we must also check for values between the two thresholds,
                          * e.g. if (cubicCaveThreshold <= noiseValue < simplexCaveThreshold).
-                         * In this case, we use vanilla cave generation if it is enabled; otherwise we dig no caves
-                         * out of this chunk.
+                         * In this case, we dig no caves out of this chunk.
                          */
                         if (caveBiomeNoise < this.cubicCaveThreshold) {
                             caveGen = this.caveCubic;
@@ -180,7 +192,7 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
                 }
             }
         }
-
+        chunkIn.setModified(true);
         return true;
     }
 

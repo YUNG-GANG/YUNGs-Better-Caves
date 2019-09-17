@@ -21,20 +21,23 @@ public class ConfigCaveGen {
         caveBiomeSize = builder
                 .comment(" Determines how large cave biomes are.\n Controls how long a cave system of a certain cave type" +
                         " extends before intersecting with a cave system of another type.\n Larger Biome Size = more " +
-                        "cave interconnectivity.\n Accepted values: Small, Medium, Large, ExtraLarge")
+                        "cave interconnectivity.\n Accepted values: Small, Medium, Large, ExtraLarge" +
+                        "\n Default: Large")
                 .worldRestart()
                 .define("Cave Biome Size", "Large");
 
         cavernBiomeSize = builder
                 .comment(" Determines how large cavern biomes are. This controls the average size of caverns." +
-                        "\n Accepted values: Small, Medium, Large, ExtraLarge")
+                        "\n Accepted values: Small, Medium, Large, ExtraLarge" +
+                        "\n Default: Small")
                 .worldRestart()
                 .define("Cavern Biome Size", "Small");
 
         surfaceCutoff = builder
                 .comment(" This is the number of blocks from a given point on the surface that caves start to close off." +
                         "\n Decrease this to create more cave openings in the sides of mountains. Increase to create less" +
-                        " above-surface openings.")
+                        " above-surface openings." +
+                        "\n Default: 10")
                 .worldRestart()
                 .define("Cave Surface Cutoff Depth", 10);
 

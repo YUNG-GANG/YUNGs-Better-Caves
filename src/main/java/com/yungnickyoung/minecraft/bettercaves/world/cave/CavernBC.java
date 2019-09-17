@@ -1,6 +1,5 @@
 package com.yungnickyoung.minecraft.bettercaves.world.cave;
 
-import com.yungnickyoung.minecraft.bettercaves.ModEventSubscriber;
 import com.yungnickyoung.minecraft.bettercaves.config.BetterCavesConfig;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
@@ -58,7 +57,7 @@ public class CavernBC extends AbstractBC {
 
     @Override
     public void generateColumn(int chunkX, int chunkZ, IChunk chunkIn, int localX, int localZ, int bottomY,
-                               int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff, BlockState lavaBlock, boolean flag) {
+                               int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff, BlockState lavaBlock) {
 //        // Validate vars
 //        if (localX < 0 || localX > 15)
 //            return;
@@ -112,11 +111,6 @@ public class CavernBC extends AbstractBC {
             // Mark block for removal if the noise passes the threshold check
             if (noise < noiseThreshold)
                 digBlock = true;
-
-            if (!flag) {
-                ModEventSubscriber.LOGGER.info("(" + chunkX + ", " + chunkZ + ")  ---- (" + localX + ", " + localZ + ") --- " + noise);
-                flag = true;
-            }
 
             // Consider digging out the block if it passed the threshold check, using the debug visualizer if enabled
             if (BetterCavesConfig.enableDebugVisualizer)

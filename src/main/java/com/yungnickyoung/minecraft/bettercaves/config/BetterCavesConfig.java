@@ -75,7 +75,6 @@ public final class BetterCavesConfig {
     public static int     flooredCavernNumGenerators  = 2;
 
     // Vanilla gen vars
-    public static boolean enableVanillaCaves;
     public static boolean enableVanillaRavines;
     public static boolean enableVanillaUnderwaterRavines;
 

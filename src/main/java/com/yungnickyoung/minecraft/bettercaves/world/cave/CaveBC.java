@@ -20,6 +20,7 @@ import java.util.Map;
 public class CaveBC extends AbstractBC {
     private NoiseGen noiseGen;
     private BlockState AIR = Blocks.AIR.getDefaultState();
+    private BlockState CAVE_AIR = Blocks.CAVE_AIR.getDefaultState();
 
     public CaveBC(long seed, CaveType caveType, int fOctaves, float fGain, float fFreq, int numGens, float threshold, int tOctaves,
                   float tGain, float tFreq, boolean enableTurbulence, double yComp, double xzComp, boolean yAdj,
@@ -55,7 +56,7 @@ public class CaveBC extends AbstractBC {
 
     @Override
     public void generateColumn(int chunkX, int chunkZ, IChunk chunkIn, int localX, int localZ, int bottomY,
-                               int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff, BlockState lavaBlock, boolean flag) {
+                               int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff, BlockState lavaBlock) {
 //        // Validate vars
 //        if (localX < 0 || localX > 15)
 //            return;
@@ -115,8 +116,8 @@ public class CaveBC extends AbstractBC {
             BlockState currBlock = chunkIn.getBlockState(new BlockPos(localX, realY, localZ));
 
             if (BetterCaveUtil.canReplaceBlock(currBlock, AIR)
-                    && chunkIn.getBlockState(new BlockPos(localX, realY + 1, localZ)) == AIR
-                    && chunkIn.getBlockState(new BlockPos(localX, realY - 1, localZ)) == AIR
+                    && (chunkIn.getBlockState(new BlockPos(localX, realY + 1, localZ)) == AIR || chunkIn.getBlockState(new BlockPos(localX, realY + 1, localZ)) == CAVE_AIR)
+                    && (chunkIn.getBlockState(new BlockPos(localX, realY - 1, localZ)) == AIR || chunkIn.getBlockState(new BlockPos(localX, realY - 1, localZ)) == CAVE_AIR)
             )
                 this.digBlock(chunkIn, lavaBlock, chunkX, chunkZ, localX, localZ, realY);
         }

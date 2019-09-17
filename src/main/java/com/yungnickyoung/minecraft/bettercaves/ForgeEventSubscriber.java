@@ -1,6 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves;
 
 import com.yungnickyoung.minecraft.bettercaves.config.Settings;
+import net.minecraft.world.IWorld;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -16,13 +17,13 @@ public final class ForgeEventSubscriber {
     @SubscribeEvent
     public static void onWorldTickEvent(final WorldEvent.CreateSpawnPosition event) {
         // Get seed for caves' noise generators
-        long seed = event.getWorld().getSeed();
+        IWorld world = event.getWorld();
 
         // Log event
         LOGGER.info(event);
-        LOGGER.info("--> Initializing Better Caves carver with seed: " + seed);
+        LOGGER.info("--> Initializing Better Caves carver with seed: " + world.getSeed());
 
         // Initialize Better Caves with world seed
-        ModEventSubscriber.BETTER_CAVE.initialize(seed);
+        ModEventSubscriber.BETTER_CAVE.initialize(world);
     }
 }

@@ -37,7 +37,7 @@ import java.util.Set;
 public final class ModEventSubscriber {
 
     public static final Logger LOGGER = LogManager.getLogger(Settings.MOD_ID + " Mod Event Subscriber");
-    public static final WorldCarverBC BETTER_CAVE = new WorldCarverBC(ProbabilityConfig::deserialize, 256);
+    static final WorldCarverBC BETTER_CAVE = new WorldCarverBC(ProbabilityConfig::deserialize, 256);
     private static ConfiguredCarver<ProbabilityConfig> confCarver = Biome.createCarver(BETTER_CAVE, new ProbabilityConfig(1));
 
     private static boolean flag = false;

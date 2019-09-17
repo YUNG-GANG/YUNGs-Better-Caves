@@ -3,9 +3,6 @@ package com.yungnickyoung.minecraft.bettercaves.config;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 final class Configuration {
-//    public static final ConfigCaveGen CAVE_GEN = new ConfigCaveGen(BUILDER);
-//    public static final ConfigBedrockGen BEDROCK_GEN = new ConfigBedrockGen(BUILDER);
-//    public static  final ConfigDebug DEBUG = new ConfigDebug(BUILDER);
 
     public final ConfigCaveGen configCaveGen;
     public final ConfigDebug configDebug;
@@ -23,9 +20,5 @@ final class Configuration {
         configDebug = new ConfigDebug(builder);
 
         builder.pop();
-
-
-
     }
-
 }

@@ -46,14 +46,9 @@ public class BetterCaveUtil {
      * @param localX the block's chunk-local x-coordinate
      * @param y the block's chunk-local y-coordinate (same as real y-coordinate)
      * @param localZ the block's chunk-local z-coordinate
-     * @param chunkX the chunk's x coordinate
-     * @param chunkZ the chunk's z coordinate
      * @return true if this block is the same type as the biome's designated top block
      */
-    public static boolean isTopBlock(IChunk chunkIn, int localX, int y, int localZ, int chunkX, int chunkZ) {
-        int realX = (chunkX * 16) + localX;
-        int realZ = (chunkZ * 16) + localZ;
-
+    public static boolean isTopBlock(IChunk chunkIn, int localX, int y, int localZ) {
         BlockPos blockPos = new BlockPos(localX, y, localZ);
         Biome biome = chunkIn.getBiome(blockPos);
         BlockState blockState = chunkIn.getBlockState(blockPos);
@@ -77,9 +72,6 @@ public class BetterCaveUtil {
      * @param chunkZ the chunk's z coordinate
      */
     public static void digBlock(IChunk chunkIn, BlockState lavaBlockState, int localX, int y, int localZ, int chunkX, int chunkZ) {
-        int realX = (chunkX * 16) + localX;
-        int realZ = (chunkZ * 16) + localZ;
-
         BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos(localX, y, localZ);
 
         BlockPos blockPos = new BlockPos(mutableBlockPos.getX(), mutableBlockPos.getY(), mutableBlockPos.getZ());
@@ -99,7 +91,7 @@ public class BetterCaveUtil {
                 chunkIn.setBlockState(blockPos, lavaBlockState, false);
             } else {
                 // Adjust block below if block removed is biome top block
-                if (isTopBlock(chunkIn, localX, y, localZ, chunkX, chunkZ)
+                if (isTopBlock(chunkIn, localX, y, localZ)
                         && canReplaceBlock(chunkIn.getBlockState(blockPosBelow), AIR))
                     chunkIn.setBlockState(blockPosBelow, biomeTopBlockState, false);
 
@@ -269,9 +261,11 @@ public class BetterCaveUtil {
      * @return Surface height at given coordinate
      */
     private static int linarSurfaceSearch(IChunk chunkIn, int localX, int localZ, int topY, int bottomY) {
+        BlockPos.MutableBlockPos blockPos = new BlockPos.MutableBlockPos(localX, bottomY, localZ);
         for (int y = bottomY; y <= topY; y++) {
-            if (chunkIn.getBlockState(new BlockPos(localX, y, localZ)) == Blocks.AIR.getDefaultState())
+            if (chunkIn.getBlockState(blockPos) == Blocks.AIR.getDefaultState() || chunkIn.getBlockState(new BlockPos(localX, y, localZ)) == Blocks.WATER.getDefaultState())
                 return y;
+            blockPos.move(Direction.UP);
         }
 
         return -1; // Surface somehow not found

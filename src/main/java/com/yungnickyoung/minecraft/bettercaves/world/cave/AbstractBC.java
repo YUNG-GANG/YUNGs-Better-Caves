@@ -124,7 +124,7 @@ public abstract class AbstractBC {
      *                         BetterCaveUtil#getMinSurfaceHeight
      */
     public abstract void generateColumn(int chunkX, int chunkZ, IChunk chunkIn, int localX, int localZ, int bottomY,
-                                        int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff, BlockState lavaBlock, boolean flag);
+                                        int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff, BlockState lavaBlock);
 
     /**
      * Preprocessing performed on a column of noise to adjust its values before comparing them to the threshold.
@@ -186,16 +186,26 @@ public abstract class AbstractBC {
     protected void digBlock(IChunk chunkIn, BlockState lavaBlock, int chunkX, int chunkZ, int localX, int localZ, int realY) {
         if (!lavaBlock.getFluidState().isTagged(FluidTags.WATER)) {
             // Check for adjacent water blocks to avoid breaking into lakes or oceans
-//            if (chunkIn.getBlockState(new BlockPos(localX, realY + 1, localZ)).getFluidState().isTagged(FluidTags.WATER))
-//                return;
-//            if (localX < 15 && chunkIn.getBlockState(new BlockPos(localX + 1, realY, localZ)).getFluidState().isTagged(FluidTags.WATER))
-//                return;
-//            if (localX > 0 && chunkIn.getBlockState(new BlockPos(localX - 1, realY, localZ)).getFluidState().isTagged(FluidTags.WATER))
-//                return;
-//            if (localZ < 15 && chunkIn.getBlockState(new BlockPos(localX, realY, localZ + 1)).getFluidState().isTagged(FluidTags.WATER))
-//                return;
-//            if (localZ > 0 && chunkIn.getBlockState(new BlockPos(localX, realY, localZ - 1)).getFluidState().isTagged(FluidTags.WATER))
-//                return;
+            if (chunkIn.getBlockState(new BlockPos(localX, realY + 1, localZ)).getFluidState().isTagged(FluidTags.WATER)
+                    || chunkIn.getBlockState(new BlockPos(localX, realY + 1, localZ)) == Blocks.WATER.getDefaultState())
+                return;
+
+            if (localX < 15 && (chunkIn.getBlockState(new BlockPos(localX + 1, realY, localZ)).getFluidState().isTagged(FluidTags.WATER))
+                    || chunkIn.getBlockState(new BlockPos(localX + 1, realY, localZ)) == Blocks.WATER.getDefaultState())
+                return;
+
+            if (localX > 0 && (chunkIn.getBlockState(new BlockPos(localX - 1, realY, localZ)).getFluidState().isTagged(FluidTags.WATER))
+                    || chunkIn.getBlockState(new BlockPos(localX - 1, realY, localZ)) == Blocks.WATER.getDefaultState())
+                return;
+
+            if (localZ < 15 && (chunkIn.getBlockState(new BlockPos(localX, realY, localZ + 1)).getFluidState().isTagged(FluidTags.WATER))
+                    || chunkIn.getBlockState(new BlockPos(localX, realY, localZ + 1)) == Blocks.WATER.getDefaultState())
+                return;
+
+            if (localZ > 0 && (chunkIn.getBlockState(new BlockPos(localX, realY, localZ - 1)).getFluidState().isTagged(FluidTags.WATER))
+                    || chunkIn.getBlockState(new BlockPos(localX, realY, localZ - 1)) == Blocks.WATER.getDefaultState())
+                return;
+
         }
 
         BetterCaveUtil.digBlock(chunkIn, lavaBlock, localX, realY, localZ, chunkX, chunkZ);

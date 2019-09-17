@@ -50,7 +50,6 @@ public final class ConfigHelper {
         BetterCavesConfig.flooredCavernCaveFreq = ConfigHolder.CLIENT.configCaveGen.configFlooredCavern.caveFrequency.get();
 
         // Vanilla Gen settings
-        BetterCavesConfig.enableVanillaCaves = ConfigHolder.CLIENT.configCaveGen.configVanillaCave.enableVanillaCaves.get();
         BetterCavesConfig.enableVanillaRavines = ConfigHolder.CLIENT.configCaveGen.configVanillaCave.enableVanillaRavines.get();
         BetterCavesConfig.enableVanillaUnderwaterRavines = ConfigHolder.CLIENT.configCaveGen.configVanillaCave.enableVanillaUnderwaterRavines.get();
 

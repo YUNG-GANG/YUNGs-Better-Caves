@@ -9,6 +9,7 @@ import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.world.WorldCarverBC;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraft.world.gen.carver.WorldCarver;
@@ -17,7 +18,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -62,6 +62,16 @@ public final class ModEventSubscriber {
         Set<Map.Entry<ResourceLocation, Biome>> biomesList = ForgeRegistries.BIOMES.getEntries();
         for (Map.Entry e : biomesList) {
             Biome b = (Biome)e.getValue();
+
+            // Exclude Nether and End biomes
+            if (b == Biomes.NETHER
+                    || b == Biomes.THE_END
+                    || b == Biomes.END_BARRENS
+                    || b == Biomes.END_HIGHLANDS
+                    || b == Biomes.END_MIDLANDS
+                    || b == Biomes.SMALL_END_ISLANDS)
+                continue;
+
             setCarvers(b, confCarver);
         }
     }

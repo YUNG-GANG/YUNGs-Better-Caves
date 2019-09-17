@@ -57,20 +57,25 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
     // Config option for using water biomes
     private boolean enableWaterBiomes;
 
+    // List used to avoid operating on a chunk more than once
     private Set<Pair<Integer, Integer>> coordList = new HashSet<>();
 
     public WorldCarverBC(Function<Dynamic<?>, ? extends ProbabilityConfig> p_i49929_1_, int p_i49929_2_) {
         super(p_i49929_1_, p_i49929_2_);
     }
 
+    // Override the default carver's method to use Better Caves carving instead.
     @Override
     public boolean carve(IChunk chunkIn, Random rand, int seaLevel, int cX, int cZ, int chunkX, int chunkZ, BitSet carvingMask, ProbabilityConfig config) {
+        // Since the ChunkGenerator calls this method many times per chunk (~300), we must
+        // check for duplicates so we don't operate on the same chunk more than once.
         Pair<Integer, Integer> pair = new Pair<>(chunkX, chunkZ);
         if (coordList.contains(pair))
             return true;
 
         coordList.add(pair);
 
+        // Flatten bedrock into single layer, if enabled in user config
         if (BetterCavesConfig.flattenBedrock) {
             for (int localX = 0; localX < 16; localX++) {
                 for (int localZ = 0; localZ < 16; localZ++) {

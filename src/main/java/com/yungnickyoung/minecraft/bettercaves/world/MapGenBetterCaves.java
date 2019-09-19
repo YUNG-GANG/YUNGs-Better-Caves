@@ -92,17 +92,8 @@ public class MapGenBetterCaves extends MapGenCaves {
             return;
         }
 
-        // Find the (approximate) lowest and highest surface altitudes in this chunk
-//        int maxSurfaceHeight = BetterCaveUtil.getMaxSurfaceHeight(primer);
-//        int minSurfaceHeight = BetterCaveUtil.getMinSurfaceHeight(primer);
-
         int maxSurfaceHeight = 128;
         int minSurfaceHeight = 60;
-
-        // Debug visualizer options
-        if (Configuration.debugsettings.debugVisualizer) {
-            maxSurfaceHeight = 128;
-        }
 
         // Cave generators - we will determine exactly what type these are based on the cave biome for each column
         AbstractBC cavernGen;
@@ -158,7 +149,8 @@ public class MapGenBetterCaves extends MapGenCaves {
                                     defaultCaveGen.generate(worldIn, chunkX, chunkZ, primer);
                                     return;
                                 }
-                                continue;
+                                caveGen = null;
+                                caveBottomY = 255;
                             }
 
                             /* --------------------------- Configure Caverns --------------------------- */
@@ -206,10 +198,12 @@ public class MapGenBetterCaves extends MapGenCaves {
 
                             /* --------------- Dig out caves and caverns for this column --------------- */
                             // Top (Cave) layer:
-                            caveGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, caveBottomY, maxSurfaceHeight,
+                            if (caveGen != null)
+                                caveGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, caveBottomY, maxSurfaceHeight,
                                     maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, lavaBlock);
                             // Bottom (Cavern) layer:
-                            cavernGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, cavernBottomY, cavernTopY,
+                            if (cavernGen != null)
+                                cavernGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, cavernBottomY, cavernTopY,
                                     maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, lavaBlock);
 
                         }

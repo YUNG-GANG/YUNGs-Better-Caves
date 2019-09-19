@@ -71,6 +71,10 @@ public class CavernBC extends AbstractBC {
         // Altitude at which caverns start closing off on the top
         int topTransitionBoundary = topY - 7;
 
+        // Validate transition boundary
+        if (topTransitionBoundary < 1)
+            topTransitionBoundary = 1;
+
         // Altitude at which caverns start closing off on the bottom to create "floors"
         int bottomTransitionBoundary = 0;
         if (cavernType == CavernType.FLOORED)

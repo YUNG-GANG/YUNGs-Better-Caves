@@ -123,6 +123,9 @@ public class MapGenBetterCaves extends MapGenCaves {
                     if (!Configuration.debugsettings.debugVisualizer)
                         maxSurfaceHeight = BetterCaveUtil.getMaxSurfaceHeightSubChunk(primer, subX, subZ);
 
+                    // maxSurfaceHeight (also used for max cave altitude) cannot exceed Max Cave Altitude setting
+                    maxSurfaceHeight = Math.min(maxSurfaceHeight, Configuration.caveSettings.maxCaveAltitude);
+
                     for (int offsetX = 0; offsetX < 2; offsetX++) {
                         for (int offsetZ = 0; offsetZ < 2; offsetZ++) {
                             int localX = (subX * 2) + offsetX; // chunk-local x-coordinate (0-15, inclusive)

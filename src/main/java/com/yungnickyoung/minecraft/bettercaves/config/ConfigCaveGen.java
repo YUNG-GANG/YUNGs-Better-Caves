@@ -47,9 +47,14 @@ public class ConfigCaveGen {
     public CaveBiomeSize cavernBiomeSize = CaveBiomeSize.Small;
 
     @Config.Name("Cave Surface Cutoff Depth")
-    @Config.Comment("This is the number of blocks from a given point on the surface that caves start to close off." +
-            " Decrease this to create more cave openings in the sides of mountains. Increase to create less" +
-            " above-surface openings.")
+    @Config.Comment("The depth from a given point on the surface (or the Max Cave Altitude, whichever is " +
+            "lower) at which caves start to close off. Decrease this to create more cave openings in the sides of " +
+            "mountains. Increase to create less above-surface openings.")
     @Config.RequiresWorldRestart
     public int surfaceCutoff = 10;
+
+    @Config.Name("Max Cave Altitude")
+    @Config.Comment("The maximum altitude at which caves can generate")
+    @Config.RequiresWorldRestart
+    public int maxCaveAltitude = 128;
 }

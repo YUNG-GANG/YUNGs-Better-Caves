@@ -6,7 +6,6 @@ import com.yungnickyoung.minecraft.bettercaves.config.BetterCavesConfig;
 import com.yungnickyoung.minecraft.bettercaves.config.ConfigHelper;
 import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.config.Settings;
-import com.yungnickyoung.minecraft.bettercaves.world.WorldCarverBC;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
@@ -14,9 +13,12 @@ import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraft.world.gen.carver.WorldCarver;
 import net.minecraft.world.gen.feature.ProbabilityConfig;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
@@ -37,8 +39,6 @@ import java.util.Set;
 public final class ModEventSubscriber {
 
     public static final Logger LOGGER = LogManager.getLogger(Settings.MOD_ID + " Mod Event Subscriber");
-    static final WorldCarverBC BETTER_CAVE = new WorldCarverBC(ProbabilityConfig::deserialize, 256);
-    private static ConfiguredCarver<ProbabilityConfig> confCarver = Biome.createCarver(BETTER_CAVE, new ProbabilityConfig(1));
 
     /**
      * Rebakes config changes for Better Caves
@@ -80,7 +80,8 @@ public final class ModEventSubscriber {
                     || b == Biomes.SMALL_END_ISLANDS)
                 continue;
 
-            setCarvers(b, confCarver);
+            setCarvers(b, BetterCaves.confCarver);
+//            BETTER_CAVE.initialize(0);
         }
     }
 
@@ -124,7 +125,7 @@ public final class ModEventSubscriber {
             final Field field = biomeIn.getClass().getDeclaredField("carvers");
             field.setAccessible(true);
             field.set(biomeIn, carvers);
-            LOGGER.error("Successfully updated 'carvers' field for Biome " + biomeIn.getDisplayName());
+//            LOGGER.info("Successfully updated 'carvers' field for Biome " + biomeIn.getDisplayName());
         } catch (NoSuchFieldException e) {
             Class superclass = biomeIn.getClass().getSuperclass();
             if (superclass == null) {
@@ -134,7 +135,7 @@ public final class ModEventSubscriber {
                     final Field field = superclass.getDeclaredField("carvers");
                     field.setAccessible(true);
                     field.set(biomeIn, carvers);
-                    LOGGER.error("Successfully updated 'carvers' field for Biome " + biomeIn.getDisplayName() + " from parent class (probably Biome)");
+//                    LOGGER.info("Successfully updated 'carvers' field for Biome " + biomeIn.getDisplayName() + " from parent class (probably Biome)");
                 } catch (Exception e2) {
                     LOGGER.error("Error getting 'carvers' field for biome " + biomeIn.getClass().getName()+ ": " + e);
                 }

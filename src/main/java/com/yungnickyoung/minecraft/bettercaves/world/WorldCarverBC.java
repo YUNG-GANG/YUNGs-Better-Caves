@@ -2,6 +2,7 @@ package com.yungnickyoung.minecraft.bettercaves.world;
 
 
 import com.mojang.datafixers.Dynamic;
+import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.BetterCavesConfig;
 import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
@@ -103,9 +104,9 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
         int cavernTopY;
         int caveBottomY;
 
-        // Only use Better Caves generation in overworld
-        if (world.getDimension().getType() != DimensionType.OVERWORLD)
-            return false;
+//        // Only use Better Caves generation in overworld
+//        if (world.getDimension().getType() != DimensionType.OVERWORLD)
+//            return false;
 
         // We split chunks into 2x2 subchunks for surface height calculations
         for (int subX = 0; subX < 8; subX++) {
@@ -437,6 +438,8 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
                 BetterCavesConfig.waterCavernXZComp,
                 Blocks.LAPIS_BLOCK.getDefaultState()
         );
+
+        BetterCaves.LOGGER.info("WORLDCARVERBC INITIALIZED WITH SEED " + this.seed);
     }
 
     public void initialize(IWorld world) {

@@ -1,4 +1,4 @@
-![Yung's Better Caves](https://github.com/yungnickyoung/Yungs-Better-Caves/blob/master/src/main/resources/BetterCavesBanner.png "Yung's Better Caves")
+![Yung's Better Caves](https://github.com/yungnickyoung/Yungs-Better-Caves/blob/1.12.2/src/main/resources/BetterCavesBanner.png "Yung's Better Caves")
 
 **Check out [Yung's Better Caves on CurseForge](https://www.curseforge.com/minecraft/mc-mods/yungs-better-caves)**
 

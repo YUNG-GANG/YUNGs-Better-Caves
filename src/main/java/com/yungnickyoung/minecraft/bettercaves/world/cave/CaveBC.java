@@ -57,22 +57,22 @@ public class CaveBC extends AbstractBC {
     @Override
     public void generateColumn(int chunkX, int chunkZ, IChunk chunkIn, int localX, int localZ, int bottomY,
                                int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff, BlockState lavaBlock) {
-//        // Validate vars
-//        if (localX < 0 || localX > 15)
-//            return;
-//        if (localZ < 0 || localZ > 15)
-//            return;
-//        if (bottomY < 0)
-//            return;
-//        if (topY > 255)
-//            return;
+        // Validate vars
+        if (localX < 0 || localX > 15)
+            return;
+        if (localZ < 0 || localZ > 15)
+            return;
+        if (bottomY < 0)
+            return;
+        if (topY > 255)
+            return;
 
         // Altitude at which caves start closing off so they aren't all open to the surface
         int transitionBoundary = maxSurfaceHeight - surfaceCutoff;
 
-//        // Validate transition boundary
-//        if (transitionBoundary < 1)
-//            transitionBoundary = 1;
+        // Validate transition boundary
+        if (transitionBoundary < 1)
+            transitionBoundary = 1;
 
         // Generate noise for caves.
         // The noise for an individual block is represented by a NoiseTuple, which is essentially an n-tuple of
@@ -110,8 +110,9 @@ public class CaveBC extends AbstractBC {
 
         /* ============ Post-Processing to remove any singular floating blocks in the ease-in range ============ */
         for (int realY = transitionBoundary + 1; realY < topY; realY++) {
-//            if (realY < 1 || realY > 255)
-//                break;
+            // Validate y value
+            if (realY < 1 || realY > 255)
+                break;
 
             BlockState currBlock = chunkIn.getBlockState(new BlockPos(localX, realY, localZ));
 

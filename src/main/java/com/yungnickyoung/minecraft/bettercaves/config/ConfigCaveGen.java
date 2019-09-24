@@ -57,4 +57,9 @@ public class ConfigCaveGen {
     @Config.Comment("The maximum altitude at which caves can generate")
     @Config.RequiresWorldRestart
     public int maxCaveAltitude = 128;
+
+    @Config.Name("Blacklisted Dimension IDs")
+    @Config.Comment("List of ID's of dimensions that won't have Better Caves")
+    @Config.RequiresWorldRestart
+    public int[] blacklistedDimensionIDs = {-1, 1};
 }

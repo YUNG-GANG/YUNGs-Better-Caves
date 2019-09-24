@@ -107,111 +107,118 @@ public class MapGenBetterCaves extends MapGenCaves {
         int cavernTopY;
         int caveBottomY;
 
-        if (worldIn.provider.getDimension() == 0) { // Only use Better Caves generation in overworld
-            // We split chunks into 2x2 subchunks for surface height calculations
-            for (int subX = 0; subX < 8; subX++) {
-                for (int subZ = 0; subZ < 8; subZ++) {
-                    if (!Configuration.debugsettings.debugVisualizer)
-                        maxSurfaceHeight = BetterCaveUtil.getMaxSurfaceHeightSubChunk(primer, subX, subZ);
+        int dimensionID = worldIn.provider.getDimension();
 
-                    // maxSurfaceHeight (also used for max cave altitude) cannot exceed Max Cave Altitude setting
-                    maxSurfaceHeight = Math.min(maxSurfaceHeight, Configuration.caveSettings.maxCaveAltitude);
+        // Only use Better Caves generation in non-blacklisted dimensions
+        for (int dim : Configuration.caveSettings.blacklistedDimensionIDs) {
+            if (dimensionID == dim) {
+                defaultCaveGen.generate(worldIn, chunkX, chunkZ, primer);
+                return;
+            }
+        }
 
-                    for (int offsetX = 0; offsetX < 2; offsetX++) {
-                        for (int offsetZ = 0; offsetZ < 2; offsetZ++) {
-                            int localX = (subX * 2) + offsetX; // chunk-local x-coordinate (0-15, inclusive)
-                            int localZ = (subZ * 2) + offsetZ; // chunk-local z-coordinate (0-15, inclusive)
-                            int realX = (chunkX * 16) + localX;
-                            int realZ = (chunkZ * 16) + localZ;
+        // We split chunks into 2x2 subchunks for surface height calculations
+        for (int subX = 0; subX < 8; subX++) {
+            for (int subZ = 0; subZ < 8; subZ++) {
+                if (!Configuration.debugsettings.debugVisualizer)
+                    maxSurfaceHeight = BetterCaveUtil.getMaxSurfaceHeightSubChunk(primer, subX, subZ);
 
-                            /* --------------------------- Configure Caves --------------------------- */
+                // maxSurfaceHeight (also used for max cave altitude) cannot exceed Max Cave Altitude setting
+                maxSurfaceHeight = Math.min(maxSurfaceHeight, Configuration.caveSettings.maxCaveAltitude);
 
-                            // Get noise values used to determine cave biome
-                            float caveBiomeNoise = caveBiomeController.GetNoise(realX, realZ);
+                for (int offsetX = 0; offsetX < 2; offsetX++) {
+                    for (int offsetZ = 0; offsetZ < 2; offsetZ++) {
+                        int localX = (subX * 2) + offsetX; // chunk-local x-coordinate (0-15, inclusive)
+                        int localZ = (subZ * 2) + offsetZ; // chunk-local z-coordinate (0-15, inclusive)
+                        int realX = (chunkX * 16) + localX;
+                        int realZ = (chunkZ * 16) + localZ;
 
-                            /* Determine cave type for this column. We have two thresholds, one for cubic caves and one for
-                             * simplex caves. Since the noise value generated for the biome is between -1 and 1, we (by
-                             * default) designate all negative values as cubic caves, and all positive as simplex. However,
-                             * we allow the user to tweak the cutoff values based on the frequency they designate for each cave
-                             * type, so we must also check for values between the two thresholds,
-                             * e.g. if (cubicCaveThreshold <= noiseValue < simplexCaveThreshold).
-                             * In this case, we use vanilla cave generation if it is enabled; otherwise we dig no caves
-                             * out of this chunk.
-                             */
-                            if (caveBiomeNoise < this.cubicCaveThreshold) {
-                                caveGen = this.caveCubic;
-                                caveBottomY = Configuration.caveSettings.cubicCave.caveBottom;
-                            } else if (caveBiomeNoise >= this.simplexCaveThreshold) {
-                                caveGen = this.caveSimplex;
-                                caveBottomY = Configuration.caveSettings.simplexCave.caveBottom;
-                            } else {
-                                if (this.enableVanillaCaves) {
-                                    defaultCaveGen.generate(worldIn, chunkX, chunkZ, primer);
-                                    return;
-                                }
-                                caveGen = null;
-                                caveBottomY = 255;
+                        /* --------------------------- Configure Caves --------------------------- */
+
+                        // Get noise values used to determine cave biome
+                        float caveBiomeNoise = caveBiomeController.GetNoise(realX, realZ);
+
+                        /* Determine cave type for this column. We have two thresholds, one for cubic caves and one for
+                         * simplex caves. Since the noise value generated for the biome is between -1 and 1, we (by
+                         * default) designate all negative values as cubic caves, and all positive as simplex. However,
+                         * we allow the user to tweak the cutoff values based on the frequency they designate for each cave
+                         * type, so we must also check for values between the two thresholds,
+                         * e.g. if (cubicCaveThreshold <= noiseValue < simplexCaveThreshold).
+                         * In this case, we use vanilla cave generation if it is enabled; otherwise we dig no caves
+                         * out of this chunk.
+                         */
+                        if (caveBiomeNoise < this.cubicCaveThreshold) {
+                            caveGen = this.caveCubic;
+                            caveBottomY = Configuration.caveSettings.cubicCave.caveBottom;
+                        } else if (caveBiomeNoise >= this.simplexCaveThreshold) {
+                            caveGen = this.caveSimplex;
+                            caveBottomY = Configuration.caveSettings.simplexCave.caveBottom;
+                        } else {
+                            if (this.enableVanillaCaves) {
+                                defaultCaveGen.generate(worldIn, chunkX, chunkZ, primer);
+                                return;
                             }
-
-                            /* --------------------------- Configure Caverns --------------------------- */
-
-                            // Get noise values used to determine cavern biome
-                            float cavernBiomeNoise = cavernBiomeController.GetNoise(realX, realZ);
-                            float waterBiomeNoise = 99;
-
-                            // Only bother calculating noise for water biome if enabled
-                            if (enableWaterBiomes)
-                                waterBiomeNoise = waterCavernController.GetNoise(realX, realZ);
-
-                            // If water biome threshold check is passed, change lava block to water
-                            IBlockState lavaBlock = Blocks.FLOWING_LAVA.getDefaultState();
-                            if (waterBiomeNoise < waterBiomeThreshold)
-                                lavaBlock = Blocks.WATER.getDefaultState();
-
-                            // Determine cavern type for this column. Caverns generate at low altitudes only.
-                            if (cavernBiomeNoise < lavaCavernThreshold) {
-                                if (this.enableWaterBiomes && waterBiomeNoise < this.waterBiomeThreshold) {
-                                    // Generate water cavern in this column
-                                    cavernGen = this.cavernWater;
-                                } else {
-                                    // Generate lava cavern in this column
-                                    cavernGen = this.cavernLava;
-                                }
-                                // Water caverns use the same cave top/bottom as lava caverns
-                                cavernBottomY = Configuration.caveSettings.lavaCavern.caveBottom;
-                                cavernTopY = Configuration.caveSettings.lavaCavern.caveTop;
-                            } else if (cavernBiomeNoise >= lavaCavernThreshold && cavernBiomeNoise <= flooredCavernThreshold) {
-                                /* Similar to determining cave type above, we must check for values between the two adjusted
-                                 * thresholds, i.e. lavaCavernThreshold < noiseValue <= flooredCavernThreshold.
-                                 * In this case, we just continue generating the caves we were generating above, instead
-                                 * of generating a cavern.
-                                 */
-                                cavernGen = caveGen;
-                                cavernBottomY = caveBottomY;
-                                cavernTopY = caveBottomY;
-                            } else {
-                                // Generate floored cavern in this column
-                                cavernGen = this.cavernFloored;
-                                cavernBottomY = Configuration.caveSettings.flooredCavern.caveBottom;
-                                cavernTopY = Configuration.caveSettings.flooredCavern.caveTop;
-                            }
-
-                            /* --------------- Dig out caves and caverns for this column --------------- */
-                            // Top (Cave) layer:
-                            if (caveGen != null)
-                                caveGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, caveBottomY, maxSurfaceHeight,
-                                    maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, lavaBlock);
-                            // Bottom (Cavern) layer:
-                            if (cavernGen != null)
-                                cavernGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, cavernBottomY, cavernTopY,
-                                    maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, lavaBlock);
-
+                            caveGen = null;
+                            caveBottomY = 255;
                         }
+
+                        /* --------------------------- Configure Caverns --------------------------- */
+
+                        // Get noise values used to determine cavern biome
+                        float cavernBiomeNoise = cavernBiomeController.GetNoise(realX, realZ);
+                        float waterBiomeNoise = 99;
+
+                        // Only bother calculating noise for water biome if enabled
+                        if (enableWaterBiomes)
+                            waterBiomeNoise = waterCavernController.GetNoise(realX, realZ);
+
+                        // If water biome threshold check is passed, change lava block to water
+                        IBlockState lavaBlock = Blocks.FLOWING_LAVA.getDefaultState();
+                        if (waterBiomeNoise < waterBiomeThreshold)
+                            lavaBlock = Blocks.WATER.getDefaultState();
+
+                        // Determine cavern type for this column. Caverns generate at low altitudes only.
+                        if (cavernBiomeNoise < lavaCavernThreshold) {
+                            if (this.enableWaterBiomes && waterBiomeNoise < this.waterBiomeThreshold) {
+                                // Generate water cavern in this column
+                                cavernGen = this.cavernWater;
+                            } else {
+                                // Generate lava cavern in this column
+                                cavernGen = this.cavernLava;
+                            }
+                            // Water caverns use the same cave top/bottom as lava caverns
+                            cavernBottomY = Configuration.caveSettings.lavaCavern.caveBottom;
+                            cavernTopY = Configuration.caveSettings.lavaCavern.caveTop;
+                        } else if (cavernBiomeNoise >= lavaCavernThreshold && cavernBiomeNoise <= flooredCavernThreshold) {
+                            /* Similar to determining cave type above, we must check for values between the two adjusted
+                             * thresholds, i.e. lavaCavernThreshold < noiseValue <= flooredCavernThreshold.
+                             * In this case, we just continue generating the caves we were generating above, instead
+                             * of generating a cavern.
+                             */
+                            cavernGen = caveGen;
+                            cavernBottomY = caveBottomY;
+                            cavernTopY = caveBottomY;
+                        } else {
+                            // Generate floored cavern in this column
+                            cavernGen = this.cavernFloored;
+                            cavernBottomY = Configuration.caveSettings.flooredCavern.caveBottom;
+                            cavernTopY = Configuration.caveSettings.flooredCavern.caveTop;
+                        }
+
+                        /* --------------- Dig out caves and caverns for this column --------------- */
+                        // Top (Cave) layer:
+                        if (caveGen != null)
+                            caveGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, caveBottomY, maxSurfaceHeight,
+                                maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, lavaBlock);
+                        // Bottom (Cavern) layer:
+                        if (cavernGen != null)
+                            cavernGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, cavernBottomY, cavernTopY,
+                                maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, lavaBlock);
+
                     }
                 }
             }
-        } else // use vanilla generation in other dimensions
-            defaultCaveGen.generate(worldIn, chunkX, chunkZ, primer);
+        }
     }
 
     /**

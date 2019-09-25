@@ -58,8 +58,8 @@ public class ConfigCaveGen {
     @Config.RequiresWorldRestart
     public int maxCaveAltitude = 128;
 
-    @Config.Name("Blacklisted Dimension IDs")
-    @Config.Comment("List of ID's of dimensions that won't have Better Caves")
+    @Config.Name("Whitelisted Dimension IDs")
+    @Config.Comment("List of ID's of dimensions that will have Better Caves")
     @Config.RequiresWorldRestart
-    public int[] blacklistedDimensionIDs = {-1, 1};
+    public int[] whitelistedDimensionIDs = {0};
 }

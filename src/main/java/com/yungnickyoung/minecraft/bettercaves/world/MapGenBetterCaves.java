@@ -107,14 +107,22 @@ public class MapGenBetterCaves extends MapGenCaves {
         int cavernTopY;
         int caveBottomY;
 
+        // Only use Better Caves generation in whitelisted dimensions
         int dimensionID = worldIn.provider.getDimension();
+        boolean isWhitelisted = false;
 
-        // Only use Better Caves generation in non-blacklisted dimensions
-        for (int dim : Configuration.caveSettings.blacklistedDimensionIDs) {
+        // Check if dimension is whitelisted
+        for (int dim : Configuration.caveSettings.whitelistedDimensionIDs) {
             if (dimensionID == dim) {
-                defaultCaveGen.generate(worldIn, chunkX, chunkZ, primer);
-                return;
+                isWhitelisted = true;
+                break;
             }
+        }
+
+        // If not whitelisted, use default cave gen instead of Better Caves
+        if (!isWhitelisted) {
+            defaultCaveGen.generate(worldIn, chunkX, chunkZ, primer);
+            return;
         }
 
         // We split chunks into 2x2 subchunks for surface height calculations

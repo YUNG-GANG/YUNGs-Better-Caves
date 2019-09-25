@@ -10,13 +10,10 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.forge'
 //Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 
-// Import properties from resources/app.properties
-apply from: 'src/main/resources/app.properties' // all variables prepended with bc_ come from this file
-
 // Maven info
-version = bc_version
+version = modMinecraftVersion + "-" + modVersion
 group = "com.yungnickyoung.minecraft.bettercaves" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = bc_modid
+archivesBaseName = modId
 
 sourceCompatibility = targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 compileJava {
@@ -28,7 +25,7 @@ minecraft {
     runDir = "run"
 
     // Fill in properties in source files
-    replace "{@modid}":bc_modid, "{@name}":bc_name, "{@version}":bc_version
+    replace "{@modid}":modId, "{@name}":modName, "{@version}":version
 
     // the mappings can be changed at any time, and must be in the following format.
     // snapshot_YYYYMMDD   snapshot are built nightly.
@@ -83,17 +80,17 @@ dependencies {
 
 processResources {
     // this will ensure that this task is redone when any variables change
-    inputs.property "modid", bc_modid
-    inputs.property "name", bc_name
+    inputs.property "modid", modId
+    inputs.property "name", modName
     inputs.property "version", project.version
     inputs.property "mcversion", project.minecraft.version
-    inputs.property "description", bc_desc
-    inputs.property "credits", bc_credits
+    inputs.property "description", modDescription
+    inputs.property "credits", modCredits
 
     // replace vars in mcmod.info
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
-        expand 'modid':bc_modid, 'name':bc_name, 'description':bc_desc, 'credits':bc_credits,'version': project.version, 'mcversion': project.minecraft.version
+        expand 'modid':modId, 'name':modName, 'description':modDescription, 'credits':modCredits,'version': project.version, 'mcversion': project.minecraft.version
     }
 
     // copy everything else except the mcmod.info

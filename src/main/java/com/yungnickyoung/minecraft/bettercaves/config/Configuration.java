@@ -4,7 +4,7 @@ import net.minecraftforge.common.config.Config;
 
 @Config(modid = Settings.MOD_ID, name = Settings.NAME)
 public class Configuration {
-    @Config.Name("Cave Generation")
+    @Config.Name("Cave & Cavern Generation")
     @Config.Comment("Configure parameters controlling cave generation.")
     public static ConfigCaveGen caveSettings = new ConfigCaveGen();
 

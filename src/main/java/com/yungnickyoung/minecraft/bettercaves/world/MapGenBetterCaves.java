@@ -136,7 +136,7 @@ public class MapGenBetterCaves extends MapGenCaves {
                     maxSurfaceHeight = BetterCaveUtil.getMaxSurfaceHeightSubChunk(primer, subX, subZ);
 
                 // maxSurfaceHeight (also used for max cave altitude) cannot exceed Max Cave Altitude setting
-                maxSurfaceHeight = Math.min(maxSurfaceHeight, Configuration.caveSettings.maxCaveAltitude);
+                maxSurfaceHeight = Math.min(maxSurfaceHeight, Configuration.caveSettings.caves.maxCaveAltitude);
 
                 for (int offsetX = 0; offsetX < 2; offsetX++) {
                     for (int offsetZ = 0; offsetZ < 2; offsetZ++) {
@@ -161,10 +161,10 @@ public class MapGenBetterCaves extends MapGenCaves {
                          */
                         if (caveBiomeNoise < this.cubicCaveThreshold) {
                             caveGen = this.caveCubic;
-                            caveBottomY = Configuration.caveSettings.cubicCave.caveBottom;
+                            caveBottomY = Configuration.caveSettings.caves.cubicCave.caveBottom;
                         } else if (caveBiomeNoise >= this.simplexCaveThreshold) {
                             caveGen = this.caveSimplex;
-                            caveBottomY = Configuration.caveSettings.simplexCave.caveBottom;
+                            caveBottomY = Configuration.caveSettings.caves.simplexCave.caveBottom;
                         } else {
                             if (this.enableVanillaCaves) {
                                 defaultCaveGen.generate(worldIn, chunkX, chunkZ, primer);
@@ -199,8 +199,8 @@ public class MapGenBetterCaves extends MapGenCaves {
                                 cavernGen = this.cavernLava;
                             }
                             // Water caverns use the same cave top/bottom as lava caverns
-                            cavernBottomY = Configuration.caveSettings.lavaCavern.caveBottom;
-                            cavernTopY = Configuration.caveSettings.lavaCavern.caveTop;
+                            cavernBottomY = Configuration.caveSettings.caverns.lavaCavern.caveBottom;
+                            cavernTopY = Configuration.caveSettings.caverns.lavaCavern.caveTop;
                         } else if (cavernBiomeNoise >= lavaCavernThreshold && cavernBiomeNoise <= flooredCavernThreshold) {
                             /* Similar to determining cave type above, we must check for values between the two adjusted
                              * thresholds, i.e. lavaCavernThreshold < noiseValue <= flooredCavernThreshold.
@@ -213,19 +213,19 @@ public class MapGenBetterCaves extends MapGenCaves {
                         } else {
                             // Generate floored cavern in this column
                             cavernGen = this.cavernFloored;
-                            cavernBottomY = Configuration.caveSettings.flooredCavern.caveBottom;
-                            cavernTopY = Configuration.caveSettings.flooredCavern.caveTop;
+                            cavernBottomY = Configuration.caveSettings.caverns.flooredCavern.caveBottom;
+                            cavernTopY = Configuration.caveSettings.caverns.flooredCavern.caveTop;
                         }
 
                         // Extra check to provide close-off transitions on cavern edges
-                        if (Configuration.caveSettings.enableBoundarySmoothing) {
+                        if (Configuration.caveSettings.caverns.enableBoundarySmoothing) {
                             if (cavernBiomeNoise >= lavaCavernThreshold && cavernBiomeNoise <= lavaCavernThreshold + transitionRange) {
                                 float smoothAmp = Math.abs((cavernBiomeNoise - (lavaCavernThreshold + transitionRange)) / transitionRange);
-                                this.cavernLava.generateColumn(chunkX, chunkZ, primer, localX, localZ, Configuration.caveSettings.lavaCavern.caveBottom, Configuration.caveSettings.lavaCavern.caveTop,
+                                this.cavernLava.generateColumn(chunkX, chunkZ, primer, localX, localZ, Configuration.caveSettings.caverns.lavaCavern.caveBottom, Configuration.caveSettings.caverns.lavaCavern.caveTop,
                                         maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, lavaBlock, smoothAmp);
                             } else if (cavernBiomeNoise <= flooredCavernThreshold && cavernBiomeNoise >= flooredCavernThreshold - transitionRange) {
                                 float smoothAmp = Math.abs((cavernBiomeNoise - (flooredCavernThreshold - transitionRange)) / transitionRange);
-                                this.cavernFloored.generateColumn(chunkX, chunkZ, primer, localX, localZ, Configuration.caveSettings.flooredCavern.caveBottom, Configuration.caveSettings.flooredCavern.caveTop,
+                                this.cavernFloored.generateColumn(chunkX, chunkZ, primer, localX, localZ, Configuration.caveSettings.caverns.flooredCavern.caveBottom, Configuration.caveSettings.caverns.flooredCavern.caveTop,
                                         maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, lavaBlock, smoothAmp);
                             }
                         }
@@ -250,7 +250,7 @@ public class MapGenBetterCaves extends MapGenCaves {
      * @return threshold value for cubic cave spawn rate based on Config setting
      */
     private float calcCubicCaveThreshold() {
-        switch (Configuration.caveSettings.cubicCave.caveFrequency) {
+        switch (Configuration.caveSettings.caves.cubicCave.caveFrequency) {
             case None:
                 return -99f;
             case Rare:
@@ -266,7 +266,7 @@ public class MapGenBetterCaves extends MapGenCaves {
      * @return threshold value for simplex cave spawn rate based on Config setting
      */
     private float calcSimplexCaveThreshold() {
-        switch (Configuration.caveSettings.simplexCave.caveFrequency) {
+        switch (Configuration.caveSettings.caves.simplexCave.caveFrequency) {
             case None:
                 return 99f;
             case Rare:
@@ -282,7 +282,7 @@ public class MapGenBetterCaves extends MapGenCaves {
      * @return threshold value for lava cavern spawn rate based on Config setting
      */
     private float calcLavaCavernThreshold() {
-        switch (Configuration.caveSettings.lavaCavern.caveFrequency) {
+        switch (Configuration.caveSettings.caverns.lavaCavern.caveFrequency) {
             case None:
                 return -99f;
             case Rare:
@@ -300,7 +300,7 @@ public class MapGenBetterCaves extends MapGenCaves {
      * @return threshold value for floored cavern spawn rate based on Config setting
      */
     private float calcFlooredCavernThreshold() {
-        switch (Configuration.caveSettings.flooredCavern.caveFrequency) {
+        switch (Configuration.caveSettings.caverns.flooredCavern.caveFrequency) {
             case None:
                 return 99f;
             case Rare:
@@ -339,7 +339,7 @@ public class MapGenBetterCaves extends MapGenCaves {
     private void initialize(World worldIn) {
         this.world = worldIn;
         this.defaultCaveGen = new MapGenCaves();
-        this.enableVanillaCaves = Configuration.caveSettings.vanillaCave.enableVanillaCaves;
+        this.enableVanillaCaves = Configuration.caveSettings.caves.vanillaCave.enableVanillaCaves;
         this.enableWaterBiomes = Configuration.caveSettings.waterBiomes.enableWaterBiomes;
 
         // Determine noise thresholds for cavern spawns based on user config
@@ -352,11 +352,11 @@ public class MapGenBetterCaves extends MapGenCaves {
         this.simplexCaveThreshold = calcSimplexCaveThreshold();
 
         // Get user setting for surface cutoff depth used to close caves off towards the surface
-        this.surfaceCutoff = Configuration.caveSettings.surfaceCutoff;
+        this.surfaceCutoff = Configuration.caveSettings.caves.surfaceCutoff;
 
         // Determine cave biome size
         float caveBiomeSize;
-        switch (Configuration.caveSettings.caveBiomeSize) {
+        switch (Configuration.caveSettings.caves.caveBiomeSize) {
             case Small:
                 caveBiomeSize = .007f;
                 break;
@@ -374,7 +374,7 @@ public class MapGenBetterCaves extends MapGenCaves {
         // Determine cavern biome size, as well as jitter to make Voronoi regions more varied in shape
         float cavernBiomeSize;
         float waterCavernBiomeSize = .0015f;
-        switch (Configuration.caveSettings.cavernBiomeSize) {
+        switch (Configuration.caveSettings.caverns.cavernBiomeSize) {
             case Small:
                 cavernBiomeSize = .01f;
                 break;
@@ -412,66 +412,66 @@ public class MapGenBetterCaves extends MapGenCaves {
         this.caveCubic = new CaveBC(
                 world,
                 CaveType.CUBIC,
-                Configuration.caveSettings.cubicCave.fractalOctaves,
-                Configuration.caveSettings.cubicCave.fractalGain,
-                Configuration.caveSettings.cubicCave.fractalFrequency,
-                Configuration.caveSettings.cubicCave.numGenerators,
-                Configuration.caveSettings.cubicCave.noiseThreshold,
-                Configuration.caveSettings.cubicCave.turbulenceOctaves,
-                Configuration.caveSettings.cubicCave.turbulenceGain,
-                Configuration.caveSettings.cubicCave.turbulenceFrequency,
-                Configuration.caveSettings.cubicCave.enableTurbulence,
-                Configuration.caveSettings.cubicCave.yCompression,
-                Configuration.caveSettings.cubicCave.xzCompression,
-                Configuration.caveSettings.cubicCave.yAdjust,
-                Configuration.caveSettings.cubicCave.yAdjustF1,
-                Configuration.caveSettings.cubicCave.yAdjustF2,
+                Configuration.caveSettings.caves.cubicCave.fractalOctaves,
+                Configuration.caveSettings.caves.cubicCave.fractalGain,
+                Configuration.caveSettings.caves.cubicCave.fractalFrequency,
+                Configuration.caveSettings.caves.cubicCave.numGenerators,
+                Configuration.caveSettings.caves.cubicCave.noiseThreshold,
+                Configuration.caveSettings.caves.cubicCave.turbulenceOctaves,
+                Configuration.caveSettings.caves.cubicCave.turbulenceGain,
+                Configuration.caveSettings.caves.cubicCave.turbulenceFrequency,
+                Configuration.caveSettings.caves.cubicCave.enableTurbulence,
+                Configuration.caveSettings.caves.cubicCave.yCompression,
+                Configuration.caveSettings.caves.cubicCave.xzCompression,
+                Configuration.caveSettings.caves.cubicCave.yAdjust,
+                Configuration.caveSettings.caves.cubicCave.yAdjustF1,
+                Configuration.caveSettings.caves.cubicCave.yAdjustF2,
                 Blocks.PLANKS.getDefaultState()
         );
 
         this.caveSimplex = new CaveBC(
                 world,
                 CaveType.SIMPLEX,
-                Configuration.caveSettings.simplexCave.fractalOctaves,
-                Configuration.caveSettings.simplexCave.fractalGain,
-                Configuration.caveSettings.simplexCave.fractalFrequency,
-                Configuration.caveSettings.simplexCave.numGenerators,
-                Configuration.caveSettings.simplexCave.noiseThreshold,
-                Configuration.caveSettings.simplexCave.turbulenceOctaves,
-                Configuration.caveSettings.simplexCave.turbulenceGain,
-                Configuration.caveSettings.simplexCave.turbulenceFrequency,
-                Configuration.caveSettings.simplexCave.enableTurbulence,
-                Configuration.caveSettings.simplexCave.yCompression,
-                Configuration.caveSettings.simplexCave.xzCompression,
-                Configuration.caveSettings.simplexCave.yAdjust,
-                Configuration.caveSettings.simplexCave.yAdjustF1,
-                Configuration.caveSettings.simplexCave.yAdjustF2,
+                Configuration.caveSettings.caves.simplexCave.fractalOctaves,
+                Configuration.caveSettings.caves.simplexCave.fractalGain,
+                Configuration.caveSettings.caves.simplexCave.fractalFrequency,
+                Configuration.caveSettings.caves.simplexCave.numGenerators,
+                Configuration.caveSettings.caves.simplexCave.noiseThreshold,
+                Configuration.caveSettings.caves.simplexCave.turbulenceOctaves,
+                Configuration.caveSettings.caves.simplexCave.turbulenceGain,
+                Configuration.caveSettings.caves.simplexCave.turbulenceFrequency,
+                Configuration.caveSettings.caves.simplexCave.enableTurbulence,
+                Configuration.caveSettings.caves.simplexCave.yCompression,
+                Configuration.caveSettings.caves.simplexCave.xzCompression,
+                Configuration.caveSettings.caves.simplexCave.yAdjust,
+                Configuration.caveSettings.caves.simplexCave.yAdjustF1,
+                Configuration.caveSettings.caves.simplexCave.yAdjustF2,
                 Blocks.COBBLESTONE.getDefaultState()
         );
 
         this.cavernLava = new CavernBC(
                 world,
                 CavernType.LAVA,
-                Configuration.caveSettings.lavaCavern.fractalOctaves,
-                Configuration.caveSettings.lavaCavern.fractalGain,
-                Configuration.caveSettings.lavaCavern.fractalFrequency,
-                Configuration.caveSettings.lavaCavern.numGenerators,
-                Configuration.caveSettings.lavaCavern.noiseThreshold,
-                Configuration.caveSettings.lavaCavern.yCompression,
-                Configuration.caveSettings.lavaCavern.xzCompression,
+                Configuration.caveSettings.caverns.lavaCavern.fractalOctaves,
+                Configuration.caveSettings.caverns.lavaCavern.fractalGain,
+                Configuration.caveSettings.caverns.lavaCavern.fractalFrequency,
+                Configuration.caveSettings.caverns.lavaCavern.numGenerators,
+                Configuration.caveSettings.caverns.lavaCavern.noiseThreshold,
+                Configuration.caveSettings.caverns.lavaCavern.yCompression,
+                Configuration.caveSettings.caverns.lavaCavern.xzCompression,
                 Blocks.REDSTONE_BLOCK.getDefaultState()
         );
 
         this.cavernFloored = new CavernBC(
                 world,
                 CavernType.FLOORED,
-                Configuration.caveSettings.flooredCavern.fractalOctaves,
-                Configuration.caveSettings.flooredCavern.fractalGain,
-                Configuration.caveSettings.flooredCavern.fractalFrequency,
-                Configuration.caveSettings.flooredCavern.numGenerators,
-                Configuration.caveSettings.flooredCavern.noiseThreshold,
-                Configuration.caveSettings.flooredCavern.yCompression,
-                Configuration.caveSettings.flooredCavern.xzCompression,
+                Configuration.caveSettings.caverns.flooredCavern.fractalOctaves,
+                Configuration.caveSettings.caverns.flooredCavern.fractalGain,
+                Configuration.caveSettings.caverns.flooredCavern.fractalFrequency,
+                Configuration.caveSettings.caverns.flooredCavern.numGenerators,
+                Configuration.caveSettings.caverns.flooredCavern.noiseThreshold,
+                Configuration.caveSettings.caverns.flooredCavern.yCompression,
+                Configuration.caveSettings.caverns.flooredCavern.xzCompression,
                 Blocks.GOLD_BLOCK.getDefaultState()
         );
 

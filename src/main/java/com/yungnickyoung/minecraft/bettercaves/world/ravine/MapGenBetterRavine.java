@@ -12,7 +12,7 @@ import net.minecraft.world.gen.MapGenRavine;
 public class MapGenBetterRavine extends MapGenRavine {
     @Override
     protected void recursiveGenerate(World worldIn, int chunkX, int chunkZ, int originalX, int originalZ, ChunkPrimer chunkPrimerIn) {
-        if (Configuration.caveSettings.vanillaCave.enableVanillaRavines)
+        if (Configuration.caveSettings.caves.vanillaCave.enableVanillaRavines)
             super.recursiveGenerate(worldIn, chunkX, chunkZ, originalX, originalZ, chunkPrimerIn);
     }
 

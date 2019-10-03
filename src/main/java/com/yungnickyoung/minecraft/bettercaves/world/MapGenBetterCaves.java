@@ -115,6 +115,10 @@ public class MapGenBetterCaves extends MapGenCaves {
         int dimensionID = worldIn.provider.getDimension();
         boolean isWhitelisted = false;
 
+        // Ignore the dimension ID list if global whitelisting is enabled
+        if (Configuration.caveSettings.enableGlobalWhitelist)
+            isWhitelisted = true;
+
         // Check if dimension is whitelisted
         for (int dim : Configuration.caveSettings.whitelistedDimensionIDs) {
             if (dimensionID == dim) {

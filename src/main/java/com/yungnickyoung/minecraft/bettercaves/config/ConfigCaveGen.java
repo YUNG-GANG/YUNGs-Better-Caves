@@ -21,7 +21,13 @@ public class ConfigCaveGen {
     public ConfigWaterBiomes waterBiomes = new ConfigWaterBiomes();
 
     @Config.Name("Whitelisted Dimension IDs")
-    @Config.Comment("List of ID's of dimensions that will have Better Caves")
+    @Config.Comment("List of ID's of dimensions that will have Better Caves. Ignored if Global Whitelisting is enabled.")
     @Config.RequiresWorldRestart
     public int[] whitelistedDimensionIDs = {0};
+
+    @Config.Name("Enable Global Whitelist")
+    @Config.Comment("Automatically enables Better Caves in every possible dimension, except for the Nether and End. " +
+            "If this is enabled, the Whitelisted Dimension IDs option is ignored.")
+    @Config.RequiresWorldRestart
+    public boolean enableGlobalWhitelist = false;
 }

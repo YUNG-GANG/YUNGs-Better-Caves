@@ -4,9 +4,11 @@ import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
+import com.yungnickyoung.minecraft.bettercaves.noise.Voronoi;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.world.cave.*;
+import net.minecraft.block.BlockStone;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
@@ -35,10 +37,10 @@ public class MapGenBetterCaves extends MapGenCaves {
     // Vanilla cave gen if user sets config to use it
     private MapGenCaves defaultCaveGen;
 
-    // Cellular noise (basically Voronoi diagrams) generators to group caves into cave "biomes" based on xz-coordinates
-    private FastNoise waterCavernController;
-    private FastNoise cavernBiomeController;
-    private FastNoise caveBiomeController;
+    // Cellular noise (Voronoi diagrams) generators to group caves into cave "biomes" based on xz-coordinates
+    private Voronoi waterCavernController;
+    private Voronoi cavernBiomeController;
+    private Voronoi caveBiomeController;
 
     // Biome generation noise thresholds, based on user config
     private float cubicCaveThreshold;
@@ -76,7 +78,7 @@ public class MapGenBetterCaves extends MapGenCaves {
      * Function for generating Better Caves in a single chunk. This overrides the vanilla cave generation, which is
      * ordinarily performed by the MapGenCaves class.
      * This function is called for every new chunk that is generated in a world.
-     * @param worldIn The minecraft world
+     * @param worldIn The Minecraft world
      * @param chunkX The chunk's x-coordinate (on the chunk grid, not the block grid)
      * @param chunkZ The chunk's z-coordinate (on the chunk grid, not the block grid)
      * @param primer The chunk's ChunkPrimer
@@ -374,20 +376,23 @@ public class MapGenBetterCaves extends MapGenCaves {
         }
 
         // Initialize Biome Controllers using world seed and user config option for biome size
-        this.caveBiomeController = new FastNoise();
+        this.caveBiomeController = new Voronoi();
         this.caveBiomeController.SetSeed((int)worldIn.getSeed() + 222);
         this.caveBiomeController.SetFrequency(caveBiomeSize);
-        this.caveBiomeController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
+//        this.caveBiomeController.SetNoiseType(FastNoise.NoiseType.Cellular);
+//        this.caveBiomeController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
-        this.cavernBiomeController = new FastNoise();
+        this.cavernBiomeController = new Voronoi();
         this.cavernBiomeController.SetSeed((int)worldIn.getSeed() + 333);
         this.cavernBiomeController.SetFrequency(cavernBiomeSize);
-        this.cavernBiomeController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
+//        this.cavernBiomeController.SetNoiseType(FastNoise.NoiseType.Cellular);
+//        this.cavernBiomeController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
-        this.waterCavernController = new FastNoise();
+        this.waterCavernController = new Voronoi();
         this.waterCavernController.SetSeed((int)worldIn.getSeed() + 444);
         this.waterCavernController.SetFrequency(waterCavernBiomeSize);
-        this.waterCavernController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
+//        this.waterCavernController.SetNoiseType(FastNoise.NoiseType.Cellular);
+//        this.waterCavernController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
         /* ---------- Initialize all Better Cave generators using config options ---------- */
         this.caveCubic = new CaveBC(
@@ -407,7 +412,7 @@ public class MapGenBetterCaves extends MapGenCaves {
                 Configuration.caveSettings.cubicCave.yAdjust,
                 Configuration.caveSettings.cubicCave.yAdjustF1,
                 Configuration.caveSettings.cubicCave.yAdjustF2,
-                Blocks.QUARTZ_BLOCK.getDefaultState()
+                Blocks.PLANKS.getDefaultState()
         );
 
         this.caveSimplex = new CaveBC(

@@ -62,4 +62,10 @@ public class ConfigCaveGen {
     @Config.Comment("List of ID's of dimensions that will have Better Caves")
     @Config.RequiresWorldRestart
     public int[] whitelistedDimensionIDs = {0};
+
+    @Config.Name("Enable Smooth Biome Transitions")
+    @Config.Comment("Smooths the transition boundary between Cave and Cavern biomes, reducing the straight walls found" +
+            " along the edges of caverns to create a more natural feel. Disable for pre-1.5 behavior.")
+    @Config.RequiresWorldRestart
+    public boolean enableBoundarySmoothing = true;
 }

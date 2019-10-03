@@ -102,7 +102,14 @@ public abstract class AbstractBC {
      *                         BetterCaveUtil#getMinSurfaceHeight
      */
     public abstract void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
-                      int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff, IBlockState lavaBlock);
+                                        int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff,
+                                        IBlockState lavaBlock);
+
+    public void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
+                                        int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff,
+                                        IBlockState lavaBlock, float smoothAmp) {
+
+    }
 
     /**
      * Preprocessing performed on a column of noise to adjust its values before comparing them to the threshold.

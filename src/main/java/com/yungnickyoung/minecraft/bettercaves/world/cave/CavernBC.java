@@ -57,7 +57,8 @@ public class CavernBC extends AbstractBC {
 
     @Override
     public void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
-                               int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff, IBlockState lavaBlock) {
+                               int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff,
+                               IBlockState lavaBlock, float smoothAmp) {
         // Validate vars
         if (localX < 0 || localX > 15)
             return;
@@ -112,6 +113,10 @@ public class CavernBC extends AbstractBC {
             if ((this.cavernType == CavernType.FLOORED || this.cavernType == CavernType.WATER) && realY <= bottomTransitionBoundary)
                 noiseThreshold *= Math.max((float) (realY - bottomY) / (bottomTransitionBoundary - bottomY), .5f);
 
+            // Adjust threshold along biome borders to create smooth transition
+            if (smoothAmp < 1)
+                noiseThreshold *= smoothAmp;
+
             // Mark block for removal if the noise passes the threshold check
             if (noise < noiseThreshold)
                 digBlock = true;
@@ -130,5 +135,12 @@ public class CavernBC extends AbstractBC {
                     this.digBlock(primer, lavaBlock, chunkX, chunkZ, localX, localZ, realY);
             }
         }
+    }
+
+    @Override
+    public void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
+                               int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff,
+                               IBlockState lavaBlock) {
+        generateColumn(chunkX, chunkZ, primer, localX, localZ, bottomY, topY, maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, lavaBlock, 1);
     }
 }

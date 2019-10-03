@@ -4,11 +4,9 @@ import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
-import com.yungnickyoung.minecraft.bettercaves.noise.Voronoi;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.world.cave.*;
-import net.minecraft.block.BlockStone;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
@@ -37,10 +35,11 @@ public class MapGenBetterCaves extends MapGenCaves {
     // Vanilla cave gen if user sets config to use it
     private MapGenCaves defaultCaveGen;
 
-    // Cellular noise (Voronoi diagrams) generators to group caves into cave "biomes" based on xz-coordinates
-    private Voronoi waterCavernController;
-    private Voronoi cavernBiomeController;
-    private Voronoi caveBiomeController;
+    // Noise generators to group caves into cave "biomes" based on xz-coordinates.
+    // Cavern Biome Controller uses simplex noise while the others use Voronoi regions (cellular noise)
+    private FastNoise waterCavernController;
+    private FastNoise cavernBiomeController;
+    private FastNoise caveBiomeController;
 
     // Biome generation noise thresholds, based on user config
     private float cubicCaveThreshold;
@@ -48,6 +47,9 @@ public class MapGenBetterCaves extends MapGenCaves {
     private float lavaCavernThreshold;
     private float flooredCavernThreshold;
     private float waterBiomeThreshold;
+
+    // Dictates the degree of smoothing along cavern biome boundaries
+    private float transitionRange = .15f;
 
     // Config option for using vanilla cave gen in some areas
     private boolean enableVanillaCaves;
@@ -215,6 +217,19 @@ public class MapGenBetterCaves extends MapGenCaves {
                             cavernTopY = Configuration.caveSettings.flooredCavern.caveTop;
                         }
 
+                        // Extra check to provide close-off transitions on cavern edges
+                        if (Configuration.caveSettings.enableBoundarySmoothing) {
+                            if (cavernBiomeNoise >= lavaCavernThreshold && cavernBiomeNoise <= lavaCavernThreshold + transitionRange) {
+                                float smoothAmp = Math.abs((cavernBiomeNoise - (lavaCavernThreshold + transitionRange)) / transitionRange);
+                                this.cavernLava.generateColumn(chunkX, chunkZ, primer, localX, localZ, Configuration.caveSettings.lavaCavern.caveBottom, Configuration.caveSettings.lavaCavern.caveTop,
+                                        maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, lavaBlock, smoothAmp);
+                            } else if (cavernBiomeNoise <= flooredCavernThreshold && cavernBiomeNoise >= flooredCavernThreshold - transitionRange) {
+                                float smoothAmp = Math.abs((cavernBiomeNoise - (flooredCavernThreshold - transitionRange)) / transitionRange);
+                                this.cavernFloored.generateColumn(chunkX, chunkZ, primer, localX, localZ, Configuration.caveSettings.flooredCavern.caveBottom, Configuration.caveSettings.flooredCavern.caveTop,
+                                        maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, lavaBlock, smoothAmp);
+                            }
+                        }
+
                         /* --------------- Dig out caves and caverns for this column --------------- */
                         // Top (Cave) layer:
                         if (caveGen != null)
@@ -376,23 +391,22 @@ public class MapGenBetterCaves extends MapGenCaves {
         }
 
         // Initialize Biome Controllers using world seed and user config option for biome size
-        this.caveBiomeController = new Voronoi();
+        this.caveBiomeController = new FastNoise();
         this.caveBiomeController.SetSeed((int)worldIn.getSeed() + 222);
         this.caveBiomeController.SetFrequency(caveBiomeSize);
-//        this.caveBiomeController.SetNoiseType(FastNoise.NoiseType.Cellular);
-//        this.caveBiomeController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
+        this.caveBiomeController.SetNoiseType(FastNoise.NoiseType.Cellular);
+        this.caveBiomeController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
-        this.cavernBiomeController = new Voronoi();
+        // Note that Cavern Biome Controller uses Simplex noise instead of Cellular
+        this.cavernBiomeController = new FastNoise();
         this.cavernBiomeController.SetSeed((int)worldIn.getSeed() + 333);
         this.cavernBiomeController.SetFrequency(cavernBiomeSize);
-//        this.cavernBiomeController.SetNoiseType(FastNoise.NoiseType.Cellular);
-//        this.cavernBiomeController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
-        this.waterCavernController = new Voronoi();
+        this.waterCavernController = new FastNoise();
         this.waterCavernController.SetSeed((int)worldIn.getSeed() + 444);
         this.waterCavernController.SetFrequency(waterCavernBiomeSize);
-//        this.waterCavernController.SetNoiseType(FastNoise.NoiseType.Cellular);
-//        this.waterCavernController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
+        this.waterCavernController.SetNoiseType(FastNoise.NoiseType.Cellular);
+        this.waterCavernController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
         /* ---------- Initialize all Better Cave generators using config options ---------- */
         this.caveCubic = new CaveBC(

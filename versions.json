@@ -3,10 +3,11 @@
   "1.12.2": {
     "1.0.3.0":"      Add water biomes with new user config.",
     "1.0.3.1":"      Add max cave altitude option. Add extra boundary checks to prevent crashes with some mods.",
-    "1.4.0":"      Add dimension whitelisting. Change versioning system to MAJOR.MINOR.PATCH. Update gradle build to be better."
+    "1.4.0":"      Add dimension whitelisting. Change versioning system to MAJOR.MINOR.PATCH. Update gradle build to be better.",
+    "1.5.0":"      Add cavern edge smoothing. Fix biome controllers. Reorganize config. Add global whitelisting option."
   },
   "promos": {
-    "1.12.2-latest": "1.4.0",
-    "1.12.2-recommended": "1.4.0"
+    "1.12.2-latest": "1.5.0",
+    "1.12.2-recommended": "1.5.0"
   }
 }

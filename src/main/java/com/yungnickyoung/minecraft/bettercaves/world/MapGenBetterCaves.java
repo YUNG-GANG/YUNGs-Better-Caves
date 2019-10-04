@@ -377,7 +377,7 @@ public class MapGenBetterCaves extends MapGenCaves {
 
         // Determine cavern biome size, as well as jitter to make Voronoi regions more varied in shape
         float cavernBiomeSize;
-        float waterCavernBiomeSize = .0015f;
+        float waterCavernBiomeSize = .003f;
         switch (Configuration.caveSettings.caverns.cavernBiomeSize) {
             case Small:
                 cavernBiomeSize = .01f;

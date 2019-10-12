@@ -15,7 +15,6 @@ public class ConfigBedrockGen {
         @Config.Name("Bedrock Layer Width")
         @Config.Comment("The width of the bedrock layer. Only works if Flatten Bedrock is true.")
         @Config.RequiresWorldRestart
-        @Config.SlidingOption
         @Config.RangeInt(min = 0, max = 256)
         public int bedrockWidth = 1;
     }
@@ -29,14 +28,12 @@ public class ConfigBedrockGen {
         @Config.Name("Bedrock Layer Width - Bottom")
         @Config.Comment("The width of the bedrock layer at the bottom of the nether. Only works if Flatten Bedrock is true.")
         @Config.RequiresWorldRestart
-        @Config.SlidingOption
         @Config.RangeInt(min = 0, max = 64)
         public int bedrockWidthBottom = 1;
 
         @Config.Name("Bedrock Layer Width - Top")
         @Config.Comment("The width of the bedrock layer at the top of the nether. Only works if Flatten Bedrock is true.")
         @Config.RequiresWorldRestart
-        @Config.SlidingOption
         @Config.RangeInt(min = 0, max = 64)
         public int bedrockWidthTop = 1;
     }

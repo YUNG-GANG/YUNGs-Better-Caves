@@ -18,7 +18,7 @@ public class EventFlattenBedrock {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onPopulateChunkEventPre(PopulateChunkEvent.Pre event) {
         int dimension = event.getWorld().provider.getDimension();
-        Chunk chunk = event.getWorld().getChunkFromChunkCoords(event.getChunkX(), event.getChunkZ());
+        Chunk chunk = event.getWorld().getChunk(event.getChunkX(), event.getChunkZ());
         FlattenBedrock.flattenBedrock(chunk, dimension);
     }
 }

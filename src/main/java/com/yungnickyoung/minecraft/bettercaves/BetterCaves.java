@@ -20,7 +20,7 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 /**
  * Entry point for Better Caves
  */
-@Mod(modid = Settings.MOD_ID, name = Settings.NAME, version = Settings.VERSION, useMetadata = Settings.USE_META_DATA)
+@Mod(modid = Settings.MOD_ID, name = Settings.NAME, version = Settings.VERSION, useMetadata = Settings.USE_META_DATA, acceptableRemoteVersions = "*")
 public class BetterCaves {
     @SidedProxy(clientSide = Settings.CLIENT_PROXY, serverSide = Settings.SERVER_PROXY)
     public static IProxy proxy;

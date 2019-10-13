@@ -13,6 +13,7 @@ public final class BetterCavesConfig {
     public static String caveBiomeSize;
     public static String cavernBiomeSize;
     public static int    surfaceCutoff;
+    public static int    maxCaveAltitude;
 
     // Cubic Cave vars
     public static int     cubicCaveBottom;

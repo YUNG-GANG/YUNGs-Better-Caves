@@ -14,6 +14,7 @@ public class ConfigCaveGen {
     public final ForgeConfigSpec.ConfigValue<String> caveBiomeSize;
     public final ForgeConfigSpec.ConfigValue<String> cavernBiomeSize;
     public final ForgeConfigSpec.ConfigValue<Integer> surfaceCutoff;
+    public final ForgeConfigSpec.ConfigValue<Integer> maxCaveAltitude;
 
     public ConfigCaveGen(final ForgeConfigSpec.Builder builder) {
         builder.push("Cave Generation");
@@ -34,12 +35,17 @@ public class ConfigCaveGen {
                 .define("Cavern Biome Size", "Small");
 
         surfaceCutoff = builder
-                .comment(" This is the number of blocks from a given point on the surface that caves start to close off." +
-                        "\n Decrease this to create more cave openings in the sides of mountains. Increase to create less" +
-                        " above-surface openings." +
+                .comment(" The depth from a given point on the surface (or the Max Cave Altitude, whichever is " +
+                        "lower) at which caves start to close off. Decrease this to create more cave openings in the" +
+                        " sides of mountains. Increase to create less above-surface openings." +
                         "\n Default: 10")
                 .worldRestart()
                 .define("Cave Surface Cutoff Depth", 10);
+
+        maxCaveAltitude = builder
+                .comment(" The maximum altitude at which caves can generate.\n Default: 128")
+                .worldRestart()
+                .define("Max Cave Altitude", 128);
 
         configWaterBiomes = new ConfigWaterBiomes(builder);
         configVanillaCave = new ConfigVanillaCave(builder);

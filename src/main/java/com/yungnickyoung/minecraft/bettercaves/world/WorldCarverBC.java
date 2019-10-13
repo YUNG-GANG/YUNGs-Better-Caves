@@ -21,16 +21,21 @@ import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.carver.*;
 import net.minecraft.world.gen.feature.ProbabilityConfig;
 
+import java.lang.reflect.Field;
 import java.util.BitSet;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
 public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
+    public static int counter = 0;
+    public long oldSeed = 0;
+
     // The minecraft world
     private IWorld world;
-    private long seed; // world seed
+    private long seed = 0; // world seed
 
     // Cave types
     private AbstractBC caveCubic;
@@ -76,6 +81,31 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
 
         coordList.add(pair);
 
+        if (seed != oldSeed) {
+            BetterCaves.LOGGER.info("CHUNK COUNTER: " + counter);
+            counter = 0;
+            oldSeed = seed;
+        }
+
+        counter++;
+
+//        long s = -1;
+//
+//        try {
+//            final Field seedField = Random.class.getDeclaredField("seed");
+//            seedField.setAccessible(true);
+//            try {
+//                s = ((AtomicLong)(seedField.get(rand))).get();
+//            } catch (IllegalAccessException ie) {
+//                BetterCaves.LOGGER.error("SEEDRETRIEVAL - ILLEGAL ACCESS EXCEPTION");
+//            }
+////            LOGGER.info("Successfully updated 'carvers' field for Biome " + biomeIn.getDisplayName());
+//        } catch (NoSuchFieldException e) {
+//            BetterCaves.LOGGER.error("SEEDRETRIEVAL - NO SUCH FIELD EXCEPTION");
+//        }
+//
+//        BetterCaves.LOGGER.info("SEEDRETRIEVAL - SEED VAL IS " + s);
+
         // Flatten bedrock into single layer, if enabled in user config
         if (BetterCavesConfig.flattenBedrock) {
             for (int localX = 0; localX < 16; localX++) {
@@ -113,6 +143,9 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
             for (int subZ = 0; subZ < 8; subZ++) {
                 if (!BetterCavesConfig.enableDebugVisualizer)
                     maxSurfaceHeight = BetterCaveUtil.getMaxSurfaceHeightSubChunk(chunkIn, subX, subZ);
+
+                // maxSurfaceHeight (also used for max cave altitude) cannot exceed Max Cave Altitude setting
+                maxSurfaceHeight = Math.min(maxSurfaceHeight, BetterCavesConfig.maxCaveAltitude);
 
                 for (int offsetX = 0; offsetX < 2; offsetX++) {
                     for (int offsetZ = 0; offsetZ < 2; offsetZ++) {

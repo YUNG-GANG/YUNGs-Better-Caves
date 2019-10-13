@@ -1,7 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.util;
 
 import com.google.common.collect.ImmutableSet;
-import com.yungnickyoung.minecraft.bettercaves.ModEventSubscriber;
 import com.yungnickyoung.minecraft.bettercaves.config.BetterCavesConfig;
 import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.world.WorldCarverBC;

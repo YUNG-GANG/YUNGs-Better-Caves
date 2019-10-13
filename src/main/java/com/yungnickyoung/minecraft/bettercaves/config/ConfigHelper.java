@@ -22,6 +22,7 @@ public final class ConfigHelper {
         BetterCavesConfig.caveBiomeSize = ConfigHolder.CLIENT.configCaveGen.caveBiomeSize.get();
         BetterCavesConfig.cavernBiomeSize = ConfigHolder.CLIENT.configCaveGen.cavernBiomeSize.get();
         BetterCavesConfig.surfaceCutoff = ConfigHolder.CLIENT.configCaveGen.surfaceCutoff.get();
+        BetterCavesConfig.maxCaveAltitude = ConfigHolder.CLIENT.configCaveGen.maxCaveAltitude.get();
 
         // Cubic Cave settings
         BetterCavesConfig.cubicCaveBottom = ConfigHolder.CLIENT.configCaveGen.configCubicCave.caveBottom.get();

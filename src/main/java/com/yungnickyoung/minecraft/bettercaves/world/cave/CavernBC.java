@@ -57,7 +57,8 @@ public class CavernBC extends AbstractBC {
 
     @Override
     public void generateColumn(int chunkX, int chunkZ, IChunk chunkIn, int localX, int localZ, int bottomY,
-                               int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff, BlockState lavaBlock) {
+                               int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff,
+                               BlockState lavaBlock, float smoothAmp) {
         // Validate vars
         if (localX < 0 || localX > 15)
             return;
@@ -112,6 +113,10 @@ public class CavernBC extends AbstractBC {
             if ((this.cavernType == CavernType.FLOORED || this.cavernType == CavernType.WATER) && realY <= bottomTransitionBoundary)
                 noiseThreshold *= Math.max((float) (realY - bottomY) / (bottomTransitionBoundary - bottomY), .5f);
 
+            // Adjust threshold along biome borders to create smooth transition
+            if (smoothAmp < 1)
+                noiseThreshold *= smoothAmp;
+
             // Mark block for removal if the noise passes the threshold check
             if (noise < noiseThreshold)
                 digBlock = true;
@@ -123,7 +128,7 @@ public class CavernBC extends AbstractBC {
                 if (this.cavernType == CavernType.WATER) {
                     BlockPos blockPos = new BlockPos(localX, realY, localZ);
                     // Make sure we replace any lava possibly generated from caves with water to avoid having lava under the water
-                    if (chunkIn.getBlockState(blockPos).getFluidState().isTagged(FluidTags.WATER) && realY <= BetterCavesConfig.lavaDepth)
+                    if (chunkIn.getBlockState(blockPos).getFluidState().isTagged(FluidTags.LAVA) && realY <= BetterCavesConfig.lavaDepth)
                         chunkIn.setBlockState(blockPos, Blocks.WATER.getDefaultState(), false);
                     else
                         this.digBlock(chunkIn, lavaBlock, chunkX, chunkZ, localX, localZ, realY);
@@ -131,5 +136,12 @@ public class CavernBC extends AbstractBC {
                     this.digBlock(chunkIn, lavaBlock, chunkX, chunkZ, localX, localZ, realY);
             }
         }
+    }
+
+    @Override
+    public void generateColumn(int chunkX, int chunkZ, IChunk chunkIn, int localX, int localZ, int bottomY,
+                               int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff,
+                               BlockState lavaBlock) {
+        generateColumn(chunkX, chunkZ, chunkIn, localX, localZ, bottomY, topY, maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, lavaBlock, 1);
     }
 }

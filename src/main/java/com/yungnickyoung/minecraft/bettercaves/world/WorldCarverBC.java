@@ -48,7 +48,8 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
 
     private int surfaceCutoff;
 
-    // Cellular noise (basically Voronoi diagrams) generators to group caves into cave "biomes" based on xz-coordinates
+    // Noise generators to group caves into cave "biomes" based on xz-coordinates.
+    // Cavern Biome Controller uses simplex noise while the others use Voronoi regions (cellular noise)
     private FastNoise waterCavernController;
     private FastNoise cavernBiomeController;
     private FastNoise caveBiomeController;
@@ -59,6 +60,9 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
     private float lavaCavernThreshold;
     private float flooredCavernThreshold;
     private float waterBiomeThreshold;
+
+    // Dictates the degree of smoothing along cavern biome boundaries
+    private float transitionRange = .15f;
 
     // Config option for using water biomes
     private boolean enableWaterBiomes;
@@ -134,10 +138,6 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
         int cavernTopY;
         int caveBottomY;
 
-//        // Only use Better Caves generation in overworld
-//        if (world.getDimension().getType() != DimensionType.OVERWORLD)
-//            return false;
-
         // We split chunks into 2x2 subchunks for surface height calculations
         for (int subX = 0; subX < 8; subX++) {
             for (int subZ = 0; subZ < 8; subZ++) {
@@ -174,7 +174,8 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
                             caveGen = this.caveSimplex;
                             caveBottomY = BetterCavesConfig.simplexCaveBottom;
                         } else {
-                            continue;
+                            caveGen = null;
+                            caveBottomY = 255;
                         }
 
                         /* --------------------------- Configure Caverns --------------------------- */
@@ -220,12 +221,25 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
                             cavernTopY = BetterCavesConfig.flooredCavernCaveTop;
                         }
 
+                        // Extra check to provide close-off transitions on cavern edges
+                        if (cavernBiomeNoise >= lavaCavernThreshold && cavernBiomeNoise <= lavaCavernThreshold + transitionRange) {
+                            float smoothAmp = Math.abs((cavernBiomeNoise - (lavaCavernThreshold + transitionRange)) / transitionRange);
+                            this.cavernLava.generateColumn(chunkX, chunkZ, chunkIn, localX, localZ, BetterCavesConfig.lavaCavernCaveBottom, BetterCavesConfig.lavaCavernCaveTop,
+                                    maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, lavaBlock, smoothAmp);
+                        } else if (cavernBiomeNoise <= flooredCavernThreshold && cavernBiomeNoise >= flooredCavernThreshold - transitionRange) {
+                            float smoothAmp = Math.abs((cavernBiomeNoise - (flooredCavernThreshold - transitionRange)) / transitionRange);
+                            this.cavernFloored.generateColumn(chunkX, chunkZ, chunkIn, localX, localZ, BetterCavesConfig.flooredCavernCaveBottom, BetterCavesConfig.flooredCavernCaveTop,
+                                    maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, lavaBlock, smoothAmp);
+                        }
+
                         /* --------------- Dig out caves and caverns for this column --------------- */
                         // Top (Cave) layer:
-                        caveGen.generateColumn(chunkX, chunkZ, chunkIn, localX, localZ, caveBottomY, maxSurfaceHeight,
+                        if (caveGen != null)
+                            caveGen.generateColumn(chunkX, chunkZ, chunkIn, localX, localZ, caveBottomY, maxSurfaceHeight,
                                 maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, lavaBlock);
                         // Bottom (Cavern) layer:
-                        cavernGen.generateColumn(chunkX, chunkZ, chunkIn, localX, localZ, cavernBottomY, cavernTopY,
+                        if (cavernGen != null)
+                            cavernGen.generateColumn(chunkX, chunkZ, chunkIn, localX, localZ, cavernBottomY, cavernTopY,
                                 maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, lavaBlock);
                     }
                 }
@@ -359,7 +373,7 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
 
         // Determine cavern biome size, as well as jitter to make Voronoi regions more varied in shape
         float cavernBiomeSize;
-        float waterCavernBiomeSize = .0015f;
+        float waterCavernBiomeSize = .003f;
         switch (BetterCavesConfig.cavernBiomeSize) {
             case "Small":
                 cavernBiomeSize = .01f;
@@ -380,16 +394,18 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
         this.caveBiomeController = new FastNoise();
         this.caveBiomeController.SetSeed((int)seed + 222);
         this.caveBiomeController.SetFrequency(caveBiomeSize);
+        this.caveBiomeController.SetNoiseType(FastNoise.NoiseType.Cellular);
         this.caveBiomeController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
+        // Note that Cavern Biome Controller uses Simplex noise instead of Cellular
         this.cavernBiomeController = new FastNoise();
         this.cavernBiomeController.SetSeed((int)seed + 333);
         this.cavernBiomeController.SetFrequency(cavernBiomeSize);
-        this.cavernBiomeController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
         this.waterCavernController = new FastNoise();
         this.waterCavernController.SetSeed((int)seed + 444);
         this.waterCavernController.SetFrequency(waterCavernBiomeSize);
+        this.waterCavernController.SetNoiseType(FastNoise.NoiseType.Cellular);
         this.waterCavernController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
         /* ---------- Initialize all Better Cave generators using config options ---------- */
@@ -410,7 +426,7 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
                 BetterCavesConfig.cubicYAdjust,
                 BetterCavesConfig.cubicYAdjustF1,
                 BetterCavesConfig.cubicYAdjustF2,
-                Blocks.QUARTZ_BLOCK.getDefaultState()
+                Blocks.OAK_PLANKS.getDefaultState()
         );
 
         this.caveSimplex = new CaveBC(
@@ -472,7 +488,7 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
                 Blocks.LAPIS_BLOCK.getDefaultState()
         );
 
-        BetterCaves.LOGGER.info("WORLDCARVERBC INITIALIZED WITH SEED " + this.seed);
+        BetterCaves.LOGGER.info("BETTER CAVES WORLD CARVER INITIALIZED WITH SEED " + this.seed);
     }
 
     public void initialize(IWorld world) {

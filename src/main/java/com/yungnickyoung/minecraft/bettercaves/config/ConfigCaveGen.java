@@ -8,7 +8,6 @@ public class ConfigCaveGen {
     public final ConfigSimplexCave configSimplexCave;
     public final ConfigLavaCavern configLavaCavern;
     public final ConfigFlooredCavern configFlooredCavern;
-    public final ConfigVanillaCave configVanillaCave;
     public final ConfigWaterBiomes configWaterBiomes;
 
     public final ForgeConfigSpec.ConfigValue<String> caveBiomeSize;
@@ -48,7 +47,6 @@ public class ConfigCaveGen {
                 .define("Max Cave Altitude", 128);
 
         configWaterBiomes = new ConfigWaterBiomes(builder);
-        configVanillaCave = new ConfigVanillaCave(builder);
         configFlooredCavern = new ConfigFlooredCavern(builder);
         configLavaCavern = new ConfigLavaCavern(builder);
         configSimplexCave = new ConfigSimplexCave(builder);

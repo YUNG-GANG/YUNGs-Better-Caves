@@ -15,18 +15,14 @@ import javafx.util.Pair;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorld;
 import net.minecraft.world.chunk.IChunk;
-import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.carver.*;
 import net.minecraft.world.gen.feature.ProbabilityConfig;
 
-import java.lang.reflect.Field;
 import java.util.BitSet;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
 public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
@@ -34,7 +30,6 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
     public long oldSeed = 0;
 
     // The minecraft world
-    private IWorld world;
     private long seed = 0; // world seed
 
     // Cave types
@@ -68,7 +63,7 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
     private boolean enableWaterBiomes;
 
     // List used to avoid operating on a chunk more than once
-    private Set<Pair<Integer, Integer>> coordList = new HashSet<>();
+    public Set<Pair<Integer, Integer>> coordList = new HashSet<>();
 
     public WorldCarverBC(Function<Dynamic<?>, ? extends ProbabilityConfig> p_i49929_1_, int p_i49929_2_) {
         super(p_i49929_1_, p_i49929_2_);
@@ -83,32 +78,21 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
         if (coordList.contains(pair))
             return true;
 
+        if (coordList.size() > 10000) {
+            coordList.clear();
+            BetterCaves.LOGGER.warn("WARNING: BetterCaves chunk list reached max capacity!");
+            BetterCaves.LOGGER.info("Clearing chunk list...");
+        }
+
         coordList.add(pair);
 
         if (seed != oldSeed) {
-            BetterCaves.LOGGER.info("CHUNK COUNTER: " + counter);
+            BetterCaves.LOGGER.debug("CHUNKS LOADED SINCE SEED CHANGE: " + counter);
             counter = 0;
             oldSeed = seed;
         }
 
         counter++;
-
-//        long s = -1;
-//
-//        try {
-//            final Field seedField = Random.class.getDeclaredField("seed");
-//            seedField.setAccessible(true);
-//            try {
-//                s = ((AtomicLong)(seedField.get(rand))).get();
-//            } catch (IllegalAccessException ie) {
-//                BetterCaves.LOGGER.error("SEEDRETRIEVAL - ILLEGAL ACCESS EXCEPTION");
-//            }
-////            LOGGER.info("Successfully updated 'carvers' field for Biome " + biomeIn.getDisplayName());
-//        } catch (NoSuchFieldException e) {
-//            BetterCaves.LOGGER.error("SEEDRETRIEVAL - NO SUCH FIELD EXCEPTION");
-//        }
-//
-//        BetterCaves.LOGGER.info("SEEDRETRIEVAL - SEED VAL IS " + s);
 
         // Flatten bedrock into single layer, if enabled in user config
         if (BetterCavesConfig.flattenBedrock) {
@@ -488,12 +472,7 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
                 Blocks.LAPIS_BLOCK.getDefaultState()
         );
 
-        BetterCaves.LOGGER.info("BETTER CAVES WORLD CARVER INITIALIZED WITH SEED " + this.seed);
-    }
-
-    public void initialize(IWorld world) {
-        this.world = world;
-        initialize(world.getSeed());
+        BetterCaves.LOGGER.debug("BETTER CAVES WORLD CARVER INITIALIZED WITH SEED " + this.seed);
     }
 
     @Override

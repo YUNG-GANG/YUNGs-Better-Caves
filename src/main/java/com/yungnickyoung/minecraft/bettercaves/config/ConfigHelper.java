@@ -54,10 +54,6 @@ public final class ConfigHelper {
         BetterCavesConfig.waterCavernYComp = ConfigHolder.CLIENT.configCaveGen.configWaterBiomes.configWaterCavern.yCompression.get();
         BetterCavesConfig.waterCavernXZComp = ConfigHolder.CLIENT.configCaveGen.configWaterBiomes.configWaterCavern.xzCompression.get();
 
-        // Vanilla Gen settings
-        BetterCavesConfig.enableVanillaRavines = ConfigHolder.CLIENT.configCaveGen.configVanillaCave.enableVanillaRavines.get();
-        BetterCavesConfig.enableVanillaUnderwaterRavines = ConfigHolder.CLIENT.configCaveGen.configVanillaCave.enableVanillaUnderwaterRavines.get();
-
         // Water Biome settings
         BetterCavesConfig.enableWaterBiomes = ConfigHolder.CLIENT.configCaveGen.configWaterBiomes.enableWaterBiomes.get();
         BetterCavesConfig.waterBiomeFreq = ConfigHolder.CLIENT.configCaveGen.configWaterBiomes.waterBiomeFrequency.get();

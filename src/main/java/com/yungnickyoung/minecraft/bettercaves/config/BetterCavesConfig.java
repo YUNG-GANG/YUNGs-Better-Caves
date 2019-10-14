@@ -84,10 +84,6 @@ public final class BetterCavesConfig {
     public static float   waterCavernFractalFreq    = .03f;
     public static int     waterCavernNumGenerators  = 2;
 
-    // Vanilla gen vars
-    public static boolean enableVanillaRavines;
-    public static boolean enableVanillaUnderwaterRavines;
-
     // Water biome vars
     public static boolean enableWaterBiomes;
     public static String waterBiomeFreq;

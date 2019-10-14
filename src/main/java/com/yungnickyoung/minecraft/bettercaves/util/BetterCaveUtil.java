@@ -2,8 +2,6 @@ package com.yungnickyoung.minecraft.bettercaves.util;
 
 import com.google.common.collect.ImmutableSet;
 import com.yungnickyoung.minecraft.bettercaves.config.BetterCavesConfig;
-import com.yungnickyoung.minecraft.bettercaves.config.Settings;
-import com.yungnickyoung.minecraft.bettercaves.world.WorldCarverBC;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;

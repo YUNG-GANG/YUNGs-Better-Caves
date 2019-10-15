@@ -2,6 +2,7 @@ package com.yungnickyoung.minecraft.bettercaves.world;
 
 
 import com.mojang.datafixers.Dynamic;
+import com.mojang.datafixers.util.Pair;
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.BetterCavesConfig;
 import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
@@ -11,7 +12,6 @@ import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
 import com.yungnickyoung.minecraft.bettercaves.world.cave.AbstractBC;
 import com.yungnickyoung.minecraft.bettercaves.world.cave.CaveBC;
 import com.yungnickyoung.minecraft.bettercaves.world.cave.CavernBC;
-import javafx.util.Pair;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;

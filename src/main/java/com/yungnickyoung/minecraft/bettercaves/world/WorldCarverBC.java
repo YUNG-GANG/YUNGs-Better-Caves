@@ -78,6 +78,8 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
         if (coordList.contains(pair))
             return true;
 
+        // Clear the list occasionally to prevent excessive memory usage.
+        // This is a hacky solution, and may introduce bugs due to chunks being over- or under-processed
         if (coordList.size() > 10000) {
             coordList.clear();
             BetterCaves.LOGGER.warn("WARNING: BetterCaves chunk list reached max capacity!");
@@ -86,6 +88,7 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
 
         coordList.add(pair);
 
+        // Debug logging to see if any chunks may have been generated erroneously with the wrong seed
         if (seed != oldSeed) {
             BetterCaves.LOGGER.debug("CHUNKS LOADED SINCE SEED CHANGE: " + counter);
             counter = 0;

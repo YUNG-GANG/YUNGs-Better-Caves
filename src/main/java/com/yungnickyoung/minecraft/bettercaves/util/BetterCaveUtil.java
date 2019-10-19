@@ -137,6 +137,10 @@ public class BetterCaveUtil {
                 || blockStateAbove == Blocks.LOG2.getDefaultState())
             return false;
 
+        // Don't mine bedrock
+        if (blockState == Blocks.BEDROCK.getDefaultState())
+            return false;
+
         // Accept stone-like blocks added from other mods
         if (blockState.getMaterial() == Material.ROCK)
             return true;

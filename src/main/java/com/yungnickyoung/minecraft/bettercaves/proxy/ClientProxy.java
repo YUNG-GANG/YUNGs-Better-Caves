@@ -2,8 +2,6 @@ package com.yungnickyoung.minecraft.bettercaves.proxy;
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.event.EventConfigReload;
-import com.yungnickyoung.minecraft.bettercaves.event.EventFlattenBedrock;
-import com.yungnickyoung.minecraft.bettercaves.event.EventBetterCaveGen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.common.MinecraftForge;

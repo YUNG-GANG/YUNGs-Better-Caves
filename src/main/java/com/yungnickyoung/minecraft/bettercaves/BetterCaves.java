@@ -4,7 +4,6 @@ package com.yungnickyoung.minecraft.bettercaves;
 import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.event.EventBetterCaveGen;
 import com.yungnickyoung.minecraft.bettercaves.event.EventRavineGen;
-import com.yungnickyoung.minecraft.bettercaves.event.EventFlattenBedrock;
 import com.yungnickyoung.minecraft.bettercaves.proxy.IProxy;
 
 // Minecraft Forge API
@@ -49,7 +48,6 @@ public class BetterCaves {
     // Build whatever data structures are needed, register network handlers, etc.
     public void init(FMLInitializationEvent event) {
         // Register world generation events
-        MinecraftForge.EVENT_BUS.register(new EventFlattenBedrock()); // Flatten bedrock
         MinecraftForge.TERRAIN_GEN_BUS.register(new EventBetterCaveGen()); // Replace vanilla cave generation
         MinecraftForge.TERRAIN_GEN_BUS.register(new EventRavineGen()); // Disable vanilla ravine gen if enabled
         proxy.init(event);

@@ -1,10 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.proxy;
 
-import com.yungnickyoung.minecraft.bettercaves.event.EventBetterCaveGen;
-import com.yungnickyoung.minecraft.bettercaves.event.EventFlattenBedrock;
-import com.yungnickyoung.minecraft.bettercaves.event.EventRavineGen;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;

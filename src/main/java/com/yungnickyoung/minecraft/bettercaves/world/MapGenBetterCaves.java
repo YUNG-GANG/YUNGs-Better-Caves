@@ -6,6 +6,7 @@ import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
+import com.yungnickyoung.minecraft.bettercaves.world.bedrock.FlattenBedrock;
 import com.yungnickyoung.minecraft.bettercaves.world.cave.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -132,6 +133,9 @@ public class MapGenBetterCaves extends MapGenCaves {
             defaultCaveGen.generate(worldIn, chunkX, chunkZ, primer);
             return;
         }
+
+        // Flatten bedrock, if enabled
+        FlattenBedrock.flattenBedrock(primer);
 
         // We split chunks into 2x2 subchunks for surface height calculations
         for (int subX = 0; subX < 8; subX++) {

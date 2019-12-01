@@ -16,9 +16,9 @@ public class Configuration {
     @Config.Comment("Don't mess with these settings for normal gameplay.")
     public static ConfigDebug debugsettings = new ConfigDebug();
 
-    @Config.Name("Liquid Depth")
+    @Config.Name("Liquid Altitude")
     @Config.Comment("Lava (or water in water regions) spawns at and below this y-coordinate.")
-    @Config.RangeInt(min = 1)
+    @Config.RangeInt(min = 1, max = 255)
     @Config.RequiresWorldRestart
     public static int lavaDepth = 10;
 

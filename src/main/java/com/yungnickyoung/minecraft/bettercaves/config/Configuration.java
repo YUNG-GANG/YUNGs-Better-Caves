@@ -18,7 +18,7 @@ public class Configuration {
 
     @Config.Name("Liquid Altitude")
     @Config.Comment("Lava (or water in water regions) spawns at and below this y-coordinate.")
-    @Config.RangeInt(min = 1, max = 255)
+    @Config.RangeInt(min = 0, max = 255)
     @Config.RequiresWorldRestart
     public static int lavaDepth = 10;
 

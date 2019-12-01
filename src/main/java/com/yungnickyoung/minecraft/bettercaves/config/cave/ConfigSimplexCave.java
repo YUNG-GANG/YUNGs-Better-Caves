@@ -6,18 +6,19 @@ import net.minecraftforge.common.config.Config;
 public class ConfigSimplexCave {
     @Config.Name("Cave Bottom Altitude")
     @Config.Comment("The minimum y-coordinate at which caves start generating.")
+    @Config.RangeInt(min = 0, max = 255)
     @Config.RequiresWorldRestart
     public int caveBottom = 1;
 
     @Config.Name("Vertical Compression")
     @Config.Comment("Changes height of caves. Lower value = taller caves with steeper drops.")
-    @Config.RangeDouble(min = 0)
+    @Config.RangeDouble(min = 0, max = 100)
     @Config.RequiresWorldRestart
     public float yCompression = 3.0f;
 
     @Config.Name("Horizontal Compression")
     @Config.Comment("Changes width of caves. Lower value = wider caves.")
-    @Config.RangeDouble(min = 0)
+    @Config.RangeDouble(min = 0, max = 100)
     @Config.RequiresWorldRestart
     public float xzCompression = 1.0f;
 

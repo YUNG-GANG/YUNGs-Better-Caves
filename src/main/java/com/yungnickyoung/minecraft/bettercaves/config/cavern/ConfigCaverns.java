@@ -1,7 +1,5 @@
 package com.yungnickyoung.minecraft.bettercaves.config.cavern;
 
-import com.yungnickyoung.minecraft.bettercaves.config.cave.ConfigFlooredCavern;
-import com.yungnickyoung.minecraft.bettercaves.config.cave.ConfigLavaCavern;
 import com.yungnickyoung.minecraft.bettercaves.enums.CaveBiomeSize;
 import net.minecraftforge.common.config.Config;
 

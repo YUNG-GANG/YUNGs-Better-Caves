@@ -1,22 +1,22 @@
-package com.yungnickyoung.minecraft.bettercaves.config.cave;
+package com.yungnickyoung.minecraft.bettercaves.config.cavern;
 
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernFrequency;
 import net.minecraftforge.common.config.Config;
 
-public class ConfigFlooredCavern {
+public class ConfigLavaCavern {
     @Config.Name("Top Generation Altitude")
-    @Config.Comment("The top y-coordinate at which Floored Caverns start generating. Note that caverns will attempt " +
+    @Config.Comment("The top y-coordinate at which Lava Caverns start generating. Note that caverns will attempt " +
             "to close off anyway if this value is greater than the surface y-coordinate.")
     @Config.RequiresWorldRestart
     public int caveTop = 30;
 
     @Config.Name("Bottom Generation Altitude")
-    @Config.Comment("The bottom y-coordinate at which Floored Caverns stop generating.")
+    @Config.Comment("The bottom y-coordinate at which Lava Caverns stop generating.")
     @Config.RequiresWorldRestart
     public int caveBottom = 1;
 
-    @Config.Name("Floored Cavern Frequency")
-    @Config.Comment("Determines how frequently Floored Caverns spawn.")
+    @Config.Name("Lava Cavern Frequency")
+    @Config.Comment("Determines how frequently Lava Caverns spawn.")
     public CavernFrequency caveFrequency = CavernFrequency.Normal;
 
     @Config.Name("Vertical Compression")

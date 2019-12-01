@@ -1,6 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.config.cave;
 
-import com.yungnickyoung.minecraft.bettercaves.enums.CaveBiomeSize;
+import com.yungnickyoung.minecraft.bettercaves.enums.RegionSize;
 import net.minecraftforge.common.config.Config;
 
 public class ConfigCaves {
@@ -20,12 +20,12 @@ public class ConfigCaves {
     @Config.Comment("Settings controlling vanilla Minecraft cave generation.")
     public ConfigVanillaCave vanillaCave = new ConfigVanillaCave();
 
-    @Config.Name("Cave Biome Size")
-    @Config.Comment("Determines how large cave biomes are. Controls how long a cave system of a certain cave type" +
+    @Config.Name("Cave Region Size")
+    @Config.Comment("Determines how large cave regions are. Controls how long a cave system of a certain cave type" +
             " extends before intersecting with a cave system of another type. Larger Biome Size = more " +
             "cave interconnectivity for a given area, but possibly less variation.")
     @Config.RequiresWorldRestart
-    public CaveBiomeSize caveBiomeSize = CaveBiomeSize.Large;
+    public RegionSize caveRegionSize = RegionSize.Large;
 
     @Config.Name("Cave Surface Cutoff Depth")
     @Config.Comment("The depth from a given point on the surface (or the Max Cave Altitude, whichever is " +

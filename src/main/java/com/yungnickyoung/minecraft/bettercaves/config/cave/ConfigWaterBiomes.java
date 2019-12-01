@@ -1,34 +1,32 @@
 package com.yungnickyoung.minecraft.bettercaves.config.cave;
 
-import com.yungnickyoung.minecraft.bettercaves.enums.WaterBiomeFrequency;
+import com.yungnickyoung.minecraft.bettercaves.enums.WaterRegionFrequency;
 import net.minecraftforge.common.config.Config;
 
 public class ConfigWaterBiomes {
-
-
-    @Config.Name("Enable Water Cave/Cavern Biomes")
-    @Config.Comment("Set to true for caves/caverns to have a chance of spawning as their water-based variants, instead" +
+    @Config.Name("Enable Water Regions")
+    @Config.Comment("Set to true for caves & caverns to have a chance of spawning as their water-based variants, instead" +
             " of having lava")
     @Config.RequiresWorldRestart
     public boolean enableWaterBiomes = true;
 
-    @Config.Name("Water Biome Frequency")
-    @Config.Comment("Determines how frequently water biomes spawn")
-    public WaterBiomeFrequency waterBiomeFrequency = WaterBiomeFrequency.Normal;
+    @Config.Name("Water Region Frequency")
+    @Config.Comment("Determines how frequently water regions spawn. Only has an effect if Enable Water Regions is true.")
+    public WaterRegionFrequency waterRegionFrequency = WaterRegionFrequency.Normal;
 
     @Config.Name("Water Caverns")
-    @Config.Comment("Settings for Water Caverns (similar in structure to Lava Caverns)")
+    @Config.Comment("Settings for Water Caverns (similar in structure to Lava Caverns).")
     public WaterCavern waterCavern = new WaterCavern();
 
     public static class WaterCavern {
         @Config.Name("Vertical Compression")
-        @Config.Comment("Changes height of caves. Lower value = taller caves with steeper drops")
+        @Config.Comment("Changes height of formations in caverns. Lower value = more open caverns with larger features.")
         @Config.RangeDouble(min = 0)
         @Config.RequiresWorldRestart
         public float yCompression = 1.0f;
 
         @Config.Name("Horizontal Compression")
-        @Config.Comment("Changes width of caves. Lower value = wider caves")
+        @Config.Comment("Changes width of formations in caverns. Lower value = more open caverns with larger features.")
         @Config.RangeDouble(min = 0)
         @Config.RequiresWorldRestart
         public float xzCompression = 1.0f;

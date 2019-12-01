@@ -326,7 +326,7 @@ public class MapGenBetterCaves extends MapGenCaves {
      * @return threshold value for water biome spawn rate based on Config setting
      */
     private float calcWaterBiomeThreshold() {
-        switch (Configuration.caveSettings.waterBiomes.waterBiomeFrequency) {
+        switch (Configuration.caveSettings.waterBiomes.waterRegionFrequency) {
             case Rare:
                 return -.4f;
             case Common:
@@ -364,7 +364,7 @@ public class MapGenBetterCaves extends MapGenCaves {
 
         // Determine cave biome size
         float caveBiomeSize;
-        switch (Configuration.caveSettings.caves.caveBiomeSize) {
+        switch (Configuration.caveSettings.caves.caveRegionSize) {
             case Small:
                 caveBiomeSize = .007f;
                 break;
@@ -382,7 +382,7 @@ public class MapGenBetterCaves extends MapGenCaves {
         // Determine cavern biome size, as well as jitter to make Voronoi regions more varied in shape
         float cavernBiomeSize;
         float waterCavernBiomeSize = .003f;
-        switch (Configuration.caveSettings.caverns.cavernBiomeSize) {
+        switch (Configuration.caveSettings.caverns.cavernRegionSize) {
             case Small:
                 cavernBiomeSize = .01f;
                 break;

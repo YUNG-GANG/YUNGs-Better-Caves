@@ -2,7 +2,6 @@ package com.yungnickyoung.minecraft.bettercaves.config;
 
 import com.yungnickyoung.minecraft.bettercaves.config.cave.*;
 import com.yungnickyoung.minecraft.bettercaves.config.cavern.ConfigCaverns;
-import com.yungnickyoung.minecraft.bettercaves.enums.CaveBiomeSize;
 import net.minecraftforge.common.config.Config;
 
 public class ConfigCaveGen {

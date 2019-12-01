@@ -5,13 +5,13 @@ import net.minecraftforge.common.config.Config;
 
 public class ConfigFlooredCavern {
     @Config.Name("Top Generation Altitude")
-    @Config.Comment("The top y-coordinate at which Floored Caverns start generating. Note that caverns will attempt " +
+    @Config.Comment("The top cutoff y-coordinate of Floored Caverns. Note that caverns will attempt " +
             "to close off anyway if this value is greater than the surface y-coordinate.")
     @Config.RequiresWorldRestart
     public int caveTop = 30;
 
     @Config.Name("Bottom Generation Altitude")
-    @Config.Comment("The bottom y-coordinate at which Floored Caverns stop generating.")
+    @Config.Comment("The bottom cutoff y-coordinate at which Floored Caverns stop generating.")
     @Config.RequiresWorldRestart
     public int caveBottom = 1;
 
@@ -20,13 +20,13 @@ public class ConfigFlooredCavern {
     public CavernFrequency caveFrequency = CavernFrequency.Normal;
 
     @Config.Name("Vertical Compression")
-    @Config.Comment("Changes height of caves. Lower value = taller caves with steeper drops")
+    @Config.Comment("Changes height of formations in caverns. Lower value = more open caverns with larger features.")
     @Config.RangeDouble(min = 0)
     @Config.RequiresWorldRestart
     public float yCompression = 1.0f;
 
     @Config.Name("Horizontal Compression")
-    @Config.Comment("Changes width of caves. Lower value = wider caves")
+    @Config.Comment("Changes width of formations in caverns. Lower value = more open caverns with larger features.")
     @Config.RangeDouble(min = 0)
     @Config.RequiresWorldRestart
     public float xzCompression = 1.0f;

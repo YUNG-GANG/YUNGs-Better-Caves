@@ -1,6 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.config.cavern;
 
-import com.yungnickyoung.minecraft.bettercaves.enums.CaveBiomeSize;
+import com.yungnickyoung.minecraft.bettercaves.enums.RegionSize;
 import net.minecraftforge.common.config.Config;
 
 public class ConfigCaverns {
@@ -14,10 +14,10 @@ public class ConfigCaverns {
             " than Lava Caverns.")
     public ConfigFlooredCavern flooredCavern = new ConfigFlooredCavern();
 
-    @Config.Name("Cavern Biome Size")
-    @Config.Comment("Determines how large cavern biomes are. This controls the average size of caverns.")
+    @Config.Name("Cavern Region Size")
+    @Config.Comment("Determines how large cavern regions are. This controls the average size of caverns.")
     @Config.RequiresWorldRestart
-    public CaveBiomeSize cavernBiomeSize = CaveBiomeSize.Small;
+    public RegionSize cavernRegionSize = RegionSize.Small;
 
     @Config.Name("Enable Smooth Cavern Edges")
     @Config.Comment("Smooths the transition boundary between Cave and Cavern biomes, reducing straight walls found" +

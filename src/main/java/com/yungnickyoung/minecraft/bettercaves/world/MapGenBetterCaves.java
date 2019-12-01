@@ -18,8 +18,8 @@ import javax.annotation.Nonnull;
 
 /**
  * Class that overrides vanilla cave gen with Better Caves gen.
- * Combines multiple types of caves and caverns using different types of noise to create diverse a
- * diverse underground experience.
+ * Combines multiple types of caves and caverns using different types of noise to create a
+ * novel underground experience.
  */
 public class MapGenBetterCaves extends MapGenCaves {
     // Cave types
@@ -36,27 +36,27 @@ public class MapGenBetterCaves extends MapGenCaves {
     // Vanilla cave gen if user sets config to use it
     private MapGenCaves defaultCaveGen;
 
-    // Noise generators to group caves into cave "biomes" based on xz-coordinates.
-    // Cavern Biome Controller uses simplex noise while the others use Voronoi regions (cellular noise)
+    // Noise generators to group caves into cave regions based on xz-coordinates.
+    // Cavern Region Controller uses simplex noise while the others use Voronoi regions (cellular noise)
     private FastNoise waterCavernController;
-    private FastNoise cavernBiomeController;
-    private FastNoise caveBiomeController;
+    private FastNoise cavernRegionController;
+    private FastNoise caveRegionController;
 
-    // Biome generation noise thresholds, based on user config
+    // Region generation noise thresholds, based on user config
     private float cubicCaveThreshold;
     private float simplexCaveThreshold;
     private float lavaCavernThreshold;
     private float flooredCavernThreshold;
-    private float waterBiomeThreshold;
+    private float waterRegionThreshold;
 
-    // Dictates the degree of smoothing along cavern biome boundaries
+    // Dictates the degree of smoothing along cavern region boundaries
     private float transitionRange = .15f;
 
     // Config option for using vanilla cave gen in some areas
     private boolean enableVanillaCaves;
 
-    // Config option for using water biomes
-    private boolean enableWaterBiomes;
+    // Config option for using water regions
+    private boolean enableWaterRegions;
 
     // DEBUG
     private AbstractBC testCave;
@@ -92,21 +92,22 @@ public class MapGenBetterCaves extends MapGenCaves {
             this.initialize(worldIn);
         }
 
+        // Use debug function for testing purposes, if debug flag is set
         if (Settings.DEBUG_WORLD_GEN) {
             debugGenerate(worldIn, chunkX, chunkZ, primer);
             return;
         }
 
+        // Default vals for max/min surface height
         int maxSurfaceHeight = 128;
         int minSurfaceHeight = 60;
 
-        // Cave generators - we will determine exactly what type these are based on the cave biome for each column
+        // Cave generators - we will determine exactly what type these are based on the cave region for each column
         AbstractBC cavernGen;
         AbstractBC caveGen;
 
-        // These values probably could be hardcoded, but are kept as vars for future extensibility.
-        // These values are later set to the correct cave type's config vars for
-        // caveBottom and caveTop (only applicable for caverns, since caves perform some additional
+        // These values are later set to the correct cave/cavern type's config vars for
+        // caveBottom, and caveTop (only applicable for caverns, since caves perform some additional
         // operations to smoothly transition into the surface)
         int cavernBottomY;
         int cavernTopY;
@@ -137,7 +138,7 @@ public class MapGenBetterCaves extends MapGenCaves {
         // Flatten bedrock, if enabled
         FlattenBedrock.flattenBedrock(primer);
 
-        // We split chunks into 2x2 subchunks for surface height calculations
+        // We split chunks into 2x2 sub-chunks along the x-z axis for surface height calculations
         for (int subX = 0; subX < 8; subX++) {
             for (int subZ = 0; subZ < 8; subZ++) {
                 if (!Configuration.debugsettings.debugVisualizer)
@@ -155,11 +156,11 @@ public class MapGenBetterCaves extends MapGenCaves {
 
                         /* --------------------------- Configure Caves --------------------------- */
 
-                        // Get noise values used to determine cave biome
-                        float caveBiomeNoise = caveBiomeController.GetNoise(realX, realZ);
+                        // Get noise values used to determine cave region
+                        float caveRegionNoise = caveRegionController.GetNoise(realX, realZ);
 
                         /* Determine cave type for this column. We have two thresholds, one for cubic caves and one for
-                         * simplex caves. Since the noise value generated for the biome is between -1 and 1, we (by
+                         * simplex caves. Since the noise value generated for the region is between -1 and 1, we (by
                          * default) designate all negative values as cubic caves, and all positive as simplex. However,
                          * we allow the user to tweak the cutoff values based on the frequency they designate for each cave
                          * type, so we must also check for values between the two thresholds,
@@ -167,10 +168,10 @@ public class MapGenBetterCaves extends MapGenCaves {
                          * In this case, we use vanilla cave generation if it is enabled; otherwise we dig no caves
                          * out of this chunk.
                          */
-                        if (caveBiomeNoise < this.cubicCaveThreshold) {
+                        if (caveRegionNoise < this.cubicCaveThreshold) {
                             caveGen = this.caveCubic;
                             caveBottomY = Configuration.caveSettings.caves.cubicCave.caveBottom;
-                        } else if (caveBiomeNoise >= this.simplexCaveThreshold) {
+                        } else if (caveRegionNoise >= this.simplexCaveThreshold) {
                             caveGen = this.caveSimplex;
                             caveBottomY = Configuration.caveSettings.caves.simplexCave.caveBottom;
                         } else {
@@ -184,22 +185,22 @@ public class MapGenBetterCaves extends MapGenCaves {
 
                         /* --------------------------- Configure Caverns --------------------------- */
 
-                        // Get noise values used to determine cavern biome
-                        float cavernBiomeNoise = cavernBiomeController.GetNoise(realX, realZ);
-                        float waterBiomeNoise = 99;
+                        // Noise values used to determine cavern region
+                        float cavernRegionNoise = cavernRegionController.GetNoise(realX, realZ);
+                        float waterRegionNoise = 99;
 
-                        // Only bother calculating noise for water biome if enabled
-                        if (enableWaterBiomes)
-                            waterBiomeNoise = waterCavernController.GetNoise(realX, realZ);
+                        // Only bother calculating noise for water region if enabled
+                        if (enableWaterRegions)
+                            waterRegionNoise = waterCavernController.GetNoise(realX, realZ);
 
-                        // If water biome threshold check is passed, change lava block to water
+                        // If water region threshold check is passed, change liquid block to water
                         IBlockState lavaBlock = Blocks.FLOWING_LAVA.getDefaultState();
-                        if (waterBiomeNoise < waterBiomeThreshold)
+                        if (waterRegionNoise < waterRegionThreshold)
                             lavaBlock = Blocks.WATER.getDefaultState();
 
                         // Determine cavern type for this column. Caverns generate at low altitudes only.
-                        if (cavernBiomeNoise < lavaCavernThreshold) {
-                            if (this.enableWaterBiomes && waterBiomeNoise < this.waterBiomeThreshold) {
+                        if (cavernRegionNoise < lavaCavernThreshold) {
+                            if (this.enableWaterRegions && waterRegionNoise < this.waterRegionThreshold) {
                                 // Generate water cavern in this column
                                 cavernGen = this.cavernWater;
                             } else {
@@ -209,7 +210,7 @@ public class MapGenBetterCaves extends MapGenCaves {
                             // Water caverns use the same cave top/bottom as lava caverns
                             cavernBottomY = Configuration.caveSettings.caverns.lavaCavern.caveBottom;
                             cavernTopY = Configuration.caveSettings.caverns.lavaCavern.caveTop;
-                        } else if (cavernBiomeNoise >= lavaCavernThreshold && cavernBiomeNoise <= flooredCavernThreshold) {
+                        } else if (cavernRegionNoise >= lavaCavernThreshold && cavernRegionNoise <= flooredCavernThreshold) {
                             /* Similar to determining cave type above, we must check for values between the two adjusted
                              * thresholds, i.e. lavaCavernThreshold < noiseValue <= flooredCavernThreshold.
                              * In this case, we just continue generating the caves we were generating above, instead
@@ -227,12 +228,12 @@ public class MapGenBetterCaves extends MapGenCaves {
 
                         // Extra check to provide close-off transitions on cavern edges
                         if (Configuration.caveSettings.caverns.enableBoundarySmoothing) {
-                            if (cavernBiomeNoise >= lavaCavernThreshold && cavernBiomeNoise <= lavaCavernThreshold + transitionRange) {
-                                float smoothAmp = Math.abs((cavernBiomeNoise - (lavaCavernThreshold + transitionRange)) / transitionRange);
+                            if (cavernRegionNoise >= lavaCavernThreshold && cavernRegionNoise <= lavaCavernThreshold + transitionRange) {
+                                float smoothAmp = Math.abs((cavernRegionNoise - (lavaCavernThreshold + transitionRange)) / transitionRange);
                                 this.cavernLava.generateColumn(chunkX, chunkZ, primer, localX, localZ, Configuration.caveSettings.caverns.lavaCavern.caveBottom, Configuration.caveSettings.caverns.lavaCavern.caveTop,
                                         maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, lavaBlock, smoothAmp);
-                            } else if (cavernBiomeNoise <= flooredCavernThreshold && cavernBiomeNoise >= flooredCavernThreshold - transitionRange) {
-                                float smoothAmp = Math.abs((cavernBiomeNoise - (flooredCavernThreshold - transitionRange)) / transitionRange);
+                            } else if (cavernRegionNoise <= flooredCavernThreshold && cavernRegionNoise >= flooredCavernThreshold - transitionRange) {
+                                float smoothAmp = Math.abs((cavernRegionNoise - (flooredCavernThreshold - transitionRange)) / transitionRange);
                                 this.cavernFloored.generateColumn(chunkX, chunkZ, primer, localX, localZ, Configuration.caveSettings.caverns.flooredCavern.caveBottom, Configuration.caveSettings.caverns.flooredCavern.caveTop,
                                         maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, lavaBlock, smoothAmp);
                             }
@@ -323,10 +324,10 @@ public class MapGenBetterCaves extends MapGenCaves {
     }
 
     /**
-     * @return threshold value for water biome spawn rate based on Config setting
+     * @return threshold value for water region spawn rate based on Config setting
      */
-    private float calcWaterBiomeThreshold() {
-        switch (Configuration.caveSettings.waterBiomes.waterRegionFrequency) {
+    private float calcWaterRegionThreshold() {
+        switch (Configuration.caveSettings.waterRegions.waterRegionFrequency) {
             case Rare:
                 return -.4f;
             case Common:
@@ -341,19 +342,19 @@ public class MapGenBetterCaves extends MapGenCaves {
     }
 
     /**
-     * Initialize Better Caves generators and cave biome controllers for this world.
+     * Initialize Better Caves generators and cave region controllers for this world.
      * @param worldIn The minecraft world
      */
     private void initialize(World worldIn) {
         this.world = worldIn;
         this.defaultCaveGen = new MapGenCaves();
         this.enableVanillaCaves = Configuration.caveSettings.caves.vanillaCave.enableVanillaCaves;
-        this.enableWaterBiomes = Configuration.caveSettings.waterBiomes.enableWaterBiomes;
+        this.enableWaterRegions = Configuration.caveSettings.waterRegions.enableWaterRegions;
 
         // Determine noise thresholds for cavern spawns based on user config
         this.lavaCavernThreshold = calcLavaCavernThreshold();
         this.flooredCavernThreshold = calcFlooredCavernThreshold();
-        this.waterBiomeThreshold = calcWaterBiomeThreshold();
+        this.waterRegionThreshold = calcWaterRegionThreshold();
 
         // Determine noise thresholds for caverns based on user config
         this.cubicCaveThreshold = calcCubicCaveThreshold();
@@ -362,57 +363,57 @@ public class MapGenBetterCaves extends MapGenCaves {
         // Get user setting for surface cutoff depth used to close caves off towards the surface
         this.surfaceCutoff = Configuration.caveSettings.caves.surfaceCutoff;
 
-        // Determine cave biome size
-        float caveBiomeSize;
+        // Determine cave region size
+        float caveRegionSize;
         switch (Configuration.caveSettings.caves.caveRegionSize) {
             case Small:
-                caveBiomeSize = .007f;
+                caveRegionSize = .007f;
                 break;
             case Large:
-                caveBiomeSize = .0032f;
+                caveRegionSize = .0032f;
                 break;
             case ExtraLarge:
-                caveBiomeSize = .001f;
+                caveRegionSize = .001f;
                 break;
             default: // Medium
-                caveBiomeSize = .005f;
+                caveRegionSize = .005f;
                 break;
         }
 
-        // Determine cavern biome size, as well as jitter to make Voronoi regions more varied in shape
-        float cavernBiomeSize;
-        float waterCavernBiomeSize = .003f;
+        // Determine cavern region size, as well as jitter to make Voronoi regions more varied in shape
+        float cavernRegionSize;
+        float waterCavernRegionSize = .003f;
         switch (Configuration.caveSettings.caverns.cavernRegionSize) {
             case Small:
-                cavernBiomeSize = .01f;
+                cavernRegionSize = .01f;
                 break;
             case Large:
-                cavernBiomeSize = .005f;
+                cavernRegionSize = .005f;
                 break;
             case ExtraLarge:
-                cavernBiomeSize = .001f;
-                waterCavernBiomeSize = .0005f;
+                cavernRegionSize = .001f;
+                waterCavernRegionSize = .0005f;
                 break;
             default: // Medium
-                cavernBiomeSize = .007f;
+                cavernRegionSize = .007f;
                 break;
         }
 
-        // Initialize Biome Controllers using world seed and user config option for biome size
-        this.caveBiomeController = new FastNoise();
-        this.caveBiomeController.SetSeed((int)worldIn.getSeed() + 222);
-        this.caveBiomeController.SetFrequency(caveBiomeSize);
-        this.caveBiomeController.SetNoiseType(FastNoise.NoiseType.Cellular);
-        this.caveBiomeController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
+        // Initialize region controllers using world seed and user config option for region size
+        this.caveRegionController = new FastNoise();
+        this.caveRegionController.SetSeed((int)worldIn.getSeed() + 222);
+        this.caveRegionController.SetFrequency(caveRegionSize);
+        this.caveRegionController.SetNoiseType(FastNoise.NoiseType.Cellular);
+        this.caveRegionController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
-        // Note that Cavern Biome Controller uses Simplex noise instead of Cellular
-        this.cavernBiomeController = new FastNoise();
-        this.cavernBiomeController.SetSeed((int)worldIn.getSeed() + 333);
-        this.cavernBiomeController.SetFrequency(cavernBiomeSize);
+        // Note that Cavern Region Controller uses Simplex noise instead of Cellular
+        this.cavernRegionController = new FastNoise();
+        this.cavernRegionController.SetSeed((int)worldIn.getSeed() + 333);
+        this.cavernRegionController.SetFrequency(cavernRegionSize);
 
         this.waterCavernController = new FastNoise();
         this.waterCavernController.SetSeed((int)worldIn.getSeed() + 444);
-        this.waterCavernController.SetFrequency(waterCavernBiomeSize);
+        this.waterCavernController.SetFrequency(waterCavernRegionSize);
         this.waterCavernController.SetNoiseType(FastNoise.NoiseType.Cellular);
         this.waterCavernController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
@@ -486,13 +487,13 @@ public class MapGenBetterCaves extends MapGenCaves {
         this.cavernWater = new CavernBC(
                 world,
                 CavernType.WATER,
-                Configuration.caveSettings.waterBiomes.waterCavern.fractalOctaves,
-                Configuration.caveSettings.waterBiomes.waterCavern.fractalGain,
-                Configuration.caveSettings.waterBiomes.waterCavern.fractalFrequency,
-                Configuration.caveSettings.waterBiomes.waterCavern.numGenerators,
-                Configuration.caveSettings.waterBiomes.waterCavern.noiseThreshold,
-                Configuration.caveSettings.waterBiomes.waterCavern.yCompression,
-                Configuration.caveSettings.waterBiomes.waterCavern.xzCompression,
+                Configuration.caveSettings.waterRegions.waterCavern.fractalOctaves,
+                Configuration.caveSettings.waterRegions.waterCavern.fractalGain,
+                Configuration.caveSettings.waterRegions.waterCavern.fractalFrequency,
+                Configuration.caveSettings.waterRegions.waterCavern.numGenerators,
+                Configuration.caveSettings.waterRegions.waterCavern.noiseThreshold,
+                Configuration.caveSettings.waterRegions.waterCavern.yCompression,
+                Configuration.caveSettings.waterRegions.waterCavern.xzCompression,
                 Blocks.LAPIS_BLOCK.getDefaultState()
         );
 

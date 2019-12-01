@@ -14,10 +14,10 @@ public class ConfigCaveGen {
             "spawn at low altitudes.")
     public ConfigCaverns caverns = new ConfigCaverns();
 
-    @Config.Name("Water Biomes")
+    @Config.Name("Water Regions")
     @Config.Comment("Parameters used in the generation of water-based caves and caverns. These are similar to " +
             "the regular Better Caves and Caverns, but with water instead of lava.")
-    public ConfigWaterBiomes waterBiomes = new ConfigWaterBiomes();
+    public ConfigWaterRegions waterRegions = new ConfigWaterRegions();
 
     @Config.Name("Whitelisted Dimension IDs")
     @Config.Comment("List of ID's of dimensions that will have Better Caves. Ignored if Global Whitelisting is enabled.")

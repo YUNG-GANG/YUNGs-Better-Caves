@@ -113,7 +113,7 @@ public class CavernBC extends AbstractBC {
             if ((this.cavernType == CavernType.FLOORED || this.cavernType == CavernType.WATER) && realY <= bottomTransitionBoundary)
                 noiseThreshold *= Math.max((float) (realY - bottomY) / (bottomTransitionBoundary - bottomY), .5f);
 
-            // Adjust threshold along biome borders to create smooth transition
+            // Adjust threshold along region borders to create smooth transition
             if (smoothAmp < 1)
                 noiseThreshold *= smoothAmp;
 

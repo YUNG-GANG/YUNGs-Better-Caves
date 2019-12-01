@@ -3,12 +3,12 @@ package com.yungnickyoung.minecraft.bettercaves.config.cave;
 import com.yungnickyoung.minecraft.bettercaves.enums.WaterRegionFrequency;
 import net.minecraftforge.common.config.Config;
 
-public class ConfigWaterBiomes {
+public class ConfigWaterRegions {
     @Config.Name("Enable Water Regions")
     @Config.Comment("Set to true for caves & caverns to have a chance of spawning as their water-based variants, instead" +
             " of having lava")
     @Config.RequiresWorldRestart
-    public boolean enableWaterBiomes = true;
+    public boolean enableWaterRegions = true;
 
     @Config.Name("Water Region Frequency")
     @Config.Comment("Determines how frequently water regions spawn. Only has an effect if Enable Water Regions is true.")

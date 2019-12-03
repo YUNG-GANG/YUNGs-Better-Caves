@@ -163,104 +163,101 @@ public class BetterCaveUtil {
     }
 
     /**
-     * Tests 8 edge points and center of chunk to approximate max surface height of the chunk.
+     * Tests 8 edge points and center of chunk to approximate max surface altitude (y-coordinate) of the chunk.
+     * Note that water blocks also count as the surface.
+     * @param world the Minecraft World
      * @param primer primer for chunk
-     * @return Max surface height of chunk
+     * @param chunkX The chunk's x-coordinate
+     * @param chunkZ The chunk's z-coordinate
+     * @return y-coordinate of the approximate highest surface altitude in the chunk
      */
-    public static int getMaxSurfaceHeight(ChunkPrimer primer) {
+    public static int getMaxSurfaceAltitudeChunk(World world, ChunkPrimer primer, int chunkX, int chunkZ) {
         int maxHeight = 0;
         int[] testCoords = {0, 7, 15}; // chunk-local x/z coordinates to test for max height
 
         for (int x : testCoords)
             for (int z : testCoords)
-                maxHeight = Math.max(maxHeight, getSurfaceHeight(primer, x, z));
+                maxHeight = Math.max(maxHeight, getSurfaceAltitudeInRangeForColumn(world, primer, chunkX, chunkZ, x, z));
 
         return maxHeight;
     }
 
     /**
-     * Tests 8 edge points and center of chunk to approximate min surface height of the chunk.
+     * Tests 8 edge points and center of chunk to approximate min surface altitude (y-coordinate) of the chunk.
+     * Note that water blocks also count as the surface.
+     * @param world the Minecraft World
      * @param primer primer for chunk
-     * @return Min surface height of chunk
+     * @param chunkX The chunk's x-coordinate
+     * @param chunkZ The chunk's z-coordinate
+     * @return y-coordinate of the approximate lowest surface altitude in the chunk
      */
-    public static int getMinSurfaceHeight(ChunkPrimer primer) {
+    public static int getMinSurfaceAltitudeChunk(World world, ChunkPrimer primer, int chunkX, int chunkZ) {
         int minHeight = 256;
         int[] testCoords = {0, 7, 15}; // chunk-local x/z coordinates to test for max height
 
         for (int x : testCoords)
             for (int z : testCoords)
-                minHeight = Math.min(minHeight, getSurfaceHeight(primer, x, z));
+                minHeight = Math.min(minHeight, getSurfaceAltitudeInRangeForColumn(world, primer, chunkX, chunkZ, x, z));
 
         return minHeight;
     }
 
     /**
-     * Tests every block in a 2x2 "sub-chunk" to get the max height of the sub-chunk.
+     * Tests every block in a 2x2 "sub-chunk" to get the max surface altitude (y-coordinate) of the sub-chunk.
+     * Note that water blocks also count as the surface.
+     * @param world the Minecraft World
      * @param primer primer for chunk
+     * @param chunkX The chunk's x-coordinate
+     * @param chunkZ The chunk's z-coordinate
      * @param subX The x-coordinate of the sub-chunk. Note that this is regular chunk-local x-coordinate divided
      *             by 2. E.g. If you want the last 2 blocks on the x-axis in the chunk (blocks 14 and 15), use subX = 7.
      * @param subZ The z-coordinate of the sub-chunk. Note that this is regular chunk-local z-coordinate divided
      *             by 2. E.g. If you want the last 2 blocks on the z-axis in the chunk (blocks 14 and 15), use subZ = 7.
      * @return Max surface height of the sub-chunk
      */
-    public static int getMaxSurfaceHeightSubChunk(ChunkPrimer primer, int subX, int subZ)  {
+    public static int getMaxSurfaceAltitudeSubChunk(World world, ChunkPrimer primer, int chunkX, int chunkZ, int subX, int subZ)  {
         int maxHeight = 0;
         int[] testCoords = {0, 1}; // chunk-local x/z coordinates to test for max height
 
         for (int x : testCoords)
             for (int z : testCoords)
-                maxHeight = Math.max(maxHeight, getSurfaceHeight(primer, (subX * 2) + x, (subZ * 2) + z));
+                maxHeight = Math.max(maxHeight, getSurfaceAltitudeInRangeForColumn(world, primer, chunkX, chunkZ, (subX * 2) + x, (subZ * 2) + z));
 
         return maxHeight;
     }
 
     /**
      * Returns the y-coordinate of the surface block for a given local block coordinate for a given chunk.
-     * @param primer The ChunkPrimer containing the block
-     * @param x The block's chunk-local x-coordinate
-     * @param z The block's chunk-local z-coordinate
+     * Note that water blocks also count as the surface.
+     * @param world the Minecraft World
+     * @param primer primer for chunk
+     * @param chunkX The chunk's x-coordinate
+     * @param chunkZ The chunk's z-coordinate
+     * @param localX The block's chunk-local x-coordinate
+     * @param localZ The block's chunk-local z-coordinate
      * @return The y-coordinate of the surface block
      */
-    private static int getSurfaceHeight(ChunkPrimer primer, int x, int z) {
-//        return recursiveBinarySurfaceSearch(primer, x, z, 255, 0);
-        return linarSurfaceSearch(primer, x, z, 255, 0);
+    public static int getSurfaceAltitudeInRangeForColumn(World world, ChunkPrimer primer, int chunkX, int chunkZ, int localX, int localZ) {
+        return searchSurfaceAltitudeInRangeForColumn(world, primer, chunkX, chunkZ, localX, localZ, 255, 0);
     }
 
     /**
-     * Recursive binary search, this search always converges on the surface in 8 in cycles for the range 255 >= y >= 0.
-     * Thanks to Worley's Caves for this idea.
-     * @param primer Chunk's ChunkPrimer
-     * @param x Chunk-local x-coordinate
-     * @param z Chunk-local z-coordinate
-     * @param top Upper y-coordinate search bound
-     * @param bottom Lower y-coordinate search bound
-     * @return Surface height at given coordinate
-     */
-    private static int recursiveBinarySurfaceSearch(ChunkPrimer primer, int x, int z, int top, int bottom) {
-        if (top > bottom) {
-            int mid = (top + bottom) / 2;
-
-            if (canReplaceBlock(primer.getBlockState(x, mid, z), Blocks.AIR.getDefaultState()))
-                top = recursiveBinarySurfaceSearch(primer, x, z, top, mid + 1);
-            else
-                top = recursiveBinarySurfaceSearch(primer, x, z, mid, bottom);
-        }
-        return top;
-    }
-
-    /**
-     * Linear search from the bottom up to find the surface y-coordinate for a given block.
-     * Slower than binary search, but more reliable since it also works for areas with overhangs or floating islands.
-     * @param primer The ChunkPrimer containing the block
-     * @param localX The chunk-local x-coordinate
-     * @param localZ The chunk-local z-coordinate
+     * Searches for the y-coordinate of the surface block for a given local block coordinate for a given chunk in a
+     * specific range of y-coordinates.
+     * Note that water blocks also count as the surface.
+     * @param world the Minecraft World
+     * @param primer primer for chunk
+     * @param chunkX The chunk's x-coordinate
+     * @param chunkZ The chunk's z-coordinate
+     * @param localX The block's chunk-local x-coordinate
+     * @param localZ The block's chunk-local z-coordinate
      * @param topY The top y-coordinate to stop searching at
      * @param bottomY The bottom y-coordinate to start searching at
-     * @return Surface height at given coordinate
+     * @return The y-coordinate of the surface block
      */
-    private static int linarSurfaceSearch(ChunkPrimer primer, int localX, int localZ, int topY, int bottomY) {
+    public static int searchSurfaceAltitudeInRangeForColumn(World world, ChunkPrimer primer, int chunkX, int chunkZ, int localX, int localZ, int topY, int bottomY) {
         for (int y = bottomY; y <= topY; y++) {
-            if (primer.getBlockState(localX, y, localZ) == Blocks.AIR.getDefaultState())
+            if (primer.getBlockState(localX, y, localZ) == Blocks.AIR.getDefaultState() || primer.getBlockState(localX, y, localZ).getMaterial() == Material.WATER)
                 return y;
         }
 

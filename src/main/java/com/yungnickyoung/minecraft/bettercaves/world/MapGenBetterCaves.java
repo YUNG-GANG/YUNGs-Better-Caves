@@ -59,8 +59,8 @@ public class MapGenBetterCaves extends MapGenCaves {
     // Config option for using water regions
     private boolean enableWaterRegions;
 
-    IBlockState lavaBlock;
-    IBlockState waterBlock;
+    private IBlockState lavaBlock;
+    private IBlockState waterBlock;
 
     // DEBUG
     private AbstractBC testCave;
@@ -70,8 +70,8 @@ public class MapGenBetterCaves extends MapGenCaves {
 
     // DEBUG - used to test new noise types/params with the TestCave type
     private void debugGenerate(World worldIn, int chunkX, int chunkZ, @Nonnull ChunkPrimer primer) {
-        int maxSurfaceHeight = BetterCaveUtil.getMaxSurfaceHeight(primer);
-        int minSurfaceHeight = BetterCaveUtil.getMinSurfaceHeight(primer);
+        int maxSurfaceHeight = BetterCaveUtil.getMaxSurfaceAltitudeChunk(world, primer, chunkX, chunkZ);
+        int minSurfaceHeight = BetterCaveUtil.getMinSurfaceAltitudeChunk(world, primer, chunkX, chunkZ);
         if (worldIn.provider.getDimension() == 0) {
             for (int localX = 0; localX < 16; localX++) {
                 for (int localZ = 0; localZ < 16; localZ++) {
@@ -146,7 +146,7 @@ public class MapGenBetterCaves extends MapGenCaves {
         for (int subX = 0; subX < 8; subX++) {
             for (int subZ = 0; subZ < 8; subZ++) {
                 if (!Configuration.debugsettings.debugVisualizer)
-                    maxSurfaceHeight = BetterCaveUtil.getMaxSurfaceHeightSubChunk(primer, subX, subZ);
+                    maxSurfaceHeight = BetterCaveUtil.getMaxSurfaceAltitudeSubChunk(world, primer, chunkX, chunkZ, subX, subZ);
 
                 // maxSurfaceHeight (also used for max cave altitude) cannot exceed Max Cave Altitude setting
                 maxSurfaceHeight = Math.min(maxSurfaceHeight, Configuration.caveSettings.caves.maxCaveAltitude);

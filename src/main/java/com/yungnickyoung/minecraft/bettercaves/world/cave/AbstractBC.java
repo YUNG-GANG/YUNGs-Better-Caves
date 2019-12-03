@@ -96,10 +96,10 @@ public abstract class AbstractBC {
      * @param localZ the chunk-local z-coordinate of this column of blocks (0 <= localZ <= 15)
      * @param bottomY The bottom y-coordinate to start calculating noise for and potentially dig out
      * @param topY The top y-coordinate to start calculating noise for and potentially dig out
-     * @param maxSurfaceHeight This chunk's max surface height. Can be approximated using
-     *                         BetterCaveUtil#getMaxSurfaceHeight
+     * @param maxSurfaceHeight This column's max surface height. Can be approximated using
+     *                         BetterCaveUtil#getMaxSurfaceAltitudeChunk or BetterCaveUtil#getMaxSurfaceAltitudeSubChunk
      * @param minSurfaceHeight This chunk's min surface height. Can be approximated using
-     *                         BetterCaveUtil#getMinSurfaceHeight
+     *                         BetterCaveUtil#getMinSurfaceAltitudeChunk or BetterCaveUtil#getMinSurfaceHeightSubChunk
      */
     public abstract void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
                                         int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff,

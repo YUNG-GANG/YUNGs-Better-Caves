@@ -17,8 +17,8 @@ import net.minecraft.world.chunk.ChunkPrimer;
  * This class may not be instantiated - all members are {@code public} and {@code static},
  * and as such may be accessed freely.
  */
-public class BetterCaveUtil {
-    private BetterCaveUtil() {} // Private constructor prevents instantiation
+public class BetterCavesUtil {
+    private BetterCavesUtil() {} // Private constructor prevents instantiation
 
     /* Common IBlockStates used in this class */
     private static final IBlockState BLOCKSTATE_AIR = Blocks.AIR.getDefaultState();

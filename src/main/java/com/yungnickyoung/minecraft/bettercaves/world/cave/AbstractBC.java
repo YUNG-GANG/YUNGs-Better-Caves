@@ -2,7 +2,7 @@ package com.yungnickyoung.minecraft.bettercaves.world.cave;
 
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
-import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
+import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -97,9 +97,9 @@ public abstract class AbstractBC {
      * @param bottomY The bottom y-coordinate to start calculating noise for and potentially dig out
      * @param topY The top y-coordinate to start calculating noise for and potentially dig out
      * @param maxSurfaceHeight This column's max surface height. Can be approximated using
-     *                         BetterCaveUtil#getMaxSurfaceAltitudeChunk or BetterCaveUtil#getMaxSurfaceAltitudeSubChunk
+     *                         BetterCavesUtil#getMaxSurfaceAltitudeChunk or BetterCavesUtil#getMaxSurfaceAltitudeSubChunk
      * @param minSurfaceHeight This chunk's min surface height. Can be approximated using
-     *                         BetterCaveUtil#getMinSurfaceAltitudeChunk or BetterCaveUtil#getMinSurfaceHeightSubChunk
+     *                         BetterCavesUtil#getMinSurfaceAltitudeChunk or BetterCavesUtil#getMinSurfaceHeightSubChunk
      */
     public abstract void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
                                         int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff,
@@ -183,7 +183,7 @@ public abstract class AbstractBC {
                 return;
         }
 
-        BetterCaveUtil.digBlock(this.getWorld(), primer, lavaBlock, localX, realY, localZ, chunkX, chunkZ);
+        BetterCavesUtil.digBlock(this.getWorld(), primer, lavaBlock, localX, realY, localZ, chunkX, chunkZ);
     }
 
     /**

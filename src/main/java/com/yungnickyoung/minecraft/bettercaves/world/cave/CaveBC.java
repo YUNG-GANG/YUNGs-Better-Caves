@@ -4,7 +4,7 @@ import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
-import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
+import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -114,7 +114,7 @@ public class CaveBC extends AbstractBC {
 
             IBlockState currBlock = primer.getBlockState(localX, realY, localZ);
 
-            if (BetterCaveUtil.canReplaceBlock(currBlock, BlockStateAir)
+            if (BetterCavesUtil.canReplaceBlock(currBlock, BlockStateAir)
                     && primer.getBlockState(localX, realY + 1, localZ) == BlockStateAir
                     && primer.getBlockState(localX, realY - 1, localZ) == BlockStateAir
             )

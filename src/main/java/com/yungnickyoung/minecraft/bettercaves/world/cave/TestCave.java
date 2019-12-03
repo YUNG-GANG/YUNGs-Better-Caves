@@ -91,7 +91,7 @@ public class TestCave extends AbstractBC {
 //        for (int realY = simplexCaveTransitionBoundary + 1; realY < topY; realY++) {
 //            IBlockState currBlock = primer.getBlockState(localX, realY, localZ);
 //
-//            if (BetterCaveUtil.canReplaceBlock(currBlock, BlockStateAir)
+//            if (BetterCavesUtil.canReplaceBlock(currBlock, BlockStateAir)
 //                    && primer.getBlockState(localX, realY + 1, localZ) == BlockStateAir
 //                    && primer.getBlockState(localX, realY - 1, localZ) == BlockStateAir
 //            )

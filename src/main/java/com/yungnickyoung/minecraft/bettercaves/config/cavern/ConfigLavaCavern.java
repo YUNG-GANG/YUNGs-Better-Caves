@@ -19,7 +19,20 @@ public class ConfigLavaCavern {
 
     @Config.Name("Lava Cavern Frequency")
     @Config.Comment("Determines how frequently Lava Caverns spawn.")
+    @Config.RequiresWorldRestart
     public CavernFrequency caveFrequency = CavernFrequency.Normal;
+
+    @Config.Name("Lava Cavern Frequency Custom Value")
+    @Config.Comment("Custom value for cavern frequency. Only works if Lava Cavern Frequency is set to Custom. 0 = 0% chance of spawning, " +
+            "1.0 = 50% chance of spawning (which is the max value). The value does not scale linearly. \nProvided values:\n" +
+            "None: 0\n" +
+            "Rare: 0.2\n" +
+            "Normal: 0.6\n" +
+            "Common: 0.7\n" +
+            "VeryCommon: 0.9")
+    @Config.RangeDouble(min = 0, max = 1)
+    @Config.RequiresWorldRestart
+    public float customFrequency = 1.0f;
 
     @Config.Name("Vertical Compression")
     @Config.Comment("Changes height of formations in caverns. Lower value = more open caverns with larger features.")

@@ -2,6 +2,7 @@ package com.yungnickyoung.minecraft.bettercaves.world;
 
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.config.Settings;
+import com.yungnickyoung.minecraft.bettercaves.enums.CaveFrequency;
 import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
@@ -270,6 +271,8 @@ public class MapGenBetterCaves extends MapGenCaves {
                 return -.6f;
             case Common:
                 return -.2f;
+            case Custom:
+                return -1f + Configuration.caveSettings.caves.cubicCave.customFrequency;
             default: // VeryCommon
                 return 0;
         }
@@ -286,6 +289,8 @@ public class MapGenBetterCaves extends MapGenCaves {
                 return .6f;
             case Common:
                 return .2f;
+            case Custom:
+                return 1f - Configuration.caveSettings.caves.simplexCave.customFrequency;
             default: // VeryCommon
                 return 0;
         }
@@ -304,6 +309,8 @@ public class MapGenBetterCaves extends MapGenCaves {
                 return -.3f;
             case VeryCommon:
                 return -.1f;
+            case Custom:
+                return -1f + Configuration.caveSettings.caverns.lavaCavern.customFrequency;
             default: // Normal
                 return -.4f;
         }
@@ -322,6 +329,8 @@ public class MapGenBetterCaves extends MapGenCaves {
                 return .3f;
             case VeryCommon:
                 return .1f;
+            case Custom:
+                return 1f - Configuration.caveSettings.caverns.flooredCavern.customFrequency;
             default: // Normal
                 return .4f;
         }
@@ -340,6 +349,8 @@ public class MapGenBetterCaves extends MapGenCaves {
                 return .3f;
             case Always:
                 return 99f;
+            case Custom:
+                return 2f * Configuration.caveSettings.waterRegions.customFrequency - 1;
             default: // Normal
                 return -.15f;
         }

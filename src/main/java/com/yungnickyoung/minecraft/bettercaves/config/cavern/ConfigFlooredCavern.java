@@ -4,14 +4,14 @@ import com.yungnickyoung.minecraft.bettercaves.enums.CavernFrequency;
 import net.minecraftforge.common.config.Config;
 
 public class ConfigFlooredCavern {
-    @Config.Name("Top Generation Altitude")
+    @Config.Name("Cavern Top Altitude")
     @Config.Comment("The top cutoff y-coordinate of Floored Caverns. Note that caverns will attempt " +
             "to close off anyway if this value is greater than the surface y-coordinate.")
     @Config.RangeInt(min = 0, max = 255)
     @Config.RequiresWorldRestart
     public int caveTop = 30;
 
-    @Config.Name("Bottom Generation Altitude")
+    @Config.Name("Cavern Bottom Altitude")
     @Config.Comment("The bottom cutoff y-coordinate at which Floored Caverns stop generating.")
     @Config.RangeInt(min = 0, max = 255)
     @Config.RequiresWorldRestart
@@ -34,13 +34,13 @@ public class ConfigFlooredCavern {
     @Config.RequiresWorldRestart
     public float customFrequency = 1.0f;
 
-    @Config.Name("Vertical Compression")
+    @Config.Name("Compression - Vertical")
     @Config.Comment("Changes height of formations in caverns. Lower value = more open caverns with larger features.")
     @Config.RangeDouble(min = 0, max = 100)
     @Config.RequiresWorldRestart
     public float yCompression = 1.0f;
 
-    @Config.Name("Horizontal Compression")
+    @Config.Name("Compression - Horizontal")
     @Config.Comment("Changes width of formations in caverns. Lower value = more open caverns with larger features.")
     @Config.RangeDouble(min = 0, max = 100)
     @Config.RequiresWorldRestart

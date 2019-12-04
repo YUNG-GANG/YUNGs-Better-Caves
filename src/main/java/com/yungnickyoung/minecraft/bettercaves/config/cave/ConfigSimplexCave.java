@@ -10,13 +10,13 @@ public class ConfigSimplexCave {
     @Config.RequiresWorldRestart
     public int caveBottom = 1;
 
-    @Config.Name("Vertical Compression")
+    @Config.Name("Compression - Vertical")
     @Config.Comment("Changes height of caves. Lower value = taller caves with steeper drops.")
     @Config.RangeDouble(min = 0, max = 100)
     @Config.RequiresWorldRestart
     public float yCompression = 3.0f;
 
-    @Config.Name("Horizontal Compression")
+    @Config.Name("Compression - Horizontal")
     @Config.Comment("Changes width of caves. Lower value = wider caves.")
     @Config.RangeDouble(min = 0, max = 100)
     @Config.RequiresWorldRestart

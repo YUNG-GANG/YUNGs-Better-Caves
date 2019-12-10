@@ -15,19 +15,19 @@ public class ConfigCubicCave {
                 .comment(" The minimum y-coordinate at which caves start generating." +
                         "\n Default: 1")
                 .worldRestart()
-                .define("Cave Bottom Altitude", 1);
+                .defineInRange("Cave Bottom Altitude", 1, 0, 255);
 
         yCompression = builder
                 .comment(" Changes height of caves. Lower value = taller caves with steeper drops." +
                         "\n Default: 3.0")
                 .worldRestart()
-                .defineInRange("Vertical Compression", 3.0f, 0f, 20f);
+                .defineInRange("Compression - Vertical", 3.0f, 0f, 20f);
 
         xzCompression = builder
                 .comment(" Changes width of caves. Lower value = wider caves." +
                         "\n Default: 1.0")
                 .worldRestart()
-                .defineInRange("Horizontal Compression", 1.0f, 0f, 20f);
+                .defineInRange("Compression - Horizontal", 1.0f, 0f, 20f);
 
         caveFrequency = builder
                 .comment(" Determines how frequently Type 1 Caves spawn. If this is anything but VeryCommon (the default), " +

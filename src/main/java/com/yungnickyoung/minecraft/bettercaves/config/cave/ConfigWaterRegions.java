@@ -2,28 +2,28 @@ package com.yungnickyoung.minecraft.bettercaves.config.cave;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 
-public class ConfigWaterBiomes {
+public class ConfigWaterRegions {
     public final ConfigWaterCavern configWaterCavern;
 
-    public final ForgeConfigSpec.ConfigValue<Boolean> enableWaterBiomes;
-    public final ForgeConfigSpec.ConfigValue<String> waterBiomeFrequency;
+    public final ForgeConfigSpec.ConfigValue<Boolean> enableWaterRegions;
+    public final ForgeConfigSpec.ConfigValue<String> waterRegionFrequency;
 
-    public ConfigWaterBiomes(final ForgeConfigSpec.Builder builder) {
+    public ConfigWaterRegions(final ForgeConfigSpec.Builder builder) {
         builder.push("Water Biomes");
 
-        enableWaterBiomes = builder
+        enableWaterRegions = builder
                 .comment(" Set to true for caves/caverns to have a chance of spawning as their water-based variants, instead" +
                         " of having lava." +
                         "\n Default: true")
                 .worldRestart()
-                .define("Enable Water Cave/Cavern Biomes", true);
+                .define("Enable Water Cave/Cavern Regions", true);
 
-        waterBiomeFrequency = builder
-                .comment(" Determines how frequently water biomes spawn\n" +
+        waterRegionFrequency = builder
+                .comment(" Determines how frequently water regions spawn\n" +
                         " Accepted values: Rare, Normal, Common, VeryCommon, Always" +
                         "\n Default: Normal")
                 .worldRestart()
-                .define("Water Biome Frequency", "Normal");
+                .define("Water Region Frequency", "Normal");
 
         configWaterCavern = new ConfigWaterCavern(builder);
 
@@ -39,16 +39,16 @@ public class ConfigWaterBiomes {
             builder.push("Water Caverns");
 
             yCompression = builder
-                    .comment(" Changes height of caves. Lower value = taller caves with steeper drops." +
+                    .comment(" Changes height of formations in caverns. Lower value = more open caverns with larger features." +
                             "\n Default: 1.0")
                     .worldRestart()
-                    .defineInRange("Vertical Compression", 1.0f, 0f, 20f);
+                    .defineInRange("Compression - Vertical", 1.0f, 0f, 20f);
 
             xzCompression = builder
-                    .comment(" Changes width of caves. Lower value = wider caves." +
+                    .comment(" Changes width of formations in caverns. Lower value = more open caverns with larger features." +
                             "\n Default: 1.0")
                     .worldRestart()
-                    .defineInRange("Horizontal Compression", 1.0f, 0f, 20f);
+                    .defineInRange("Compression - Horizontal", 1.0f, 0f, 20f);
 
             builder.pop();
         }

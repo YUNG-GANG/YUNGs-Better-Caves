@@ -8,30 +8,30 @@ public class ConfigCaveGen {
     public final ConfigSimplexCave configSimplexCave;
     public final ConfigLavaCavern configLavaCavern;
     public final ConfigFlooredCavern configFlooredCavern;
-    public final ConfigWaterBiomes configWaterBiomes;
+    public final ConfigWaterRegions configWaterRegions;
 
-    public final ForgeConfigSpec.ConfigValue<String> caveBiomeSize;
-    public final ForgeConfigSpec.ConfigValue<String> cavernBiomeSize;
+    public final ForgeConfigSpec.ConfigValue<String> caveRegionSize;
+    public final ForgeConfigSpec.ConfigValue<String> cavernRegionSize;
     public final ForgeConfigSpec.ConfigValue<Integer> surfaceCutoff;
     public final ForgeConfigSpec.ConfigValue<Integer> maxCaveAltitude;
 
     public ConfigCaveGen(final ForgeConfigSpec.Builder builder) {
         builder.push("Cave Generation");
 
-        caveBiomeSize = builder
-                .comment(" Determines how large cave biomes are.\n Controls how long a cave system of a certain cave type" +
-                        " extends before intersecting with a cave system of another type.\n Larger Biome Size = more " +
-                        "cave interconnectivity.\n Accepted values: Small, Medium, Large, ExtraLarge" +
+        caveRegionSize = builder
+                .comment(" Determines how large cave regions are.\n Controls how long a cave system of a certain cave type" +
+                        " extends before intersecting with a cave system of another type.\n Larger Region Size = more " +
+                        "cave interconnectivity for a given area, but possibly less variation.\n Accepted values: Small, Medium, Large, ExtraLarge" +
                         "\n Default: Large")
                 .worldRestart()
-                .define("Cave Biome Size", "Large");
+                .define("Cave Region Size", "Large");
 
-        cavernBiomeSize = builder
-                .comment(" Determines how large cavern biomes are. This controls the average size of caverns." +
+        cavernRegionSize = builder
+                .comment(" Determines how large cavern regions are. This controls the average size of caverns." +
                         "\n Accepted values: Small, Medium, Large, ExtraLarge" +
                         "\n Default: Small")
                 .worldRestart()
-                .define("Cavern Biome Size", "Small");
+                .define("Cavern Region Size", "Small");
 
         surfaceCutoff = builder
                 .comment(" The depth from a given point on the surface (or the Max Cave Altitude, whichever is " +
@@ -39,14 +39,14 @@ public class ConfigCaveGen {
                         " sides of mountains. Increase to create less above-surface openings." +
                         "\n Default: 10")
                 .worldRestart()
-                .define("Cave Surface Cutoff Depth", 10);
+                .defineInRange("Cave Surface Cutoff Depth", 10, 0, 255);
 
         maxCaveAltitude = builder
                 .comment(" The maximum altitude at which caves can generate.\n Default: 128")
                 .worldRestart()
-                .define("Max Cave Altitude", 128);
+                .defineInRange("Max Cave Altitude", 128, 0, 255);
 
-        configWaterBiomes = new ConfigWaterBiomes(builder);
+        configWaterRegions = new ConfigWaterRegions(builder);
         configFlooredCavern = new ConfigFlooredCavern(builder);
         configLavaCavern = new ConfigLavaCavern(builder);
         configSimplexCave = new ConfigSimplexCave(builder);

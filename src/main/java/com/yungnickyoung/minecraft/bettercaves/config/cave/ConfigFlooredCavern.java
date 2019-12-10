@@ -17,25 +17,25 @@ public class ConfigFlooredCavern {
                         "to close off anyway if this value is greater than the surface y-coordinate." +
                         "\n Default: 30")
                 .worldRestart()
-                .define("Top Generation Altitude", 30);
+                .defineInRange("Cavern Top Altitude", 30, 0, 255);
 
         caveBottom = builder
-                .comment(" The bottom y-coordinate at which Floored Caverns stop generating." +
+                .comment(" The bottom cutoff y-coordinate at which Floored Caverns stop generating." +
                         "\n Default: 1")
                 .worldRestart()
-                .define("Bottom Generation Altitude", 1);
+                .defineInRange("Cavern Bottom Altitude", 1, 0, 255);
 
         yCompression = builder
-                .comment(" Changes height of caves. Lower value = taller caves with steeper drops." +
+                .comment(" Changes height of formations in caverns. Lower value = more open caverns with larger features." +
                         "\n Default: 1.0")
                 .worldRestart()
-                .defineInRange("Vertical Compression", 1.0f, 0f, 20f);
+                .defineInRange("Compression - Vertical", 1.0f, 0f, 20f);
 
         xzCompression = builder
-                .comment(" Changes width of caves. Lower value = wider caves." +
+                .comment(" Changes width of formations in caverns. Lower value = more open caverns with larger features." +
                         "\n Default: 1.0")
                 .worldRestart()
-                .defineInRange("Horizontal Compression", 1.0f, 0f, 20f);
+                .defineInRange("Compression - Horizontal", 1.0f, 0f, 20f);
 
         caveFrequency = builder
                 .comment(" Determines how frequently Floored Caverns spawn." +

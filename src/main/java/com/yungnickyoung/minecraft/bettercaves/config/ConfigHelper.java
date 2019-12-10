@@ -19,8 +19,8 @@ public final class ConfigHelper {
         BetterCavesConfig.lavaDepth = ConfigHolder.CLIENT.lavaDepth.get();
 
         // Cave gen settings
-        BetterCavesConfig.caveBiomeSize = ConfigHolder.CLIENT.configCaveGen.caveBiomeSize.get();
-        BetterCavesConfig.cavernBiomeSize = ConfigHolder.CLIENT.configCaveGen.cavernBiomeSize.get();
+        BetterCavesConfig.caveRegionSize = ConfigHolder.CLIENT.configCaveGen.caveRegionSize.get();
+        BetterCavesConfig.cavernRegionSize = ConfigHolder.CLIENT.configCaveGen.cavernRegionSize.get();
         BetterCavesConfig.surfaceCutoff = ConfigHolder.CLIENT.configCaveGen.surfaceCutoff.get();
         BetterCavesConfig.maxCaveAltitude = ConfigHolder.CLIENT.configCaveGen.maxCaveAltitude.get();
 
@@ -51,12 +51,12 @@ public final class ConfigHelper {
         BetterCavesConfig.flooredCavernCaveFreq = ConfigHolder.CLIENT.configCaveGen.configFlooredCavern.caveFrequency.get();
 
         // Water Cavern settings
-        BetterCavesConfig.waterCavernYComp = ConfigHolder.CLIENT.configCaveGen.configWaterBiomes.configWaterCavern.yCompression.get();
-        BetterCavesConfig.waterCavernXZComp = ConfigHolder.CLIENT.configCaveGen.configWaterBiomes.configWaterCavern.xzCompression.get();
+        BetterCavesConfig.waterCavernYComp = ConfigHolder.CLIENT.configCaveGen.configWaterRegions.configWaterCavern.yCompression.get();
+        BetterCavesConfig.waterCavernXZComp = ConfigHolder.CLIENT.configCaveGen.configWaterRegions.configWaterCavern.xzCompression.get();
 
         // Water Biome settings
-        BetterCavesConfig.enableWaterBiomes = ConfigHolder.CLIENT.configCaveGen.configWaterBiomes.enableWaterBiomes.get();
-        BetterCavesConfig.waterBiomeFreq = ConfigHolder.CLIENT.configCaveGen.configWaterBiomes.waterBiomeFrequency.get();
+        BetterCavesConfig.enableWaterRegions = ConfigHolder.CLIENT.configCaveGen.configWaterRegions.enableWaterRegions.get();
+        BetterCavesConfig.waterRegionFreq = ConfigHolder.CLIENT.configCaveGen.configWaterRegions.waterRegionFrequency.get();
 
         // Flatten Bedrock settings
         BetterCavesConfig.flattenBedrock = ConfigHolder.CLIENT.flattenBedrock.get();

@@ -1,7 +1,5 @@
 package com.yungnickyoung.minecraft.bettercaves.config;
 
-import com.yungnickyoung.minecraft.bettercaves.enums.CaveBiomeSize;
-
 /**
  * This holds the baked (runtime) values for our config.
  * These values should never be from changed outside this package.
@@ -10,8 +8,8 @@ public final class BetterCavesConfig {
     public static int lavaDepth;
 
     // Cave gen vars
-    public static String caveBiomeSize;
-    public static String cavernBiomeSize;
+    public static String caveRegionSize;
+    public static String cavernRegionSize;
     public static int    surfaceCutoff;
     public static int    maxCaveAltitude;
 
@@ -85,8 +83,8 @@ public final class BetterCavesConfig {
     public static int     waterCavernNumGenerators  = 2;
 
     // Water biome vars
-    public static boolean enableWaterBiomes;
-    public static String waterBiomeFreq;
+    public static boolean enableWaterRegions;
+    public static String waterRegionFreq;
 
     // Bedrock flattening var
     public static boolean flattenBedrock;

@@ -87,13 +87,11 @@ public class CommonProxy {
             Biome b = (Biome)e.getValue();
 
             // Exclude Nether and End biomes
-            if (b == Biomes.NETHER
-                    || b == Biomes.THE_END
-                    || b == Biomes.END_BARRENS
-                    || b == Biomes.END_HIGHLANDS
-                    || b == Biomes.END_MIDLANDS
-                    || b == Biomes.SMALL_END_ISLANDS)
+            if (b.getCategory() == Biome.Category.NETHER
+                    || b.getCategory() == Biome.Category.THEEND
+                    || b.getCategory() == Biome.Category.NONE)
                 continue;
+
 
             setCarvers(b, configuredCarver);
         }
@@ -123,7 +121,7 @@ public class CommonProxy {
         List<ConfiguredCarver<?>> airCarvers = biomeIn.getCarvers(GenerationStage.Carving.AIR);
         List<ConfiguredCarver<?>> liquidCarvers = biomeIn.getCarvers(GenerationStage.Carving.LIQUID);
 
-        BetterCaves.LOGGER.debug("AIR: " + airCarvers + " LIQUID: " + liquidCarvers);
+        BetterCaves.LOGGER.debug("Found '" + biomeIn.getDisplayName().getString() + "' biome default carvers: AIR: " + airCarvers + " LIQUID: " + liquidCarvers);
 
         airCarvers.clear();
         liquidCarvers.clear();

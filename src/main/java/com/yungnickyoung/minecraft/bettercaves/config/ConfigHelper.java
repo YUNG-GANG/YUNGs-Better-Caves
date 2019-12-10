@@ -11,7 +11,7 @@ import net.minecraftforge.fml.config.ModConfig;
 public final class ConfigHelper {
 
     // We store a reference to the ModConfigs here to be able to change the values in them from our code
-    // (For example from a config GUI)
+    // (For example from a config GUI) - this is not currently a feature
     private static ModConfig clientConfig;
 
     public static void bakeClient(final ModConfig config) {
@@ -60,6 +60,10 @@ public final class ConfigHelper {
 
         // Flatten Bedrock settings
         BetterCavesConfig.flattenBedrock = ConfigHolder.CLIENT.flattenBedrock.get();
+
+        // Vanilla ravine settings
+        BetterCavesConfig.enableRavines = ConfigHolder.CLIENT.configCaveGen.configVanillaCave.enableRavines.get();
+        BetterCavesConfig.enableUnderwaterRavines = ConfigHolder.CLIENT.configCaveGen.configVanillaCave.enableUnderwaterRavines.get();
 
         // Debug settings
         BetterCavesConfig.enableDebugVisualizer = ConfigHolder.CLIENT.configDebug.debugVisualizer.get();

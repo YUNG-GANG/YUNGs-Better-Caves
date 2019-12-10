@@ -86,8 +86,12 @@ public final class BetterCavesConfig {
     public static boolean enableWaterRegions;
     public static String waterRegionFreq;
 
-    // Bedrock flattening var
+    // Bedrock flattening vars
     public static boolean flattenBedrock;
+
+    // Vanilla features vars
+    public static boolean enableRavines;
+    public static boolean enableUnderwaterRavines;
 
     // Debug vars
     public static boolean enableDebugVisualizer;

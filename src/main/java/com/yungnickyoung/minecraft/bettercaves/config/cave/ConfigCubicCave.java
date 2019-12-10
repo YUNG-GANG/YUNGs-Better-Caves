@@ -9,7 +9,7 @@ public class ConfigCubicCave {
     public final ForgeConfigSpec.ConfigValue<String> caveFrequency;
 
     public ConfigCubicCave(final ForgeConfigSpec.Builder builder) {
-        builder.push("Type 1 Caves (Cubic)");
+        builder.push("Type 1 Caves");
 
         caveBottom = builder
                 .comment(" The minimum y-coordinate at which caves start generating." +

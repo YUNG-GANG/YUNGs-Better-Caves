@@ -9,7 +9,7 @@ public class ConfigSimplexCave {
     public final ForgeConfigSpec.ConfigValue<String> caveFrequency;
 
     public ConfigSimplexCave(final ForgeConfigSpec.Builder builder) {
-        builder.push("Type 2 Caves (Simplex)");
+        builder.push("Type 2 Caves");
 
         caveBottom = builder
                 .comment(" The minimum y-coordinate at which caves start generating." +

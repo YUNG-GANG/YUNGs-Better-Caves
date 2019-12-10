@@ -9,6 +9,7 @@ public class ConfigCaveGen {
     public final ConfigLavaCavern configLavaCavern;
     public final ConfigFlooredCavern configFlooredCavern;
     public final ConfigWaterRegions configWaterRegions;
+    public final ConfigVanillaCave configVanillaCave;
 
     public final ForgeConfigSpec.ConfigValue<String> caveRegionSize;
     public final ForgeConfigSpec.ConfigValue<String> cavernRegionSize;
@@ -46,11 +47,12 @@ public class ConfigCaveGen {
                 .worldRestart()
                 .defineInRange("Max Cave Altitude", 128, 0, 255);
 
-        configWaterRegions = new ConfigWaterRegions(builder);
+        configCubicCave = new ConfigCubicCave(builder);
+        configSimplexCave = new ConfigSimplexCave(builder);
         configFlooredCavern = new ConfigFlooredCavern(builder);
         configLavaCavern = new ConfigLavaCavern(builder);
-        configSimplexCave = new ConfigSimplexCave(builder);
-        configCubicCave = new ConfigCubicCave(builder);
+        configVanillaCave = new ConfigVanillaCave(builder);
+        configWaterRegions = new ConfigWaterRegions(builder);
 
         builder.pop();
     }

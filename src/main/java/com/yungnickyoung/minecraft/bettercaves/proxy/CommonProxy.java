@@ -1,6 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves.proxy;
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
+import com.yungnickyoung.minecraft.bettercaves.config.BetterCavesConfig;
 import com.yungnickyoung.minecraft.bettercaves.config.ConfigHelper;
 import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.world.WorldCarverBC;
@@ -10,6 +11,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
+import net.minecraft.world.gen.carver.WorldCarver;
 import net.minecraft.world.gen.feature.ProbabilityConfig;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
@@ -123,8 +125,19 @@ public class CommonProxy {
 
         BetterCaves.LOGGER.debug("Found '" + biomeIn.getDisplayName().getString() + "' biome default carvers: AIR: " + airCarvers + " LIQUID: " + liquidCarvers);
 
+        // Remove default carvers
         airCarvers.clear();
         liquidCarvers.clear();
+
+        // Add Better Caves carver
         airCarvers.add(carver);
+
+        // If enabled, add normal ravines
+        if (BetterCavesConfig.enableRavines)
+            biomeIn.addCarver(GenerationStage.Carving.AIR, Biome.createCarver(WorldCarver.CANYON, new ProbabilityConfig(0.02F)));
+
+        // If enabled, add underwater ravines to ocean biomes
+        if (BetterCavesConfig.enableUnderwaterRavines && biomeIn.getCategory() == Biome.Category.OCEAN)
+            biomeIn.addCarver(GenerationStage.Carving.LIQUID, Biome.createCarver(WorldCarver.UNDERWATER_CANYON, new ProbabilityConfig(0.02F)));
     }
 }

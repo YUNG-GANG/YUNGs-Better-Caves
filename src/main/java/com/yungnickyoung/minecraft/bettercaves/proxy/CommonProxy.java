@@ -90,9 +90,8 @@ public class CommonProxy {
 
             // Exclude Nether and End biomes
             if (b.getCategory() == Biome.Category.NETHER
-                    || b.getCategory() == Biome.Category.THEEND
-                    || b.getCategory() == Biome.Category.NONE)
-                continue;
+                    || b.getCategory() == Biome.Category.THEEND)
+            continue;
 
 
             setCarvers(b, configuredCarver);

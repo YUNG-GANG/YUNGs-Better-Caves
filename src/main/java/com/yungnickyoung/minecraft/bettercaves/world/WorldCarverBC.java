@@ -129,7 +129,7 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
         for (int subX = 0; subX < 8; subX++) {
             for (int subZ = 0; subZ < 8; subZ++) {
                 if (!BetterCavesConfig.enableDebugVisualizer)
-                    maxSurfaceHeight = BetterCavesUtil.getMaxSurfaceHeightSubChunk(chunkIn, subX, subZ);
+                    maxSurfaceHeight = BetterCavesUtil.getMaxSurfaceAltitudeSubChunk(chunkIn, subX, subZ);
 
                 // maxSurfaceHeight (also used for max cave altitude) cannot exceed Max Cave Altitude setting
                 maxSurfaceHeight = Math.min(maxSurfaceHeight, BetterCavesConfig.maxCaveAltitude);

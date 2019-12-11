@@ -119,9 +119,9 @@ public abstract class AbstractBC {
      * @param bottomY The bottom y-coordinate to start calculating noise for and potentially dig out
      * @param topY The top y-coordinate to start calculating noise for and potentially dig out
      * @param maxSurfaceHeight This chunk's max surface height. Can be approximated using
-     *                         BetterCavesUtil#getMaxSurfaceHeight
+     *                         BetterCavesUtil#getMaxSurfaceAltitudeChunk
      * @param minSurfaceHeight This chunk's min surface height. Can be approximated using
-     *                         BetterCavesUtil#getMinSurfaceHeight
+     *                         BetterCavesUtil#getMinSurfaceAltitudeChunk
      */
     public abstract void generateColumn(int chunkX, int chunkZ, IChunk chunkIn, int localX, int localZ, int bottomY,
                                         int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff,

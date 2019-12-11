@@ -105,24 +105,6 @@ public class BetterCavesUtil {
     }
 
     /**
-     * Wrapper function for digBlock with default lava block.
-     * Digs out the current block, default implementation removes stone, filler, and top block.
-     * Sets the block to lavaBlockState if y is less then the lavaDepth in the Config, and air other wise.
-     * If setting to air, it also checks to see if we've broken the surface, and if so,
-     * tries to make the floor the biome's top block.
-     *
-     * @param chunkIn the chunk containing the block
-     * @param localX the block's chunk-local x coordinate
-     * @param y the block's chunk-local y coordinate (same as real y-coordinate)
-     * @param localZ the block's chunk-local z coordinate
-     * @param chunkX the chunk's x coordinate
-     * @param chunkZ the chunk's z coordinate
-     */
-    public static void digBlock(IChunk chunkIn, int localX, int y, int localZ, int chunkX, int chunkZ) {
-        digBlock(chunkIn, LAVA, localX, y, localZ, chunkX, chunkZ);
-    }
-
-    /**
      * Determines if the Block of a given IBlockState is suitable to be replaced during cave generation.
      * Basically returns true for most common worldgen blocks (e.g. stone, dirt, sand), false if the block is air.
      *
@@ -162,39 +144,42 @@ public class BetterCavesUtil {
     }
 
     /**
-     * Tests 8 edge points and center of chunk to approximate max surface height of the chunk.
+     * Tests 8 edge points and center of chunk to approximate max surface altitude (y-coordinate) of the chunk.
+     * Note that water blocks also count as the surface.
      * @param chunkIn chunk
-     * @return Max surface height of chunk
+     * @return y-coordinate of the approximate highest surface altitude in the chunk
      */
-    public static int getMaxSurfaceHeight(IChunk chunkIn) {
+    public static int getMaxSurfaceAltitudeChunk(IChunk chunkIn) {
         int maxHeight = 0;
         int[] testCoords = {0, 7, 15}; // chunk-local x/z coordinates to test for max height
 
         for (int x : testCoords)
             for (int z : testCoords)
-                maxHeight = Math.max(maxHeight, getSurfaceHeight(chunkIn, x, z));
+                maxHeight = Math.max(maxHeight, getSurfaceAltitudeForColumn(chunkIn, x, z));
 
         return maxHeight;
     }
 
     /**
-     * Tests 8 edge points and center of chunk to approximate min surface height of the chunk.
+     * Tests 8 edge points and center of chunk to approximate min surface altitude (y-coordinate) of the chunk.
+     * Note that water blocks also count as the surface.
      * @param chunkIn chunk
-     * @return Min surface height of chunk
+     * @return y-coordinate of the approximate lowest surface altitude in the chunk
      */
-    public static int getMinSurfaceHeight(IChunk chunkIn) {
+    public static int getMinSurfaceAltitudeChunk(IChunk chunkIn) {
         int minHeight = 256;
         int[] testCoords = {0, 7, 15}; // chunk-local x/z coordinates to test for max height
 
         for (int x : testCoords)
             for (int z : testCoords)
-                minHeight = Math.min(minHeight, getSurfaceHeight(chunkIn, x, z));
+                minHeight = Math.min(minHeight, getSurfaceAltitudeForColumn(chunkIn, x, z));
 
         return minHeight;
     }
 
     /**
-     * Tests every block in a 2x2 "sub-chunk" to get the max height of the sub-chunk.
+     * Tests every block in a 2x2 "sub-chunk" to get the max surface altitude (y-coordinate) of the sub-chunk.
+     * Note that water blocks also count as the surface.
      * @param chunkIn chunk
      * @param subX The x-coordinate of the sub-chunk. Note that this is regular chunk-local x-coordinate divided
      *             by 2. E.g. If you want the last 2 blocks on the x-axis in the chunk (blocks 14 and 15), use subX = 7.
@@ -202,65 +187,52 @@ public class BetterCavesUtil {
      *             by 2. E.g. If you want the last 2 blocks on the z-axis in the chunk (blocks 14 and 15), use subZ = 7.
      * @return Max surface height of the sub-chunk
      */
-    public static int getMaxSurfaceHeightSubChunk(IChunk chunkIn, int subX, int subZ)  {
+    public static int getMaxSurfaceAltitudeSubChunk(IChunk chunkIn, int subX, int subZ)  {
         int maxHeight = 0;
         int[] testCoords = {0, 1}; // chunk-local x/z coordinates to test for max height
 
         for (int x : testCoords)
             for (int z : testCoords)
-                maxHeight = Math.max(maxHeight, getSurfaceHeight(chunkIn, (subX * 2) + x, (subZ * 2) + z));
+                maxHeight = Math.max(maxHeight, getSurfaceAltitudeForColumn(chunkIn, (subX * 2) + x, (subZ * 2) + z));
 
         return maxHeight;
     }
 
     /**
      * Returns the y-coordinate of the surface block for a given local block coordinate for a given chunk.
-     * @param chunkIn chunk containing the block
-     * @param x The block's chunk-local x-coordinate
-     * @param z The block's chunk-local z-coordinate
+     * Note that water blocks also count as the surface.
+     * @param chunkIn chunk
+     * @param localX The block's chunk-local x-coordinate
+     * @param localZ The block's chunk-local z-coordinate
      * @return The y-coordinate of the surface block
      */
-    private static int getSurfaceHeight(IChunk chunkIn, int x, int z) {
-//        return recursiveBinarySurfaceSearch(primer, x, z, 255, 0);
-        return linarSurfaceSearch(chunkIn, x, z, 255, 0);
+    private static int getSurfaceAltitudeForColumn(IChunk chunkIn, int localX, int localZ) {
+        return searchSurfaceAltitudeInRangeForColumn(chunkIn, localX, localZ, 255, 0);
     }
 
     /**
-     * Recursive binary search, this search always converges on the surface in 8 in cycles for the range 255 >= y >= 0.
-     * Thanks to Worley's Caves for this idea.
-     * @param chunkIn Chunk
-     * @param x Chunk-local x-coordinate
-     * @param z Chunk-local z-coordinate
-     * @param top Upper y-coordinate search bound
-     * @param bottom Lower y-coordinate search bound
-     * @return Surface height at given coordinate
-     */
-    private static int recursiveBinarySurfaceSearch(IChunk chunkIn, int x, int z, int top, int bottom) {
-        if (top > bottom) {
-            int mid = (top + bottom) / 2;
-
-            if (canReplaceBlock(chunkIn.getBlockState(new BlockPos(x, mid, z)), Blocks.AIR.getDefaultState()))
-                top = recursiveBinarySurfaceSearch(chunkIn, x, z, top, mid + 1);
-            else
-                top = recursiveBinarySurfaceSearch(chunkIn, x, z, mid, bottom);
-        }
-        return top;
-    }
-
-    /**
-     * Linear search from the bottom up to find the surface y-coordinate for a given block.
-     * Slower than binary search, but more reliable since it also works for areas with overhangs or floating islands.
-     * @param chunkIn The chunk containing the block
-     * @param localX The chunk-local x-coordinate
-     * @param localZ The chunk-local z-coordinate
+     * Searches for the y-coordinate of the surface block for a given local block coordinate for a given chunk in a
+     * specific range of y-coordinates.
+     * Note that water blocks also count as the surface.
+     * @param chunkIn chunk
+     * @param localX The block's chunk-local x-coordinate
+     * @param localZ The block's chunk-local z-coordinate
      * @param topY The top y-coordinate to stop searching at
      * @param bottomY The bottom y-coordinate to start searching at
-     * @return Surface height at given coordinate
+     * @return The y-coordinate of the surface block
      */
-    private static int linarSurfaceSearch(IChunk chunkIn, int localX, int localZ, int topY, int bottomY) {
+    public static int searchSurfaceAltitudeInRangeForColumn(IChunk chunkIn, int localX, int localZ, int topY, int bottomY) {
         BlockPos.MutableBlockPos blockPos = new BlockPos.MutableBlockPos(localX, bottomY, localZ);
+
+        // Edge case: blocks go all the way up to build height
+        if (topY == 255) {
+            BlockPos topPos = new BlockPos(localX, topY, localZ);
+            if (chunkIn.getBlockState(topPos) != Blocks.AIR.getDefaultState() && chunkIn.getBlockState(topPos).getMaterial() != Material.WATER)
+                return 255;
+        }
+
         for (int y = bottomY; y <= topY; y++) {
-            if (chunkIn.getBlockState(blockPos) == Blocks.AIR.getDefaultState() || chunkIn.getBlockState(new BlockPos(localX, y, localZ)) == Blocks.WATER.getDefaultState())
+            if (chunkIn.getBlockState(blockPos) == Blocks.AIR.getDefaultState() || chunkIn.getBlockState(blockPos).getMaterial() == Material.WATER)
                 return y;
             blockPos.move(Direction.UP);
         }

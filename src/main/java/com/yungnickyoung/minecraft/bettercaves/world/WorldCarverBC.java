@@ -8,7 +8,7 @@ import com.yungnickyoung.minecraft.bettercaves.config.BetterCavesConfig;
 import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
-import com.yungnickyoung.minecraft.bettercaves.util.BetterCaveUtil;
+import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
 import com.yungnickyoung.minecraft.bettercaves.world.cave.AbstractBC;
 import com.yungnickyoung.minecraft.bettercaves.world.cave.CaveBC;
 import com.yungnickyoung.minecraft.bettercaves.world.cave.CavernBC;
@@ -129,7 +129,7 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
         for (int subX = 0; subX < 8; subX++) {
             for (int subZ = 0; subZ < 8; subZ++) {
                 if (!BetterCavesConfig.enableDebugVisualizer)
-                    maxSurfaceHeight = BetterCaveUtil.getMaxSurfaceHeightSubChunk(chunkIn, subX, subZ);
+                    maxSurfaceHeight = BetterCavesUtil.getMaxSurfaceHeightSubChunk(chunkIn, subX, subZ);
 
                 // maxSurfaceHeight (also used for max cave altitude) cannot exceed Max Cave Altitude setting
                 maxSurfaceHeight = Math.min(maxSurfaceHeight, BetterCavesConfig.maxCaveAltitude);

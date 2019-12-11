@@ -20,12 +20,12 @@ import java.util.Set;
  * This class may not be instantiated - all members are {@code public} and {@code static},
  * and as such may be accessed freely.
  */
-public class BetterCaveUtil {
+public class BetterCavesUtil {
 
     // Set of carvable blocks provided by vanilla 1.14
     public static Set<Block> carvableBlocks = ImmutableSet.of(Blocks.STONE, Blocks.GRANITE, Blocks.DIORITE, Blocks.ANDESITE, Blocks.DIRT, Blocks.COARSE_DIRT, Blocks.PODZOL, Blocks.GRASS_BLOCK, Blocks.TERRACOTTA, Blocks.WHITE_TERRACOTTA, Blocks.ORANGE_TERRACOTTA, Blocks.MAGENTA_TERRACOTTA, Blocks.LIGHT_BLUE_TERRACOTTA, Blocks.YELLOW_TERRACOTTA, Blocks.LIME_TERRACOTTA, Blocks.PINK_TERRACOTTA, Blocks.GRAY_TERRACOTTA, Blocks.LIGHT_GRAY_TERRACOTTA, Blocks.CYAN_TERRACOTTA, Blocks.PURPLE_TERRACOTTA, Blocks.BLUE_TERRACOTTA, Blocks.BROWN_TERRACOTTA, Blocks.GREEN_TERRACOTTA, Blocks.RED_TERRACOTTA, Blocks.BLACK_TERRACOTTA, Blocks.SANDSTONE, Blocks.RED_SANDSTONE, Blocks.MYCELIUM, Blocks.SNOW, Blocks.PACKED_ICE);
 
-    private BetterCaveUtil() {} // Private constructor prevents instantiation
+    private BetterCavesUtil() {} // Private constructor prevents instantiation
 
     /* Common IBlockStates used in this class */
     private static final BlockState AIR = Blocks.AIR.getDefaultState();

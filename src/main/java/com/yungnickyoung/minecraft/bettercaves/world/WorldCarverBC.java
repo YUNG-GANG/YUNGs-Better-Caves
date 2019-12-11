@@ -14,10 +14,12 @@ import com.yungnickyoung.minecraft.bettercaves.world.cave.CaveBC;
 import com.yungnickyoung.minecraft.bettercaves.world.cave.CavernBC;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.gen.carver.*;
 import net.minecraft.world.gen.feature.ProbabilityConfig;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.BitSet;
 import java.util.HashSet;
@@ -43,24 +45,27 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
 
     private int surfaceCutoff;
 
-    // Noise generators to group caves into cave "biomes" based on xz-coordinates.
-    // Cavern Biome Controller uses simplex noise while the others use Voronoi regions (cellular noise)
+    // Noise generators to group caves into cave regions based on xz-coordinates.
+    // Cavern Region Controller uses simplex noise while the others use Voronoi regions (cellular noise)
     private FastNoise waterCavernController;
-    private FastNoise cavernBiomeController;
-    private FastNoise caveBiomeController;
+    private FastNoise cavernRegionController;
+    private FastNoise caveRegionController;
 
-    // Biome generation noise thresholds, based on user config
+    // Region generation noise thresholds, based on user config
     private float cubicCaveThreshold;
     private float simplexCaveThreshold;
     private float lavaCavernThreshold;
     private float flooredCavernThreshold;
-    private float waterBiomeThreshold;
+    private float waterRegionThreshold;
 
-    // Dictates the degree of smoothing along cavern biome boundaries
+    // Dictates the degree of smoothing along cavern region boundaries
     private float transitionRange = .15f;
 
-    // Config option for using water biomes
-    private boolean enableWaterBiomes;
+    // Config option for using water regions
+    private boolean enableWaterRegions;
+
+    BlockState lavaBlock;
+    BlockState waterBlock;
 
     // List used to avoid operating on a chunk more than once
     public Set<Pair<Integer, Integer>> coordList = new HashSet<>();
@@ -113,7 +118,7 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
         int maxSurfaceHeight = 128;
         int minSurfaceHeight = 60;
 
-        // Cave generators - we will determine exactly what type these are based on the cave biome for each column
+        // Cave generators - we will determine exactly what type these are based on the cave region for each column
         AbstractBC cavernGen;
         AbstractBC caveGen;
 
@@ -143,21 +148,21 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
 
                         /* --------------------------- Configure Caves --------------------------- */
 
-                        // Get noise values used to determine cave biome
-                        float caveBiomeNoise = caveBiomeController.GetNoise(realX, realZ);
+                        // Get noise values used to determine cave region
+                        float caveRegionNoise = caveRegionController.GetNoise(realX, realZ);
 
                         /* Determine cave type for this column. We have two thresholds, one for cubic caves and one for
-                         * simplex caves. Since the noise value generated for the biome is between -1 and 1, we (by
+                         * simplex caves. Since the noise value generated for the region is between -1 and 1, we (by
                          * default) designate all negative values as cubic caves, and all positive as simplex. However,
                          * we allow the user to tweak the cutoff values based on the frequency they designate for each cave
                          * type, so we must also check for values between the two thresholds,
                          * e.g. if (cubicCaveThreshold <= noiseValue < simplexCaveThreshold).
                          * In this case, we dig no caves out of this chunk.
                          */
-                        if (caveBiomeNoise < this.cubicCaveThreshold) {
+                        if (caveRegionNoise < this.cubicCaveThreshold) {
                             caveGen = this.caveCubic;
                             caveBottomY = BetterCavesConfig.cubicCaveBottom;
-                        } else if (caveBiomeNoise >= this.simplexCaveThreshold) {
+                        } else if (caveRegionNoise >= this.simplexCaveThreshold) {
                             caveGen = this.caveSimplex;
                             caveBottomY = BetterCavesConfig.simplexCaveBottom;
                         } else {
@@ -167,22 +172,22 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
 
                         /* --------------------------- Configure Caverns --------------------------- */
 
-                        // Get noise values used to determine cavern biome
-                        float cavernBiomeNoise = cavernBiomeController.GetNoise(realX, realZ);
-                        float waterBiomeNoise = 99;
+                        // Noise values used to determine cavern region
+                        float cavernRegionNoise = cavernRegionController.GetNoise(realX, realZ);
+                        float waterRegionNoise = 99;
 
-                        // Only bother calculating noise for water biome if enabled
-                        if (enableWaterBiomes)
-                            waterBiomeNoise = waterCavernController.GetNoise(realX, realZ);
+                        // Only bother calculating noise for water region if enabled
+                        if (enableWaterRegions)
+                            waterRegionNoise = waterCavernController.GetNoise(realX, realZ);
 
-                        // If water biome threshold check is passed, change lava block to water
-                        BlockState lavaBlock = Blocks.LAVA.getDefaultState();
-                        if (waterBiomeNoise < waterBiomeThreshold)
-                            lavaBlock = Blocks.WATER.getDefaultState();
+                        // If water region threshold check is passed, change lava block to water
+                        BlockState liquidBlock = lavaBlock;
+                        if (waterRegionNoise < waterRegionThreshold)
+                            liquidBlock = waterBlock;
 
                         // Determine cavern type for this column. Caverns generate at low altitudes only.
-                        if (cavernBiomeNoise < lavaCavernThreshold) {
-                            if (this.enableWaterBiomes && waterBiomeNoise < this.waterBiomeThreshold) {
+                        if (cavernRegionNoise < lavaCavernThreshold) {
+                            if (this.enableWaterRegions && waterRegionNoise < this.waterRegionThreshold) {
                                 // Generate water cavern in this column
                                 cavernGen = this.cavernWater;
                             } else {
@@ -192,7 +197,7 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
                             // Water caverns use the same cave top/bottom as lava caverns
                             cavernBottomY = BetterCavesConfig.lavaCavernCaveBottom;
                             cavernTopY = BetterCavesConfig.lavaCavernCaveTop;
-                        } else if (cavernBiomeNoise >= lavaCavernThreshold && cavernBiomeNoise <= flooredCavernThreshold) {
+                        } else if (cavernRegionNoise >= lavaCavernThreshold && cavernRegionNoise <= flooredCavernThreshold) {
                             /* Similar to determining cave type above, we must check for values between the two adjusted
                              * thresholds, i.e. lavaCavernThreshold < noiseValue <= flooredCavernThreshold.
                              * In this case, we just continue generating the caves we were generating above, instead
@@ -209,25 +214,25 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
                         }
 
                         // Extra check to provide close-off transitions on cavern edges
-                        if (cavernBiomeNoise >= lavaCavernThreshold && cavernBiomeNoise <= lavaCavernThreshold + transitionRange) {
-                            float smoothAmp = Math.abs((cavernBiomeNoise - (lavaCavernThreshold + transitionRange)) / transitionRange);
+                        if (cavernRegionNoise >= lavaCavernThreshold && cavernRegionNoise <= lavaCavernThreshold + transitionRange) {
+                            float smoothAmp = Math.abs((cavernRegionNoise - (lavaCavernThreshold + transitionRange)) / transitionRange);
                             this.cavernLava.generateColumn(chunkX, chunkZ, chunkIn, localX, localZ, BetterCavesConfig.lavaCavernCaveBottom, BetterCavesConfig.lavaCavernCaveTop,
-                                    maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, lavaBlock, smoothAmp);
-                        } else if (cavernBiomeNoise <= flooredCavernThreshold && cavernBiomeNoise >= flooredCavernThreshold - transitionRange) {
-                            float smoothAmp = Math.abs((cavernBiomeNoise - (flooredCavernThreshold - transitionRange)) / transitionRange);
+                                    maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, liquidBlock, smoothAmp);
+                        } else if (cavernRegionNoise <= flooredCavernThreshold && cavernRegionNoise >= flooredCavernThreshold - transitionRange) {
+                            float smoothAmp = Math.abs((cavernRegionNoise - (flooredCavernThreshold - transitionRange)) / transitionRange);
                             this.cavernFloored.generateColumn(chunkX, chunkZ, chunkIn, localX, localZ, BetterCavesConfig.flooredCavernCaveBottom, BetterCavesConfig.flooredCavernCaveTop,
-                                    maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, lavaBlock, smoothAmp);
+                                    maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, liquidBlock, smoothAmp);
                         }
 
                         /* --------------- Dig out caves and caverns for this column --------------- */
                         // Top (Cave) layer:
                         if (caveGen != null)
                             caveGen.generateColumn(chunkX, chunkZ, chunkIn, localX, localZ, caveBottomY, maxSurfaceHeight,
-                                maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, lavaBlock);
+                                maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, liquidBlock);
                         // Bottom (Cavern) layer:
                         if (cavernGen != null)
                             cavernGen.generateColumn(chunkX, chunkZ, chunkIn, localX, localZ, cavernBottomY, cavernTopY,
-                                maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, lavaBlock);
+                                maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, liquidBlock);
                     }
                 }
             }
@@ -305,9 +310,9 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
     }
 
     /**
-     * @return threshold value for water biome spawn rate based on Config setting
+     * @return threshold value for water region spawn rate based on Config setting
      */
-    private float calcWaterBiomeThreshold() {
+    private float calcWaterRegionThreshold() {
         switch (BetterCavesConfig.waterRegionFreq) {
             case "Rare":
                 return -.4f;
@@ -323,16 +328,16 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
     }
 
     /**
-     * Initialize Better Caves generators and cave biome controllers for this world.
+     * Initialize Better Caves generators and cave region controllers for this world.
      */
     public void initialize(long seed) {
         this.seed = seed;
-        this.enableWaterBiomes = BetterCavesConfig.enableWaterRegions;
+        this.enableWaterRegions = BetterCavesConfig.enableWaterRegions;
 
         // Determine noise thresholds for cavern spawns based on user config
         this.lavaCavernThreshold = calcLavaCavernThreshold();
         this.flooredCavernThreshold = calcFlooredCavernThreshold();
-        this.waterBiomeThreshold = calcWaterBiomeThreshold();
+        this.waterRegionThreshold = calcWaterRegionThreshold();
 
         // Determine noise thresholds for caverns based on user config
         this.cubicCaveThreshold = calcCubicCaveThreshold();
@@ -341,59 +346,91 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
         // Get user setting for surface cutoff depth used to close caves off towards the surface
         this.surfaceCutoff = BetterCavesConfig.surfaceCutoff;
 
-        // Determine cave biome size
-        float caveBiomeSize;
+        // Determine cave region size
+        float caveRegionSize;
         switch (BetterCavesConfig.caveRegionSize) {
             case "Small":
-                caveBiomeSize = .007f;
+                caveRegionSize = .007f;
                 break;
             case "Large":
-                caveBiomeSize = .0032f;
+                caveRegionSize = .0032f;
                 break;
             case "ExtraLarge":
-                caveBiomeSize = .001f;
+                caveRegionSize = .001f;
                 break;
             default: // Medium
-                caveBiomeSize = .005f;
+                caveRegionSize = .005f;
                 break;
         }
 
-        // Determine cavern biome size, as well as jitter to make Voronoi regions more varied in shape
-        float cavernBiomeSize;
-        float waterCavernBiomeSize = .003f;
+        // Determine cavern region size, as well as jitter to make Voronoi regions more varied in shape
+        float cavernRegionSize;
+        float waterCavernRegionSize = .003f;
         switch (BetterCavesConfig.cavernRegionSize) {
             case "Small":
-                cavernBiomeSize = .01f;
+                cavernRegionSize = .01f;
                 break;
             case "Large":
-                cavernBiomeSize = .005f;
+                cavernRegionSize = .005f;
                 break;
             case "ExtraLarge":
-                cavernBiomeSize = .001f;
-                waterCavernBiomeSize = .0005f;
+                cavernRegionSize = .001f;
+                waterCavernRegionSize = .0005f;
                 break;
             default: // Medium
-                cavernBiomeSize = .007f;
+                cavernRegionSize = .007f;
                 break;
         }
 
-        // Initialize Biome Controllers using world seed and user config option for biome size
-        this.caveBiomeController = new FastNoise();
-        this.caveBiomeController.SetSeed((int)seed + 222);
-        this.caveBiomeController.SetFrequency(caveBiomeSize);
-        this.caveBiomeController.SetNoiseType(FastNoise.NoiseType.Cellular);
-        this.caveBiomeController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
+        // Initialize Region Controllers using world seed and user config option for region size
+        this.caveRegionController = new FastNoise();
+        this.caveRegionController.SetSeed((int)seed + 222);
+        this.caveRegionController.SetFrequency(caveRegionSize);
+        this.caveRegionController.SetNoiseType(FastNoise.NoiseType.Cellular);
+        this.caveRegionController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
-        // Note that Cavern Biome Controller uses Simplex noise instead of Cellular
-        this.cavernBiomeController = new FastNoise();
-        this.cavernBiomeController.SetSeed((int)seed + 333);
-        this.cavernBiomeController.SetFrequency(cavernBiomeSize);
+        // Note that Cavern Region Controller uses Simplex noise instead of Cellular
+        this.cavernRegionController = new FastNoise();
+        this.cavernRegionController.SetSeed((int)seed + 333);
+        this.cavernRegionController.SetFrequency(cavernRegionSize);
 
         this.waterCavernController = new FastNoise();
         this.waterCavernController.SetSeed((int)seed + 444);
-        this.waterCavernController.SetFrequency(waterCavernBiomeSize);
+        this.waterCavernController.SetFrequency(waterCavernRegionSize);
         this.waterCavernController.SetNoiseType(FastNoise.NoiseType.Cellular);
         this.waterCavernController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
+
+        // Set lava block
+        try {
+            lavaBlock = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(BetterCavesConfig.lavaBlock)).getDefaultState();
+            BetterCaves.LOGGER.info("Using block '" + BetterCavesConfig.lavaBlock + "' as lava in cave generation...");
+        } catch (Exception e) {
+            BetterCaves.LOGGER.warn("Unable to use block '" + BetterCavesConfig.lavaBlock + "': " + e);
+            BetterCaves.LOGGER.warn("Using vanilla lava instead...");
+            lavaBlock = Blocks.LAVA.getDefaultState();
+        }
+
+        if (lavaBlock == null) {
+            BetterCaves.LOGGER.warn("Unable to use block '" + BetterCavesConfig.lavaBlock + "': null block returned.");
+            BetterCaves.LOGGER.warn("Using vanilla lava instead...");
+            lavaBlock = Blocks.LAVA.getDefaultState();
+        }
+
+        // Set water block
+        try {
+            waterBlock = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(BetterCavesConfig.waterBlock)).getDefaultState();
+            BetterCaves.LOGGER.info("Using block '" + BetterCavesConfig.waterBlock + "' as water in cave generation...");
+        } catch (Exception e) {
+            BetterCaves.LOGGER.warn("Unable to use block '" + BetterCavesConfig.waterBlock + "': " + e);
+            BetterCaves.LOGGER.warn("Using vanilla water instead...");
+            waterBlock = Blocks.WATER.getDefaultState();
+        }
+
+        if (waterBlock == null) {
+            BetterCaves.LOGGER.warn("Unable to use block '" + BetterCavesConfig.waterBlock + "': null block returned.");
+            BetterCaves.LOGGER.warn("Using vanilla water instead...");
+            waterBlock = Blocks.WATER.getDefaultState();
+        }
 
         /* ---------- Initialize all Better Cave generators using config options ---------- */
         this.caveCubic = new CaveBC(

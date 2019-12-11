@@ -16,7 +16,11 @@ public final class ConfigHelper {
 
     public static void bakeClient(final ModConfig config) {
         clientConfig = config;
+
+        // General
         BetterCavesConfig.lavaDepth = ConfigHolder.CLIENT.lavaDepth.get();
+        BetterCavesConfig.lavaBlock = ConfigHolder.CLIENT.lavaBlock.get();
+        BetterCavesConfig.waterBlock = ConfigHolder.CLIENT.waterBlock.get();
 
         // Cave gen settings
         BetterCavesConfig.caveRegionSize = ConfigHolder.CLIENT.configCaveGen.caveRegionSize.get();
@@ -54,7 +58,7 @@ public final class ConfigHelper {
         BetterCavesConfig.waterCavernYComp = ConfigHolder.CLIENT.configCaveGen.configWaterRegions.configWaterCavern.yCompression.get();
         BetterCavesConfig.waterCavernXZComp = ConfigHolder.CLIENT.configCaveGen.configWaterRegions.configWaterCavern.xzCompression.get();
 
-        // Water Biome settings
+        // Water Region settings
         BetterCavesConfig.enableWaterRegions = ConfigHolder.CLIENT.configCaveGen.configWaterRegions.enableWaterRegions.get();
         BetterCavesConfig.waterRegionFreq = ConfigHolder.CLIENT.configCaveGen.configWaterRegions.waterRegionFrequency.get();
 

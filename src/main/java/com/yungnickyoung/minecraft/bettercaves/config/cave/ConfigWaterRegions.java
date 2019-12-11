@@ -9,7 +9,7 @@ public class ConfigWaterRegions {
     public final ForgeConfigSpec.ConfigValue<String> waterRegionFrequency;
 
     public ConfigWaterRegions(final ForgeConfigSpec.Builder builder) {
-        builder.push("Water Biomes");
+        builder.push("Water Regions");
 
         enableWaterRegions = builder
                 .comment(" Set to true for caves/caverns to have a chance of spawning as their water-based variants, instead" +

@@ -5,7 +5,10 @@ package com.yungnickyoung.minecraft.bettercaves.config;
  * These values should never be from changed outside this package.
  */
 public final class BetterCavesConfig {
+    // General
     public static int lavaDepth;
+    public static String lavaBlock;
+    public static String waterBlock;
 
     // Cave gen vars
     public static String caveRegionSize;
@@ -82,7 +85,7 @@ public final class BetterCavesConfig {
     public static float   waterCavernFractalFreq    = .03f;
     public static int     waterCavernNumGenerators  = 2;
 
-    // Water biome vars
+    // Water Region vars
     public static boolean enableWaterRegions;
     public static String waterRegionFreq;
 

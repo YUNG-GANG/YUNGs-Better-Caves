@@ -7,6 +7,7 @@ public class ConfigSimplexCave {
     public final ForgeConfigSpec.ConfigValue<Double> yCompression;
     public final ForgeConfigSpec.ConfigValue<Double> xzCompression;
     public final ForgeConfigSpec.ConfigValue<String> caveFrequency;
+    public final ForgeConfigSpec.ConfigValue<Double> customFrequency;
 
     public ConfigSimplexCave(final ForgeConfigSpec.Builder builder) {
         builder.push("Type 2 Caves");
@@ -31,10 +32,20 @@ public class ConfigSimplexCave {
 
         caveFrequency = builder
                 .comment(" Determines how frequently Type 2 Caves spawn. If this is anything but VeryCommon (the default), " +
-                        "some areas will not have caves at all.\n Accepted values: None, Rare, Common, VeryCommon" +
+                        "some areas will not have caves at all.\n Accepted values: None, Rare, Common, VeryCommon, Custom" +
                         "\n Default: VeryCommon")
                 .worldRestart()
                 .define("Type 2 Cave Frequency", "VeryCommon");
+
+        customFrequency = builder
+                .comment(" Custom value for cave frequency. Only works if Type 2 Cave Frequency is set to Custom. 0 = 0% chance of spawning, " +
+                        "1.0 = 50% chance of spawning (which is the max value). The value may not scale linearly. \n Provided values:\n" +
+                        " None: 0\n" +
+                        " Rare: 0.4\n" +
+                        " Common: 0.8\n" +
+                        " VeryCommon: 1.0")
+                .worldRestart()
+                .defineInRange("Type 2 Cave Frequency Custom Value", 1.0, 0, 1.0);
 
         builder.pop();
     }

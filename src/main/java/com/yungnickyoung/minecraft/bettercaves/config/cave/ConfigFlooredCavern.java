@@ -8,6 +8,7 @@ public class ConfigFlooredCavern {
     public final ForgeConfigSpec.ConfigValue<Double> yCompression;
     public final ForgeConfigSpec.ConfigValue<Double> xzCompression;
     public final ForgeConfigSpec.ConfigValue<String> caveFrequency;
+    public final ForgeConfigSpec.ConfigValue<Double> customFrequency;
 
     public ConfigFlooredCavern(final ForgeConfigSpec.Builder builder) {
         builder.push("Floored Caverns");
@@ -39,10 +40,21 @@ public class ConfigFlooredCavern {
 
         caveFrequency = builder
                 .comment(" Determines how frequently Floored Caverns spawn." +
-                        "\n Accepted values: None, Rare, Normal, Common, VeryCommon" +
+                        "\n Accepted values: None, Rare, Normal, Common, VeryCommon, Custom" +
                         "\n Default: Normal")
                 .worldRestart()
                 .define("Floored Cavern Frequency", "Normal");
+
+        customFrequency = builder
+                .comment("Custom value for cavern frequency. Only works if Floored Cavern Frequency is set to Custom. 0 = 0% chance of spawning, " +
+                        "1.0 = 50% chance of spawning (which is the max value). The value does not scale linearly. \n Provided values:\n" +
+                        " None: 0\n" +
+                        " Rare: 0.2\n" +
+                        " Normal: 0.6\n" +
+                        " Common: 0.7\n" +
+                        " VeryCommon: 0.9")
+                .worldRestart()
+                .defineInRange("Floored Cavern Frequency Custom Value", 1.0, 0, 1.0);
 
         builder.pop();
     }

@@ -21,6 +21,7 @@ public final class BetterCavesConfig {
     public static double  cubicYComp;
     public static double  cubicXZComp;
     public static String  cubicCaveFreq;
+    public static double   cubicCustomFrequency;
     public static float   cubicNoiseThreshold    = 0.95f;
     public static int     cubicFractalOctaves    = 1;
     public static float   cubicFractalGain       = .3f;
@@ -39,6 +40,7 @@ public final class BetterCavesConfig {
     public static double  simplexYComp;
     public static double  simplexXZComp;
     public static String  simplexCaveFreq;
+    public static double   simplexCustomFrequency;
     public static float   simplexNoiseThreshold    = 0.86f;
     public static int     simplexFractalOctaves    = 1;
     public static float   simplexFractalGain       = .3f;
@@ -58,18 +60,20 @@ public final class BetterCavesConfig {
     public static double  lavaCavernYComp;
     public static double  lavaCavernXZComp;
     public static String  lavaCavernCaveFreq;
+    public static double   lavaCavernCustomFrequency;
     public static float   lavaCavernNoiseThreshold = 0.7f;
     public static int     lavaCavernFractalOctaves = 1;
     public static float   lavaCavernFractalGain    = .3f;
     public static float   lavaCavernFractalFreq    = .03f;
     public static int     lavaCavernNumGenerators  = 2;
 
-    // Lava Cavern vars
+    // Floored Cavern vars
     public static int     flooredCavernCaveTop;
     public static int     flooredCavernCaveBottom;
     public static double  flooredCavernYComp;
     public static double  flooredCavernXZComp;
     public static String  flooredCavernCaveFreq;
+    public static double   flooredCavernCustomFrequency;
     public static float   flooredCavernNoiseThreshold = 0.7f;
     public static int     flooredCavernFractalOctaves = 1;
     public static float   flooredCavernFractalGain    = .3f;
@@ -87,7 +91,8 @@ public final class BetterCavesConfig {
 
     // Water Region vars
     public static boolean enableWaterRegions;
-    public static String waterRegionFreq;
+    public static String  waterRegionFreq;
+    public static double  waterRegionCustomFreq;
 
     // Bedrock flattening vars
     public static boolean flattenBedrock;

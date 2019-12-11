@@ -7,6 +7,7 @@ public class ConfigWaterRegions {
 
     public final ForgeConfigSpec.ConfigValue<Boolean> enableWaterRegions;
     public final ForgeConfigSpec.ConfigValue<String> waterRegionFrequency;
+    public final ForgeConfigSpec.ConfigValue<Double> customFrequency;
 
     public ConfigWaterRegions(final ForgeConfigSpec.Builder builder) {
         builder.push("Water Regions");
@@ -20,10 +21,21 @@ public class ConfigWaterRegions {
 
         waterRegionFrequency = builder
                 .comment(" Determines how frequently water regions spawn\n" +
-                        " Accepted values: Rare, Normal, Common, VeryCommon, Always" +
+                        " Accepted values: Rare, Normal, Common, VeryCommon, Always, Custom" +
                         "\n Default: Normal")
                 .worldRestart()
                 .define("Water Region Frequency", "Normal");
+
+        customFrequency = builder
+                .comment("Custom value for water region frequency. Only works if Water Region Frequency is set to Custom. 0 = 0% chance of spawning, " +
+                        "1.0 = 100% chance of spawning. The value may not scale linearly. \n Provided values:\n" +
+                        " Rare: 0.3\n" +
+                        " Normal: 0.425\n" +
+                        " Common: 0.55\n" +
+                        " VeryCommon: 0.65\n" +
+                        " Always: 1.0")
+                .worldRestart()
+                .defineInRange("Water Region Frequency Custom Value", 1.0, 0, 1.0);
 
         configWaterCavern = new ConfigWaterCavern(builder);
 

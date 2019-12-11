@@ -252,6 +252,8 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
                 return -.6f;
             case "Common":
                 return -.2f;
+            case "Custom":
+                return -1f + (float)BetterCavesConfig.cubicCustomFrequency;
             default: // VeryCommon
                 return 0;
         }
@@ -268,6 +270,8 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
                 return .6f;
             case "Common":
                 return .2f;
+            case "Custom":
+                return 1f - (float)BetterCavesConfig.simplexCustomFrequency;
             default: // VeryCommon
                 return 0;
         }
@@ -286,6 +290,8 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
                 return -.3f;
             case "VeryCommon":
                 return -.1f;
+            case "Custom":
+                return -1f + (float)BetterCavesConfig.lavaCavernCustomFrequency;
             default: // Normal
                 return -.4f;
         }
@@ -304,6 +310,8 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
                 return .3f;
             case "VeryCommon":
                 return .1f;
+            case "Custom":
+                return 1f - (float)BetterCavesConfig.flooredCavernCustomFrequency;
             default: // Normal
                 return .4f;
         }
@@ -322,6 +330,8 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
                 return .3f;
             case "Always":
                 return 99f;
+            case "Custom":
+                return 2f * (float)BetterCavesConfig.waterRegionCustomFreq - 1;
             default: // Normal
                 return -.15f;
         }

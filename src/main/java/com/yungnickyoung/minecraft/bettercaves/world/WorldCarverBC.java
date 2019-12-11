@@ -410,9 +410,9 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
             lavaBlock = Blocks.LAVA.getDefaultState();
         }
 
-        if (lavaBlock == null) {
-            BetterCaves.LOGGER.warn("Unable to use block '" + BetterCavesConfig.lavaBlock + "': null block returned.");
-            BetterCaves.LOGGER.warn("Using vanilla lava instead...");
+        // Default to vanilla lava if lavaBlock is null or contains air (the default registry block) when air was not specified
+        if (lavaBlock == null || (lavaBlock == Blocks.AIR.getDefaultState() && !BetterCavesConfig.lavaBlock.equals("minecraft:air"))) {
+            BetterCaves.LOGGER.warn("Unable to use block '" + BetterCavesConfig.lavaBlock + "': null block returned. Using vanilla lava instead...");
             lavaBlock = Blocks.LAVA.getDefaultState();
         }
 
@@ -426,9 +426,9 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
             waterBlock = Blocks.WATER.getDefaultState();
         }
 
-        if (waterBlock == null) {
-            BetterCaves.LOGGER.warn("Unable to use block '" + BetterCavesConfig.waterBlock + "': null block returned.");
-            BetterCaves.LOGGER.warn("Using vanilla water instead...");
+        // Default to vanilla water if waterBlock is null or contains air (the default registry block) when air was not specified
+        if (waterBlock == null || (waterBlock == Blocks.AIR.getDefaultState() && !BetterCavesConfig.waterBlock.equals("minecraft:air"))) {
+            BetterCaves.LOGGER.warn("Unable to use block '" + BetterCavesConfig.waterBlock + "': null block returned. Using vanilla water instead...");
             waterBlock = Blocks.WATER.getDefaultState();
         }
 

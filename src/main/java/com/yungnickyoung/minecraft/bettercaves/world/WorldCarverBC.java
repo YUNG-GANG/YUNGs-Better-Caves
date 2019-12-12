@@ -216,8 +216,12 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
                         // Extra check to provide close-off transitions on cavern edges
                         if (cavernRegionNoise >= lavaCavernThreshold && cavernRegionNoise <= lavaCavernThreshold + transitionRange) {
                             float smoothAmp = Math.abs((cavernRegionNoise - (lavaCavernThreshold + transitionRange)) / transitionRange);
-                            this.cavernLava.generateColumn(chunkX, chunkZ, chunkIn, localX, localZ, BetterCavesConfig.lavaCavernCaveBottom, BetterCavesConfig.lavaCavernCaveTop,
-                                    maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, liquidBlock, smoothAmp);
+                            if (this.enableWaterRegions && waterRegionNoise < this.waterRegionThreshold)
+                                this.cavernWater.generateColumn(chunkX, chunkZ, chunkIn, localX, localZ, BetterCavesConfig.lavaCavernCaveBottom, BetterCavesConfig.lavaCavernCaveTop,
+                                        maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, liquidBlock, smoothAmp);
+                            else
+                                this.cavernLava.generateColumn(chunkX, chunkZ, chunkIn, localX, localZ, BetterCavesConfig.lavaCavernCaveBottom, BetterCavesConfig.lavaCavernCaveTop,
+                                        maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, liquidBlock, smoothAmp);
                         } else if (cavernRegionNoise <= flooredCavernThreshold && cavernRegionNoise >= flooredCavernThreshold - transitionRange) {
                             float smoothAmp = Math.abs((cavernRegionNoise - (flooredCavernThreshold - transitionRange)) / transitionRange);
                             this.cavernFloored.generateColumn(chunkX, chunkZ, chunkIn, localX, localZ, BetterCavesConfig.flooredCavernCaveBottom, BetterCavesConfig.flooredCavernCaveTop,

@@ -93,7 +93,6 @@ public class CommonProxy {
                     || b.getCategory() == Biome.Category.THEEND)
             continue;
 
-
             setCarvers(b, configuredCarver);
         }
     }
@@ -122,7 +121,8 @@ public class CommonProxy {
         List<ConfiguredCarver<?>> airCarvers = biomeIn.getCarvers(GenerationStage.Carving.AIR);
         List<ConfiguredCarver<?>> liquidCarvers = biomeIn.getCarvers(GenerationStage.Carving.LIQUID);
 
-        BetterCaves.LOGGER.debug("Found '" + biomeIn.getDisplayName().getString() + "' biome default carvers: AIR: " + airCarvers + " LIQUID: " + liquidCarvers);
+        // Don't uncomment this - doesn't work on dedicated servers
+//        BetterCaves.LOGGER.debug("Found '" + biomeIn.getDisplayName().getString() + "' biome default carvers: AIR: " + airCarvers + " LIQUID: " + liquidCarvers);
 
         // Remove default carvers
         airCarvers.clear();

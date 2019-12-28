@@ -5,6 +5,7 @@ import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.event.EventBetterCaveGen;
 import com.yungnickyoung.minecraft.bettercaves.event.EventRavineGen;
 import com.yungnickyoung.minecraft.bettercaves.proxy.IProxy;
+import com.yungnickyoung.minecraft.bettercaves.world.MapGenBetterCaves;
 
 // Minecraft Forge API
 import net.minecraftforge.common.MinecraftForge;
@@ -16,11 +17,20 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 
+import java.util.HashMap;
+
 /**
  * Entry point for Better Caves
  */
 @Mod(modid = Settings.MOD_ID, name = Settings.NAME, version = Settings.VERSION, useMetadata = Settings.USE_META_DATA, acceptableRemoteVersions = "*")
 public class BetterCaves {
+
+    /**
+     * Table of active Better Caves carvers. Maps dimension ID to its carver.
+     * We create separate carvers per dimension to allow for dimension-specific configuration.
+     */
+    public static HashMap<Integer, MapGenBetterCaves> activeCarversMap = new HashMap<>();
+
     @SidedProxy(clientSide = Settings.CLIENT_PROXY, serverSide = Settings.SERVER_PROXY)
     public static IProxy proxy;
 

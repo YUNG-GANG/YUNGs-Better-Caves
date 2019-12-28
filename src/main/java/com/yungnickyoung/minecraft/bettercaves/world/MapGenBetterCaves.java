@@ -97,6 +97,15 @@ public class MapGenBetterCaves extends MapGenCaves {
             this.initialize(worldIn);
         }
 
+        // Note - if changing dimensions, world will be the same, but world.provider.getDimensionType() will be different
+//
+//        if (world != worldIn) {
+//            Settings.LOGGER.warn("WORLD NOT THE SAME");
+//        }
+//
+//        Settings.LOGGER.warn("BETTERCAVESWORLD " + worldIn.provider.getDimensionType() + ": " + worldIn.provider.getDimension());
+
+
         // Use debug function for testing purposes, if debug flag is set
         if (Settings.DEBUG_WORLD_GEN) {
             debugGenerate(worldIn, chunkX, chunkZ, primer);
@@ -365,6 +374,11 @@ public class MapGenBetterCaves extends MapGenCaves {
      * @param worldIn The minecraft world
      */
     private void initialize(World worldIn) {
+
+        Settings.LOGGER.warn("BETTERCAVESWORLDINIT " + worldIn.provider.getDimensionType() + ": " + worldIn.provider.getDimension());
+
+        // Ch
+
         this.world = worldIn;
         this.defaultCaveGen = new MapGenCaves();
         this.enableVanillaCaves = Configuration.caveSettings.caves.vanillaCave.enableVanillaCaves;

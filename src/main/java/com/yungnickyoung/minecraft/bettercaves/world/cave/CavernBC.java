@@ -78,7 +78,7 @@ public class CavernBC extends AbstractBC {
         // Altitude at which caverns start closing off on the bottom to create "floors"
         int bottomTransitionBoundary = 0;
         if (cavernType == CavernType.FLOORED)
-            bottomTransitionBoundary = (bottomY <= 10) ? Configuration.lavaDepth + 4 : bottomY + 7;
+            bottomTransitionBoundary = (bottomY <= 10) ? Configuration.liquidAltitude + 4 : bottomY + 7;
         else if (cavernType == CavernType.WATER)
             bottomTransitionBoundary = bottomY + 3;
 
@@ -126,7 +126,7 @@ public class CavernBC extends AbstractBC {
             else if (digBlock) {
                 if (this.cavernType == CavernType.WATER) {
                     // Make sure we replace any lava possibly generated from caves with water to avoid having lava under the water
-                    if (primer.getBlockState(localX, realY, localZ).getMaterial() == Material.LAVA && realY <= Configuration.lavaDepth)
+                    if (primer.getBlockState(localX, realY, localZ).getMaterial() == Material.LAVA && realY <= Configuration.liquidAltitude)
                         primer.setBlockState(localX, realY, localZ, Blocks.WATER.getDefaultState());
                     else
                         this.digBlock(primer, lavaBlock, chunkX, chunkZ, localX, localZ, realY);

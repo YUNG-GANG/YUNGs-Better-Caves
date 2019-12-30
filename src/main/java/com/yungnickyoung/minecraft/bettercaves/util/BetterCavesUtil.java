@@ -49,7 +49,7 @@ public class BetterCavesUtil {
 
     /**
      * Digs out the current block, default implementation removes stone, filler, and top block.
-     * Sets the block to lavaBlockState if y is less then the lavaDepth in the Config, and air other wise.
+     * Sets the block to lavaBlockState if y is less then the liquidAltitude in the Config, and air other wise.
      * If setting to air, it also checks to see if we've broken the surface, and if so,
      * tries to make the floor the biome's top block.
      *
@@ -76,7 +76,7 @@ public class BetterCavesUtil {
 
         // Only continue if the block is replaceable
         if (canReplaceBlock(blockState, blockStateAbove) || blockState.getBlock() == biomeTopBlock || blockState.getBlock() == biomeFillerBlock) {
-            if (y <= Configuration.lavaDepth) { // Replace any block below the lava depth with the lava block passed in
+            if (y <= Configuration.liquidAltitude) { // Replace any block below the lava depth with the lava block passed in
                 primer.setBlockState(localX, y, localZ, lavaBlockState);
             } else {
                 // Adjust block below if block removed is biome top block
@@ -98,7 +98,7 @@ public class BetterCavesUtil {
     /**
      * Wrapper function for digBlock with default lava block.
      * Digs out the current block, default implementation removes stone, filler, and top block.
-     * Sets the block to lavaBlockState if y is less then the lavaDepth in the Config, and air other wise.
+     * Sets the block to lavaBlockState if y is less then the liquidAltitude in the Config, and air other wise.
      * If setting to air, it also checks to see if we've broken the surface, and if so,
      * tries to make the floor the biome's top block.
      *

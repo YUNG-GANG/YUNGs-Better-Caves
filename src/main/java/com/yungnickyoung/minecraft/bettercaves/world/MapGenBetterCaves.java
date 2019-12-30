@@ -1,10 +1,13 @@
 package com.yungnickyoung.minecraft.bettercaves.world;
 
+import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.config.Settings;
+import com.yungnickyoung.minecraft.bettercaves.config.dimension.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.enums.CaveFrequency;
 import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
+import com.yungnickyoung.minecraft.bettercaves.enums.RegionSize;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.world.bedrock.FlattenBedrock;
@@ -14,7 +17,9 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
+import net.minecraft.world.gen.MapGenBase;
 import net.minecraft.world.gen.MapGenCaves;
+import net.minecraftforge.event.terraingen.InitMapGenEvent;
 
 import javax.annotation.Nonnull;
 
@@ -33,10 +38,8 @@ public class MapGenBetterCaves extends MapGenCaves {
     private AbstractBC cavernFloored;
     private AbstractBC cavernWater;
 
-    private int surfaceCutoff;
-
     // Vanilla cave gen if user sets config to use it
-    private MapGenCaves defaultCaveGen;
+    private MapGenBase defaultCaveGen;
 
     // Noise generators to group caves into cave regions based on xz-coordinates.
     // Cavern Region Controller uses simplex noise while the others use Voronoi regions (cellular noise)
@@ -54,19 +57,26 @@ public class MapGenBetterCaves extends MapGenCaves {
     // Dictates the degree of smoothing along cavern region boundaries
     private float transitionRange = .15f;
 
-    // Config option for using vanilla cave gen in some areas
-    private boolean enableVanillaCaves;
-
-    // Config option for using water regions
-    private boolean enableWaterRegions;
-
+    // Liquid blocks (can be changed from water/lava via config)
     private IBlockState lavaBlock;
     private IBlockState waterBlock;
 
+    // Dimension this instance of MapGenBetterCaves is used in
+    public int dimensionID;
+    public String dimensionName;
+
+    // Config holder for non-global config options that may be specific to this carver
+    public ConfigHolder config = new ConfigHolder();
+
     // DEBUG
     private AbstractBC testCave;
+    private int counter = 200;
 
     public MapGenBetterCaves() {
+    }
+
+    public MapGenBetterCaves(InitMapGenEvent event) {
+        this.defaultCaveGen = event.getOriginalGen();
     }
 
     // DEBUG - used to test new noise types/params with the TestCave type
@@ -76,7 +86,8 @@ public class MapGenBetterCaves extends MapGenCaves {
         if (worldIn.provider.getDimension() == 0) {
             for (int localX = 0; localX < 16; localX++) {
                 for (int localZ = 0; localZ < 16; localZ++) {
-                    testCave.generateColumn(chunkX, chunkZ, primer, localX, localZ, 1, maxSurfaceHeight, maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, Blocks.FLOWING_LAVA.getDefaultState());
+                    testCave.generateColumn(chunkX, chunkZ, primer, localX, localZ, 1, maxSurfaceHeight,
+                            maxSurfaceHeight, minSurfaceHeight, config.surfaceCutoff.get(), Blocks.FLOWING_LAVA.getDefaultState());
                 }
             }
         }
@@ -93,18 +104,23 @@ public class MapGenBetterCaves extends MapGenCaves {
      */
     @Override
     public void generate(World worldIn, int chunkX, int chunkZ, @Nonnull ChunkPrimer primer) {
-        if (world == null) { // First call - (lazy) initialization of all cave generators
+        if (world == null) { // First call - (lazy) initialization of all cave/cavern generators
             this.initialize(worldIn);
         }
 
-        // Note - if changing dimensions, world will be the same, but world.provider.getDimensionType() will be different
-//
-//        if (world != worldIn) {
-//            Settings.LOGGER.warn("WORLD NOT THE SAME");
-//        }
-//
-//        Settings.LOGGER.warn("BETTERCAVESWORLD " + worldIn.provider.getDimensionType() + ": " + worldIn.provider.getDimension());
+        // Only operate on whitelisted dimensions.
+        // I tried just setting the event's NewGen to its OriginalGen but that doesn't seem to do anything
+        // after the cave gen process has been initiated.
+        if (!isDimensionWhitelisted(dimensionID)) {
+            defaultCaveGen.generate(worldIn, chunkX, chunkZ, primer);
+            return;
+        }
 
+        counter--;
+        if (counter <= 0) {
+            Settings.LOGGER.warn("BETTERCAVESWORLD "+ world.getSeed() + " | " + dimensionName + ": " + dimensionID + " | " + BetterCaves.activeCarversMap.size() + " | " + this.hashCode());
+            counter = 200;
+        }
 
         // Use debug function for testing purposes, if debug flag is set
         if (Settings.DEBUG_WORLD_GEN) {
@@ -127,39 +143,17 @@ public class MapGenBetterCaves extends MapGenCaves {
         int cavernTopY;
         int caveBottomY;
 
-        // Only use Better Caves generation in whitelisted dimensions
-        int dimensionID = worldIn.provider.getDimension();
-        boolean isWhitelisted = false;
-
-        // Ignore the dimension ID list if global whitelisting is enabled
-        if (Configuration.caveSettings.enableGlobalWhitelist)
-            isWhitelisted = true;
-
-        // Check if dimension is whitelisted
-        for (int dim : Configuration.caveSettings.whitelistedDimensionIDs) {
-            if (dimensionID == dim) {
-                isWhitelisted = true;
-                break;
-            }
-        }
-
-        // If not whitelisted, use default cave gen instead of Better Caves
-        if (!isWhitelisted) {
-            defaultCaveGen.generate(worldIn, chunkX, chunkZ, primer);
-            return;
-        }
-
         // Flatten bedrock, if enabled
         FlattenBedrock.flattenBedrock(primer);
 
         // We split chunks into 2x2 sub-chunks along the x-z axis for surface height calculations
         for (int subX = 0; subX < 8; subX++) {
             for (int subZ = 0; subZ < 8; subZ++) {
-                if (!Configuration.debugsettings.debugVisualizer)
+                if (!config.debugVisualizer.get())
                     maxSurfaceHeight = BetterCavesUtil.getMaxSurfaceAltitudeSubChunk(primer, subX, subZ);
 
                 // maxSurfaceHeight (also used for max cave altitude) cannot exceed Max Cave Altitude setting
-                maxSurfaceHeight = Math.min(maxSurfaceHeight, Configuration.caveSettings.caves.maxCaveAltitude);
+                maxSurfaceHeight = Math.min(maxSurfaceHeight, config.maxCaveAltitude.get());
 
                 for (int offsetX = 0; offsetX < 2; offsetX++) {
                     for (int offsetZ = 0; offsetZ < 2; offsetZ++) {
@@ -184,12 +178,12 @@ public class MapGenBetterCaves extends MapGenCaves {
                          */
                         if (caveRegionNoise < this.cubicCaveThreshold) {
                             caveGen = this.caveCubic;
-                            caveBottomY = Configuration.caveSettings.caves.cubicCave.caveBottom;
+                            caveBottomY = config.cubicCaveBottom.get();
                         } else if (caveRegionNoise >= this.simplexCaveThreshold) {
                             caveGen = this.caveSimplex;
-                            caveBottomY = Configuration.caveSettings.caves.simplexCave.caveBottom;
+                            caveBottomY = config.simplexCaveBottom.get();
                         } else {
-                            if (this.enableVanillaCaves) {
+                            if (config.enableVanillaCaves.get()) {
                                 defaultCaveGen.generate(worldIn, chunkX, chunkZ, primer);
                                 return;
                             }
@@ -204,7 +198,7 @@ public class MapGenBetterCaves extends MapGenCaves {
                         float waterRegionNoise = 99;
 
                         // Only bother calculating noise for water region if enabled
-                        if (enableWaterRegions)
+                        if (config.enableWaterRegions.get())
                             waterRegionNoise = waterCavernController.GetNoise(realX, realZ);
 
                         // If water region threshold check is passed, change liquid block to water
@@ -214,7 +208,7 @@ public class MapGenBetterCaves extends MapGenCaves {
 
                         // Determine cavern type for this column. Caverns generate at low altitudes only.
                         if (cavernRegionNoise < lavaCavernThreshold) {
-                            if (this.enableWaterRegions && waterRegionNoise < this.waterRegionThreshold) {
+                            if (config.enableWaterRegions.get() && waterRegionNoise < this.waterRegionThreshold) {
                                 // Generate water cavern in this column
                                 cavernGen = this.cavernWater;
                             } else {
@@ -222,8 +216,8 @@ public class MapGenBetterCaves extends MapGenCaves {
                                 cavernGen = this.cavernLava;
                             }
                             // Water caverns use the same cave top/bottom as lava caverns
-                            cavernBottomY = Configuration.caveSettings.caverns.lavaCavern.caveBottom;
-                            cavernTopY = Configuration.caveSettings.caverns.lavaCavern.caveTop;
+                            cavernBottomY = config.lavaCavernBottom.get();
+                            cavernTopY = config.lavaCavernTop.get();
                         } else if (cavernRegionNoise >= lavaCavernThreshold && cavernRegionNoise <= flooredCavernThreshold) {
                             /* Similar to determining cave type above, we must check for values between the two adjusted
                              * thresholds, i.e. lavaCavernThreshold < noiseValue <= flooredCavernThreshold.
@@ -236,24 +230,24 @@ public class MapGenBetterCaves extends MapGenCaves {
                         } else {
                             // Generate floored cavern in this column
                             cavernGen = this.cavernFloored;
-                            cavernBottomY = Configuration.caveSettings.caverns.flooredCavern.caveBottom;
-                            cavernTopY = Configuration.caveSettings.caverns.flooredCavern.caveTop;
+                            cavernBottomY = config.flooredCavernBottom.get();
+                            cavernTopY = config.flooredCavernTop.get();
                         }
 
                         // Extra check to provide close-off transitions on cavern edges
-                        if (Configuration.caveSettings.caverns.enableBoundarySmoothing) {
+                        if (config.enableBoundarySmoothing.get()) {
                             if (cavernRegionNoise >= lavaCavernThreshold && cavernRegionNoise <= lavaCavernThreshold + transitionRange) {
                                 float smoothAmp = Math.abs((cavernRegionNoise - (lavaCavernThreshold + transitionRange)) / transitionRange);
-                                if (this.enableWaterRegions && waterRegionNoise < this.waterRegionThreshold)
-                                    this.cavernWater.generateColumn(chunkX, chunkZ, primer, localX, localZ, Configuration.caveSettings.caverns.lavaCavern.caveBottom, Configuration.caveSettings.caverns.lavaCavern.caveTop,
-                                            maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, liquidBlock, smoothAmp);
+                                if (config.enableWaterRegions.get() && waterRegionNoise < this.waterRegionThreshold)
+                                    this.cavernWater.generateColumn(chunkX, chunkZ, primer, localX, localZ,config.lavaCavernBottom.get(), config.lavaCavernTop.get(),
+                                            maxSurfaceHeight, minSurfaceHeight, config.surfaceCutoff.get(), liquidBlock, smoothAmp);
                                 else
-                                    this.cavernLava.generateColumn(chunkX, chunkZ, primer, localX, localZ, Configuration.caveSettings.caverns.lavaCavern.caveBottom, Configuration.caveSettings.caverns.lavaCavern.caveTop,
-                                        maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, liquidBlock, smoothAmp);
+                                    this.cavernLava.generateColumn(chunkX, chunkZ, primer, localX, localZ, config.lavaCavernBottom.get(), config.lavaCavernTop.get(),
+                                        maxSurfaceHeight, minSurfaceHeight, config.surfaceCutoff.get(), liquidBlock, smoothAmp);
                             } else if (cavernRegionNoise <= flooredCavernThreshold && cavernRegionNoise >= flooredCavernThreshold - transitionRange) {
                                 float smoothAmp = Math.abs((cavernRegionNoise - (flooredCavernThreshold - transitionRange)) / transitionRange);
-                                this.cavernFloored.generateColumn(chunkX, chunkZ, primer, localX, localZ, Configuration.caveSettings.caverns.flooredCavern.caveBottom, Configuration.caveSettings.caverns.flooredCavern.caveTop,
-                                        maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, liquidBlock, smoothAmp);
+                                this.cavernFloored.generateColumn(chunkX, chunkZ, primer, localX, localZ, config.flooredCavernBottom.get(), config.flooredCavernTop.get(),
+                                        maxSurfaceHeight, minSurfaceHeight, config.surfaceCutoff.get(), liquidBlock, smoothAmp);
                             }
                         }
 
@@ -261,11 +255,11 @@ public class MapGenBetterCaves extends MapGenCaves {
                         // Top (Cave) layer:
                         if (caveGen != null)
                             caveGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, caveBottomY, maxSurfaceHeight,
-                                maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, liquidBlock);
+                                maxSurfaceHeight, minSurfaceHeight, config.surfaceCutoff.get(), liquidBlock);
                         // Bottom (Cavern) layer:
                         if (cavernGen != null)
                             cavernGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, cavernBottomY, cavernTopY,
-                                maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, liquidBlock);
+                                maxSurfaceHeight, minSurfaceHeight, config.surfaceCutoff.get(), liquidBlock);
 
                     }
                 }
@@ -274,165 +268,44 @@ public class MapGenBetterCaves extends MapGenCaves {
     }
 
     /**
-     * @return threshold value for cubic cave spawn rate based on Config setting
-     */
-    private float calcCubicCaveThreshold() {
-        switch (Configuration.caveSettings.caves.cubicCave.caveFrequency) {
-            case None:
-                return -99f;
-            case Rare:
-                return -.6f;
-            case Common:
-                return -.2f;
-            case Custom:
-                return -1f + Configuration.caveSettings.caves.cubicCave.customFrequency;
-            default: // VeryCommon
-                return 0;
-        }
-    }
-
-    /**
-     * @return threshold value for simplex cave spawn rate based on Config setting
-     */
-    private float calcSimplexCaveThreshold() {
-        switch (Configuration.caveSettings.caves.simplexCave.caveFrequency) {
-            case None:
-                return 99f;
-            case Rare:
-                return .6f;
-            case Common:
-                return .2f;
-            case Custom:
-                return 1f - Configuration.caveSettings.caves.simplexCave.customFrequency;
-            default: // VeryCommon
-                return 0;
-        }
-    }
-
-    /**
-     * @return threshold value for lava cavern spawn rate based on Config setting
-     */
-    private float calcLavaCavernThreshold() {
-        switch (Configuration.caveSettings.caverns.lavaCavern.caveFrequency) {
-            case None:
-                return -99f;
-            case Rare:
-                return -.8f;
-            case Common:
-                return -.3f;
-            case VeryCommon:
-                return -.1f;
-            case Custom:
-                return -1f + Configuration.caveSettings.caverns.lavaCavern.customFrequency;
-            default: // Normal
-                return -.4f;
-        }
-    }
-
-    /**
-     * @return threshold value for floored cavern spawn rate based on Config setting
-     */
-    private float calcFlooredCavernThreshold() {
-        switch (Configuration.caveSettings.caverns.flooredCavern.caveFrequency) {
-            case None:
-                return 99f;
-            case Rare:
-                return .8f;
-            case Common:
-                return .3f;
-            case VeryCommon:
-                return .1f;
-            case Custom:
-                return 1f - Configuration.caveSettings.caverns.flooredCavern.customFrequency;
-            default: // Normal
-                return .4f;
-        }
-    }
-
-    /**
-     * @return threshold value for water region spawn rate based on Config setting
-     */
-    private float calcWaterRegionThreshold() {
-        switch (Configuration.caveSettings.waterRegions.waterRegionFrequency) {
-            case Rare:
-                return -.4f;
-            case Common:
-                return .1f;
-            case VeryCommon:
-                return .3f;
-            case Always:
-                return 99f;
-            case Custom:
-                return 2f * Configuration.caveSettings.waterRegions.customFrequency - 1;
-            default: // Normal
-                return -.15f;
-        }
-    }
-
-    /**
      * Initialize Better Caves generators and cave region controllers for this world.
      * @param worldIn The minecraft world
      */
     private void initialize(World worldIn) {
-
-        Settings.LOGGER.warn("BETTERCAVESWORLDINIT " + worldIn.provider.getDimensionType() + ": " + worldIn.provider.getDimension());
-
-        // Ch
-
+        // Extract world information
         this.world = worldIn;
-        this.defaultCaveGen = new MapGenCaves();
-        this.enableVanillaCaves = Configuration.caveSettings.caves.vanillaCave.enableVanillaCaves;
-        this.enableWaterRegions = Configuration.caveSettings.waterRegions.enableWaterRegions;
+        this.dimensionID = worldIn.provider.getDimension();
+        this.dimensionName = worldIn.provider.getDimensionType().toString();
 
-        // Determine noise thresholds for cavern spawns based on user config
+        // Add this carver to map of active carvers by dimension ID.
+        // Note that if a carver already exists for this dimension ID, its position
+        // in the list will be overwritten.
+        BetterCaves.activeCarversMap.put(dimensionID, this);
+
+        Settings.LOGGER.info("BETTERCAVESWORLDINIT " + dimensionAsString());
+        Settings.LOGGER.info("# of carvers: "+ BetterCaves.activeCarversMap.size());
+
+        // Set water and lava blocks
+        this.lavaBlock = getLavaBlock();
+        this.waterBlock = getWaterBlock();
+
+        // Determine noise thresholds for cave and cavern spawns
         this.lavaCavernThreshold = calcLavaCavernThreshold();
         this.flooredCavernThreshold = calcFlooredCavernThreshold();
         this.waterRegionThreshold = calcWaterRegionThreshold();
-
-        // Determine noise thresholds for caverns based on user config
         this.cubicCaveThreshold = calcCubicCaveThreshold();
         this.simplexCaveThreshold = calcSimplexCaveThreshold();
 
-        // Get user setting for surface cutoff depth used to close caves off towards the surface
-        this.surfaceCutoff = Configuration.caveSettings.caves.surfaceCutoff;
-
-        // Determine cave region size
-        float caveRegionSize;
-        switch (Configuration.caveSettings.caves.caveRegionSize) {
-            case Small:
-                caveRegionSize = .007f;
-                break;
-            case Large:
-                caveRegionSize = .0032f;
-                break;
-            case ExtraLarge:
-                caveRegionSize = .001f;
-                break;
-            default: // Medium
-                caveRegionSize = .005f;
-                break;
-        }
-
-        // Determine cavern region size, as well as jitter to make Voronoi regions more varied in shape
-        float cavernRegionSize;
+        // Determine region controller frequencies, which control region sizes
+        float caveRegionSize = calcCaveRegionSize();
+        float cavernRegionSize = calcCavernRegionSize();
         float waterCavernRegionSize = .003f;
-        switch (Configuration.caveSettings.caverns.cavernRegionSize) {
-            case Small:
-                cavernRegionSize = .01f;
-                break;
-            case Large:
-                cavernRegionSize = .005f;
-                break;
-            case ExtraLarge:
-                cavernRegionSize = .001f;
-                waterCavernRegionSize = .0005f;
-                break;
-            default: // Medium
-                cavernRegionSize = .007f;
-                break;
-        }
 
-        // Initialize region controllers using world seed and user config option for region size
+        // Special case - scale up water region size for ExtraLarge caverns
+        if (config.cavernRegionSize.get() == RegionSize.ExtraLarge)
+            waterCavernRegionSize = .0005f;
+
+        // Begin initialize region controllers using world seed and user config options for region sizes
         this.caveRegionController = new FastNoise();
         this.caveRegionController.SetSeed((int)worldIn.getSeed() + 222);
         this.caveRegionController.SetFrequency(caveRegionSize);
@@ -450,37 +323,7 @@ public class MapGenBetterCaves extends MapGenCaves {
         this.waterCavernController.SetNoiseType(FastNoise.NoiseType.Cellular);
         this.waterCavernController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
-        // Set lava block
-        try {
-            lavaBlock = Block.getBlockFromName(Configuration.lavaBlock).getDefaultState();
-            Settings.LOGGER.info("Using block '" + Configuration.lavaBlock + "' as lava in cave generation...");
-        } catch (Exception e) {
-            Settings.LOGGER.warn("Unable to use block '" + Configuration.lavaBlock + "': " + e);
-            Settings.LOGGER.warn("Using vanilla lava instead...");
-            lavaBlock = Blocks.FLOWING_LAVA.getDefaultState();
-        }
-
-        if (lavaBlock == null) {
-            Settings.LOGGER.warn("Unable to use block '" + Configuration.lavaBlock + "': null block returned.\n Using vanilla lava instead...");
-            lavaBlock = Blocks.FLOWING_LAVA.getDefaultState();
-        }
-
-        // Set water block
-        try {
-            waterBlock = Block.getBlockFromName(Configuration.waterblock).getDefaultState();
-            Settings.LOGGER.info("Using block '" + Configuration.waterblock + "' as water in cave generation...");
-        } catch (Exception e) {
-            Settings.LOGGER.warn("Unable to use block '" + Configuration.waterblock + "': " + e);
-            Settings.LOGGER.warn("Using vanilla water instead...");
-            waterBlock = Blocks.FLOWING_WATER.getDefaultState();
-        }
-
-        if (waterBlock == null) {
-            Settings.LOGGER.warn("Unable to use block '" + Configuration.waterblock + "': null block returned.\n Using vanilla water instead...");
-            waterBlock = Blocks.FLOWING_WATER.getDefaultState();
-        }
-
-        /* ---------- Initialize all Better Cave generators using config options ---------- */
+        /* ---------- Initialize all Better Cave carvers using config options ---------- */
         this.caveCubic = new CaveBC(
                 world,
                 CaveType.CUBIC,
@@ -493,8 +336,8 @@ public class MapGenBetterCaves extends MapGenCaves {
                 Configuration.caveSettings.caves.cubicCave.turbulenceGain,
                 Configuration.caveSettings.caves.cubicCave.turbulenceFrequency,
                 Configuration.caveSettings.caves.cubicCave.enableTurbulence,
-                Configuration.caveSettings.caves.cubicCave.yCompression,
-                Configuration.caveSettings.caves.cubicCave.xzCompression,
+                config.cubicCaveYCompression.get(),
+                config.cubicCaveXZCompression.get(),
                 Configuration.caveSettings.caves.cubicCave.yAdjust,
                 Configuration.caveSettings.caves.cubicCave.yAdjustF1,
                 Configuration.caveSettings.caves.cubicCave.yAdjustF2,
@@ -513,8 +356,8 @@ public class MapGenBetterCaves extends MapGenCaves {
                 Configuration.caveSettings.caves.simplexCave.turbulenceGain,
                 Configuration.caveSettings.caves.simplexCave.turbulenceFrequency,
                 Configuration.caveSettings.caves.simplexCave.enableTurbulence,
-                Configuration.caveSettings.caves.simplexCave.yCompression,
-                Configuration.caveSettings.caves.simplexCave.xzCompression,
+                config.simplexCaveYCompression.get(),
+                config.simplexCaveXZCompression.get(),
                 Configuration.caveSettings.caves.simplexCave.yAdjust,
                 Configuration.caveSettings.caves.simplexCave.yAdjustF1,
                 Configuration.caveSettings.caves.simplexCave.yAdjustF2,
@@ -529,8 +372,8 @@ public class MapGenBetterCaves extends MapGenCaves {
                 Configuration.caveSettings.caverns.lavaCavern.fractalFrequency,
                 Configuration.caveSettings.caverns.lavaCavern.numGenerators,
                 Configuration.caveSettings.caverns.lavaCavern.noiseThreshold,
-                Configuration.caveSettings.caverns.lavaCavern.yCompression,
-                Configuration.caveSettings.caverns.lavaCavern.xzCompression,
+                config.lavaCavernYCompression.get(),
+                config.lavaCavernXZCompression.get(),
                 Blocks.REDSTONE_BLOCK.getDefaultState()
         );
 
@@ -542,8 +385,8 @@ public class MapGenBetterCaves extends MapGenCaves {
                 Configuration.caveSettings.caverns.flooredCavern.fractalFrequency,
                 Configuration.caveSettings.caverns.flooredCavern.numGenerators,
                 Configuration.caveSettings.caverns.flooredCavern.noiseThreshold,
-                Configuration.caveSettings.caverns.flooredCavern.yCompression,
-                Configuration.caveSettings.caverns.flooredCavern.xzCompression,
+                config.flooredCavernYCompression.get(),
+                config.flooredCavernXZCompression.get(),
                 Blocks.GOLD_BLOCK.getDefaultState()
         );
 
@@ -555,8 +398,8 @@ public class MapGenBetterCaves extends MapGenCaves {
                 Configuration.caveSettings.waterRegions.waterCavern.fractalFrequency,
                 Configuration.caveSettings.waterRegions.waterCavern.numGenerators,
                 Configuration.caveSettings.waterRegions.waterCavern.noiseThreshold,
-                Configuration.caveSettings.waterRegions.waterCavern.yCompression,
-                Configuration.caveSettings.waterRegions.waterCavern.xzCompression,
+                config.waterCavernYCompression.get(),
+                config.waterCavernXZCompression.get(),
                 Blocks.LAPIS_BLOCK.getDefaultState()
         );
 
@@ -577,5 +420,189 @@ public class MapGenBetterCaves extends MapGenCaves {
                 Configuration.testSettings.yAdjustF1,
                 Configuration.testSettings.yAdjustF2
         );
+    }
+
+    /**
+     * @return threshold value for cubic cave spawn rate based on Config setting
+     */
+    private float calcCubicCaveThreshold() {
+        switch (config.cubicCaveFrequency.get()) {
+            case None:
+                return -99f;
+            case Rare:
+                return -.6f;
+            case Common:
+                return -.2f;
+            case Custom:
+                return -1f + config.cubicCaveCustomFrequency.get();
+            default: // VeryCommon
+                return 0;
+        }
+    }
+
+    /**
+     * @return threshold value for simplex cave spawn rate based on Config setting
+     */
+    private float calcSimplexCaveThreshold() {
+        switch (config.simplexCaveFrequency.get()) {
+            case None:
+                return 99f;
+            case Rare:
+                return .6f;
+            case Common:
+                return .2f;
+            case Custom:
+                return 1f - config.simplexCaveCustomFrequency.get();
+            default: // VeryCommon
+                return 0;
+        }
+    }
+
+    /**
+     * @return threshold value for lava cavern spawn rate based on Config setting
+     */
+    private float calcLavaCavernThreshold() {
+        switch (config.lavaCavernFrequency.get()) {
+            case None:
+                return -99f;
+            case Rare:
+                return -.8f;
+            case Common:
+                return -.3f;
+            case VeryCommon:
+                return -.1f;
+            case Custom:
+                return -1f + config.lavaCavernCustomFrequency.get();
+            default: // Normal
+                return -.4f;
+        }
+    }
+
+    /**
+     * @return threshold value for floored cavern spawn rate based on Config setting
+     */
+    private float calcFlooredCavernThreshold() {
+        switch (config.flooredCavernFrequency.get()) {
+            case None:
+                return 99f;
+            case Rare:
+                return .8f;
+            case Common:
+                return .3f;
+            case VeryCommon:
+                return .1f;
+            case Custom:
+                return 1f - config.flooredCavernCustomFrequency.get();
+            default: // Normal
+                return .4f;
+        }
+    }
+
+    /**
+     * @return threshold value for water region spawn rate based on Config setting
+     */
+    private float calcWaterRegionThreshold() {
+        switch (config.waterRegionFrequency.get()) {
+            case Rare:
+                return -.4f;
+            case Common:
+                return .1f;
+            case VeryCommon:
+                return .3f;
+            case Always:
+                return 99f;
+            case Custom:
+                return 2f * config.waterRegionCustomFrequency.get() - 1;
+            default: // Normal
+                return -.15f;
+        }
+    }
+
+    /**
+     * @return frequency value for cave region controller
+     */
+    private float calcCaveRegionSize() {
+        switch (config.caveRegionSize.get()) {
+            case Small:
+                return .007f;
+            case Large:
+                return .0032f;
+            case ExtraLarge:
+                return .001f;
+            default: // Medium
+                return .005f;
+        }
+    }
+
+    /**
+     * @return frequency value for cavern region controller
+     */
+    private float calcCavernRegionSize() {
+        switch (config.cavernRegionSize.get()) {
+            case Small:
+                return .01f;
+            case Large:
+                return .005f;
+            case ExtraLarge:
+                return .001f;
+            default: // Medium
+                return .007f;
+        }
+    }
+
+    private IBlockState getLavaBlock() {
+        IBlockState lava;
+
+        try {
+            lava = Block.getBlockFromName(config.lavaBlock.get()).getDefaultState();
+            Settings.LOGGER.info("Using block '" + config.lavaBlock.get() + "' as lava in cave generation for dimension " + dimensionAsString() + " ...");
+        } catch (Exception e) {
+            Settings.LOGGER.warn("Unable to use block '" + config.lavaBlock.get() + "': " + e);
+            Settings.LOGGER.warn("Using vanilla lava instead...");
+            lava = Blocks.FLOWING_LAVA.getDefaultState();
+        }
+
+        if (lava == null) {
+            Settings.LOGGER.warn("Unable to use block '" + config.lavaBlock.get() + "': null block returned.\n Using vanilla lava instead...");
+            lava = Blocks.FLOWING_LAVA.getDefaultState();
+        }
+
+        return lava;
+    }
+
+    private IBlockState getWaterBlock() {
+        IBlockState water;
+
+        try {
+            water = Block.getBlockFromName(config.waterBlock.get()).getDefaultState();
+            Settings.LOGGER.info("Using block '" + config.waterBlock.get() + "' as water in cave generation for dimension " + dimensionAsString() + " ...");
+        } catch (Exception e) {
+            Settings.LOGGER.warn("Unable to use block '" + config.waterBlock.get() + "': " + e);
+            Settings.LOGGER.warn("Using vanilla water instead...");
+            water = Blocks.FLOWING_WATER.getDefaultState();
+        }
+
+        if (water == null) {
+            Settings.LOGGER.warn("Unable to use block '" + config.waterBlock.get() + "': null block returned.\n Using vanilla water instead...");
+            water = Blocks.FLOWING_WATER.getDefaultState();
+        }
+
+        return water;
+    }
+
+    private boolean isDimensionWhitelisted(int dimID) {
+        // Ignore the dimension ID list if global whitelisting is enabled
+        if (Configuration.caveSettings.enableGlobalWhitelist)
+            return true;
+
+        for (int dim : Configuration.caveSettings.whitelistedDimensionIDs)
+            if (dimID == dim)
+                return true;
+
+        return false;
+    }
+
+    private String dimensionAsString() {
+        return "" + dimensionID + " (" + dimensionName + ")";
     }
 }

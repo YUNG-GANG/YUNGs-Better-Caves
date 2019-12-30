@@ -1,6 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves.world.bedrock;
 
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
+import com.yungnickyoung.minecraft.bettercaves.config.dimension.ConfigHolder;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.chunk.ChunkPrimer;
@@ -13,8 +14,8 @@ public class FlattenBedrock {
      * Flattens bedrock in a given chunk according to user Configuration settings.
      * @param primer The chunk's ChunkPrimer
      */
-    public static void flattenBedrock(ChunkPrimer primer) {
-        if (!Configuration.bedrockSettings.flattenBedrock) return;
+    public static void flattenBedrock(ChunkPrimer primer, ConfigHolder config) {
+        if (!config.flattenBedrock.get()) return;
         IBlockState replacementBlock = Blocks.STONE.getDefaultState();
 
         // Replace normal bedrock at bottom of map with stone
@@ -25,7 +26,7 @@ public class FlattenBedrock {
                         primer.setBlockState(x, y, z, replacementBlock);
 
         // Create bedrock layer(s) at bottom of map
-        int numLayers = Configuration.bedrockSettings.bedrockWidth;
+        int numLayers = config.bedrockWidth.get();
 
         for (int x = 0; x < 16; x++)
             for (int z = 0; z < 16; z++)

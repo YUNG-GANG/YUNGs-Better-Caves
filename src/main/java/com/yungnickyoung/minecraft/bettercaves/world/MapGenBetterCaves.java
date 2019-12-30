@@ -4,7 +4,6 @@ import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.config.dimension.ConfigHolder;
-import com.yungnickyoung.minecraft.bettercaves.enums.CaveFrequency;
 import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.enums.RegionSize;
@@ -30,13 +29,13 @@ import javax.annotation.Nonnull;
  */
 public class MapGenBetterCaves extends MapGenCaves {
     // Cave types
-    private AbstractBC caveCubic;
-    private AbstractBC caveSimplex;
+    private UndergroundCarver caveCubic;
+    private UndergroundCarver caveSimplex;
 
     // Cavern types
-    private AbstractBC cavernLava;
-    private AbstractBC cavernFloored;
-    private AbstractBC cavernWater;
+    private UndergroundCarver cavernLava;
+    private UndergroundCarver cavernFloored;
+    private UndergroundCarver cavernWater;
 
     // Vanilla cave gen if user sets config to use it
     private MapGenBase defaultCaveGen;
@@ -69,7 +68,7 @@ public class MapGenBetterCaves extends MapGenCaves {
     public ConfigHolder config = new ConfigHolder();
 
     // DEBUG
-    private AbstractBC testCave;
+    private UndergroundCarver testCave;
     private int counter = 200;
 
     public MapGenBetterCaves() {
@@ -133,8 +132,8 @@ public class MapGenBetterCaves extends MapGenCaves {
         int minSurfaceHeight = 60;
 
         // Cave generators - we will determine exactly what type these are based on the cave region for each column
-        AbstractBC cavernGen;
-        AbstractBC caveGen;
+        UndergroundCarver cavernGen;
+        UndergroundCarver caveGen;
 
         // These values are later set to the correct cave/cavern type's config vars for
         // caveBottom, and caveTop (only applicable for caverns, since caves perform some additional
@@ -144,7 +143,7 @@ public class MapGenBetterCaves extends MapGenCaves {
         int caveBottomY;
 
         // Flatten bedrock, if enabled
-        FlattenBedrock.flattenBedrock(primer);
+        FlattenBedrock.flattenBedrock(primer, config);
 
         // We split chunks into 2x2 sub-chunks along the x-z axis for surface height calculations
         for (int subX = 0; subX < 8; subX++) {
@@ -323,85 +322,110 @@ public class MapGenBetterCaves extends MapGenCaves {
         this.waterCavernController.SetNoiseType(FastNoise.NoiseType.Cellular);
         this.waterCavernController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
+        this.caveCubic = new CaveCarver.CaveCarverBuilder(worldIn)
+                .ofTypeFromConfig(CaveType.CUBIC, config)
+                .debugVisualizerBlock(Blocks.PLANKS.getDefaultState())
+                .build();
+
+        this.caveSimplex = new CaveCarver.CaveCarverBuilder(worldIn)
+                .ofTypeFromConfig(CaveType.SIMPLEX, config)
+                .debugVisualizerBlock(Blocks.COBBLESTONE.getDefaultState())
+                .build();
+
+        this.cavernLava = new CavernCarver.CavernCarverBuilder(worldIn)
+                .ofTypeFromConfig(CavernType.LAVA, config)
+                .debugVisualizerBlock(Blocks.REDSTONE_BLOCK.getDefaultState())
+                .build();
+
+        this.cavernFloored = new CavernCarver.CavernCarverBuilder(worldIn)
+                .ofTypeFromConfig(CavernType.FLOORED, config)
+                .debugVisualizerBlock(Blocks.GOLD_BLOCK.getDefaultState())
+                .build();
+
+        this.cavernWater = new CavernCarver.CavernCarverBuilder(worldIn)
+                .ofTypeFromConfig(CavernType.WATER, config)
+                .debugVisualizerBlock(Blocks.LAPIS_BLOCK.getDefaultState())
+                .build();
+
         /* ---------- Initialize all Better Cave carvers using config options ---------- */
-        this.caveCubic = new CaveBC(
-                world,
-                CaveType.CUBIC,
-                Configuration.caveSettings.caves.cubicCave.fractalOctaves,
-                Configuration.caveSettings.caves.cubicCave.fractalGain,
-                Configuration.caveSettings.caves.cubicCave.fractalFrequency,
-                Configuration.caveSettings.caves.cubicCave.numGenerators,
-                Configuration.caveSettings.caves.cubicCave.noiseThreshold,
-                Configuration.caveSettings.caves.cubicCave.turbulenceOctaves,
-                Configuration.caveSettings.caves.cubicCave.turbulenceGain,
-                Configuration.caveSettings.caves.cubicCave.turbulenceFrequency,
-                Configuration.caveSettings.caves.cubicCave.enableTurbulence,
-                config.cubicCaveYCompression.get(),
-                config.cubicCaveXZCompression.get(),
-                Configuration.caveSettings.caves.cubicCave.yAdjust,
-                Configuration.caveSettings.caves.cubicCave.yAdjustF1,
-                Configuration.caveSettings.caves.cubicCave.yAdjustF2,
-                Blocks.PLANKS.getDefaultState()
-        );
+//        this.caveCubic = new CaveCarver(
+//                world,
+//                CaveType.CUBIC,
+//                Configuration.caveSettings.caves.cubicCave.fractalOctaves,
+//                Configuration.caveSettings.caves.cubicCave.fractalGain,
+//                Configuration.caveSettings.caves.cubicCave.fractalFrequency,
+//                Configuration.caveSettings.caves.cubicCave.numGenerators,
+//                Configuration.caveSettings.caves.cubicCave.noiseThreshold,
+//                Configuration.caveSettings.caves.cubicCave.turbulenceOctaves,
+//                Configuration.caveSettings.caves.cubicCave.turbulenceGain,
+//                Configuration.caveSettings.caves.cubicCave.turbulenceFrequency,
+//                Configuration.caveSettings.caves.cubicCave.enableTurbulence,
+//                config.cubicCaveYCompression.get(),
+//                config.cubicCaveXZCompression.get(),
+//                Configuration.caveSettings.caves.cubicCave.yAdjust,
+//                Configuration.caveSettings.caves.cubicCave.yAdjustF1,
+//                Configuration.caveSettings.caves.cubicCave.yAdjustF2,
+//                Blocks.PLANKS.getDefaultState()
+//        );
 
-        this.caveSimplex = new CaveBC(
-                world,
-                CaveType.SIMPLEX,
-                Configuration.caveSettings.caves.simplexCave.fractalOctaves,
-                Configuration.caveSettings.caves.simplexCave.fractalGain,
-                Configuration.caveSettings.caves.simplexCave.fractalFrequency,
-                Configuration.caveSettings.caves.simplexCave.numGenerators,
-                Configuration.caveSettings.caves.simplexCave.noiseThreshold,
-                Configuration.caveSettings.caves.simplexCave.turbulenceOctaves,
-                Configuration.caveSettings.caves.simplexCave.turbulenceGain,
-                Configuration.caveSettings.caves.simplexCave.turbulenceFrequency,
-                Configuration.caveSettings.caves.simplexCave.enableTurbulence,
-                config.simplexCaveYCompression.get(),
-                config.simplexCaveXZCompression.get(),
-                Configuration.caveSettings.caves.simplexCave.yAdjust,
-                Configuration.caveSettings.caves.simplexCave.yAdjustF1,
-                Configuration.caveSettings.caves.simplexCave.yAdjustF2,
-                Blocks.COBBLESTONE.getDefaultState()
-        );
+//        this.caveSimplex = new CaveCarver(
+//                world,
+//                CaveType.SIMPLEX,
+//                Configuration.caveSettings.caves.simplexCave.fractalOctaves,
+//                Configuration.caveSettings.caves.simplexCave.fractalGain,
+//                Configuration.caveSettings.caves.simplexCave.fractalFrequency,
+//                Configuration.caveSettings.caves.simplexCave.numGenerators,
+//                Configuration.caveSettings.caves.simplexCave.noiseThreshold,
+//                Configuration.caveSettings.caves.simplexCave.turbulenceOctaves,
+//                Configuration.caveSettings.caves.simplexCave.turbulenceGain,
+//                Configuration.caveSettings.caves.simplexCave.turbulenceFrequency,
+//                Configuration.caveSettings.caves.simplexCave.enableTurbulence,
+//                config.simplexCaveYCompression.get(),
+//                config.simplexCaveXZCompression.get(),
+//                Configuration.caveSettings.caves.simplexCave.yAdjust,
+//                Configuration.caveSettings.caves.simplexCave.yAdjustF1,
+//                Configuration.caveSettings.caves.simplexCave.yAdjustF2,
+//                Blocks.COBBLESTONE.getDefaultState()
+//        );
 
-        this.cavernLava = new CavernBC(
-                world,
-                CavernType.LAVA,
-                Configuration.caveSettings.caverns.lavaCavern.fractalOctaves,
-                Configuration.caveSettings.caverns.lavaCavern.fractalGain,
-                Configuration.caveSettings.caverns.lavaCavern.fractalFrequency,
-                Configuration.caveSettings.caverns.lavaCavern.numGenerators,
-                Configuration.caveSettings.caverns.lavaCavern.noiseThreshold,
-                config.lavaCavernYCompression.get(),
-                config.lavaCavernXZCompression.get(),
-                Blocks.REDSTONE_BLOCK.getDefaultState()
-        );
+//        this.cavernLava = new CavernCarver(
+//                world,
+//                CavernType.LAVA,
+//                Configuration.caveSettings.caverns.lavaCavern.fractalOctaves,
+//                Configuration.caveSettings.caverns.lavaCavern.fractalGain,
+//                Configuration.caveSettings.caverns.lavaCavern.fractalFrequency,
+//                Configuration.caveSettings.caverns.lavaCavern.numGenerators,
+//                Configuration.caveSettings.caverns.lavaCavern.noiseThreshold,
+//                config.lavaCavernYCompression.get(),
+//                config.lavaCavernXZCompression.get(),
+//                Blocks.REDSTONE_BLOCK.getDefaultState()
+//        );
 
-        this.cavernFloored = new CavernBC(
-                world,
-                CavernType.FLOORED,
-                Configuration.caveSettings.caverns.flooredCavern.fractalOctaves,
-                Configuration.caveSettings.caverns.flooredCavern.fractalGain,
-                Configuration.caveSettings.caverns.flooredCavern.fractalFrequency,
-                Configuration.caveSettings.caverns.flooredCavern.numGenerators,
-                Configuration.caveSettings.caverns.flooredCavern.noiseThreshold,
-                config.flooredCavernYCompression.get(),
-                config.flooredCavernXZCompression.get(),
-                Blocks.GOLD_BLOCK.getDefaultState()
-        );
+//        this.cavernFloored = new CavernCarver(
+//                world,
+//                CavernType.FLOORED,
+//                Configuration.caveSettings.caverns.flooredCavern.fractalOctaves,
+//                Configuration.caveSettings.caverns.flooredCavern.fractalGain,
+//                Configuration.caveSettings.caverns.flooredCavern.fractalFrequency,
+//                Configuration.caveSettings.caverns.flooredCavern.numGenerators,
+//                Configuration.caveSettings.caverns.flooredCavern.noiseThreshold,
+//                config.flooredCavernYCompression.get(),
+//                config.flooredCavernXZCompression.get(),
+//                Blocks.GOLD_BLOCK.getDefaultState()
+//        );
 
-        this.cavernWater = new CavernBC(
-                world,
-                CavernType.WATER,
-                Configuration.caveSettings.waterRegions.waterCavern.fractalOctaves,
-                Configuration.caveSettings.waterRegions.waterCavern.fractalGain,
-                Configuration.caveSettings.waterRegions.waterCavern.fractalFrequency,
-                Configuration.caveSettings.waterRegions.waterCavern.numGenerators,
-                Configuration.caveSettings.waterRegions.waterCavern.noiseThreshold,
-                config.waterCavernYCompression.get(),
-                config.waterCavernXZCompression.get(),
-                Blocks.LAPIS_BLOCK.getDefaultState()
-        );
+//        this.cavernWater = new CavernCarver(
+//                world,
+//                CavernType.WATER,
+//                Configuration.caveSettings.waterRegions.waterCavern.fractalOctaves,
+//                Configuration.caveSettings.waterRegions.waterCavern.fractalGain,
+//                Configuration.caveSettings.waterRegions.waterCavern.fractalFrequency,
+//                Configuration.caveSettings.waterRegions.waterCavern.numGenerators,
+//                Configuration.caveSettings.waterRegions.waterCavern.noiseThreshold,
+//                config.waterCavernYCompression.get(),
+//                config.waterCavernXZCompression.get(),
+//                Blocks.LAPIS_BLOCK.getDefaultState()
+//        );
 
         this.testCave = new TestCave(
                 world,

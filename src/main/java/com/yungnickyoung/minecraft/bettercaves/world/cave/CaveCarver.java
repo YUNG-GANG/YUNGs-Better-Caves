@@ -1,6 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.world.cave;
 
-import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
+import com.yungnickyoung.minecraft.bettercaves.config.dimension.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
@@ -17,29 +17,14 @@ import java.util.Map;
 /**
  * Class for generation of Better Caves caves.
  */
-public class CaveBC extends AbstractBC {
+public class CaveCarver extends UndergroundCarver {
     private NoiseGen noiseGen;
 
-    public CaveBC(World world, CaveType caveType, int fOctaves, float fGain, float fFreq, int numGens, float threshold, int tOctaves,
-                  float tGain, float tFreq, boolean enableTurbulence, float yComp, float xzComp, boolean yAdj,
-                  float yAdjF1, float yAdjF2, IBlockState vBlock) {
-        super(world, fOctaves, fGain, fFreq, numGens, threshold, tOctaves, tGain, tFreq, enableTurbulence, yComp,
-                xzComp, yAdj, yAdjF1, yAdjF2, vBlock);
-
-        // Determine noise to use based on cave type
-        switch (caveType) {
-            case CUBIC:
-                this.noiseType = FastNoise.NoiseType.CubicFractal;
-                break;
-            default:
-            case SIMPLEX:
-                this.noiseType = FastNoise.NoiseType.SimplexFractal;
-                break;
-        }
-
+    private CaveCarver(final CaveCarverBuilder builder) {
+        super(builder);
         noiseGen = new NoiseGen(
                 this.noiseType,
-                world,
+                this.world,
                 this.fractalOctaves,
                 this.fractalGain,
                 this.fractalFreq,
@@ -100,8 +85,8 @@ public class CaveBC extends AbstractBC {
             }
 
             // Consider digging out the block if it passed the threshold check, using the debug visualizer if enabled
-            if (Configuration.debugsettings.debugVisualizer)
-                visualizeDigBlock(digBlock, this.vBlock, primer, localX, realY, localZ);
+            if (this.enableDebugVisualizer)
+                visualizeDigBlock(digBlock, this.debugBlock, primer, localX, realY, localZ);
             else if (digBlock)
                 this.digBlock(primer, lavaBlock, chunkX, chunkZ, localX, localZ, realY);
         }
@@ -119,6 +104,57 @@ public class CaveBC extends AbstractBC {
                     && primer.getBlockState(localX, realY - 1, localZ) == BlockStateAir
             )
                 this.digBlock(primer, lavaBlock, chunkX, chunkZ, localX, localZ, realY);
+        }
+    }
+
+    public static class CaveCarverBuilder extends UndergroundCarverBuilder {
+        public CaveCarverBuilder(World world) {
+            super(world);
+        }
+
+        @Override
+        public UndergroundCarver build() {
+            return new CaveCarver(this);
+        }
+
+        public CaveCarverBuilder ofTypeFromConfig(CaveType caveType, ConfigHolder config) {
+            switch (caveType) {
+                case CUBIC:
+                    this.noiseType = FastNoise.NoiseType.CubicFractal;
+                    this.fractalOctaves = config.cubicCaveFractalOctaves.get();
+                    this.fractalGain = config.cubicCaveFractalGain.get();
+                    this.fractalFreq = config.cubicCaveFractalFrequency.get();
+                    this.numGens = config.cubicCaveNumGenerators.get();
+                    this.turbOctaves = config.cubicCaveTurbulenceOctaves.get();
+                    this.turbGain = config.cubicCaveTurbulenceGain.get();
+                    this.turbFreq = config.cubicCaveTurbulenceFrequency.get();
+                    this.enableTurbulence = config.cubicCaveEnableTurbulence.get();
+                    this.yCompression = config.cubicCaveYCompression.get();
+                    this.xzCompression = config.cubicCaveXZCompression.get();
+                    this.yAdjustF1 = config.cubicCaveYAdjustF1.get();
+                    this.yAdjustF2 = config.cubicCaveYAdjustF2.get();
+                    this.noiseThreshold = config.cubicCaveNoiseThreshold.get();
+                    this.enableYAdjust = config.cubicCaveEnableVerticalAdjustment.get();
+                    break;
+                case SIMPLEX:
+                    this.noiseType = FastNoise.NoiseType.SimplexFractal;
+                    this.fractalOctaves = config.simplexCaveFractalOctaves.get();
+                    this.fractalGain = config.simplexCaveFractalGain.get();
+                    this.fractalFreq = config.simplexCaveFractalFrequency.get();
+                    this.numGens = config.simplexCaveNumGenerators.get();
+                    this.turbOctaves = config.simplexCaveTurbulenceOctaves.get();
+                    this.turbGain = config.simplexCaveTurbulenceGain.get();
+                    this.turbFreq = config.simplexCaveTurbulenceFrequency.get();
+                    this.enableTurbulence = config.simplexCaveEnableTurbulence.get();
+                    this.yCompression = config.simplexCaveYCompression.get();
+                    this.xzCompression = config.simplexCaveXZCompression.get();
+                    this.yAdjustF1 = config.simplexCaveYAdjustF1.get();
+                    this.yAdjustF2 = config.simplexCaveYAdjustF2.get();
+                    this.noiseThreshold = config.simplexCaveNoiseThreshold.get();
+                    this.enableYAdjust = config.simplexCaveEnableVerticalAdjustment.get();
+                    break;
+            }
+            return this;
         }
     }
 }

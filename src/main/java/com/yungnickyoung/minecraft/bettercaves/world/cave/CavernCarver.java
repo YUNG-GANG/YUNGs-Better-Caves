@@ -1,6 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves.world.cave;
 
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
+import com.yungnickyoung.minecraft.bettercaves.config.dimension.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
@@ -14,34 +15,16 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import java.util.List;
 import java.util.Map;
 
-public class CavernBC extends AbstractBC {
+public class CavernCarver extends UndergroundCarver {
     private NoiseGen noiseGen;
     private CavernType cavernType;
 
-    public CavernBC(World world, CavernType cavernType, int fOctaves, float fGain, float fFreq, int numGens, float threshold,
-                    float yComp, float xzComp, IBlockState vBlock) {
-        super(world, fOctaves, fGain, fFreq, numGens, threshold, 0, 0, 0, false,
-                yComp, xzComp, false, 1, 1, vBlock);
-
-        this.cavernType = cavernType;
-
-        // Determine noise to use based on cavern type
-        switch (cavernType) {
-            case LAVA:
-                this.noiseType = FastNoise.NoiseType.PerlinFractal;
-                break;
-            case FLOORED:
-                this.noiseType = FastNoise.NoiseType.PerlinFractal;
-                break;
-            default:
-            case WATER:
-                this.noiseType = FastNoise.NoiseType.PerlinFractal;
-                break;
-        }
-
+    public CavernCarver(final CavernCarverBuilder builder) {
+        super(builder);
+        this.cavernType = builder.cavernType;
         noiseGen = new NoiseGen(
-                FastNoise.NoiseType.PerlinFractal,
-                world,
+                this.noiseType,
+                this.world,
                 this.fractalOctaves,
                 this.fractalGain,
                 this.fractalFreq,
@@ -122,7 +105,7 @@ public class CavernBC extends AbstractBC {
 
             // Consider digging out the block if it passed the threshold check, using the debug visualizer if enabled
             if (Configuration.debugsettings.debugVisualizer)
-                visualizeDigBlock(digBlock, this.vBlock, primer, localX, realY, localZ);
+                visualizeDigBlock(digBlock, this.debugBlock, primer, localX, realY, localZ);
             else if (digBlock) {
                 if (this.cavernType == CavernType.WATER) {
                     // Make sure we replace any lava possibly generated from caves with water to avoid having lava under the water
@@ -141,5 +124,55 @@ public class CavernBC extends AbstractBC {
                                int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff,
                                IBlockState lavaBlock) {
         generateColumn(chunkX, chunkZ, primer, localX, localZ, bottomY, topY, maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, lavaBlock, 1);
+    }
+
+    public static class CavernCarverBuilder extends UndergroundCarverBuilder {
+        CavernType cavernType;
+
+        public CavernCarverBuilder(World world) {
+            super(world);
+        }
+
+        @Override
+        public UndergroundCarver build() {
+            return new CavernCarver(this);
+        }
+
+        public CavernCarverBuilder ofTypeFromConfig(CavernType cavernType, ConfigHolder config) {
+            this.cavernType = cavernType;
+            switch (cavernType) {
+                case LAVA:
+                    this.noiseType = FastNoise.NoiseType.PerlinFractal;
+                    this.fractalOctaves = config.lavaCavernFractalOctaves.get();
+                    this.fractalGain = config.lavaCavernFractalGain.get();
+                    this.fractalFreq = config.lavaCavernFractalFrequency.get();
+                    this.numGens = config.lavaCavernNumGenerators.get();
+                    this.yCompression = config.lavaCavernYCompression.get();
+                    this.xzCompression = config.lavaCavernXZCompression.get();
+                    this.noiseThreshold = config.lavaCavernNoiseThreshold.get();
+                    break;
+                case FLOORED:
+                    this.noiseType = FastNoise.NoiseType.PerlinFractal;
+                    this.fractalOctaves = config.flooredCavernFractalOctaves.get();
+                    this.fractalGain = config.flooredCavernFractalGain.get();
+                    this.fractalFreq = config.flooredCavernFractalFrequency.get();
+                    this.numGens = config.flooredCavernNumGenerators.get();
+                    this.yCompression = config.flooredCavernYCompression.get();
+                    this.xzCompression = config.flooredCavernXZCompression.get();
+                    this.noiseThreshold = config.flooredCavernNoiseThreshold.get();
+                    break;
+                case WATER:
+                    this.noiseType = FastNoise.NoiseType.PerlinFractal;
+                    this.fractalOctaves = config.waterCavernFractalOctaves.get();
+                    this.fractalGain = config.waterCavernFractalGain.get();
+                    this.fractalFreq = config.waterCavernFractalFrequency.get();
+                    this.numGens = config.waterCavernNumGenerators.get();
+                    this.yCompression = config.waterCavernYCompression.get();
+                    this.xzCompression = config.waterCavernXZCompression.get();
+                    this.noiseThreshold = config.waterCavernNoiseThreshold.get();
+                    break;
+            }
+            return this;
+        }
     }
 }

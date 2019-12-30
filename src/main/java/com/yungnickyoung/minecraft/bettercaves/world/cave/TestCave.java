@@ -11,7 +11,7 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import java.util.List;
 import java.util.Map;
 
-public class TestCave extends AbstractBC {
+public class TestCave extends UndergroundCarver {
     private NoiseGen noiseGen;
 
     public TestCave(World world, int fOctaves, float fGain, float fFreq, int numGens, float threshold, int tOctaves,
@@ -81,7 +81,7 @@ public class TestCave extends AbstractBC {
 
             // Consider digging out the block if it passed the threshold check, using the debug visualizer if enabled
             if (Configuration.debugsettings.debugVisualizer)
-                visualizeDigBlock(digBlock, this.vBlock, primer, localX, realY, localZ);
+                visualizeDigBlock(digBlock, this.debugBlock, primer, localX, realY, localZ);
             else if (digBlock)
                 this.digBlock(primer, chunkX, chunkZ, localX, localZ, realY);
         }

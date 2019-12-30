@@ -40,7 +40,4 @@ public class Configuration {
             "Defaults to regular water if an invalid block is given.")
     @Config.RequiresWorldRestart
     public static String waterblock = "minecraft:flowing_water";
-
-    @Config.Ignore
-    public static ConfigTest testSettings = new ConfigTest();
 }

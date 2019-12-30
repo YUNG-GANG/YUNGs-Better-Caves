@@ -68,7 +68,6 @@ public class MapGenBetterCaves extends MapGenCaves {
     public ConfigHolder config = new ConfigHolder();
 
     // DEBUG
-    private UndergroundCarver testCave;
     private int counter = 200;
 
     public MapGenBetterCaves() {
@@ -76,20 +75,6 @@ public class MapGenBetterCaves extends MapGenCaves {
 
     public MapGenBetterCaves(InitMapGenEvent event) {
         this.defaultCaveGen = event.getOriginalGen();
-    }
-
-    // DEBUG - used to test new noise types/params with the TestCave type
-    private void debugGenerate(World worldIn, int chunkX, int chunkZ, @Nonnull ChunkPrimer primer) {
-        int maxSurfaceHeight = BetterCavesUtil.getMaxSurfaceAltitudeChunk(primer);
-        int minSurfaceHeight = BetterCavesUtil.getMinSurfaceAltitudeChunk(primer);
-        if (worldIn.provider.getDimension() == 0) {
-            for (int localX = 0; localX < 16; localX++) {
-                for (int localZ = 0; localZ < 16; localZ++) {
-                    testCave.generateColumn(chunkX, chunkZ, primer, localX, localZ, 1, maxSurfaceHeight,
-                            maxSurfaceHeight, minSurfaceHeight, config.surfaceCutoff.get(), Blocks.FLOWING_LAVA.getDefaultState());
-                }
-            }
-        }
     }
 
     /**
@@ -119,12 +104,6 @@ public class MapGenBetterCaves extends MapGenCaves {
         if (counter <= 0) {
             Settings.LOGGER.warn("BETTERCAVESWORLD "+ world.getSeed() + " | " + dimensionName + ": " + dimensionID + " | " + BetterCaves.activeCarversMap.size() + " | " + this.hashCode());
             counter = 200;
-        }
-
-        // Use debug function for testing purposes, if debug flag is set
-        if (Settings.DEBUG_WORLD_GEN) {
-            debugGenerate(worldIn, chunkX, chunkZ, primer);
-            return;
         }
 
         // Default vals for max/min surface height
@@ -427,23 +406,6 @@ public class MapGenBetterCaves extends MapGenCaves {
 //                Blocks.LAPIS_BLOCK.getDefaultState()
 //        );
 
-        this.testCave = new TestCave(
-                world,
-                Configuration.testSettings.fractalOctaves,
-                Configuration.testSettings.fractalGain,
-                Configuration.testSettings.fractalFrequency,
-                Configuration.testSettings.numGenerators,
-                Configuration.testSettings.noiseThreshold,
-                Configuration.testSettings.turbulenceOctaves,
-                Configuration.testSettings.turbulenceGain,
-                Configuration.testSettings.turbulenceFrequency,
-                Configuration.testSettings.enableTurbulence,
-                Configuration.testSettings.yCompression,
-                Configuration.testSettings.xzCompression,
-                Configuration.testSettings.yAdjust,
-                Configuration.testSettings.yAdjustF1,
-                Configuration.testSettings.yAdjustF2
-        );
     }
 
     /**

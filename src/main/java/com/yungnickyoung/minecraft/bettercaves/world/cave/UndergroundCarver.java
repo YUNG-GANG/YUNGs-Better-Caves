@@ -44,9 +44,17 @@ public class UndergroundCarver {
                                              //   headroom in the y direction. This is generally useful for caves (esp. Simplex),
                                              //   but not really necessary for caverns
 
+    /* ------------------ Worldgen Params ------------------ */
+    protected int liquidAltitude;
+
+    /* -------------------- Debug Params ------------------- */
     protected IBlockState debugBlock;        // Block used to represent this cave/cavern type in the debug visualizer
     protected boolean enableDebugVisualizer; // Set true to enable debug visualization for this carver
 
+    /**
+     * Creates and UndergroundCarver from an UndergroundCarverBuilder.
+     * The builder should build all possible fields.
+     */
     protected UndergroundCarver(final UndergroundCarverBuilder builder) {
         this.world = builder.world;
         this.seed = builder.seed;
@@ -65,25 +73,10 @@ public class UndergroundCarver {
         this.enableYAdjust = builder.enableYAdjust;
         this.yAdjustF1 = builder.yAdjustF1;
         this.yAdjustF2 = builder.yAdjustF2;
+        this.liquidAltitude = builder.liquidAltitude;
         this.debugBlock = builder.debugBlock;
         this.enableDebugVisualizer = builder.enableDebugVisualizer;
     }
-
-    /**
-     * Dig out caves for the column of blocks at x-z position (chunkX*16 + localX, chunkZ*16 + localZ).
-     * A given block will be calculated based on the noise value and noise threshold of this UndergroundCarver object.
-     * @param chunkX The chunk's x-coordinate
-     * @param chunkZ The chunk's z-coordinate
-     * @param primer The ChunkPrimer for this chunk
-     * @param localX the chunk-local x-coordinate of this column of blocks (0 <= localX <= 15)
-     * @param localZ the chunk-local z-coordinate of this column of blocks (0 <= localZ <= 15)
-     * @param bottomY The bottom y-coordinate to start calculating noise for and potentially dig out
-     * @param topY The top y-coordinate to start calculating noise for and potentially dig out
-     * @param maxSurfaceHeight This column's max surface height. Can be approximated using
-     *                         BetterCavesUtil#getMaxSurfaceAltitudeChunk or BetterCavesUtil#getMaxSurfaceAltitudeSubChunk
-     * @param minSurfaceHeight This chunk's min surface height. Can be approximated using
-     *                         BetterCavesUtil#getMinSurfaceAltitudeChunk or BetterCavesUtil#getMinSurfaceHeightSubChunk
-     */
 
     /**
      * Preprocessing performed on a column of noise to adjust its values before comparing them to the threshold.
@@ -134,16 +127,16 @@ public class UndergroundCarver {
     /**
      * Calls util digBlock function if there are no water blocks adjacent, to avoid breaking into oceans and lakes.
      * @param primer The ChunkPrimer for this chunk
-     * @param lavaBlock The IBlockState to use for lava. If you want regular lava, either pass it in or use the other
-     *                  wrapper digBlock function
+     * @param liquidBlock The IBlockState to use for liquid, e.g. lava
+     * @param liquidAltitude the altitude at and below which air is replaced with liquidBlock
      * @param chunkX The chunk's x-coordinate
      * @param chunkZ The chunk's z-coordinate
      * @param localX the chunk-local x-coordinate of the block
      * @param localZ the chunk-local z-coordinate of the block
      * @param realY the real Y-coordinate of the block
      */
-    protected void digBlock(ChunkPrimer primer, IBlockState lavaBlock, int chunkX, int chunkZ, int localX, int localZ, int realY) {
-        if (lavaBlock.getMaterial() != Material.WATER) {
+    protected void digBlock(ChunkPrimer primer, IBlockState liquidBlock, int liquidAltitude, int chunkX, int chunkZ, int localX, int localZ, int realY) {
+        if (liquidBlock.getMaterial() != Material.WATER) {
             // Check for adjacent water blocks to avoid breaking into lakes or oceans
             if (primer.getBlockState(localX, realY + 1, localZ).getMaterial() == Material.WATER)
                 return;
@@ -157,21 +150,7 @@ public class UndergroundCarver {
                 return;
         }
 
-        BetterCavesUtil.digBlock(this.getWorld(), primer, lavaBlock, localX, realY, localZ, chunkX, chunkZ);
-    }
-
-    /**
-     * Wrapper function for UndergroundCarver#digBlock with default lava block.
-     * Calls util digBlock function if there are no water blocks adjacent, to avoid breaking into oceans and lakes.
-     * @param primer The ChunkPrimer for this chunk
-     * @param chunkX The chunk's x-coordinate
-     * @param chunkZ The chunk's z-coordinate
-     * @param localX the chunk-local x-coordinate of the block
-     * @param localZ the chunk-local z-coordinate of the block
-     * @param realY the real Y-coordinate of the block
-     */
-    protected void digBlock(ChunkPrimer primer, int chunkX, int chunkZ, int localX, int localZ, int realY) {
-        digBlock(primer, Blocks.LAVA.getDefaultState(), chunkX, chunkZ, localX, localZ, realY);
+        BetterCavesUtil.digBlock(this.getWorld(), primer, liquidBlock, liquidAltitude, localX, realY, localZ, chunkX, chunkZ);
     }
 
     /**
@@ -196,7 +175,7 @@ public class UndergroundCarver {
     }
 
     /**
-     * DEBUG method for visualizing cave systems. Used as a replacement for UndergroundCarver#digblock if the
+     * DEBUG method for visualizing cave systems. Used as a replacement for the {@code digBlock} method if the
      * debugVisualizer config option is enabled.
      * @param digBlock Whether or not this block should be considered removed (i.e. surpassed the threshold)
      * @param blockState The blockState to set dug out blocks to
@@ -213,14 +192,13 @@ public class UndergroundCarver {
     }
 
     public void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
-                               int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff, IBlockState lavaBlock) {
+                               int topY, int maxSurfaceHeight, int minSurfaceHeight, IBlockState liquidBlock) {
     }
 
     public void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
-                               int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff, IBlockState lavaBlock,
+                               int topY, int maxSurfaceHeight, int minSurfaceHeight, IBlockState liquidBlock,
                                float smoothAmp) {
     }
-
 
     /* ------------------------- Public Getters -------------------------*/
     public World getWorld() {
@@ -231,6 +209,9 @@ public class UndergroundCarver {
         return this.seed;
     }
 
+    /**
+     * Builder class for UndergroundCarver.
+     */
     public static class UndergroundCarverBuilder {
         protected World world;
         protected long seed;
@@ -255,6 +236,9 @@ public class UndergroundCarver {
         protected float yAdjustF2;
         protected float noiseThreshold;
         protected boolean enableYAdjust;
+
+        /* ------------------ Worldgen Params ------------------ */
+        protected int liquidAltitude;
 
         /* -------------------- Debug Params ------------------- */
         protected IBlockState debugBlock;
@@ -333,8 +317,8 @@ public class UndergroundCarver {
          * Enable turbulence (adds performance overhead, generally not worth it).
          * If not enabled then other turbulence parameters don't matter and are not used.
          */
-        public UndergroundCarverBuilder enableTurbulence() {
-            this.enableTurbulence = true;
+        public UndergroundCarverBuilder enableTurbulence(boolean enableTurbulence) {
+            this.enableTurbulence = enableTurbulence;
             return this;
         }
 
@@ -395,10 +379,18 @@ public class UndergroundCarver {
         }
 
         /**
+         * @param liquidAltitude altitude at and below which air is replaced with liquid
+         */
+        public UndergroundCarverBuilder liquidAltitude(int liquidAltitude) {
+            this.liquidAltitude = liquidAltitude;
+            return this;
+        }
+
+        /**
          * Enable the debug visualizer
          */
-        public UndergroundCarverBuilder enableDebugVisualizer() {
-            this.enableDebugVisualizer = true;
+        public UndergroundCarverBuilder enableDebugVisualizer(boolean enableDebugVisualizer) {
+            this.enableDebugVisualizer = enableDebugVisualizer;
             return this;
         }
 

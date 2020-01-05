@@ -3,7 +3,8 @@ package com.yungnickyoung.minecraft.bettercaves.world;
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.config.Settings;
-import com.yungnickyoung.minecraft.bettercaves.config.dimension.ConfigHolder;
+import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
+import com.yungnickyoung.minecraft.bettercaves.config.ConfigLoader;
 import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.enums.RegionSize;
@@ -102,7 +103,9 @@ public class MapGenBetterCaves extends MapGenCaves {
 
         counter--;
         if (counter <= 0) {
-            Settings.LOGGER.warn("BETTERCAVESWORLD "+ world.getSeed() + " | " + dimensionName + ": " + dimensionID + " | " + BetterCaves.activeCarversMap.size() + " | " + this.hashCode());
+            Settings.LOGGER.warn("BETTERCAVESWORLD "+ world.getSeed() + " | " +
+                    BetterCavesUtil.dimensionAsString(dimensionID, dimensionName) + " | " +
+                    BetterCaves.activeCarversMap.size() + " | " + this.hashCode());
             counter = 200;
         }
 
@@ -122,7 +125,8 @@ public class MapGenBetterCaves extends MapGenCaves {
         int caveBottomY;
 
         // Flatten bedrock, if enabled
-        FlattenBedrock.flattenBedrock(primer, config);
+        if (config.flattenBedrock.get())
+            FlattenBedrock.flattenBedrock(primer, config.bedrockWidth.get());
 
         // We split chunks into 2x2 sub-chunks along the x-z axis for surface height calculations
         for (int subX = 0; subX < 8; subX++) {
@@ -218,14 +222,14 @@ public class MapGenBetterCaves extends MapGenCaves {
                                 float smoothAmp = Math.abs((cavernRegionNoise - (lavaCavernThreshold + transitionRange)) / transitionRange);
                                 if (config.enableWaterRegions.get() && waterRegionNoise < this.waterRegionThreshold)
                                     this.cavernWater.generateColumn(chunkX, chunkZ, primer, localX, localZ,config.lavaCavernBottom.get(), config.lavaCavernTop.get(),
-                                            maxSurfaceHeight, minSurfaceHeight, config.surfaceCutoff.get(), liquidBlock, smoothAmp);
+                                            maxSurfaceHeight, minSurfaceHeight, liquidBlock, smoothAmp);
                                 else
                                     this.cavernLava.generateColumn(chunkX, chunkZ, primer, localX, localZ, config.lavaCavernBottom.get(), config.lavaCavernTop.get(),
-                                        maxSurfaceHeight, minSurfaceHeight, config.surfaceCutoff.get(), liquidBlock, smoothAmp);
+                                        maxSurfaceHeight, minSurfaceHeight, liquidBlock, smoothAmp);
                             } else if (cavernRegionNoise <= flooredCavernThreshold && cavernRegionNoise >= flooredCavernThreshold - transitionRange) {
                                 float smoothAmp = Math.abs((cavernRegionNoise - (flooredCavernThreshold - transitionRange)) / transitionRange);
                                 this.cavernFloored.generateColumn(chunkX, chunkZ, primer, localX, localZ, config.flooredCavernBottom.get(), config.flooredCavernTop.get(),
-                                        maxSurfaceHeight, minSurfaceHeight, config.surfaceCutoff.get(), liquidBlock, smoothAmp);
+                                        maxSurfaceHeight, minSurfaceHeight, liquidBlock, smoothAmp);
                             }
                         }
 
@@ -233,11 +237,11 @@ public class MapGenBetterCaves extends MapGenCaves {
                         // Top (Cave) layer:
                         if (caveGen != null)
                             caveGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, caveBottomY, maxSurfaceHeight,
-                                maxSurfaceHeight, minSurfaceHeight, config.surfaceCutoff.get(), liquidBlock);
+                                maxSurfaceHeight, minSurfaceHeight, liquidBlock);
                         // Bottom (Cavern) layer:
                         if (cavernGen != null)
                             cavernGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, cavernBottomY, cavernTopY,
-                                maxSurfaceHeight, minSurfaceHeight, config.surfaceCutoff.get(), liquidBlock);
+                                maxSurfaceHeight, minSurfaceHeight, liquidBlock);
 
                     }
                 }
@@ -255,12 +259,14 @@ public class MapGenBetterCaves extends MapGenCaves {
         this.dimensionID = worldIn.provider.getDimension();
         this.dimensionName = worldIn.provider.getDimensionType().toString();
 
+        this.config = ConfigLoader.loadConfigFromFileForDimension(this.dimensionID);
+
         // Add this carver to map of active carvers by dimension ID.
         // Note that if a carver already exists for this dimension ID, its position
         // in the list will be overwritten.
         BetterCaves.activeCarversMap.put(dimensionID, this);
 
-        Settings.LOGGER.info("BETTERCAVESWORLDINIT " + dimensionAsString());
+        Settings.LOGGER.info("BETTERCAVESWORLDINIT " + BetterCavesUtil.dimensionAsString(dimensionID, dimensionName));
         Settings.LOGGER.info("# of carvers: "+ BetterCaves.activeCarversMap.size());
 
         // Set water and lava blocks
@@ -301,6 +307,7 @@ public class MapGenBetterCaves extends MapGenCaves {
         this.waterCavernController.SetNoiseType(FastNoise.NoiseType.Cellular);
         this.waterCavernController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
+        /* ---------- Initialize all Better Cave carvers using config options ---------- */
         this.caveCubic = new CaveCarver.CaveCarverBuilder(worldIn)
                 .ofTypeFromConfig(CaveType.CUBIC, config)
                 .debugVisualizerBlock(Blocks.PLANKS.getDefaultState())
@@ -325,87 +332,6 @@ public class MapGenBetterCaves extends MapGenCaves {
                 .ofTypeFromConfig(CavernType.WATER, config)
                 .debugVisualizerBlock(Blocks.LAPIS_BLOCK.getDefaultState())
                 .build();
-
-        /* ---------- Initialize all Better Cave carvers using config options ---------- */
-//        this.caveCubic = new CaveCarver(
-//                world,
-//                CaveType.CUBIC,
-//                Configuration.caveSettings.caves.cubicCave.fractalOctaves,
-//                Configuration.caveSettings.caves.cubicCave.fractalGain,
-//                Configuration.caveSettings.caves.cubicCave.fractalFrequency,
-//                Configuration.caveSettings.caves.cubicCave.numGenerators,
-//                Configuration.caveSettings.caves.cubicCave.noiseThreshold,
-//                Configuration.caveSettings.caves.cubicCave.turbulenceOctaves,
-//                Configuration.caveSettings.caves.cubicCave.turbulenceGain,
-//                Configuration.caveSettings.caves.cubicCave.turbulenceFrequency,
-//                Configuration.caveSettings.caves.cubicCave.enableTurbulence,
-//                config.cubicCaveYCompression.get(),
-//                config.cubicCaveXZCompression.get(),
-//                Configuration.caveSettings.caves.cubicCave.yAdjust,
-//                Configuration.caveSettings.caves.cubicCave.yAdjustF1,
-//                Configuration.caveSettings.caves.cubicCave.yAdjustF2,
-//                Blocks.PLANKS.getDefaultState()
-//        );
-
-//        this.caveSimplex = new CaveCarver(
-//                world,
-//                CaveType.SIMPLEX,
-//                Configuration.caveSettings.caves.simplexCave.fractalOctaves,
-//                Configuration.caveSettings.caves.simplexCave.fractalGain,
-//                Configuration.caveSettings.caves.simplexCave.fractalFrequency,
-//                Configuration.caveSettings.caves.simplexCave.numGenerators,
-//                Configuration.caveSettings.caves.simplexCave.noiseThreshold,
-//                Configuration.caveSettings.caves.simplexCave.turbulenceOctaves,
-//                Configuration.caveSettings.caves.simplexCave.turbulenceGain,
-//                Configuration.caveSettings.caves.simplexCave.turbulenceFrequency,
-//                Configuration.caveSettings.caves.simplexCave.enableTurbulence,
-//                config.simplexCaveYCompression.get(),
-//                config.simplexCaveXZCompression.get(),
-//                Configuration.caveSettings.caves.simplexCave.yAdjust,
-//                Configuration.caveSettings.caves.simplexCave.yAdjustF1,
-//                Configuration.caveSettings.caves.simplexCave.yAdjustF2,
-//                Blocks.COBBLESTONE.getDefaultState()
-//        );
-
-//        this.cavernLava = new CavernCarver(
-//                world,
-//                CavernType.LAVA,
-//                Configuration.caveSettings.caverns.lavaCavern.fractalOctaves,
-//                Configuration.caveSettings.caverns.lavaCavern.fractalGain,
-//                Configuration.caveSettings.caverns.lavaCavern.fractalFrequency,
-//                Configuration.caveSettings.caverns.lavaCavern.numGenerators,
-//                Configuration.caveSettings.caverns.lavaCavern.noiseThreshold,
-//                config.lavaCavernYCompression.get(),
-//                config.lavaCavernXZCompression.get(),
-//                Blocks.REDSTONE_BLOCK.getDefaultState()
-//        );
-
-//        this.cavernFloored = new CavernCarver(
-//                world,
-//                CavernType.FLOORED,
-//                Configuration.caveSettings.caverns.flooredCavern.fractalOctaves,
-//                Configuration.caveSettings.caverns.flooredCavern.fractalGain,
-//                Configuration.caveSettings.caverns.flooredCavern.fractalFrequency,
-//                Configuration.caveSettings.caverns.flooredCavern.numGenerators,
-//                Configuration.caveSettings.caverns.flooredCavern.noiseThreshold,
-//                config.flooredCavernYCompression.get(),
-//                config.flooredCavernXZCompression.get(),
-//                Blocks.GOLD_BLOCK.getDefaultState()
-//        );
-
-//        this.cavernWater = new CavernCarver(
-//                world,
-//                CavernType.WATER,
-//                Configuration.caveSettings.waterRegions.waterCavern.fractalOctaves,
-//                Configuration.caveSettings.waterRegions.waterCavern.fractalGain,
-//                Configuration.caveSettings.waterRegions.waterCavern.fractalFrequency,
-//                Configuration.caveSettings.waterRegions.waterCavern.numGenerators,
-//                Configuration.caveSettings.waterRegions.waterCavern.noiseThreshold,
-//                config.waterCavernYCompression.get(),
-//                config.waterCavernXZCompression.get(),
-//                Blocks.LAPIS_BLOCK.getDefaultState()
-//        );
-
     }
 
     /**
@@ -538,10 +464,10 @@ public class MapGenBetterCaves extends MapGenCaves {
 
     private IBlockState getLavaBlock() {
         IBlockState lava;
-
         try {
             lava = Block.getBlockFromName(config.lavaBlock.get()).getDefaultState();
-            Settings.LOGGER.info("Using block '" + config.lavaBlock.get() + "' as lava in cave generation for dimension " + dimensionAsString() + " ...");
+            Settings.LOGGER.info("Using block '" + config.lavaBlock.get() + "' as lava in cave generation for dimension " +
+                    BetterCavesUtil.dimensionAsString(dimensionID, dimensionName) + " ...");
         } catch (Exception e) {
             Settings.LOGGER.warn("Unable to use block '" + config.lavaBlock.get() + "': " + e);
             Settings.LOGGER.warn("Using vanilla lava instead...");
@@ -558,10 +484,10 @@ public class MapGenBetterCaves extends MapGenCaves {
 
     private IBlockState getWaterBlock() {
         IBlockState water;
-
         try {
             water = Block.getBlockFromName(config.waterBlock.get()).getDefaultState();
-            Settings.LOGGER.info("Using block '" + config.waterBlock.get() + "' as water in cave generation for dimension " + dimensionAsString() + " ...");
+            Settings.LOGGER.info("Using block '" + config.waterBlock.get() + "' as water in cave generation for dimension " +
+                    BetterCavesUtil.dimensionAsString(dimensionID, dimensionName) + " ...");
         } catch (Exception e) {
             Settings.LOGGER.warn("Unable to use block '" + config.waterBlock.get() + "': " + e);
             Settings.LOGGER.warn("Using vanilla water instead...");
@@ -586,9 +512,5 @@ public class MapGenBetterCaves extends MapGenCaves {
                 return true;
 
         return false;
-    }
-
-    private String dimensionAsString() {
-        return "" + dimensionID + " (" + dimensionName + ")";
     }
 }

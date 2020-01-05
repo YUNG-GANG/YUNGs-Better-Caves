@@ -1,14 +1,11 @@
 package com.yungnickyoung.minecraft.bettercaves.world.cave;
 
-import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
-import com.yungnickyoung.minecraft.bettercaves.config.dimension.ConfigHolder;
+import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 
@@ -21,7 +18,7 @@ public class CavernCarver extends UndergroundCarver {
 
     public CavernCarver(final CavernCarverBuilder builder) {
         super(builder);
-        this.cavernType = builder.cavernType;
+        cavernType = builder.cavernType;
         noiseGen = new NoiseGen(
                 this.noiseType,
                 this.world,
@@ -37,10 +34,27 @@ public class CavernCarver extends UndergroundCarver {
         );
     }
 
-    @Override
+    /**
+     * Dig out caverns for the column of blocks at x-z position (chunkX*16 + localX, chunkZ*16 + localZ).
+     * A given block will be calculated based on the noise value and noise threshold of this UndergroundCarver object.
+     * @param chunkX The chunk's x-coordinate
+     * @param chunkZ The chunk's z-coordinate
+     * @param primer The ChunkPrimer for this chunk
+     * @param localX The chunk-local x-coordinate of this column of blocks (0 <= localX <= 15)
+     * @param localZ The chunk-local z-coordinate of this column of blocks (0 <= localZ <= 15)
+     * @param bottomY The bottom y-coordinate to start calculating noise for and potentially dig out
+     * @param topY The top y-coordinate to start calculating noise for and potentially dig out
+     * @param maxSurfaceHeight This column's max surface height. Can be approximated using
+     *                         BetterCavesUtil#getMaxSurfaceAltitudeChunk or BetterCavesUtil#getMaxSurfaceAltitudeSubChunk
+     * @param minSurfaceHeight This chunk's min surface height. Can be approximated using
+     *                         BetterCavesUtil#getMinSurfaceAltitudeChunk or BetterCavesUtil#getMinSurfaceHeightSubChunk
+     * @param liquidBlock Block to use for liquid, e.g. lava
+     * @param smoothAmp Amplitude of smoothing power along edges of caverns. Between 0 and 1. Higher = smoother cavern
+     *                  edges, but more costly to performance
+     */@Override
     public void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
-                               int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff,
-                               IBlockState lavaBlock, float smoothAmp) {
+                               int topY, int maxSurfaceHeight, int minSurfaceHeight,
+                               IBlockState liquidBlock, float smoothAmp) {
         // Validate vars
         if (localX < 0 || localX > 15)
             return;
@@ -61,7 +75,7 @@ public class CavernCarver extends UndergroundCarver {
         // Altitude at which caverns start closing off on the bottom to create "floors"
         int bottomTransitionBoundary = 0;
         if (cavernType == CavernType.FLOORED)
-            bottomTransitionBoundary = (bottomY <= 10) ? Configuration.liquidAltitude + 4 : bottomY + 7;
+            bottomTransitionBoundary = (bottomY <= 10) ? liquidAltitude + 4 : bottomY + 7;
         else if (cavernType == CavernType.WATER)
             bottomTransitionBoundary = bottomY + 3;
 
@@ -104,28 +118,30 @@ public class CavernCarver extends UndergroundCarver {
                 digBlock = true;
 
             // Consider digging out the block if it passed the threshold check, using the debug visualizer if enabled
-            if (Configuration.debugsettings.debugVisualizer)
+            if (this.enableDebugVisualizer)
                 visualizeDigBlock(digBlock, this.debugBlock, primer, localX, realY, localZ);
             else if (digBlock) {
-                if (this.cavernType == CavernType.WATER) {
-                    // Make sure we replace any lava possibly generated from caves with water to avoid having lava under the water
-                    if (primer.getBlockState(localX, realY, localZ).getMaterial() == Material.LAVA && realY <= Configuration.liquidAltitude)
-                        primer.setBlockState(localX, realY, localZ, Blocks.WATER.getDefaultState());
-                    else
-                        this.digBlock(primer, lavaBlock, chunkX, chunkZ, localX, localZ, realY);
-                } else
-                    this.digBlock(primer, lavaBlock, chunkX, chunkZ, localX, localZ, realY);
+//            if (this.cavernType == CavernType.WATER) {
+//                // Make sure we replace any lava possibly generated from caves with water to avoid having lava under the water
+//                if (primer.getBlockState(localX, realY, localZ).getMaterial() == Material.LAVA && realY <= liquidAltitude)
+//                    primer.setBlockState(localX, realY, localZ, Blocks.WATER.getDefaultState());
+//                else
+//                    this.digBlock(primer, liquidBlock, liquidAltitude, chunkX, chunkZ, localX, localZ, realY);
+//            } else
+                this.digBlock(primer, liquidBlock, liquidAltitude, chunkX, chunkZ, localX, localZ, realY);
             }
         }
     }
 
     @Override
-    public void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
-                               int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff,
-                               IBlockState lavaBlock) {
-        generateColumn(chunkX, chunkZ, primer, localX, localZ, bottomY, topY, maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, lavaBlock, 1);
+    public void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY, int topY, int maxSurfaceHeight, int minSurfaceHeight, IBlockState liquidBlock) {
+        generateColumn(chunkX, chunkZ, primer, localX, localZ, bottomY, topY, maxSurfaceHeight, minSurfaceHeight, liquidBlock, 1);
     }
 
+    /**
+     * Builder class for CavernCarver.
+     * Fields may be built individually or loaded in bulk via the {@code ofTypeFromCarver} method
+     */
     public static class CavernCarverBuilder extends UndergroundCarverBuilder {
         CavernType cavernType;
 
@@ -138,7 +154,14 @@ public class CavernCarver extends UndergroundCarver {
             return new CavernCarver(this);
         }
 
+        /**
+         * Helps build a CavernCarver from a ConfigHolder based on its CavernType
+         * @param cavernType the CavernType of this CavernCarver
+         * @param config the config
+         */
         public CavernCarverBuilder ofTypeFromConfig(CavernType cavernType, ConfigHolder config) {
+            this.liquidAltitude = config.liquidAltitude.get();
+            this.enableDebugVisualizer = config.debugVisualizer.get();
             this.cavernType = cavernType;
             switch (cavernType) {
                 case LAVA:

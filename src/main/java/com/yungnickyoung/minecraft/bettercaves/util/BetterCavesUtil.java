@@ -1,6 +1,5 @@
 package com.yungnickyoung.minecraft.bettercaves.util;
 
-import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSand;
 import net.minecraft.block.material.Material;
@@ -21,11 +20,11 @@ public class BetterCavesUtil {
     private BetterCavesUtil() {} // Private constructor prevents instantiation
 
     /* Common IBlockStates used in this class */
-    private static final IBlockState BLOCKSTATE_AIR = Blocks.AIR.getDefaultState();
-    private static final IBlockState BLOCKSTATE_LAVA = Blocks.LAVA.getDefaultState();
-    private static final IBlockState BLOCKSTATE_SAND = Blocks.SAND.getDefaultState();
-    private static final IBlockState BLOCKSTATE_SANDSTONE = Blocks.SANDSTONE.getDefaultState();
-    private static final IBlockState BLOCKSTATE_REDSANDSTONE = Blocks.RED_SANDSTONE.getDefaultState();
+    private static final IBlockState AIR = Blocks.AIR.getDefaultState();
+    private static final IBlockState LAVA = Blocks.LAVA.getDefaultState();
+    private static final IBlockState SAND = Blocks.SAND.getDefaultState();
+    private static final IBlockState SANDSTONE = Blocks.SANDSTONE.getDefaultState();
+    private static final IBlockState REDSANDSTONE = Blocks.RED_SANDSTONE.getDefaultState();
 
     /**
      * Determine if the block at the specified location is the designated top block for the biome.
@@ -55,15 +54,16 @@ public class BetterCavesUtil {
      *
      * @param world the Minecraft world this block is in
      * @param primer the ChunkPrimer containing the block
-     * @param lavaBlockState the BlockState to use as lava. If you want regular lava, you can either specify it, or
+     * @param liquidBlockState the BlockState to use for liquids. If you want regular lava, you can either specify it, or
      *                       use the wrapper function without this param
+     * @param liquidAltitude altitude at and below which air is replaced with liquidBlockState
      * @param localX the block's chunk-local x coordinate
      * @param y the block's chunk-local y coordinate (same as real y-coordinate)
      * @param localZ the block's chunk-local z coordinate
      * @param chunkX the chunk's x coordinate
      * @param chunkZ the chunk's z coordinate
      */
-    public static void digBlock(World world, ChunkPrimer primer, IBlockState lavaBlockState, int localX, int y, int localZ, int chunkX, int chunkZ) {
+    public static void digBlock(World world, ChunkPrimer primer, IBlockState liquidBlockState, int liquidAltitude, int localX, int y, int localZ, int chunkX, int chunkZ) {
         IBlockState blockState = primer.getBlockState(localX, y, localZ);
         IBlockState blockStateAbove = primer.getBlockState(localX, y + 1, localZ);
 
@@ -76,42 +76,23 @@ public class BetterCavesUtil {
 
         // Only continue if the block is replaceable
         if (canReplaceBlock(blockState, blockStateAbove) || blockState.getBlock() == biomeTopBlock || blockState.getBlock() == biomeFillerBlock) {
-            if (y <= Configuration.liquidAltitude) { // Replace any block below the lava depth with the lava block passed in
-                primer.setBlockState(localX, y, localZ, lavaBlockState);
+            if (y <= liquidAltitude) { // Replace any air below the liquid altitude with the liquid block passed in
+                primer.setBlockState(localX, y, localZ, liquidBlockState);
             } else {
                 // Adjust block below if block removed is biome top block
-                if (isTopBlock(world, primer, localX, y, localZ, chunkX, chunkZ) && canReplaceBlock(primer.getBlockState(localX, y - 1, localZ), BLOCKSTATE_AIR))
+                if (isTopBlock(world, primer, localX, y, localZ, chunkX, chunkZ) && canReplaceBlock(primer.getBlockState(localX, y - 1, localZ), AIR))
                     primer.setBlockState(localX, y - 1, localZ, biome.topBlock);
 
                 // Replace this block with air, effectively "digging" it out
-                primer.setBlockState(localX, y, localZ, BLOCKSTATE_AIR);
+                primer.setBlockState(localX, y, localZ, AIR);
 
                 // If we caused floating sand to form, replace it with sandstone
-                if (blockStateAbove == BLOCKSTATE_SAND)
-                    primer.setBlockState(localX, y + 1, localZ, BLOCKSTATE_SANDSTONE);
-                else if (blockStateAbove == BLOCKSTATE_SAND.withProperty(BlockSand.VARIANT, BlockSand.EnumType.RED_SAND))
-                    primer.setBlockState(localX, y + 1, localZ, BLOCKSTATE_REDSANDSTONE);
+                if (blockStateAbove == SAND)
+                    primer.setBlockState(localX, y + 1, localZ, SANDSTONE);
+                else if (blockStateAbove == SAND.withProperty(BlockSand.VARIANT, BlockSand.EnumType.RED_SAND))
+                    primer.setBlockState(localX, y + 1, localZ, REDSANDSTONE);
             }
         }
-    }
-
-    /**
-     * Wrapper function for digBlock with default lava block.
-     * Digs out the current block, default implementation removes stone, filler, and top block.
-     * Sets the block to lavaBlockState if y is less then the liquidAltitude in the Config, and air other wise.
-     * If setting to air, it also checks to see if we've broken the surface, and if so,
-     * tries to make the floor the biome's top block.
-     *
-     * @param world the Minecraft world this block is in
-     * @param primer the ChunkPrimer containing the block
-     * @param localX the block's chunk-local x coordinate
-     * @param y the block's chunk-local y coordinate (same as real y-coordinate)
-     * @param localZ the block's chunk-local z coordinate
-     * @param chunkX the chunk's x coordinate
-     * @param chunkZ the chunk's z coordinate
-     */
-    public static void digBlock(World world, ChunkPrimer primer, int localX, int y, int localZ, int chunkX, int chunkZ) {
-        digBlock(world, primer, BLOCKSTATE_LAVA, localX, y, localZ, chunkX, chunkZ);
     }
 
     /**
@@ -253,5 +234,9 @@ public class BetterCavesUtil {
         }
 
         return -1; // Surface somehow not found
+    }
+
+    public static String dimensionAsString(int dimensionID, String dimensionName) {
+        return "" + dimensionID + " (" + dimensionName + ")";
     }
 }

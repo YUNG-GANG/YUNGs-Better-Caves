@@ -122,8 +122,8 @@ public class NoiseGen {
 
     /**
      * Initialize generators if we haven't already initialized the number of generators passed in.
-     * @param numGenerators Number of generators needed. If we've already initialzed N generators, then this function
-     *                      will initialize {@code N - numGenerators} generators.
+     * @param numGenerators Number of generators needed. If we've already initialized N generators, then this function
+     *                      will initialize the {@code N - numGenerators} remaining generators.
      */
     private void initializeNoiseGens(int numGenerators) {
         if (numGenerators <= listNoiseGens.size())

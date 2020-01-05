@@ -1,6 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.world.cave;
 
-import com.yungnickyoung.minecraft.bettercaves.config.dimension.ConfigHolder;
+import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
@@ -19,9 +19,11 @@ import java.util.Map;
  */
 public class CaveCarver extends UndergroundCarver {
     private NoiseGen noiseGen;
+    private int surfaceCutoff;
 
     private CaveCarver(final CaveCarverBuilder builder) {
         super(builder);
+        surfaceCutoff = builder.surfaceCutoff;
         noiseGen = new NoiseGen(
                 this.noiseType,
                 this.world,
@@ -37,9 +39,25 @@ public class CaveCarver extends UndergroundCarver {
         );
     }
 
+    /**
+     * Dig out caves for the column of blocks at x-z position (chunkX*16 + localX, chunkZ*16 + localZ).
+     * A given block will be calculated based on the noise value and noise threshold of this UndergroundCarver object.
+     * @param chunkX The chunk's x-coordinate
+     * @param chunkZ The chunk's z-coordinate
+     * @param primer The ChunkPrimer for this chunk
+     * @param localX The chunk-local x-coordinate of this column of blocks (0 <= localX <= 15)
+     * @param localZ The chunk-local z-coordinate of this column of blocks (0 <= localZ <= 15)
+     * @param bottomY The bottom y-coordinate to start calculating noise for and potentially dig out
+     * @param topY The top y-coordinate to start calculating noise for and potentially dig out
+     * @param maxSurfaceHeight This column's max surface height. Can be approximated using
+     *                         BetterCavesUtil#getMaxSurfaceAltitudeChunk or BetterCavesUtil#getMaxSurfaceAltitudeSubChunk
+     * @param minSurfaceHeight This chunk's min surface height. Can be approximated using
+     *                         BetterCavesUtil#getMinSurfaceAltitudeChunk or BetterCavesUtil#getMinSurfaceHeightSubChunk
+     * @param liquidBlock Block to use for liquid, e.g. lava
+     */
     @Override
     public void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
-                               int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff, IBlockState lavaBlock) {
+                               int topY, int maxSurfaceHeight, int minSurfaceHeight, IBlockState liquidBlock) {
         // Validate vars
         if (localX < 0 || localX > 15)
             return;
@@ -88,7 +106,7 @@ public class CaveCarver extends UndergroundCarver {
             if (this.enableDebugVisualizer)
                 visualizeDigBlock(digBlock, this.debugBlock, primer, localX, realY, localZ);
             else if (digBlock)
-                this.digBlock(primer, lavaBlock, chunkX, chunkZ, localX, localZ, realY);
+                this.digBlock(primer, liquidBlock, liquidAltitude, chunkX, chunkZ, localX, localZ, realY);
         }
 
         /* ============ Post-Processing to remove any singular floating blocks in the ease-in range ============ */
@@ -103,11 +121,17 @@ public class CaveCarver extends UndergroundCarver {
                     && primer.getBlockState(localX, realY + 1, localZ) == BlockStateAir
                     && primer.getBlockState(localX, realY - 1, localZ) == BlockStateAir
             )
-                this.digBlock(primer, lavaBlock, chunkX, chunkZ, localX, localZ, realY);
+                this.digBlock(primer, liquidBlock, liquidAltitude, chunkX, chunkZ, localX, localZ, realY);
         }
     }
 
+    /**
+     * Builder class for CaveCarver.
+     * Fields may be built individually or loaded in bulk via the {@code ofTypeFromCarver} method
+     */
     public static class CaveCarverBuilder extends UndergroundCarverBuilder {
+        int surfaceCutoff;
+
         public CaveCarverBuilder(World world) {
             super(world);
         }
@@ -117,7 +141,15 @@ public class CaveCarver extends UndergroundCarver {
             return new CaveCarver(this);
         }
 
+        /**
+         * Helps build a CaveCarver from a ConfigHolder based on its CaveType
+         * @param caveType the CaveType of this CaveCarver
+         * @param config the config
+         */
         public CaveCarverBuilder ofTypeFromConfig(CaveType caveType, ConfigHolder config) {
+            this.liquidAltitude = config.liquidAltitude.get();
+            this.enableDebugVisualizer = config.debugVisualizer.get();
+            this.surfaceCutoff = config.surfaceCutoff.get();
             switch (caveType) {
                 case CUBIC:
                     this.noiseType = FastNoise.NoiseType.CubicFractal;

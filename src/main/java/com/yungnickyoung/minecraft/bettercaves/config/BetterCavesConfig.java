@@ -97,6 +97,9 @@ public final class BetterCavesConfig {
     // Bedrock flattening vars
     public static boolean flattenBedrock;
 
+    //Ocean Floor & Cave Settings
+    public static String oceanFloorSetting;
+
     // Vanilla features vars
     public static boolean enableRavines;
     public static boolean enableUnderwaterRavines;

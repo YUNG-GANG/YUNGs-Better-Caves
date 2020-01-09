@@ -5,17 +5,21 @@ import com.yungnickyoung.minecraft.bettercaves.config.BetterCavesConfig;
 import com.yungnickyoung.minecraft.bettercaves.config.ConfigHelper;
 import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.world.WorldCarverBC;
+import net.minecraft.block.Blocks;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraft.world.gen.carver.WorldCarver;
 import net.minecraft.world.gen.feature.ProbabilityConfig;
+import net.minecraft.world.gen.surfacebuilders.ConfiguredSurfaceBuilder;
+import net.minecraft.world.gen.surfacebuilders.SurfaceBuilder;
+import net.minecraft.world.gen.surfacebuilders.SurfaceBuilderConfig;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -30,6 +34,11 @@ public class CommonProxy {
     private ConfiguredCarver<ProbabilityConfig> configuredCarver;
     private long activeWorldSeed = 0;
     private boolean initFlag = false;
+
+    public static final SurfaceBuilderConfig andesiteOceans = new SurfaceBuilderConfig(
+            Blocks.GRASS_BLOCK.getDefaultState(),
+            Blocks.DIRT.getDefaultState(),
+            Blocks.ANDESITE.getDefaultState());
 
     public void start() {
         IEventBus fmlBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -94,6 +103,20 @@ public class CommonProxy {
             continue;
 
             setCarvers(b, configuredCarver);
+
+            //If enabled, Ocean Floors are replaced with andesite.
+            if (BetterCavesConfig.oceanFloorSetting.equals("replaceall")) {
+                ForgeRegistries.BIOMES.forEach(biome -> {
+                    if (biome.getCategory() == Biome.Category.OCEAN) {
+                        try {
+                            ObfuscationReflectionHelper.findField(Biome.class, "field_201875_ar").set(biome, new ConfiguredSurfaceBuilder<>(SurfaceBuilder.DEFAULT, andesiteOceans));
+                        } catch (Throwable f) {
+                            f.printStackTrace();
+                            throw new RuntimeException(f);
+                        }
+                    }
+                });
+            }
         }
     }
 

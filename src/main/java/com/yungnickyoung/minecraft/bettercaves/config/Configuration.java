@@ -6,6 +6,7 @@ final class Configuration {
 
     public final ConfigCaveGen configCaveGen;
     public final ConfigDebug configDebug;
+    public final OceanConfig oceanConfig;
     final ForgeConfigSpec.ConfigValue<Integer> lavaDepth;
     final ForgeConfigSpec.ConfigValue<Boolean> flattenBedrock;
     final ForgeConfigSpec.ConfigValue<String> lavaBlock;
@@ -42,6 +43,8 @@ final class Configuration {
 
         configCaveGen = new ConfigCaveGen(builder);
         configDebug = new ConfigDebug(builder);
+        oceanConfig = new OceanConfig(builder);
+
 
         builder.pop();
     }

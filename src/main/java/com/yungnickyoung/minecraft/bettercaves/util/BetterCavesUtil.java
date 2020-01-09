@@ -35,6 +35,9 @@ public class BetterCavesUtil {
     private static final BlockState RED_SAND = Blocks.RED_SAND.getDefaultState();
     private static final BlockState SANDSTONE = Blocks.SANDSTONE.getDefaultState();
     private static final BlockState RED_SANDSTONE = Blocks.RED_SANDSTONE.getDefaultState();
+    private static final BlockState ANDESITE = Blocks.ANDESITE.getDefaultState();
+    private static final BlockState GRAVEL = Blocks.GRAVEL.getDefaultState();
+    private static final BlockState WATER = Blocks.WATER.getDefaultState();
 
     /**
      * Determine if the block at the specified location is the designated top block for the biome.
@@ -100,6 +103,19 @@ public class BetterCavesUtil {
                     chunkIn.setBlockState(blockPosAbove, SANDSTONE, false);
                 else if (blockStateAbove == RED_SAND)
                     chunkIn.setBlockState(blockPosAbove, RED_SANDSTONE, false);
+
+                //If we caused gravel to float in Oceans, replace it with andesite.
+                if (BetterCavesConfig.oceanFloorSetting.equals("default"))
+                    if (biome.getCategory() == Biome.Category.OCEAN)
+                        if (blockStateAbove == GRAVEL)
+                            chunkIn.setBlockState(blockPosAbove, ANDESITE, false);
+                        else if (blockStateAbove == WATER)
+                            chunkIn.setBlockState(blockPosAbove, ANDESITE, false);
+                            /*This block replacement should prevent any generated gravel with
+                            "isMoving:true" to be reverted back to false to prevent gravity
+                            updates from applying if the previous 2 if statements fail.*/
+                        else if (blockState == GRAVEL)
+                            chunkIn.setBlockState(blockPos, GRAVEL, false);
             }
         }
     }

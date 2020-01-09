@@ -1,8 +1,5 @@
 package com.yungnickyoung.minecraft.bettercaves.noise;
 
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
-
 import javax.vecmath.Vector3f;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,30 +28,37 @@ public class NoiseGen {
     private boolean enableTurbulence;
 
     /* ----- Compression values - these control the size of caves ----- */
-    /** Determines how steep and tall caves are */
+    /**
+     * Determines how steep and tall caves are
+     */
     private double yCompression;
-    /** Determines how horizontally large and stretched out caves are */
+    /**
+     * Determines how horizontally large and stretched out caves are
+     */
     private double xzCompression;
 
-    /** List of all distinct noise generators */
+    /**
+     * List of all distinct noise generators
+     */
     private List<FastNoise> listNoiseGens = new ArrayList<>();
 
-    /** Turbulence generator */
+    /**
+     * Turbulence generator
+     */
     private FastNoise turbulenceGen = new FastNoise();
 
     /**
-     *
      * @param noiseType The type of noise to generate, e.g. PerlinFractal, SimplexFractal, etc.
-     * @param seed Seed for the Minecraft world this gen will be used in
-     * @param fOctaves Number of fractal octaves used in noise generation
-     * @param fGain Amount of fractal gain used in noise generation
-     * @param fFreq Fractal frequency used in noise generation
-     * @param tOctaves Number of octaves used in the turbulence function
-     * @param tGain Amount of gain used in the turbulence function
-     * @param tFreq Frequency used in the turbulence function
-     * @param useTurb Whether or not turbulence should be applied
-     * @param yComp y-compression factor
-     * @param xzComp xz-compression factor
+     * @param seed      Seed for the Minecraft world this gen will be used in
+     * @param fOctaves  Number of fractal octaves used in noise generation
+     * @param fGain     Amount of fractal gain used in noise generation
+     * @param fFreq     Fractal frequency used in noise generation
+     * @param tOctaves  Number of octaves used in the turbulence function
+     * @param tGain     Amount of gain used in the turbulence function
+     * @param tFreq     Frequency used in the turbulence function
+     * @param useTurb   Whether or not turbulence should be applied
+     * @param yComp     y-compression factor
+     * @param xzComp    xz-compression factor
      */
     public NoiseGen(FastNoise.NoiseType noiseType, long seed, int fOctaves, float fGain, float fFreq,
                     int tOctaves, float tGain, float tFreq, boolean useTurb, double yComp, double xzComp) {
@@ -74,14 +78,15 @@ public class NoiseGen {
 
     /**
      * Generate NoiseTuples for a column of blocks.
-     * @param chunkX The x-coordinate of the chunk containing the block
-     * @param chunkZ The z-coordainte of the chunk containing the block
-     * @param minHeight The bottom y-coordinate to start generating noise values for
-     * @param maxHeight The top y-coordinate to stop geenrating noise values for
+     *
+     * @param chunkX        The x-coordinate of the chunk containing the block
+     * @param chunkZ        The z-coordainte of the chunk containing the block
+     * @param minHeight     The bottom y-coordinate to start generating noise values for
+     * @param maxHeight     The top y-coordinate to stop geenrating noise values for
      * @param numGenerators Number of noise values to calculate per block. This number will be the number of noise
      *                      values in each resultant NoiseTuple. Increasing this will impact performance.
-     * @param localX The chunk-local x-coordinate of the column of blocks (0-15, inclusive)
-     * @param localZ The chunk-local z-coordinate of the column of blocks (0-15, inclusive)
+     * @param localX        The chunk-local x-coordinate of the column of blocks (0-15, inclusive)
+     * @param localZ        The chunk-local z-coordinate of the column of blocks (0-15, inclusive)
      * @return HashMap mapping y-coordinate to NoiseTuple for that block
      */
     public Map<Integer, NoiseTuple> generateNoiseCol(int chunkX, int chunkZ, int minHeight, int maxHeight, int numGenerators, int localX, int localZ) {
@@ -93,7 +98,7 @@ public class NoiseGen {
             int realX = localX + 16 * chunkX;
             int realZ = localZ + 16 * chunkZ;
 
-            Vector3f f = new Vector3f((float)(realX * xzCompression), (float)(y * yCompression), (float)(realZ * xzCompression));
+            Vector3f f = new Vector3f((float) (realX * xzCompression), (float) (y * yCompression), (float) (realZ * xzCompression));
 
             // Use turbulence function to apply gradient perturbation, if enabled
             if (this.enableTurbulence)
@@ -123,6 +128,7 @@ public class NoiseGen {
 
     /**
      * Initialize generators if we haven't already initialized the number of generators passed in.
+     *
      * @param numGenerators Number of generators needed. If we've already initialzed N generators, then this function
      *                      will initialize {@code N - numGenerators} generators.
      */
@@ -136,7 +142,7 @@ public class NoiseGen {
         for (int i = 0; i < numGensNeeded; i++) {
             FastNoise noiseGen = new FastNoise();
             noiseGen.SetFractalType(FastNoise.FractalType.RigidMulti);
-            noiseGen.SetSeed((int)(seed) + (1111 * seedModifier));
+            noiseGen.SetSeed((int) (seed) + (1111 * seedModifier));
             noiseGen.SetNoiseType(this.noiseType);
             noiseGen.SetFractalOctaves(this.fractalOctaves);
             noiseGen.SetFractalGain(this.fractalGain);
@@ -154,7 +160,7 @@ public class NoiseGen {
     private void initializeTurbulenceGen() {
         turbulenceGen.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
         turbulenceGen.SetFractalType(FastNoise.FractalType.FBM);
-        turbulenceGen.SetSeed((int)(seed) + 69);
+        turbulenceGen.SetSeed((int) (seed) + 69);
         turbulenceGen.SetFractalOctaves(this.turbulenceOctaves);
         turbulenceGen.SetFractalGain(this.turbulenceGain);
         turbulenceGen.SetFrequency(this.turbulenceFrequency);

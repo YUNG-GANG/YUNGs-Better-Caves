@@ -17,8 +17,9 @@ import java.util.Map;
  * Abstract base class for Better Caves caves and caverns
  */
 public abstract class AbstractBC {
-    private long seed;
-
+    /* -------------- Noise Processing Params -------------- */
+    protected double yCompression;  // Vertical cave gen compression
+    protected double xzCompression; // Horizontal cave gen compression
     /* ============================== Values determined through config ============================== */
     /* ------------- Ridged Multifractal Params ------------- */
     FastNoise.NoiseType noiseType;
@@ -26,42 +27,37 @@ public abstract class AbstractBC {
     float fractalGain;             // Ridged multifractal gain
     float fractalFreq;             // Ridged multifractal frequency
     int numGens;                   // Number of noise values to generate per iteration (block, sub-chunk, etc)
-
     /* ----------------- Turbulence Params ----------------- */
     int turbOctaves;               // Number of octaves in turbulence function
     float turbGain;                // Gain of turbulence function
     float turbFreq;                // Frequency of turbulence function
     boolean enableTurbulence;      // Set true to enable turbulence (adds performance overhead, generally not worth it)
-
-    /* -------------- Noise Processing Params -------------- */
-    protected double yCompression;  // Vertical cave gen compression
-    protected double xzCompression; // Horizontal cave gen compression
-    private float yAdjustF1;        // Adjustment value for the block immediately above. Must be between 0 and 1.0
-    private float yAdjustF2;        // Adjustment value for the block two blocks above. Must be between 0 and 1.0
     float noiseThreshold;           // Noise threshold for determining whether or not a block gets dug out
     boolean enableYAdjust;          // Set true to perform preprocessing on noise values, adjusting them to increase
-                                    // headroom in the y direction. This is generally useful for caves (esp. Simplex),
-                                    // but not really necessary for caverns
-
     BlockState vBlock;              // Block used to represent this cave/cavern type in the debug visualizer
+    private long seed;
+    private float yAdjustF1;        // Adjustment value for the block immediately above. Must be between 0 and 1.0
+    // headroom in the y direction. This is generally useful for caves (esp. Simplex),
+    // but not really necessary for caverns
+    private float yAdjustF2;        // Adjustment value for the block two blocks above. Must be between 0 and 1.0
 
     /**
-     * @param world the Minecraft World
-     * @param fOctaves Number of fractal octaves to use in ridged multifractal noise generation
-     * @param fGain Amount of gain to use in ridged multifractal noise generation
-     * @param fFreq Frequency to use in ridged multifractal noise generation
-     * @param numGens Number of noise values to calculate for a given block
-     * @param threshold Noise threshold to determine whether or not a given block will be dug out
-     * @param tOctaves Number of octaves in turbulence function
-     * @param tGain Gain of turbulence function
-     * @param tFreq Frequency of turbulence function
+     * @param world            the Minecraft World
+     * @param fOctaves         Number of fractal octaves to use in ridged multifractal noise generation
+     * @param fGain            Amount of gain to use in ridged multifractal noise generation
+     * @param fFreq            Frequency to use in ridged multifractal noise generation
+     * @param numGens          Number of noise values to calculate for a given block
+     * @param threshold        Noise threshold to determine whether or not a given block will be dug out
+     * @param tOctaves         Number of octaves in turbulence function
+     * @param tGain            Gain of turbulence function
+     * @param tFreq            Frequency of turbulence function
      * @param enableTurbulence Whether or not to enable turbulence (adds performance overhead, generally not worth it).
      *                         If set to false then other turbulence params don't matter.
-     * @param yComp Vertical cave gen compression. Use 1.0 for default generation
-     * @param xzComp Horizontal cave gen compression. Use 1.0 for default generation
-     * @param yAdj Whether or not to adjust/increase the height of caves.
-     * @param yAdjF1 Adjustment value for the block immediately above. Must be between 0 and 1.0
-     * @param yAdjF2 Adjustment value for the block two blocks above. Must be between 0 and 1.0
+     * @param yComp            Vertical cave gen compression. Use 1.0 for default generation
+     * @param xzComp           Horizontal cave gen compression. Use 1.0 for default generation
+     * @param yAdj             Whether or not to adjust/increase the height of caves.
+     * @param yAdjF1           Adjustment value for the block immediately above. Must be between 0 and 1.0
+     * @param yAdjF2           Adjustment value for the block two blocks above. Must be between 0 and 1.0
      */
     public AbstractBC(IWorld world, int fOctaves, float fGain, float fFreq, int numGens, float threshold, int tOctaves,
                       float tGain, float tFreq, boolean enableTurbulence, double yComp, double xzComp, boolean yAdj,
@@ -71,22 +67,22 @@ public abstract class AbstractBC {
     }
 
     /**
-     * @param seed the Minecraft World seed
-     * @param fOctaves Number of fractal octaves to use in ridged multifractal noise generation
-     * @param fGain Amount of gain to use in ridged multifractal noise generation
-     * @param fFreq Frequency to use in ridged multifractal noise generation
-     * @param numGens Number of noise values to calculate for a given block
-     * @param threshold Noise threshold to determine whether or not a given block will be dug out
-     * @param tOctaves Number of octaves in turbulence function
-     * @param tGain Gain of turbulence function
-     * @param tFreq Frequency of turbulence function
+     * @param seed             the Minecraft World seed
+     * @param fOctaves         Number of fractal octaves to use in ridged multifractal noise generation
+     * @param fGain            Amount of gain to use in ridged multifractal noise generation
+     * @param fFreq            Frequency to use in ridged multifractal noise generation
+     * @param numGens          Number of noise values to calculate for a given block
+     * @param threshold        Noise threshold to determine whether or not a given block will be dug out
+     * @param tOctaves         Number of octaves in turbulence function
+     * @param tGain            Gain of turbulence function
+     * @param tFreq            Frequency of turbulence function
      * @param enableTurbulence Whether or not to enable turbulence (adds performance overhead, generally not worth it).
      *                         If set to false then other turbulence params don't matter.
-     * @param yComp Vertical cave gen compression. Use 1.0 for default generation
-     * @param xzComp Horizontal cave gen compression. Use 1.0 for default generation
-     * @param yAdj Whether or not to adjust/increase the height of caves.
-     * @param yAdjF1 Adjustment value for the block immediately above. Must be between 0 and 1.0
-     * @param yAdjF2 Adjustment value for the block two blocks above. Must be between 0 and 1.0
+     * @param yComp            Vertical cave gen compression. Use 1.0 for default generation
+     * @param xzComp           Horizontal cave gen compression. Use 1.0 for default generation
+     * @param yAdj             Whether or not to adjust/increase the height of caves.
+     * @param yAdjF1           Adjustment value for the block immediately above. Must be between 0 and 1.0
+     * @param yAdjF2           Adjustment value for the block two blocks above. Must be between 0 and 1.0
      */
     public AbstractBC(long seed, int fOctaves, float fGain, float fFreq, int numGens, float threshold, int tOctaves,
                       float tGain, float tFreq, boolean enableTurbulence, double yComp, double xzComp, boolean yAdj,
@@ -106,18 +102,20 @@ public abstract class AbstractBC {
         this.enableYAdjust = yAdj;
         this.yAdjustF1 = yAdjF1;
         this.yAdjustF2 = yAdjF2;
-        this.vBlock = vBlock;    }
+        this.vBlock = vBlock;
+    }
 
     /**
      * Dig out caves for the column of blocks at x-z position (chunkX*16 + localX, chunkZ*16 + localZ).
      * A given block will be calculated based on the noise value and noise threshold of this AbstractBC object.
-     * @param chunkX The chunk's x-coordinate
-     * @param chunkZ The chunk's z-coordinate
-     * @param chunkIn The chunk
-     * @param localX the chunk-local x-coordinate of this column of blocks (0 <= localX <= 15)
-     * @param localZ the chunk-local z-coordinate of this column of blocks (0 <= localZ <= 15)
-     * @param bottomY The bottom y-coordinate to start calculating noise for and potentially dig out
-     * @param topY The top y-coordinate to start calculating noise for and potentially dig out
+     *
+     * @param chunkX           The chunk's x-coordinate
+     * @param chunkZ           The chunk's z-coordinate
+     * @param chunkIn          The chunk
+     * @param localX           the chunk-local x-coordinate of this column of blocks (0 <= localX <= 15)
+     * @param localZ           the chunk-local z-coordinate of this column of blocks (0 <= localZ <= 15)
+     * @param bottomY          The bottom y-coordinate to start calculating noise for and potentially dig out
+     * @param topY             The top y-coordinate to start calculating noise for and potentially dig out
      * @param maxSurfaceHeight This chunk's max surface height. Can be approximated using
      *                         BetterCavesUtil#getMaxSurfaceAltitudeChunk
      * @param minSurfaceHeight This chunk's min surface height. Can be approximated using
@@ -128,8 +126,8 @@ public abstract class AbstractBC {
                                         BlockState lavaBlock);
 
     public void generateColumn(int chunkX, int chunkZ, IChunk chunkIn, int localX, int localZ, int bottomY,
-                                        int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff,
-                                        BlockState lavaBlock, float smoothAmp) {
+                               int topY, int maxSurfaceHeight, int minSurfaceHeight, int surfaceCutoff,
+                               BlockState lavaBlock, float smoothAmp) {
     }
 
     /**
@@ -137,12 +135,13 @@ public abstract class AbstractBC {
      * This function adjusts the noise value of blocks based on the noise values of blocks below.
      * This has the effect of raising the ceilings of caves, giving the player more headroom.
      * Big shoutouts to the guys behind Worley's Caves for this great idea.
-     * @param noises The column of noises as a map, mapping the y-coordinate of a block to its NoiseTuple
-     * @param topY Top y-coordinate of the noise column
-     * @param bottomY Bottom y-coordinate of the noise column
+     *
+     * @param noises     The column of noises as a map, mapping the y-coordinate of a block to its NoiseTuple
+     * @param topY       Top y-coordinate of the noise column
+     * @param bottomY    Bottom y-coordinate of the noise column
      * @param thresholds Map of y-coordinates to noise thresholds. This is the output of the generateThresholds method.
-     * @param numGens Number of noise values to create per block. This is equal to the number of floats held
-     *                in each NoiseTuple for each block in the noise column.
+     * @param numGens    Number of noise values to create per block. This is equal to the number of floats held
+     *                   in each NoiseTuple for each block in the noise column.
      */
     protected void preprocessCaveNoiseCol(Map<Integer, NoiseTuple> noises, int topY, int bottomY, Map<Integer, Float> thresholds, int numGens) {
         /* Adjust simplex noise values based on blocks above in order to give the player more headroom */
@@ -180,14 +179,15 @@ public abstract class AbstractBC {
 
     /**
      * Calls util digBlock function if there are no water blocks adjacent, to avoid breaking into oceans and lakes.
-     * @param chunkIn The chunk
+     *
+     * @param chunkIn   The chunk
      * @param lavaBlock The IBlockState to use for lava. If you want regular lava, either pass it in or use the other
      *                  wrapper digBlock function
-     * @param chunkX The chunk's x-coordinate
-     * @param chunkZ The chunk's z-coordinate
-     * @param localX the chunk-local x-coordinate of the block
-     * @param localZ the chunk-local z-coordinate of the block
-     * @param realY the real Y-coordinate of the block
+     * @param chunkX    The chunk's x-coordinate
+     * @param chunkZ    The chunk's z-coordinate
+     * @param localX    the chunk-local x-coordinate of the block
+     * @param localZ    the chunk-local z-coordinate of the block
+     * @param realY     the real Y-coordinate of the block
      */
     protected void digBlock(IChunk chunkIn, BlockState lavaBlock, int chunkX, int chunkZ, int localX, int localZ, int realY) {
         if (!lavaBlock.getFluidState().isTagged(FluidTags.WATER)) {
@@ -220,12 +220,13 @@ public abstract class AbstractBC {
     /**
      * Wrapper function for AbstractBC#digBlock with default lava block.
      * Calls util digBlock function if there are no water blocks adjacent, to avoid breaking into oceans and lakes.
+     *
      * @param chunkIn The chunk
-     * @param chunkX The chunk's x-coordinate
-     * @param chunkZ The chunk's z-coordinate
-     * @param localX the chunk-local x-coordinate of the block
-     * @param localZ the chunk-local z-coordinate of the block
-     * @param realY the real Y-coordinate of the block
+     * @param chunkX  The chunk's x-coordinate
+     * @param chunkZ  The chunk's z-coordinate
+     * @param localX  the chunk-local x-coordinate of the block
+     * @param localZ  the chunk-local z-coordinate of the block
+     * @param realY   the real Y-coordinate of the block
      */
     protected void digBlock(IChunk chunkIn, int chunkX, int chunkZ, int localX, int localZ, int realY) {
         digBlock(chunkIn, Blocks.LAVA.getDefaultState(), chunkX, chunkZ, localX, localZ, realY);
@@ -235,8 +236,9 @@ public abstract class AbstractBC {
      * Generate a map of y-coordinates to thresholds for a column of blocks.
      * This is useful because the threshold will decrease near the surface, and it is useful (and more accurate)
      * to have a precomputed threshold value when doing y-adjustments for caves.
-     * @param topY Top y-coordinate of the column
-     * @param bottomY Bottom y-coordinate of the column
+     *
+     * @param topY               Top y-coordinate of the column
+     * @param bottomY            Bottom y-coordinate of the column
      * @param transitionBoundary The y-coordinate at which the caves start to close off
      * @return Map of y-coordinates to noise thresholds
      */
@@ -245,7 +247,7 @@ public abstract class AbstractBC {
         for (int realY = bottomY; realY <= topY; realY++) {
             float noiseThreshold = this.noiseThreshold;
             if (realY >= transitionBoundary)
-                noiseThreshold *= (1 + .3f * ((float)(realY - transitionBoundary) / (topY - transitionBoundary)));
+                noiseThreshold *= (1 + .3f * ((float) (realY - transitionBoundary) / (topY - transitionBoundary)));
             thresholds.put(realY, noiseThreshold);
         }
 
@@ -255,12 +257,13 @@ public abstract class AbstractBC {
     /**
      * DEBUG method for visualizing cave systems. Used as a replacement for AbstractBC#digblock if the
      * debugVisualizer config option is enabled.
-     * @param digBlock Whether or not this block should be considered removed (i.e. surpassed the threshold)
+     *
+     * @param digBlock   Whether or not this block should be considered removed (i.e. surpassed the threshold)
      * @param blockState The blockState to set dug out blocks to
-     * @param chunkIn Chunk containing the block
-     * @param localX Chunk-local x-coordinate of the block
-     * @param realY y-coordainte of the block
-     * @param localZ Chunk-local z-coordinate of the block
+     * @param chunkIn    Chunk containing the block
+     * @param localX     Chunk-local x-coordinate of the block
+     * @param realY      y-coordainte of the block
+     * @param localZ     Chunk-local z-coordinate of the block
      */
     protected void visualizeDigBlock(boolean digBlock, BlockState blockState, IChunk chunkIn, int localX, int realY, int localZ) {
         BlockPos blockPos = new BlockPos(localX, realY, localZ);

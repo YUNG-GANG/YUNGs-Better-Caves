@@ -70,6 +70,9 @@ public final class ConfigHelper {
         // Flatten Bedrock settings
         BetterCavesConfig.flattenBedrock = ConfigHolder.CLIENT.flattenBedrock.get();
 
+        //Ocean Settings
+        BetterCavesConfig.oceanFloorSetting = ConfigHolder.CLIENT.oceanConfig.oceanFloorSetting.get();
+
         // Vanilla ravine settings
         BetterCavesConfig.enableRavines = ConfigHolder.CLIENT.configCaveGen.configVanillaCave.enableRavines.get();
         BetterCavesConfig.enableUnderwaterRavines = ConfigHolder.CLIENT.configCaveGen.configVanillaCave.enableUnderwaterRavines.get();

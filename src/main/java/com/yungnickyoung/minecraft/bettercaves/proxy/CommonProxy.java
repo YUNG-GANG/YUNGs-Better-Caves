@@ -5,17 +5,21 @@ import com.yungnickyoung.minecraft.bettercaves.config.BetterCavesConfig;
 import com.yungnickyoung.minecraft.bettercaves.config.ConfigHelper;
 import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.world.WorldCarverBC;
+import net.minecraft.block.Blocks;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraft.world.gen.carver.WorldCarver;
 import net.minecraft.world.gen.feature.ProbabilityConfig;
+import net.minecraft.world.gen.surfacebuilders.ConfiguredSurfaceBuilder;
+import net.minecraft.world.gen.surfacebuilders.SurfaceBuilder;
+import net.minecraft.world.gen.surfacebuilders.SurfaceBuilderConfig;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -26,10 +30,37 @@ import java.util.Map;
 import java.util.Set;
 
 public class CommonProxy {
+    public static final SurfaceBuilderConfig andesiteOceans = new SurfaceBuilderConfig(
+            Blocks.GRASS_BLOCK.getDefaultState(),
+            Blocks.DIRT.getDefaultState(),
+            Blocks.ANDESITE.getDefaultState());
     private WorldCarverBC betterCaveCarver;
     private ConfiguredCarver<ProbabilityConfig> configuredCarver;
     private long activeWorldSeed = 0;
     private boolean initFlag = false;
+
+    private static void setCarvers(Biome biomeIn, ConfiguredCarver<ProbabilityConfig> carver) {
+        List<ConfiguredCarver<?>> airCarvers = biomeIn.getCarvers(GenerationStage.Carving.AIR);
+        List<ConfiguredCarver<?>> liquidCarvers = biomeIn.getCarvers(GenerationStage.Carving.LIQUID);
+
+        // Don't uncomment this - doesn't work on dedicated servers
+//        BetterCaves.LOGGER.debug("Found '" + biomeIn.getDisplayName().getString() + "' biome default carvers: AIR: " + airCarvers + " LIQUID: " + liquidCarvers);
+
+        // Remove default carvers
+        airCarvers.clear();
+        liquidCarvers.clear();
+
+        // Add Better Caves carver
+        airCarvers.add(carver);
+
+        // If enabled, add normal ravines
+        if (BetterCavesConfig.enableRavines)
+            biomeIn.addCarver(GenerationStage.Carving.AIR, Biome.createCarver(WorldCarver.CANYON, new ProbabilityConfig(0.02F)));
+
+        // If enabled, add underwater ravines to ocean biomes
+        if (BetterCavesConfig.enableUnderwaterRavines && biomeIn.getCategory() == Biome.Category.OCEAN)
+            biomeIn.addCarver(GenerationStage.Carving.LIQUID, Biome.createCarver(WorldCarver.UNDERWATER_CANYON, new ProbabilityConfig(0.02F)));
+    }
 
     public void start() {
         IEventBus fmlBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -86,14 +117,28 @@ public class CommonProxy {
 
         // Replace biome carvers with Better Caves carvers
         for (Map.Entry e : biomesList) {
-            Biome b = (Biome)e.getValue();
+            Biome b = (Biome) e.getValue();
 
             // Exclude Nether and End biomes
             if (b.getCategory() == Biome.Category.NETHER
                     || b.getCategory() == Biome.Category.THEEND)
-            continue;
+                continue;
 
             setCarvers(b, configuredCarver);
+
+            //If enabled, Ocean Floors are replaced with andesite.
+            if (BetterCavesConfig.oceanFloorSetting.equals("replaceall")) {
+                ForgeRegistries.BIOMES.forEach(biome -> {
+                    if (biome.getCategory() == Biome.Category.OCEAN) {
+                        try {
+                            ObfuscationReflectionHelper.findField(Biome.class, "field_201875_ar").set(biome, new ConfiguredSurfaceBuilder<>(SurfaceBuilder.DEFAULT, andesiteOceans));
+                        } catch (Throwable f) {
+                            f.printStackTrace();
+                            throw new RuntimeException(f);
+                        }
+                    }
+                });
+            }
         }
     }
 
@@ -117,26 +162,4 @@ public class CommonProxy {
         betterCaveCarver.initialize(seed);
     }
 
-    private static void setCarvers(Biome biomeIn, ConfiguredCarver<ProbabilityConfig> carver) {
-        List<ConfiguredCarver<?>> airCarvers = biomeIn.getCarvers(GenerationStage.Carving.AIR);
-        List<ConfiguredCarver<?>> liquidCarvers = biomeIn.getCarvers(GenerationStage.Carving.LIQUID);
-
-        // Don't uncomment this - doesn't work on dedicated servers
-//        BetterCaves.LOGGER.debug("Found '" + biomeIn.getDisplayName().getString() + "' biome default carvers: AIR: " + airCarvers + " LIQUID: " + liquidCarvers);
-
-        // Remove default carvers
-        airCarvers.clear();
-        liquidCarvers.clear();
-
-        // Add Better Caves carver
-        airCarvers.add(carver);
-
-        // If enabled, add normal ravines
-        if (BetterCavesConfig.enableRavines)
-            biomeIn.addCarver(GenerationStage.Carving.AIR, Biome.createCarver(WorldCarver.CANYON, new ProbabilityConfig(0.02F)));
-
-        // If enabled, add underwater ravines to ocean biomes
-        if (BetterCavesConfig.enableUnderwaterRavines && biomeIn.getCategory() == Biome.Category.OCEAN)
-            biomeIn.addCarver(GenerationStage.Carving.LIQUID, Biome.createCarver(WorldCarver.UNDERWATER_CANYON, new ProbabilityConfig(0.02F)));
-    }
 }

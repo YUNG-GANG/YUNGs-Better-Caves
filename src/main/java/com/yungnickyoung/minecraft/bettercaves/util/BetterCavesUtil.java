@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableSet;
 import com.yungnickyoung.minecraft.bettercaves.config.BetterCavesConfig;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.material.Material;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
@@ -35,14 +35,17 @@ public class BetterCavesUtil {
     private static final BlockState RED_SAND = Blocks.RED_SAND.getDefaultState();
     private static final BlockState SANDSTONE = Blocks.SANDSTONE.getDefaultState();
     private static final BlockState RED_SANDSTONE = Blocks.RED_SANDSTONE.getDefaultState();
+    private static final BlockState ANDESITE = Blocks.ANDESITE.getDefaultState();
+    private static final BlockState GRAVEL = Blocks.GRAVEL.getDefaultState();
+    private static final BlockState WATER = Blocks.WATER.getDefaultState();
 
     /**
      * Determine if the block at the specified location is the designated top block for the biome.
      *
      * @param chunkIn the chunk containing the block
-     * @param localX the block's chunk-local x-coordinate
-     * @param y the block's chunk-local y-coordinate (same as real y-coordinate)
-     * @param localZ the block's chunk-local z-coordinate
+     * @param localX  the block's chunk-local x-coordinate
+     * @param y       the block's chunk-local y-coordinate (same as real y-coordinate)
+     * @param localZ  the block's chunk-local z-coordinate
      * @return true if this block is the same type as the biome's designated top block
      */
     public static boolean isTopBlock(IChunk chunkIn, int localX, int y, int localZ) {
@@ -59,14 +62,14 @@ public class BetterCavesUtil {
      * If setting to air, it also checks to see if we've broken the surface, and if so,
      * tries to make the floor the biome's top block.
      *
-     * @param chunkIn the chunk containing the block
+     * @param chunkIn        the chunk containing the block
      * @param lavaBlockState the BlockState to use as lava. If you want regular lava, you can either specify it, or
      *                       use the wrapper function without this param
-     * @param localX the block's chunk-local x coordinate
-     * @param y the block's chunk-local y coordinate (same as real y-coordinate)
-     * @param localZ the block's chunk-local z coordinate
-     * @param chunkX the chunk's x coordinate
-     * @param chunkZ the chunk's z coordinate
+     * @param localX         the block's chunk-local x coordinate
+     * @param y              the block's chunk-local y coordinate (same as real y-coordinate)
+     * @param localZ         the block's chunk-local z coordinate
+     * @param chunkX         the chunk's x coordinate
+     * @param chunkZ         the chunk's z coordinate
      */
     public static void digBlock(IChunk chunkIn, BlockState lavaBlockState, int localX, int y, int localZ, int chunkX, int chunkZ) {
         BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos(localX, y, localZ);
@@ -77,6 +80,7 @@ public class BetterCavesUtil {
 
         BlockState blockState = chunkIn.getBlockState(blockPos);
         BlockState blockStateAbove = chunkIn.getBlockState(blockPosAbove);
+        BlockState blockStateBelow = chunkIn.getBlockState(blockPosBelow);
 
         Biome biome = chunkIn.getBiome(blockPos);
         BlockState biomeTopBlockState = biome.getSurfaceBuilderConfig().getTop();
@@ -100,6 +104,29 @@ public class BetterCavesUtil {
                     chunkIn.setBlockState(blockPosAbove, SANDSTONE, false);
                 else if (blockStateAbove == RED_SAND)
                     chunkIn.setBlockState(blockPosAbove, RED_SANDSTONE, false);
+
+                //If we caused gravel to float in Oceans, replace it with andesite.
+                if (BetterCavesConfig.oceanFloorSetting.equals("default"))
+                    if (biome.getCategory() == Biome.Category.OCEAN)
+                        if (blockStateAbove == GRAVEL)
+                            chunkIn.setBlockState(blockPosAbove, ANDESITE, false);
+                        else if (blockStateAbove == WATER)
+                            chunkIn.setBlockState(blockPosAbove, ANDESITE, false);
+                            /*This block replacement should prevent any generated gravel with
+                            "isMoving:true" to be reverted back to false to prevent gravity
+                            updates from applying if the previous 2 if statements fail.*/
+                        else if (blockState == GRAVEL)
+                            chunkIn.setBlockState(blockPos, GRAVEL, false);
+
+                //If we caused gravel to float in Oceans, replace it with andesite. Although full andesite Oceans are enabled this will check and apply any thing missed during surface replacement event.
+                if (BetterCavesConfig.oceanFloorSetting.equals("replaceall"))
+                    if (biome.getCategory() == Biome.Category.OCEAN)
+                        if (blockStateAbove == GRAVEL)
+                            chunkIn.setBlockState(blockPosAbove, ANDESITE, false);
+                        else if (blockStateAbove == WATER)
+                            chunkIn.setBlockState(blockPosAbove, ANDESITE, false);
+                        else if (blockState == GRAVEL)
+                            chunkIn.setBlockState(blockPos, GRAVEL, false);
             }
         }
     }
@@ -108,7 +135,7 @@ public class BetterCavesUtil {
      * Determines if the Block of a given IBlockState is suitable to be replaced during cave generation.
      * Basically returns true for most common worldgen blocks (e.g. stone, dirt, sand), false if the block is air.
      *
-     * @param blockState the block's IBlockState
+     * @param blockState      the block's IBlockState
      * @param blockStateAbove the IBlockState of the block above this one
      * @return true if the blockState can be replaced
      */
@@ -146,6 +173,7 @@ public class BetterCavesUtil {
     /**
      * Tests 8 edge points and center of chunk to approximate max surface altitude (y-coordinate) of the chunk.
      * Note that water blocks also count as the surface.
+     *
      * @param chunkIn chunk
      * @return y-coordinate of the approximate highest surface altitude in the chunk
      */
@@ -163,6 +191,7 @@ public class BetterCavesUtil {
     /**
      * Tests 8 edge points and center of chunk to approximate min surface altitude (y-coordinate) of the chunk.
      * Note that water blocks also count as the surface.
+     *
      * @param chunkIn chunk
      * @return y-coordinate of the approximate lowest surface altitude in the chunk
      */
@@ -180,14 +209,15 @@ public class BetterCavesUtil {
     /**
      * Tests every block in a 2x2 "sub-chunk" to get the max surface altitude (y-coordinate) of the sub-chunk.
      * Note that water blocks also count as the surface.
+     *
      * @param chunkIn chunk
-     * @param subX The x-coordinate of the sub-chunk. Note that this is regular chunk-local x-coordinate divided
-     *             by 2. E.g. If you want the last 2 blocks on the x-axis in the chunk (blocks 14 and 15), use subX = 7.
-     * @param subZ The z-coordinate of the sub-chunk. Note that this is regular chunk-local z-coordinate divided
-     *             by 2. E.g. If you want the last 2 blocks on the z-axis in the chunk (blocks 14 and 15), use subZ = 7.
+     * @param subX    The x-coordinate of the sub-chunk. Note that this is regular chunk-local x-coordinate divided
+     *                by 2. E.g. If you want the last 2 blocks on the x-axis in the chunk (blocks 14 and 15), use subX = 7.
+     * @param subZ    The z-coordinate of the sub-chunk. Note that this is regular chunk-local z-coordinate divided
+     *                by 2. E.g. If you want the last 2 blocks on the z-axis in the chunk (blocks 14 and 15), use subZ = 7.
      * @return Max surface height of the sub-chunk
      */
-    public static int getMaxSurfaceAltitudeSubChunk(IChunk chunkIn, int subX, int subZ)  {
+    public static int getMaxSurfaceAltitudeSubChunk(IChunk chunkIn, int subX, int subZ) {
         int maxHeight = 0;
         int[] testCoords = {0, 1}; // chunk-local x/z coordinates to test for max height
 
@@ -201,9 +231,10 @@ public class BetterCavesUtil {
     /**
      * Returns the y-coordinate of the surface block for a given local block coordinate for a given chunk.
      * Note that water blocks also count as the surface.
+     *
      * @param chunkIn chunk
-     * @param localX The block's chunk-local x-coordinate
-     * @param localZ The block's chunk-local z-coordinate
+     * @param localX  The block's chunk-local x-coordinate
+     * @param localZ  The block's chunk-local z-coordinate
      * @return The y-coordinate of the surface block
      */
     private static int getSurfaceAltitudeForColumn(IChunk chunkIn, int localX, int localZ) {
@@ -214,10 +245,11 @@ public class BetterCavesUtil {
      * Searches for the y-coordinate of the surface block for a given local block coordinate for a given chunk in a
      * specific range of y-coordinates.
      * Note that water blocks also count as the surface.
+     *
      * @param chunkIn chunk
-     * @param localX The block's chunk-local x-coordinate
-     * @param localZ The block's chunk-local z-coordinate
-     * @param topY The top y-coordinate to stop searching at
+     * @param localX  The block's chunk-local x-coordinate
+     * @param localZ  The block's chunk-local z-coordinate
+     * @param topY    The top y-coordinate to stop searching at
      * @param bottomY The bottom y-coordinate to start searching at
      * @return The y-coordinate of the surface block
      */

@@ -16,6 +16,8 @@ public class ConfigCaveGen {
     public final ForgeConfigSpec.ConfigValue<Integer> surfaceCutoff;
     public final ForgeConfigSpec.ConfigValue<Integer> maxCaveAltitude;
 
+    /*public final ForgeConfigSpec.ConfigValue<String> oceanFloorSetting;*/
+
     public ConfigCaveGen(final ForgeConfigSpec.Builder builder) {
         builder.push("Cave Generation");
 

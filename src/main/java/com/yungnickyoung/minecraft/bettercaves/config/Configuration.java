@@ -5,6 +5,7 @@ import net.minecraftforge.common.ForgeConfigSpec;
 final class Configuration {
 
     public final ConfigCaveGen configCaveGen;
+    public final OceanConfig oceanConfig;
     public final ConfigDebug configDebug;
     final ForgeConfigSpec.ConfigValue<Integer> lavaDepth;
     final ForgeConfigSpec.ConfigValue<Boolean> flattenBedrock;
@@ -41,6 +42,7 @@ final class Configuration {
                 .define("Water Block", "minecraft:water");
 
         configCaveGen = new ConfigCaveGen(builder);
+        oceanConfig = new OceanConfig(builder);
         configDebug = new ConfigDebug(builder);
 
         builder.pop();

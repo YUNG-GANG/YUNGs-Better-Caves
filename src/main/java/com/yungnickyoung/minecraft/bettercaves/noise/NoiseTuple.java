@@ -13,7 +13,6 @@ public class NoiseTuple {
     private int length = 0;
 
     /**
-     *
      * @param vals Variable-length array of float values to initialize the tuple with
      */
     public NoiseTuple(float... vals) {
@@ -25,6 +24,7 @@ public class NoiseTuple {
 
     /**
      * Appends the specified noise value to the end of this tuple.
+     *
      * @param val Noise value to be appended to this tuple.
      */
     public void put(float val) {
@@ -34,6 +34,7 @@ public class NoiseTuple {
 
     /**
      * Retrieves the noise value at the specified index
+     *
      * @param index The index of the desired float value
      * @return The float value of the noise at the given index
      * @throws IndexOutOfBoundsException if the index is out of this tuple's bounds
@@ -47,7 +48,8 @@ public class NoiseTuple {
 
     /**
      * Overwrites the noise value at the specified index. A value must already exist at the index.
-     * @param index The index of the noise value to overwrite
+     *
+     * @param index    The index of the noise value to overwrite
      * @param newValue The new noise value
      * @throws IndexOutOfBoundsException if the index is out of this tuple's bounds
      */
@@ -60,6 +62,7 @@ public class NoiseTuple {
 
     /**
      * Retrieves all the noise values of this tuple as a List of Floats
+     *
      * @return {@code List<Float>} of all noise values in this tuple
      */
     public List<Float> getNoiseValues() {

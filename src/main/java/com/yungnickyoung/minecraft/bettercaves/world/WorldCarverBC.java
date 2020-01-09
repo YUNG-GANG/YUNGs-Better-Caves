@@ -17,7 +17,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.IChunk;
-import net.minecraft.world.gen.carver.*;
+import net.minecraft.world.gen.carver.WorldCarver;
 import net.minecraft.world.gen.feature.ProbabilityConfig;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -30,45 +30,35 @@ import java.util.function.Function;
 public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
     public static int counter = 0;
     public long oldSeed = 0;
-
+    // List used to avoid operating on a chunk more than once
+    public Set<Pair<Integer, Integer>> coordList = new HashSet<>();
+    BlockState lavaBlock;
+    BlockState waterBlock;
     // The minecraft world
     private long seed = 0; // world seed
-
     // Cave types
     private AbstractBC caveCubic;
     private AbstractBC caveSimplex;
-
     // Cavern types
     private AbstractBC cavernLava;
     private AbstractBC cavernFloored;
     private AbstractBC cavernWater;
-
     private int surfaceCutoff;
-
     // Noise generators to group caves into cave regions based on xz-coordinates.
     // Cavern Region Controller uses simplex noise while the others use Voronoi regions (cellular noise)
     private FastNoise waterCavernController;
     private FastNoise cavernRegionController;
     private FastNoise caveRegionController;
-
     // Region generation noise thresholds, based on user config
     private float cubicCaveThreshold;
     private float simplexCaveThreshold;
     private float lavaCavernThreshold;
     private float flooredCavernThreshold;
     private float waterRegionThreshold;
-
     // Dictates the degree of smoothing along cavern region boundaries
     private float transitionRange = .15f;
-
     // Config option for using water regions
     private boolean enableWaterRegions;
-
-    BlockState lavaBlock;
-    BlockState waterBlock;
-
-    // List used to avoid operating on a chunk more than once
-    public Set<Pair<Integer, Integer>> coordList = new HashSet<>();
 
     public WorldCarverBC(Function<Dynamic<?>, ? extends ProbabilityConfig> p_i49929_1_, int p_i49929_2_) {
         super(p_i49929_1_, p_i49929_2_);
@@ -232,11 +222,11 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
                         // Top (Cave) layer:
                         if (caveGen != null)
                             caveGen.generateColumn(chunkX, chunkZ, chunkIn, localX, localZ, caveBottomY, maxSurfaceHeight,
-                                maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, liquidBlock);
+                                    maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, liquidBlock);
                         // Bottom (Cavern) layer:
                         if (cavernGen != null)
                             cavernGen.generateColumn(chunkX, chunkZ, chunkIn, localX, localZ, cavernBottomY, cavernTopY,
-                                maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, liquidBlock);
+                                    maxSurfaceHeight, minSurfaceHeight, surfaceCutoff, liquidBlock);
                     }
                 }
             }
@@ -257,7 +247,7 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
             case "Common":
                 return -.2f;
             case "Custom":
-                return -1f + (float)BetterCavesConfig.cubicCustomFrequency;
+                return -1f + (float) BetterCavesConfig.cubicCustomFrequency;
             default: // VeryCommon
                 return 0;
         }
@@ -275,7 +265,7 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
             case "Common":
                 return .2f;
             case "Custom":
-                return 1f - (float)BetterCavesConfig.simplexCustomFrequency;
+                return 1f - (float) BetterCavesConfig.simplexCustomFrequency;
             default: // VeryCommon
                 return 0;
         }
@@ -295,7 +285,7 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
             case "VeryCommon":
                 return -.1f;
             case "Custom":
-                return -1f + (float)BetterCavesConfig.lavaCavernCustomFrequency;
+                return -1f + (float) BetterCavesConfig.lavaCavernCustomFrequency;
             default: // Normal
                 return -.4f;
         }
@@ -315,7 +305,7 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
             case "VeryCommon":
                 return .1f;
             case "Custom":
-                return 1f - (float)BetterCavesConfig.flooredCavernCustomFrequency;
+                return 1f - (float) BetterCavesConfig.flooredCavernCustomFrequency;
             default: // Normal
                 return .4f;
         }
@@ -335,7 +325,7 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
             case "Always":
                 return 99f;
             case "Custom":
-                return 2f * (float)BetterCavesConfig.waterRegionCustomFreq - 1;
+                return 2f * (float) BetterCavesConfig.waterRegionCustomFreq - 1;
             default: // Normal
                 return -.15f;
         }
@@ -398,18 +388,18 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
 
         // Initialize Region Controllers using world seed and user config option for region size
         this.caveRegionController = new FastNoise();
-        this.caveRegionController.SetSeed((int)seed + 222);
+        this.caveRegionController.SetSeed((int) seed + 222);
         this.caveRegionController.SetFrequency(caveRegionSize);
         this.caveRegionController.SetNoiseType(FastNoise.NoiseType.Cellular);
         this.caveRegionController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
         // Note that Cavern Region Controller uses Simplex noise instead of Cellular
         this.cavernRegionController = new FastNoise();
-        this.cavernRegionController.SetSeed((int)seed + 333);
+        this.cavernRegionController.SetSeed((int) seed + 333);
         this.cavernRegionController.SetFrequency(cavernRegionSize);
 
         this.waterCavernController = new FastNoise();
-        this.waterCavernController.SetSeed((int)seed + 444);
+        this.waterCavernController.SetSeed((int) seed + 444);
         this.waterCavernController.SetFrequency(waterCavernRegionSize);
         this.waterCavernController.SetNoiseType(FastNoise.NoiseType.Cellular);
         this.waterCavernController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);

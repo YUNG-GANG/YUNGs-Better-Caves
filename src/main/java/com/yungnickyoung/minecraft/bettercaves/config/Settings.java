@@ -7,5 +7,6 @@ package com.yungnickyoung.minecraft.bettercaves.config;
 public class Settings {
     public static final String MOD_ID = "bettercaves";
 
-    private Settings() {} // private constructor prevents instantiation
+    private Settings() {
+    } // private constructor prevents instantiation
 }

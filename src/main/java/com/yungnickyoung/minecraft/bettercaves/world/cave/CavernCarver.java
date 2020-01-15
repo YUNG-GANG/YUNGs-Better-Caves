@@ -166,33 +166,33 @@ public class CavernCarver extends UndergroundCarver {
             switch (cavernType) {
                 case LAVA:
                     this.noiseType = FastNoise.NoiseType.PerlinFractal;
+                    this.noiseThreshold = config.lavaCavernNoiseThreshold.get();
                     this.fractalOctaves = config.lavaCavernFractalOctaves.get();
                     this.fractalGain = config.lavaCavernFractalGain.get();
                     this.fractalFreq = config.lavaCavernFractalFrequency.get();
                     this.numGens = config.lavaCavernNumGenerators.get();
                     this.yCompression = config.lavaCavernYCompression.get();
                     this.xzCompression = config.lavaCavernXZCompression.get();
-                    this.noiseThreshold = config.lavaCavernNoiseThreshold.get();
                     break;
                 case FLOORED:
                     this.noiseType = FastNoise.NoiseType.PerlinFractal;
+                    this.noiseThreshold = config.flooredCavernNoiseThreshold.get();
                     this.fractalOctaves = config.flooredCavernFractalOctaves.get();
                     this.fractalGain = config.flooredCavernFractalGain.get();
                     this.fractalFreq = config.flooredCavernFractalFrequency.get();
                     this.numGens = config.flooredCavernNumGenerators.get();
                     this.yCompression = config.flooredCavernYCompression.get();
                     this.xzCompression = config.flooredCavernXZCompression.get();
-                    this.noiseThreshold = config.flooredCavernNoiseThreshold.get();
                     break;
                 case WATER:
                     this.noiseType = FastNoise.NoiseType.PerlinFractal;
+                    this.noiseThreshold = config.waterCavernNoiseThreshold.get();
                     this.fractalOctaves = config.waterCavernFractalOctaves.get();
                     this.fractalGain = config.waterCavernFractalGain.get();
                     this.fractalFreq = config.waterCavernFractalFrequency.get();
                     this.numGens = config.waterCavernNumGenerators.get();
                     this.yCompression = config.waterCavernYCompression.get();
                     this.xzCompression = config.waterCavernXZCompression.get();
-                    this.noiseThreshold = config.waterCavernNoiseThreshold.get();
                     break;
             }
             return this;

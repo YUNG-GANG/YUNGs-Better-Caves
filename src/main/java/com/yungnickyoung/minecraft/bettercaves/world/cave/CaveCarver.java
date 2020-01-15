@@ -52,7 +52,7 @@ public class CaveCarver extends UndergroundCarver {
      * @param maxSurfaceHeight This column's max surface height. Can be approximated using
      *                         BetterCavesUtil#getMaxSurfaceAltitudeChunk or BetterCavesUtil#getMaxSurfaceAltitudeSubChunk
      * @param minSurfaceHeight This chunk's min surface height. Can be approximated using
-     *                         BetterCavesUtil#getMinSurfaceAltitudeChunk or BetterCavesUtil#getMinSurfaceHeightSubChunk
+     *                         BetterCavesUtil#getMinSurfaceAltitudeChunk or BetterCavesUtil#getMinSurfaceAltitudeSubChunk
      * @param liquidBlock Block to use for liquid, e.g. lava
      */
     @Override
@@ -153,37 +153,37 @@ public class CaveCarver extends UndergroundCarver {
             switch (caveType) {
                 case CUBIC:
                     this.noiseType = FastNoise.NoiseType.CubicFractal;
+                    this.noiseThreshold = config.cubicCaveNoiseThreshold.get();
                     this.fractalOctaves = config.cubicCaveFractalOctaves.get();
                     this.fractalGain = config.cubicCaveFractalGain.get();
                     this.fractalFreq = config.cubicCaveFractalFrequency.get();
-                    this.numGens = config.cubicCaveNumGenerators.get();
+                    this.enableTurbulence = config.cubicCaveEnableTurbulence.get();
                     this.turbOctaves = config.cubicCaveTurbulenceOctaves.get();
                     this.turbGain = config.cubicCaveTurbulenceGain.get();
                     this.turbFreq = config.cubicCaveTurbulenceFrequency.get();
-                    this.enableTurbulence = config.cubicCaveEnableTurbulence.get();
-                    this.yCompression = config.cubicCaveYCompression.get();
-                    this.xzCompression = config.cubicCaveXZCompression.get();
+                    this.numGens = config.cubicCaveNumGenerators.get();
+                    this.enableYAdjust = config.cubicCaveEnableVerticalAdjustment.get();
                     this.yAdjustF1 = config.cubicCaveYAdjustF1.get();
                     this.yAdjustF2 = config.cubicCaveYAdjustF2.get();
-                    this.noiseThreshold = config.cubicCaveNoiseThreshold.get();
-                    this.enableYAdjust = config.cubicCaveEnableVerticalAdjustment.get();
+                    this.xzCompression = config.cubicCaveXZCompression.get();
+                    this.yCompression = config.cubicCaveYCompression.get();
                     break;
                 case SIMPLEX:
                     this.noiseType = FastNoise.NoiseType.SimplexFractal;
+                    this.noiseThreshold = config.simplexCaveNoiseThreshold.get();
                     this.fractalOctaves = config.simplexCaveFractalOctaves.get();
                     this.fractalGain = config.simplexCaveFractalGain.get();
                     this.fractalFreq = config.simplexCaveFractalFrequency.get();
-                    this.numGens = config.simplexCaveNumGenerators.get();
+                    this.enableTurbulence = config.simplexCaveEnableTurbulence.get();
                     this.turbOctaves = config.simplexCaveTurbulenceOctaves.get();
                     this.turbGain = config.simplexCaveTurbulenceGain.get();
                     this.turbFreq = config.simplexCaveTurbulenceFrequency.get();
-                    this.enableTurbulence = config.simplexCaveEnableTurbulence.get();
-                    this.yCompression = config.simplexCaveYCompression.get();
-                    this.xzCompression = config.simplexCaveXZCompression.get();
+                    this.numGens = config.simplexCaveNumGenerators.get();
+                    this.enableYAdjust = config.simplexCaveEnableVerticalAdjustment.get();
                     this.yAdjustF1 = config.simplexCaveYAdjustF1.get();
                     this.yAdjustF2 = config.simplexCaveYAdjustF2.get();
-                    this.noiseThreshold = config.simplexCaveNoiseThreshold.get();
-                    this.enableYAdjust = config.simplexCaveEnableVerticalAdjustment.get();
+                    this.xzCompression = config.simplexCaveXZCompression.get();
+                    this.yCompression = config.simplexCaveYCompression.get();
                     break;
             }
             return this;

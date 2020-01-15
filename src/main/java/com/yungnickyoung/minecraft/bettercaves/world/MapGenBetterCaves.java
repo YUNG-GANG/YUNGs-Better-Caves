@@ -110,7 +110,7 @@ public class MapGenBetterCaves extends MapGenCaves {
         }
 
         // Default vals for max/min surface height
-        int maxSurfaceHeight = 128;
+        int maxSurfaceHeight = 128; // Default 128 for if debug visualizer is enabled
         int minSurfaceHeight = 60;
 
         // Cave generators - we will determine exactly what type these are based on the cave region for each column

@@ -251,6 +251,21 @@ public class CaveCarver extends UndergroundCarver {
             else if (digBlock)
                 this.digBlock(primer, liquidBlock, liquidAltitude, chunkX, chunkZ, localX, localZ, realY);
         }
+
+        /* ============ Post-Processing to remove any singular floating blocks in the ease-in range ============ */
+        IBlockState BlockStateAir = Blocks.AIR.getDefaultState();
+        for (int realY = transitionBoundary + 1; realY < topY; realY++) {
+            if (realY < 1 || realY > 255)
+                break;
+
+            IBlockState currBlock = primer.getBlockState(localX, realY, localZ);
+
+            if (BetterCavesUtil.canReplaceBlock(currBlock, BlockStateAir)
+                    && primer.getBlockState(localX, realY + 1, localZ) == BlockStateAir
+                    && primer.getBlockState(localX, realY - 1, localZ) == BlockStateAir
+            )
+                this.digBlock(primer, liquidBlock, liquidAltitude, chunkX, chunkZ, localX, localZ, realY);
+        }
     }
 
     /**

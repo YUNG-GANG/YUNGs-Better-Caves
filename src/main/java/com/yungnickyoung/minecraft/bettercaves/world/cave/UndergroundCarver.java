@@ -242,12 +242,16 @@ public class UndergroundCarver {
     public void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
                                int topY, int maxSurfaceHeight, int minSurfaceHeight, IBlockState liquidBlock,
                                float smoothAmp) {
-
     }
 
     public void generateColumnWithNoise(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
                                         int topY, int maxSurfaceHeight, int minSurfaceHeight, IBlockState liquidBlock, Map<Integer, NoiseTuple> noises) {
 
+    }
+
+    public void generateColumnWithNoise(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
+                                        int topY, int maxSurfaceHeight, int minSurfaceHeight, IBlockState liquidBlock,
+                                        float smoothAmp, Map<Integer, NoiseTuple> noises) {
 
     }
 

@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 
 public class CavernCarver extends UndergroundCarver {
-    private NoiseGen noiseGen;
     private CavernType cavernType;
 
     public CavernCarver(final CavernCarverBuilder builder) {

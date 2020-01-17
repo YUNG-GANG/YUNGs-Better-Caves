@@ -8,6 +8,7 @@ import com.yungnickyoung.minecraft.bettercaves.config.ConfigLoader;
 import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.enums.RegionSize;
+import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.world.bedrock.FlattenBedrock;
@@ -22,6 +23,9 @@ import net.minecraft.world.gen.MapGenCaves;
 import net.minecraftforge.event.terraingen.InitMapGenEvent;
 
 import javax.annotation.Nonnull;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Class that overrides vanilla cave gen with Better Caves gen.
@@ -70,6 +74,7 @@ public class MapGenBetterCaves extends MapGenCaves {
 
     // DEBUG
     private int counter = 200;
+    private int subChunkSize = 4;
 
     public MapGenBetterCaves() {
     }
@@ -117,6 +122,21 @@ public class MapGenBetterCaves extends MapGenCaves {
         UndergroundCarver cavernGen;
         UndergroundCarver caveGen;
 
+        // Store noise values for possible use
+//        Map<Integer, NoiseTuple[][]> simplexNoiseCube;
+//        Map<Integer, NoiseTuple[][]> cubicNoiseCube;
+//        Map<Integer, NoiseTuple[][]> noiseCube = null;
+        List<List<Map<Integer, NoiseTuple>>> simplexNoiseCube;
+        List<List<Map<Integer, NoiseTuple>>> cubicNoiseCube;
+        List<List<Map<Integer, NoiseTuple>>> noiseCube = null;
+
+        float[] startCoeffs = new float[subChunkSize];
+        float[] endCoeffs = new float[subChunkSize];
+        for (int n = 0; n < subChunkSize; n++) {
+            startCoeffs[n] = (float)(subChunkSize - 1 - n) / (subChunkSize - 1);
+            endCoeffs[n] = (float)(n) / (subChunkSize - 1);
+        }
+
         // These values are later set to the correct cave/cavern type's config vars for
         // caveBottom, and caveTop (only applicable for caverns, since caves perform some additional
         // operations to smoothly transition into the surface)
@@ -129,18 +149,28 @@ public class MapGenBetterCaves extends MapGenCaves {
             FlattenBedrock.flattenBedrock(primer, config.bedrockWidth.get());
 
         // We split chunks into 2x2 sub-chunks along the x-z axis for surface height calculations
-        for (int subX = 0; subX < 8; subX++) {
-            for (int subZ = 0; subZ < 8; subZ++) {
+        for (int subX = 0; subX < 16 / subChunkSize; subX++) {
+            for (int subZ = 0; subZ < 16 / subChunkSize; subZ++) {
+                int startX = subX * subChunkSize;
+                int startZ = subZ * subChunkSize;
+                int endX = startX + subChunkSize - 1;
+                int endZ = startZ + subChunkSize - 1;
+
                 if (!config.debugVisualizer.get())
-                    maxSurfaceHeight = BetterCavesUtil.getMaxSurfaceAltitudeSubChunk(primer, subX, subZ);
+                    maxSurfaceHeight = BetterCavesUtil.estimateMaxSurfaceAltitudeSubChunk(primer, startX, startZ, subChunkSize);
 
                 // maxSurfaceHeight (also used for max cave altitude) cannot exceed Max Cave Altitude setting
                 maxSurfaceHeight = Math.min(maxSurfaceHeight, config.maxCaveAltitude.get());
 
-                for (int offsetX = 0; offsetX < 2; offsetX++) {
-                    for (int offsetZ = 0; offsetZ < 2; offsetZ++) {
-                        int localX = (subX * 2) + offsetX; // chunk-local x-coordinate (0-15, inclusive)
-                        int localZ = (subZ * 2) + offsetZ; // chunk-local z-coordinate (0-15, inclusive)
+                simplexNoiseCube = caveSimplex.noiseGen.interpolateNoiseCube(chunkX, chunkZ, config.simplexCaveBottom.get(),
+                        maxSurfaceHeight, config.simplexCaveNumGenerators.get(), startX, endX, startZ, endZ, startCoeffs, endCoeffs);
+                cubicNoiseCube = caveCubic.noiseGen.interpolateNoiseCube(chunkX, chunkZ, config.cubicCaveBottom.get(),
+                        maxSurfaceHeight, config.cubicCaveNumGenerators.get(), startX, endX, startZ, endZ, startCoeffs, endCoeffs);
+
+                for (int offsetX = 0; offsetX < subChunkSize; offsetX++) {
+                    for (int offsetZ = 0; offsetZ < subChunkSize; offsetZ++) {
+                        int localX = startX + offsetX;
+                        int localZ = startZ + offsetZ;
                         int realX = (chunkX * 16) + localX;
                         int realZ = (chunkZ * 16) + localZ;
 
@@ -161,20 +191,27 @@ public class MapGenBetterCaves extends MapGenCaves {
                         if (caveRegionNoise < this.cubicCaveThreshold) {
                             caveGen = this.caveCubic;
                             caveBottomY = config.cubicCaveBottom.get();
+                            noiseCube = cubicNoiseCube;
                         } else if (caveRegionNoise >= this.simplexCaveThreshold) {
                             caveGen = this.caveSimplex;
                             caveBottomY = config.simplexCaveBottom.get();
+                            noiseCube = simplexNoiseCube;
                         } else {
                             if (config.enableVanillaCaves.get()) {
                                 defaultCaveGen.generate(worldIn, chunkX, chunkZ, primer);
                                 return;
                             }
                             caveGen = null;
-                            caveBottomY = 255;
+                            caveBottomY = 256;
                         }
 
-                        /* --------------------------- Configure Caverns --------------------------- */
+//                        Map<Integer, NoiseTuple> noiseColumn = new HashMap<>();
+//                        if (noiseCube != null)
+//                            for (int y = caveBottomY; y <= maxSurfaceHeight; y++)
+//                                noiseColumn.put(y, noiseCube.get(y)[offsetX][offsetZ]);
+                        Map<Integer, NoiseTuple> noiseColumn = noiseCube.get(offsetX).get(offsetZ);
 
+                        /* --------------------------- Configure Caverns --------------------------- */
                         // Noise values used to determine cavern region
                         float cavernRegionNoise = cavernRegionController.GetNoise(realX, realZ);
                         float waterRegionNoise = 99;
@@ -236,8 +273,8 @@ public class MapGenBetterCaves extends MapGenCaves {
                         /* --------------- Dig out caves and caverns for this column --------------- */
                         // Top (Cave) layer:
                         if (caveGen != null)
-                            caveGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, caveBottomY, maxSurfaceHeight,
-                                maxSurfaceHeight, minSurfaceHeight, liquidBlock);
+                            caveGen.generateColumnWithNoise(chunkX, chunkZ, primer, localX, localZ, caveBottomY, maxSurfaceHeight,
+                                maxSurfaceHeight, minSurfaceHeight, liquidBlock, noiseColumn);
                         // Bottom (Cavern) layer:
                         if (cavernGen != null)
                             cavernGen.generateColumn(chunkX, chunkZ, primer, localX, localZ, cavernBottomY, cavernTopY,

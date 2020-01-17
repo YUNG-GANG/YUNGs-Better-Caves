@@ -11,6 +11,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +19,6 @@ import java.util.Map;
  * Class for generation of Better Caves caves.
  */
 public class CaveCarver extends UndergroundCarver {
-    private NoiseGen noiseGen;
     private int surfaceCutoff;
 
     private CaveCarver(final CaveCarverBuilder builder) {
@@ -121,6 +121,134 @@ public class CaveCarver extends UndergroundCarver {
                     && primer.getBlockState(localX, realY + 1, localZ) == BlockStateAir
                     && primer.getBlockState(localX, realY - 1, localZ) == BlockStateAir
             )
+                this.digBlock(primer, liquidBlock, liquidAltitude, chunkX, chunkZ, localX, localZ, realY);
+        }
+    }
+
+    public void generateSubChunk(int chunkX, int chunkZ, ChunkPrimer primer, int startX, int endX, int startZ, int endZ, int bottomY,
+                               int topY, int maxSurfaceHeight, IBlockState liquidBlock) {
+        // Validate vars
+        if (startX < 0 || startX > 15 || endX < 0 || endX > 15)
+            return;
+        if (startZ < 0 || startZ > 15 || endZ < 0 || endZ > 15)
+            return;
+        if (bottomY < 0)
+            return;
+        if (topY > 255)
+            return;
+
+        // Altitude at which caves start closing off so they aren't all open to the surface
+        int transitionBoundary = maxSurfaceHeight - surfaceCutoff;
+
+        // Validate transition boundary
+        if (transitionBoundary < 1)
+            transitionBoundary = 1;
+
+        // Generate noise for caves.
+        // The noise for an individual block is represented by a NoiseTuple, which is essentially ...
+        // ... an n-tuple of floats, where n is equal to the number of generators passed to the function
+        Map<Integer, NoiseTuple[][]> interpolatedNoise = noiseGen.generateNoiseCube(chunkX, chunkZ, bottomY, topY, numGens, startX, endX, startZ, endZ, null, null);
+
+        // Pre-compute thresholds to ensure accuracy during pre-processing
+        Map<Integer, Float> thresholds = generateThresholds(topY, bottomY, transitionBoundary);
+
+        // Do some pre-processing on the noises to facilitate better cave generation.
+        // Basically this makes caves taller to give players more headroom.
+        // See the javadoc for the function for more info.
+//        if (this.enableYAdjust) {
+//            preprocessCaveNoiseCol(noises, topY, bottomY, thresholds, this.numGens);
+//        }
+        if (this.enableYAdjust)
+            preprocessCaveNoiseSubChunk(interpolatedNoise, topY, bottomY, thresholds, this.numGens);
+
+        /* =============== Dig out caves and caverns in this subchunk, based on noise values =============== */
+        for (int realY = topY; realY >= bottomY; realY--) {
+            NoiseTuple [][] layer = interpolatedNoise.get(realY);
+            for (int x = startX; x <= endX; x++) {
+                for (int z = startZ; z <= endZ; z++) {
+                    List<Float> noiseBlock = layer[x][z].getNoiseValues();
+                    boolean digBlock = true;
+
+                    for (float noise : noiseBlock) {
+                        if (noise < thresholds.get(realY)) {
+                            digBlock = false;
+                            break;
+                        }
+                    }
+
+                    int realX = chunkX * 16 + x;
+                    int realZ = chunkZ * 16 + z;
+
+                    // Consider digging out the block if it passed the threshold check, using the debug visualizer if enabled
+                    if (this.enableDebugVisualizer)
+                        visualizeDigBlock(digBlock, this.debugBlock, primer, realX, realY, realZ);
+                    else if (digBlock)
+                        this.digBlock(primer, liquidBlock, liquidAltitude, chunkX, chunkZ, realX, realZ, realY);
+                }
+            }
+        }
+
+        /* ============ Post-Processing to remove any singular floating blocks in the ease-in range ============ */
+//        IBlockState BlockStateAir = Blocks.AIR.getDefaultState();
+//        for (int realY = transitionBoundary + 1; realY < topY; realY++) {
+//            if (realY < 1 || realY > 255)
+//                break;
+//
+//            IBlockState currBlock = primer.getBlockState(localX, realY, localZ);
+//
+//            if (BetterCavesUtil.canReplaceBlock(currBlock, BlockStateAir)
+//                    && primer.getBlockState(localX, realY + 1, localZ) == BlockStateAir
+//                    && primer.getBlockState(localX, realY - 1, localZ) == BlockStateAir
+//            )
+//                this.digBlock(primer, liquidBlock, liquidAltitude, chunkX, chunkZ, localX, localZ, realY);
+//        }
+    }
+
+    @Override
+    public void generateColumnWithNoise(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
+                               int topY, int maxSurfaceHeight, int minSurfaceHeight, IBlockState liquidBlock, Map<Integer, NoiseTuple> noises) {
+        // Validate vars
+        if (localX < 0 || localX > 15)
+            return;
+        if (localZ < 0 || localZ > 15)
+            return;
+        if (bottomY < 0 || bottomY > 255)
+            return;
+        if (topY < 0 || topY > 255)
+            return;
+
+        // Altitude at which caves start closing off so they aren't all open to the surface
+        int transitionBoundary = maxSurfaceHeight - surfaceCutoff;
+
+        // Validate transition boundary
+        if (transitionBoundary < 1)
+            transitionBoundary = 1;
+
+        // Pre-compute thresholds to ensure accuracy during pre-processing
+        Map<Integer, Float> thresholds = generateThresholds(topY, bottomY, transitionBoundary);
+
+        // Do some pre-processing on the noises to facilitate better cave generation.
+        // Basically this makes caves taller to give players more headroom.
+        // See the javadoc for the function for more info.
+        if (this.enableYAdjust)
+            preprocessCaveNoiseCol(noises, topY, bottomY, thresholds, this.numGens);
+
+        /* =============== Dig out caves and caverns in this column, based on noise values =============== */
+        for (int realY = topY; realY >= bottomY; realY--) {
+            List<Float> noiseBlock = noises.get(realY).getNoiseValues();
+            boolean digBlock = true;
+
+            for (float noise : noiseBlock) {
+                if (noise < thresholds.get(realY)) {
+                    digBlock = false;
+                    break;
+                }
+            }
+
+            // Consider digging out the block if it passed the threshold check, using the debug visualizer if enabled
+            if (this.enableDebugVisualizer)
+                visualizeDigBlock(digBlock, this.debugBlock, primer, localX, realY, localZ);
+            else if (digBlock)
                 this.digBlock(primer, liquidBlock, liquidAltitude, chunkX, chunkZ, localX, localZ, realY);
         }
     }

@@ -1,6 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves.world.cave;
 
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
+import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
 import net.minecraft.block.material.Material;
@@ -19,6 +20,7 @@ public class UndergroundCarver {
     public UndergroundCarverBuilder builder;
     protected World world;
     protected long seed;
+    public NoiseGen noiseGen;
 
     /* ============================== Values determined through config ============================== */
     /* ------------- Ridged Multifractal Params ------------- */
@@ -124,6 +126,48 @@ public class UndergroundCarver {
         }
     }
 
+    protected void preprocessCaveNoiseSubChunk(Map<Integer, NoiseTuple[][]> noiseCube, int topY, int bottomY, Map<Integer, Float> thresholds, int numGens) {
+        /* Adjust simplex noise values based on blocks above in order to give the player more headroom */
+        for (int realY = topY; realY >= bottomY; realY--) {
+            float threshold = thresholds.get(realY);
+            NoiseTuple[][] layer = noiseCube.get(realY);
+            NoiseTuple[][] layerAbove = noiseCube.get(realY + 1);
+            NoiseTuple[][] layerTwoAbove = noiseCube.get(realY + 2);
+
+            for (int localX = 0; localX < layer.length; localX++) {
+                for (int localZ = 0; localZ < layer[0].length; localZ++) {
+                    NoiseTuple noiseBlock = layer[localX][localZ];
+
+                    boolean valid = true;
+                    for (float noise : noiseBlock.getNoiseValues()) {
+                        if (noise < threshold) {
+                            valid = false;
+                            break;
+                        }
+                    }
+
+                    if (valid) {
+                        /* Adjust noise values of blocks above to give the player more head room */
+                        float f1 = this.yAdjustF1;
+                        float f2 = this.yAdjustF2;
+
+                        if (realY < topY) {
+                            NoiseTuple tupleAbove = layerAbove[localX][localZ];
+                            for (int i = 0; i < numGens; i++)
+                                tupleAbove.set(i, ((1 - f1) * tupleAbove.get(i)) + (f1 * noiseBlock.get(i)));
+                        }
+
+                        if (realY < topY - 1) {
+                            NoiseTuple tupleTwoAbove = layerTwoAbove[localX][localZ];
+                            for (int i = 0; i < numGens; i++)
+                                tupleTwoAbove.set(i, ((1 - f2) * tupleTwoAbove.get(i)) + (f2 * noiseBlock.get(i)));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Calls util digBlock function if there are no water blocks adjacent, to avoid breaking into oceans and lakes.
      * @param primer The ChunkPrimer for this chunk
@@ -198,6 +242,13 @@ public class UndergroundCarver {
     public void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
                                int topY, int maxSurfaceHeight, int minSurfaceHeight, IBlockState liquidBlock,
                                float smoothAmp) {
+
+    }
+
+    public void generateColumnWithNoise(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
+                                        int topY, int maxSurfaceHeight, int minSurfaceHeight, IBlockState liquidBlock, Map<Integer, NoiseTuple> noises) {
+
+
     }
 
     /* ------------------------- Public Getters -------------------------*/

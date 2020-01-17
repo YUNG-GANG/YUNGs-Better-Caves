@@ -198,6 +198,23 @@ public class BetterCavesUtil {
         return maxHeight;
     }
 
+    public static int estimateMaxSurfaceAltitudeSubChunk(ChunkPrimer primer, int startX, int startZ, int subChunkSize)  {
+        int maxHeight = 0;
+        int endX = startX + subChunkSize - 1;
+        int endZ = startZ + subChunkSize - 1;
+
+        if (subChunkSize == 1)
+            return Math.max(maxHeight, getSurfaceAltitudeForColumn(primer, startX, startZ));
+
+        maxHeight = Math.max(maxHeight, getSurfaceAltitudeForColumn(primer, startX, startZ));
+        maxHeight = Math.max(maxHeight, getSurfaceAltitudeForColumn(primer, startX, endZ));
+        maxHeight = Math.max(maxHeight, getSurfaceAltitudeForColumn(primer, endX, startZ));
+        maxHeight = Math.max(maxHeight, getSurfaceAltitudeForColumn(primer, endX, endZ));
+        maxHeight = Math.max(maxHeight, getSurfaceAltitudeForColumn(primer, (endX - startX) / 2, (endZ - startZ) / 2));
+
+        return maxHeight;
+    }
+
     /**
      * Returns the y-coordinate of the surface block for a given local block coordinate for a given chunk.
      * Note that water blocks also count as the surface.

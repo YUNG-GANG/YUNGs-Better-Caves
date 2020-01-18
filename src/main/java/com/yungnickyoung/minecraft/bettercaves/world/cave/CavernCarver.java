@@ -1,17 +1,15 @@
 package com.yungnickyoung.minecraft.bettercaves.world.cave;
 
 import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
-import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
+import com.yungnickyoung.minecraft.bettercaves.noise.NoiseColumn;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
-import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 
 import java.util.List;
-import java.util.Map;
 
 public class CavernCarver extends UndergroundCarver {
     private CavernType cavernType;
@@ -82,7 +80,7 @@ public class CavernCarver extends UndergroundCarver {
         // Generate noise for caverns.
         // The noise for an individual block is represented by a NoiseTuple, which is essentially an n-tuple of
         // floats, where n is equal to the number of generators passed to the function
-        Map<Integer, NoiseTuple> noises =
+        NoiseColumn noises =
                 noiseGen.generateNoiseCol(chunkX, chunkZ, bottomY, topY, this.numGens, localX, localZ);
 
         /* =============== Dig out caves and caverns in this chunk, based on noise values =============== */
@@ -128,7 +126,7 @@ public class CavernCarver extends UndergroundCarver {
 
     public void generateColumnWithNoise(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
                                int topY, int maxSurfaceHeight, int minSurfaceHeight,
-                               IBlockState liquidBlock, float smoothAmp, Map<Integer, NoiseTuple> noises) {
+                               IBlockState liquidBlock, float smoothAmp, NoiseColumn noises) {
         // Validate vars
         if (localX < 0 || localX > 15)
             return;
@@ -196,7 +194,7 @@ public class CavernCarver extends UndergroundCarver {
 
     public void generateColumnWithNoise(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
                                         int topY, int maxSurfaceHeight, int minSurfaceHeight,
-                                        IBlockState liquidBlock, Map<Integer, NoiseTuple> noises) {
+                                        IBlockState liquidBlock, NoiseColumn noises) {
          generateColumnWithNoise(chunkX, chunkZ, primer, localX, localZ, bottomY, topY, maxSurfaceHeight, minSurfaceHeight, liquidBlock, 1, noises);
     }
 

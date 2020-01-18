@@ -1,6 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves.world.cave;
 
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
+import com.yungnickyoung.minecraft.bettercaves.noise.NoiseColumn;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
@@ -92,7 +93,7 @@ public class UndergroundCarver {
      * @param numGens Number of noise values to create per block. This is equal to the number of floats held
      *                in each NoiseTuple for each block in the noise column.
      */
-    protected void preprocessCaveNoiseCol(Map<Integer, NoiseTuple> noises, int topY, int bottomY, Map<Integer, Float> thresholds, int numGens) {
+    protected void preprocessCaveNoiseCol(NoiseColumn noises, int topY, int bottomY, Map<Integer, Float> thresholds, int numGens) {
         /* Adjust simplex noise values based on blocks above in order to give the player more headroom */
         for (int realY = topY; realY >= bottomY; realY--) {
             NoiseTuple noiseBlock = noises.get(realY);
@@ -245,13 +246,13 @@ public class UndergroundCarver {
     }
 
     public void generateColumnWithNoise(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
-                                        int topY, int maxSurfaceHeight, int minSurfaceHeight, IBlockState liquidBlock, Map<Integer, NoiseTuple> noises) {
+                                        int topY, int maxSurfaceHeight, int minSurfaceHeight, IBlockState liquidBlock, NoiseColumn noises) {
 
     }
 
     public void generateColumnWithNoise(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
                                         int topY, int maxSurfaceHeight, int minSurfaceHeight, IBlockState liquidBlock,
-                                        float smoothAmp, Map<Integer, NoiseTuple> noises) {
+                                        float smoothAmp, NoiseColumn noises) {
 
     }
 

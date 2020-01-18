@@ -81,12 +81,13 @@ public class NoiseGen {
      *                      values in each resultant NoiseTuple. Increasing this will impact performance.
      * @param localX The chunk-local x-coordinate of the column of blocks (0-15, inclusive)
      * @param localZ The chunk-local z-coordinate of the column of blocks (0-15, inclusive)
-     * @return HashMap mapping y-coordinate to NoiseTuple for that block
+     * @return NoiseColumn
      */
-    public Map<Integer, NoiseTuple> generateNoiseCol(int chunkX, int chunkZ, int minHeight, int maxHeight, int numGenerators, int localX, int localZ) {
+    public NoiseColumn generateNoiseCol(int chunkX, int chunkZ, int minHeight, int maxHeight, int numGenerators, int localX, int localZ) {
         initializeNoiseGens(numGenerators);
 
-        Map<Integer, NoiseTuple> altitudeToNoiseMap = new HashMap<>();
+//        Map<Integer, NoiseTuple> altitudeToNoiseMap = new HashMap<>();
+        NoiseColumn noiseColumn = new NoiseColumn();
 
         for (int y = minHeight; y <= maxHeight; y++) {
             int realX = localX + 16 * chunkX;
@@ -103,94 +104,34 @@ public class NoiseGen {
             for (int i = 0; i < numGenerators; i++)
                 newTuple.put(listNoiseGens.get(i).GetNoise(f.x, f.y, f.z));
 
-            altitudeToNoiseMap.put(y, newTuple);
+            noiseColumn.put(y, newTuple);
         }
 
-        return altitudeToNoiseMap;
+        return noiseColumn;
     }
 
-    public Map<Integer, NoiseTuple[][]> generateNoiseCube(int chunkX, int chunkZ, int minHeight, int maxHeight, int numGenerators,
-                                                          int startX, int endX, int startZ, int endZ, float[] startCoeffs, float[] endCoeffs) {
-        initializeNoiseGens(numGenerators);
-
-        // Calculate noise tuples for four corner columns
-        Map<Integer, NoiseTuple> noisesX0Z0 =
-                generateNoiseCol(chunkX, chunkZ, minHeight, maxHeight, numGenerators, startX, startZ);
-        Map<Integer, NoiseTuple> noisesX0Z1 =
-                generateNoiseCol(chunkX, chunkZ, minHeight, maxHeight, numGenerators, startX, endZ);
-        Map<Integer, NoiseTuple> noisesX1Z0 =
-                generateNoiseCol(chunkX, chunkZ, minHeight, maxHeight, numGenerators, endX, startZ);
-        Map<Integer, NoiseTuple> noisesX1Z1 =
-                generateNoiseCol(chunkX, chunkZ, minHeight, maxHeight, numGenerators, endX, endZ);
-
-        float startCoeff, endCoeff;
-
-        // Fill in the rest of the cube via linear interpolation
-        Map<Integer, NoiseTuple[][]> interpolatedNoise = new HashMap<>();
-        for (int y = minHeight; y <= maxHeight; y++) {
-            NoiseTuple[][] layer = new NoiseTuple[endX - startX + 1][endZ - startZ + 1];
-            layer[0][0] = noisesX0Z0.get(y);
-            layer[0][endZ - startZ] = noisesX0Z1.get(y);
-            layer[endX - startX][0] = noisesX1Z0.get(y);
-            layer[endX - startX][endZ - startZ] = noisesX1Z1.get(y);
-
-            // Single linear interpolation on two edge rows
-            for (int x = 1; x < endX - startX; x++) {
-//                float startXCoef = (float)(endX - startX - x) / (endX - startX);
-//                float endXCoef = (float)(x) / (endX - startX);
-                startCoeff = startCoeffs[x];
-                endCoeff = endCoeffs[x];
-                layer[x][0] = layer[0][0]
-                        .times(startCoeff)
-                        .plus(layer[endX - startX][0]
-                                .times(endCoeff));
-                layer[x][endZ - startZ] = layer[0][endZ - startZ]
-                        .times(startCoeff)
-                        .plus(layer[endX - startX][endZ - startZ]
-                                .times(endCoeff));
-            }
-
-            // Fill in rest of layer using bilinear interpolation
-            for (int x = 0; x <= endX - startX; x++) {
-                for (int z = 1; z < endZ - startZ; z++) {
-//                    float startZCoef = (float)(endZ - startZ - z) / (endZ - startZ);
-//                    float endZCoef = (float)(z) / (endZ - startZ);
-                    startCoeff = startCoeffs[z];
-                    endCoeff = endCoeffs[z];
-                    layer[x][z] = layer[x][0]
-                            .times(startCoeff)
-                            .plus(layer[x][endZ - startZ]
-                                    .times(endCoeff));
-                }
-            }
-
-            interpolatedNoise.put(y, layer);
-        }
-        return interpolatedNoise;
-    }
-
-    public List<List<Map<Integer, NoiseTuple>>> interpolateNoiseCube(int chunkX, int chunkZ, int minHeight, int maxHeight, int numGenerators,
+    public List<List<NoiseColumn>> interpolateNoiseCube(int chunkX, int chunkZ, int minHeight, int maxHeight, int numGenerators,
                                                           int startX, int endX, int startZ, int endZ, float[] startCoeffs, float[] endCoeffs) {
         initializeNoiseGens(numGenerators);
         int subChunkSize = endX - startX + 1;
         float startCoeff, endCoeff;
 
         // Calculate noise tuples for four corner columns
-        Map<Integer, NoiseTuple> noisesX0Z0 =
+        NoiseColumn noisesX0Z0 =
                 generateNoiseCol(chunkX, chunkZ, minHeight, maxHeight, numGenerators, startX, startZ);
-        Map<Integer, NoiseTuple> noisesX0Z1 =
+        NoiseColumn noisesX0Z1 =
                 generateNoiseCol(chunkX, chunkZ, minHeight, maxHeight, numGenerators, startX, endZ);
-        Map<Integer, NoiseTuple> noisesX1Z0 =
+        NoiseColumn noisesX1Z0 =
                 generateNoiseCol(chunkX, chunkZ, minHeight, maxHeight, numGenerators, endX, startZ);
-        Map<Integer, NoiseTuple> noisesX1Z1 =
+        NoiseColumn noisesX1Z1 =
                 generateNoiseCol(chunkX, chunkZ, minHeight, maxHeight, numGenerators, endX, endZ);
 
         // Initialize cube with 4 corner columns
-        List<List<Map<Integer, NoiseTuple>>> cube = new ArrayList<>();
+        List<List<NoiseColumn>> cube = new ArrayList<>();
         for (int x = 0; x < subChunkSize; x++) {
-            List<Map<Integer, NoiseTuple>> xLayer = new ArrayList<>();
+            List<NoiseColumn> xLayer = new ArrayList<>();
             for (int z = 0; z < subChunkSize; z++) {
-                Map<Integer, NoiseTuple> col = new HashMap<>();
+                NoiseColumn col = new NoiseColumn();
                 xLayer.add(col);
             }
             cube.add(xLayer);
@@ -205,7 +146,7 @@ public class NoiseGen {
             startCoeff = startCoeffs[x];
             endCoeff = endCoeffs[x];
 
-            Map<Integer, NoiseTuple> xz0 = cube.get(x).get(0);
+            NoiseColumn xz0 = cube.get(x).get(0);
             for (int y = minHeight; y <= maxHeight; y++) {
                 NoiseTuple startTuple = cube.get(0).get(0).get(y);
                 NoiseTuple endTuple = cube.get(subChunkSize - 1).get(0).get(y);
@@ -216,7 +157,7 @@ public class NoiseGen {
                 xz0.put(y, newTuple);
             }
 
-            Map<Integer, NoiseTuple> xz1 = cube.get(x).get(subChunkSize - 1);
+            NoiseColumn xz1 = cube.get(x).get(subChunkSize - 1);
             for (int y = minHeight; y <= maxHeight; y++) {
                 NoiseTuple startTuple = cube.get(0).get(subChunkSize - 1).get(y);
                 NoiseTuple endTuple = cube.get(subChunkSize - 1).get(subChunkSize - 1).get(y);
@@ -234,7 +175,7 @@ public class NoiseGen {
                 startCoeff = startCoeffs[z];
                 endCoeff = endCoeffs[z];
 
-                Map<Integer, NoiseTuple> xz = cube.get(x).get(z);
+                NoiseColumn xz = cube.get(x).get(z);
 
                 for (int y = minHeight; y <= maxHeight; y++) {
                     NoiseTuple startTuple = cube.get(x).get(0).get(y);

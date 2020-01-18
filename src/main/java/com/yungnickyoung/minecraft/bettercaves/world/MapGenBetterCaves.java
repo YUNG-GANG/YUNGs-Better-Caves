@@ -8,6 +8,7 @@ import com.yungnickyoung.minecraft.bettercaves.config.ConfigLoader;
 import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.enums.RegionSize;
+import com.yungnickyoung.minecraft.bettercaves.noise.NoiseColumn;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
@@ -127,17 +128,17 @@ public class MapGenBetterCaves extends MapGenCaves {
         UndergroundCarver cavernGen;
         UndergroundCarver caveGen;
 
-        List<List<Map<Integer, NoiseTuple>>> caveSimplexNoiseCube;
-        List<List<Map<Integer, NoiseTuple>>> caveCubicNoiseCube;
-        List<List<Map<Integer, NoiseTuple>>> caveNoiseCube;
+        List<List<NoiseColumn>> caveSimplexNoiseCube;
+        List<List<NoiseColumn>> caveCubicNoiseCube;
+        List<List<NoiseColumn>> caveNoiseCube;
 
-        List<List<Map<Integer, NoiseTuple>>> cavernLavaNoiseCube;
-        List<List<Map<Integer, NoiseTuple>>> cavernFlooredNoiseCube;
-        List<List<Map<Integer, NoiseTuple>>> cavernWaterNoiseCube;
-        List<List<Map<Integer, NoiseTuple>>> cavernNoiseCube;
+        List<List<NoiseColumn>> cavernLavaNoiseCube;
+        List<List<NoiseColumn>> cavernFlooredNoiseCube;
+        List<List<NoiseColumn>> cavernWaterNoiseCube;
+        List<List<NoiseColumn>> cavernNoiseCube;
 
-        Map<Integer, NoiseTuple> caveNoiseColumn;
-        Map<Integer, NoiseTuple> cavernNoiseColumn;
+        NoiseColumn caveNoiseColumn;
+        NoiseColumn cavernNoiseColumn;
 
         // These values are later set to the correct cave/cavern type's config vars for
         // caveBottom, and caveTop (only applicable for caverns, since caves perform some additional

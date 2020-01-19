@@ -78,7 +78,7 @@ public class CaveCarver extends UndergroundCarver {
         // The noise for an individual block is represented by a NoiseTuple, which is essentially an n-tuple of
         // floats, where n is equal to the number of generators passed to the function
         NoiseColumn noises =
-                noiseGen.generateNoiseCol(chunkX, chunkZ, bottomY, topY, this.numGens, localX, localZ);
+                noiseGen.generateNoiseColumn(chunkX, chunkZ, bottomY, topY, this.numGens, localX, localZ);
 
         // Pre-compute thresholds to ensure accuracy during pre-processing
         Map<Integer, Float> thresholds = generateThresholds(topY, bottomY, transitionBoundary);

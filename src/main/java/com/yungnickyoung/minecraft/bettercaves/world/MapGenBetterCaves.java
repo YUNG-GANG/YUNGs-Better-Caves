@@ -77,21 +77,12 @@ public class MapGenBetterCaves extends MapGenCaves {
 
     // DEBUG
     private int counter = 200;
-    private int subChunkSize = 4;
-    private float[] startCoeffs = new float[subChunkSize];
-    private float[] endCoeffs = new float[subChunkSize];
+
     public MapGenBetterCaves() {
     }
 
     public MapGenBetterCaves(InitMapGenEvent event) {
         this.defaultCaveGen = event.getOriginalGen();
-
-        // Calculate coefficients used for bilinear interpolation during noise calculation.
-        // These are initialized one time here to avoid redundant computation later on.
-        for (int n = 0; n < subChunkSize; n++) {
-            startCoeffs[n] = (float)(subChunkSize - 1 - n) / (subChunkSize - 1);
-            endCoeffs[n] = (float)(n) / (subChunkSize - 1);
-        }
     }
 
     /**
@@ -158,12 +149,12 @@ public class MapGenBetterCaves extends MapGenCaves {
             FlattenBedrock.flattenBedrock(primer, config.bedrockWidth.get());
 
         // We split chunks into 2x2 sub-chunks along the x-z axis for surface height calculations
-        for (int subX = 0; subX < 16 / subChunkSize; subX++) {
-            for (int subZ = 0; subZ < 16 / subChunkSize; subZ++) {
-                int startX = subX * subChunkSize;
-                int startZ = subZ * subChunkSize;
-                int endX = startX + subChunkSize - 1;
-                int endZ = startZ + subChunkSize - 1;
+        for (int subX = 0; subX < 16 / Settings.SUB_CHUNK_SIZE; subX++) {
+            for (int subZ = 0; subZ < 16 / Settings.SUB_CHUNK_SIZE; subZ++) {
+                int startX = subX * Settings.SUB_CHUNK_SIZE;
+                int startZ = subZ * Settings.SUB_CHUNK_SIZE;
+                int endX = startX + Settings.SUB_CHUNK_SIZE - 1;
+                int endZ = startZ + Settings.SUB_CHUNK_SIZE - 1;
                 BlockPos startPos = new BlockPos(chunkX * 16 + startX, 1, chunkZ * 16 + startZ);
                 BlockPos endPos   = new BlockPos(chunkX * 16 + endX, 1, chunkZ * 16 + endZ);
 
@@ -177,13 +168,13 @@ public class MapGenBetterCaves extends MapGenCaves {
                 cavernNoiseCube = null;
 
                 if (!config.debugVisualizer.get())
-                    maxSurfaceHeight = BetterCavesUtil.estimateMaxSurfaceAltitudeSubChunk(primer, startPos, subChunkSize);
+                    maxSurfaceHeight = BetterCavesUtil.estimateMaxSurfaceAltitudeSubChunk(primer, startPos, Settings.SUB_CHUNK_SIZE);
 
                 // maxSurfaceHeight (also used for max cave altitude) cannot exceed Max Cave Altitude setting
                 maxSurfaceHeight = Math.min(maxSurfaceHeight, config.maxCaveAltitude.get());
 
-                for (int offsetX = 0; offsetX < subChunkSize; offsetX++) {
-                    for (int offsetZ = 0; offsetZ < subChunkSize; offsetZ++) {
+                for (int offsetX = 0; offsetX < Settings.SUB_CHUNK_SIZE; offsetX++) {
+                    for (int offsetZ = 0; offsetZ < Settings.SUB_CHUNK_SIZE; offsetZ++) {
                         int localX = startX + offsetX;
                         int localZ = startZ + offsetZ;
                         BlockPos colPos = new BlockPos(chunkX * 16 + localX, 1, chunkZ * 16 + localZ);
@@ -208,14 +199,14 @@ public class MapGenBetterCaves extends MapGenCaves {
                             caveBottomY = config.cubicCaveBottom.get();
                             if (caveCubicNoiseCube == null)
                                 caveCubicNoiseCube = caveCubic.noiseGen.interpolateNoiseCube(startPos, endPos, config.cubicCaveBottom.get(),
-                                        maxSurfaceHeight, startCoeffs, endCoeffs);
+                                        maxSurfaceHeight);
                             caveNoiseCube = caveCubicNoiseCube;
                         } else if (caveRegionNoise >= this.simplexCaveThreshold) {
                             caveGen = this.caveSimplex;
                             caveBottomY = config.simplexCaveBottom.get();
                             if (caveSimplexNoiseCube == null)
                                 caveSimplexNoiseCube = caveSimplex.noiseGen.interpolateNoiseCube(startPos, endPos, config.simplexCaveBottom.get(),
-                                        maxSurfaceHeight, startCoeffs, endCoeffs);
+                                        maxSurfaceHeight);
                             caveNoiseCube = caveSimplexNoiseCube;
                         } else {
                             if (config.enableVanillaCaves.get()) {
@@ -253,14 +244,14 @@ public class MapGenBetterCaves extends MapGenCaves {
                                 cavernGen = this.cavernWater;
                                 if (cavernWaterNoiseCube == null)
                                     cavernWaterNoiseCube = cavernWater.noiseGen.interpolateNoiseCube(startPos, endPos, cavernBottomY,
-                                            cavernTopY, startCoeffs, endCoeffs);
+                                            cavernTopY);
                                 cavernNoiseCube = cavernWaterNoiseCube;
                             } else {
                                 // Generate lava cavern in this column
                                 cavernGen = this.cavernLava;
                                 if (cavernLavaNoiseCube == null)
                                     cavernLavaNoiseCube = cavernLava.noiseGen.interpolateNoiseCube(startPos, endPos, cavernBottomY,
-                                            cavernTopY, startCoeffs, endCoeffs);
+                                            cavernTopY);
                                 cavernNoiseCube = cavernLavaNoiseCube;
                             }
                         } else if (cavernRegionNoise >= lavaCavernThreshold && cavernRegionNoise <= flooredCavernThreshold) {
@@ -279,7 +270,7 @@ public class MapGenBetterCaves extends MapGenCaves {
                             cavernTopY = config.flooredCavernTop.get();
                             if (cavernFlooredNoiseCube == null)
                                 cavernFlooredNoiseCube = cavernFloored.noiseGen.interpolateNoiseCube(startPos, endPos, cavernBottomY,
-                                        cavernTopY, startCoeffs, endCoeffs);
+                                        cavernTopY);
                             cavernNoiseCube = cavernFlooredNoiseCube;
                         }
 
@@ -293,7 +284,7 @@ public class MapGenBetterCaves extends MapGenCaves {
                                 if (config.enableWaterRegions.get() && waterRegionNoise < this.waterRegionThreshold) {
                                     if (cavernWaterNoiseCube == null)
                                         cavernWaterNoiseCube = cavernWater.noiseGen.interpolateNoiseCube(startPos, endPos, config.lavaCavernBottom.get(),
-                                                config.lavaCavernTop.get(), startCoeffs, endCoeffs);
+                                                config.lavaCavernTop.get());
                                     cavernNoiseColumn = cavernWaterNoiseCube.get(offsetX).get(offsetZ);
                                     this.cavernWater.generateColumnWithNoise(primer, colPos, config.lavaCavernBottom.get(), config.lavaCavernTop.get(),
                                             maxSurfaceHeight, minSurfaceHeight, liquidBlock, smoothAmp, cavernNoiseColumn);
@@ -301,7 +292,7 @@ public class MapGenBetterCaves extends MapGenCaves {
                                 else {
                                     if (cavernLavaNoiseCube == null)
                                         cavernLavaNoiseCube = cavernLava.noiseGen.interpolateNoiseCube(startPos, endPos, config.lavaCavernBottom.get(),
-                                                config.lavaCavernTop.get(), startCoeffs, endCoeffs);
+                                                config.lavaCavernTop.get());
                                     cavernNoiseColumn = cavernLavaNoiseCube.get(offsetX).get(offsetZ);
                                     this.cavernLava.generateColumnWithNoise(primer, colPos, config.lavaCavernBottom.get(), config.lavaCavernTop.get(),
                                             maxSurfaceHeight, minSurfaceHeight, liquidBlock, smoothAmp, cavernNoiseColumn);
@@ -310,7 +301,7 @@ public class MapGenBetterCaves extends MapGenCaves {
                                 float smoothAmp = Math.abs((cavernRegionNoise - (flooredCavernThreshold - transitionRange)) / transitionRange);
                                 if (cavernFlooredNoiseCube == null)
                                     cavernFlooredNoiseCube = cavernFloored.noiseGen.interpolateNoiseCube(startPos, endPos, config.flooredCavernBottom.get(),
-                                            config.flooredCavernTop.get(), startCoeffs, endCoeffs);
+                                            config.flooredCavernTop.get());
                                 cavernNoiseColumn = cavernFlooredNoiseCube.get(offsetX).get(offsetZ);
                                 this.cavernFloored.generateColumnWithNoise(primer, colPos, config.flooredCavernBottom.get(), config.flooredCavernTop.get(),
                                         maxSurfaceHeight, minSurfaceHeight, liquidBlock, smoothAmp, cavernNoiseColumn);

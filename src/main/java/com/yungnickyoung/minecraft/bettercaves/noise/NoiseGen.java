@@ -1,5 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.noise;
 
+import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -118,12 +119,9 @@ public class NoiseGen {
      * @param minHeight The bottom y-coordinate to start generating noise values for
      * @param maxHeight The top y-coordinate to stop generating noise values for
      * @param subChunkSize size of the subChunk, in blocks. Should be a power of 2.
-     * @param startCoeffs Coefficients for the weight of the start noise value for linear interpolation
-     * @param endCoeffs Coefficients for the weight of the end noise value for linear interpolation
      * @return NoiseColumn
      */
-    public NoiseColumn interpolateNoiseColumn(BlockPos blockPos, int minHeight, int maxHeight,
-                                              int subChunkSize, float[] startCoeffs, float[] endCoeffs) {
+    public NoiseColumn interpolateNoiseColumn(BlockPos blockPos, int minHeight, int maxHeight, int subChunkSize) {
         int startY;
         int x = blockPos.getX();
         int z = blockPos.getZ();
@@ -158,8 +156,8 @@ public class NoiseGen {
                     startCoeff = (float)(endY - startY - y - startY) / (endY - startY);
                     endCoeff = (float)(y - startY) / (endY - startY);
                 } else {
-                    startCoeff = startCoeffs[y - startY];
-                    endCoeff = endCoeffs[y - startY];
+                    startCoeff = Settings.START_COEFFS[y - startY];
+                    endCoeff = Settings.END_COEFFS[y - startY];
                 }
                 NoiseTuple newTuple = startTuple
                         .times(startCoeff)
@@ -182,12 +180,9 @@ public class NoiseGen {
      *                 This column must have x and z coordinates higher than that of startPos.
      * @param minHeight The bottom y-coordinate to start generating noise values for
      * @param maxHeight The top y-coordinate to stop generating noise values for
-     * @param startCoeffs Coefficients for the weight of the start noise value for linear interpolation
-     * @param endCoeffs Coefficients for the weight of the end noise value for linear interpolation
      * @return NoiseCube
      */
-    public NoiseCube interpolateNoiseCube(BlockPos startPos,BlockPos endPos, int minHeight, int maxHeight,
-                                                        float[] startCoeffs, float[] endCoeffs) {
+    public NoiseCube interpolateNoiseCube(BlockPos startPos, BlockPos endPos, int minHeight, int maxHeight) {
         float startCoeff, endCoeff;
         int startX       = startPos.getX();
         int endX         = endPos.getX();
@@ -214,8 +209,8 @@ public class NoiseGen {
 
         // Populate edge planes along x axis
         for (int x = 1; x < subChunkSize - 1; x++) {
-            startCoeff = startCoeffs[x];
-            endCoeff = endCoeffs[x];
+            startCoeff = Settings.START_COEFFS[x];
+            endCoeff = Settings.END_COEFFS[x];
 
             NoiseColumn xz0 = cube.get(x).get(0);
             for (int y = minHeight; y <= maxHeight; y++) {
@@ -243,8 +238,8 @@ public class NoiseGen {
         // Populate rest of cube by interpolating the two edge planes
         for (int x = 0; x < subChunkSize; x++) {
             for (int z = 1; z < subChunkSize - 1; z++) {
-                startCoeff = startCoeffs[z];
-                endCoeff = endCoeffs[z];
+                startCoeff = Settings.START_COEFFS[z];
+                endCoeff = Settings.END_COEFFS[z];
 
                 NoiseColumn xz = cube.get(x).get(z);
 

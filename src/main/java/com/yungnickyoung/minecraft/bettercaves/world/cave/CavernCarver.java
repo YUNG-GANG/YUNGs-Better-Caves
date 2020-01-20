@@ -25,6 +25,7 @@ public class CavernCarver extends UndergroundCarver {
                 this.fractalOctaves,
                 this.fractalGain,
                 this.fractalFreq,
+                this.numGens,
                 this.turbOctaves,
                 this.turbGain,
                 this.turbFreq,
@@ -82,7 +83,7 @@ public class CavernCarver extends UndergroundCarver {
         // The noise for an individual block is represented by a NoiseTuple, which is essentially an n-tuple of
         // floats, where n is equal to the number of generators passed to the function
         NoiseColumn noises =
-                noiseGen.generateNoiseColumn(colPos, bottomY, topY, this.numGens);
+                noiseGen.generateNoiseColumn(colPos, bottomY, topY);
 
         /* =============== Dig out caves and caverns in this chunk, based on noise values =============== */
         for (int y = topY; y >= bottomY; y--) {

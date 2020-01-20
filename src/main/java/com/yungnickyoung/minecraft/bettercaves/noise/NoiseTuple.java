@@ -58,14 +58,6 @@ public class NoiseTuple {
         noiseValues.set(index, newValue);
     }
 
-    public NoiseTuple averageWith(NoiseTuple other) {
-        NoiseTuple averages = new NoiseTuple();
-        for (int i = 0; i < length; i++) {
-            averages.put((noiseValues.get(i) + other.get(i)) / 2);
-        }
-        return averages;
-    }
-
     public NoiseTuple times(float magnitude) {
         NoiseTuple result = new NoiseTuple();
         for (int i = 0; i < length; i++) {

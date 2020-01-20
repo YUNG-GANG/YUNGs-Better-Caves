@@ -30,6 +30,7 @@ public class CaveCarver extends UndergroundCarver {
                 this.fractalOctaves,
                 this.fractalGain,
                 this.fractalFreq,
+                this.numGens,
                 this.turbOctaves,
                 this.turbGain,
                 this.turbFreq,
@@ -78,7 +79,7 @@ public class CaveCarver extends UndergroundCarver {
         // The noise for an individual block is represented by a NoiseTuple, which is essentially an n-tuple of
         // floats, where n is equal to the number of generators passed to the function
         NoiseColumn noises =
-                noiseGen.generateNoiseColumn(colPos, bottomY, topY, this.numGens);
+                noiseGen.generateNoiseColumn(colPos, bottomY, topY);
 
         // Pre-compute thresholds to ensure accuracy during pre-processing
         Map<Integer, Float> thresholds = generateThresholds(topY, bottomY, transitionBoundary);

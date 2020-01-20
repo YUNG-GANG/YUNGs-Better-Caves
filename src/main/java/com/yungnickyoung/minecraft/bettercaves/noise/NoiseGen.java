@@ -12,33 +12,34 @@ import java.util.List;
  * This class serves as an interface between Better Caves caves/caverns and FastNoise.
  */
 public class NoiseGen {
-    private long seed; // world seed should be used for reproducibility
+    private long                seed; // world seed should be used for reproducibility
     private FastNoise.NoiseType noiseType;
 
     /* ------------- Noise generation function parameters ------------- */
-    private int fractalOctaves;
-    private float fractalGain;
-    private float fractalFrequency;
+    private int                 fractalOctaves;
+    private float               fractalGain;
+    private float               fractalFrequency;
+    private int                 numGenerators;
 
     /* ---------------- Turbulence function parameters ---------------- */
-    private int turbulenceOctaves;
-    private float turbulenceGain;
-    private float turbulenceFrequency;
+    private int                 turbulenceOctaves;
+    private float               turbulenceGain;
+    private float               turbulenceFrequency;
 
     /* ----------------- Switch for enabling turbulence --------------- */
-    private boolean enableTurbulence;
+    private boolean             enableTurbulence;
 
     /* ----- Compression values - these control the size of caves ----- */
     /** Determines how steep and tall caves are */
-    private float yCompression;
+    private float               yCompression;
     /** Determines how horizontally large and stretched out caves are */
-    private float xzCompression;
+    private float               xzCompression;
 
-    /** List of all distinct noise generators */
-    private List<FastNoise> listNoiseGens = new ArrayList<>();
+    /** List of all distinct noise generators, one for each octave */
+    private List<FastNoise>     listNoiseGens = new ArrayList<>();
 
     /** Turbulence generator */
-    private FastNoise turbulenceGen = new FastNoise();
+    private FastNoise           turbulenceGen = new FastNoise();
 
     /**
      *
@@ -47,6 +48,8 @@ public class NoiseGen {
      * @param fOctaves Number of fractal octaves used in noise generation
      * @param fGain Amount of fractal gain used in noise generation
      * @param fFreq Fractal frequency used in noise generation
+     * @param numGenerators Number of noise values to calculate per block. This number will be the number of noise
+     *                      values in each resultant NoiseTuple. Increasing this will impact performance.
      * @param tOctaves Number of octaves used in the turbulence function
      * @param tGain Amount of gain used in the turbulence function
      * @param tFreq Frequency used in the turbulence function
@@ -55,18 +58,21 @@ public class NoiseGen {
      * @param xzComp xz-compression factor
      */
     public NoiseGen(FastNoise.NoiseType noiseType, World world,int fOctaves, float fGain, float fFreq,
-                    int tOctaves, float tGain, float tFreq, boolean useTurb, float yComp, float xzComp) {
+                    int numGenerators, int tOctaves, float tGain, float tFreq, boolean useTurb, float yComp,
+                    float xzComp) {
         this.noiseType = noiseType;
         this.seed = world.getSeed();
         this.fractalOctaves = fOctaves;
         this.fractalGain = fGain;
         this.fractalFrequency = fFreq;
+        this.numGenerators = numGenerators;
         this.turbulenceOctaves = tOctaves;
         this.turbulenceGain = tGain;
         this.turbulenceFrequency = tFreq;
         this.enableTurbulence = useTurb;
         this.yCompression = yComp;
         this.xzCompression = xzComp;
+        initializeNoiseGens();
         initializeTurbulenceGen();
     }
 
@@ -76,16 +82,12 @@ public class NoiseGen {
 
      * @param minHeight The bottom y-coordinate to start generating noise values for
      * @param maxHeight The top y-coordinate to stop generating noise values for
-     * @param numGenerators Number of noise values to calculate per block. This number will be the number of noise
-     *                      values in each resultant NoiseTuple. Increasing this will impact performance.
      * @return NoiseColumn
      */
-    public NoiseColumn generateNoiseColumn(BlockPos blockPos, int minHeight, int maxHeight, int numGenerators) {
+    public NoiseColumn generateNoiseColumn(BlockPos blockPos, int minHeight, int maxHeight) {
         int x = blockPos.getX();
         int z = blockPos.getZ();
         NoiseColumn noiseColumn = new NoiseColumn();
-
-        initializeNoiseGens(numGenerators);
 
         for (int y = minHeight; y <= maxHeight; y++) {
             Vector3f f = new Vector3f(x * xzCompression, y * yCompression, z * xzCompression);
@@ -115,21 +117,17 @@ public class NoiseGen {
      * @param blockPos Position of any block in the column (the y-coordinate is ignored)
      * @param minHeight The bottom y-coordinate to start generating noise values for
      * @param maxHeight The top y-coordinate to stop generating noise values for
-     * @param numGenerators Number of noise values to calculate per block. This number will be the number of noise
-     *                      values in each resultant NoiseTuple. Increasing this will impact performance.
      * @param subChunkSize size of the subChunk, in blocks. Should be a power of 2.
      * @param startCoeffs Coefficients for the weight of the start noise value for linear interpolation
      * @param endCoeffs Coefficients for the weight of the end noise value for linear interpolation
      * @return NoiseColumn
      */
-    public NoiseColumn interpolateNoiseColumn(BlockPos blockPos, int minHeight, int maxHeight, int numGenerators,
+    public NoiseColumn interpolateNoiseColumn(BlockPos blockPos, int minHeight, int maxHeight,
                                               int subChunkSize, float[] startCoeffs, float[] endCoeffs) {
         int startY;
         int x = blockPos.getX();
         int z = blockPos.getZ();
         NoiseColumn noiseColumn = new NoiseColumn();
-
-        initializeNoiseGens(numGenerators);
 
         // Calculate noise for every nth block in the column, using bilinear interpolation for the rest
         for (startY = minHeight; startY <= maxHeight; startY += subChunkSize) {
@@ -184,14 +182,12 @@ public class NoiseGen {
      *                 This column must have x and z coordinates higher than that of startPos.
      * @param minHeight The bottom y-coordinate to start generating noise values for
      * @param maxHeight The top y-coordinate to stop generating noise values for
-     * @param numGenerators Number of noise values to calculate per block. This number will be the number of noise
-     *                      values in each resultant NoiseTuple. Increasing this will impact performance.
      * @param startCoeffs Coefficients for the weight of the start noise value for linear interpolation
      * @param endCoeffs Coefficients for the weight of the end noise value for linear interpolation
-     * @return NoiseColumn
+     * @return NoiseCube
      */
-    public List<List<NoiseColumn>> interpolateNoiseCube(BlockPos startPos,BlockPos endPos, int minHeight, int maxHeight,
-                                                        int numGenerators, float[] startCoeffs, float[] endCoeffs) {
+    public NoiseCube interpolateNoiseCube(BlockPos startPos,BlockPos endPos, int minHeight, int maxHeight,
+                                                        float[] startCoeffs, float[] endCoeffs) {
         float startCoeff, endCoeff;
         int startX       = startPos.getX();
         int endX         = endPos.getX();
@@ -199,28 +195,18 @@ public class NoiseGen {
         int endZ         = endPos.getZ();
         int subChunkSize = endX - startX + 1;
 
-        initializeNoiseGens(numGenerators);
-
         // Calculate noise tuples for four corner columns
         NoiseColumn noisesX0Z0 =
-                generateNoiseColumn(new BlockPos(startX, 1, startZ), minHeight, maxHeight, numGenerators);
+                generateNoiseColumn(new BlockPos(startX, 1, startZ), minHeight, maxHeight);
         NoiseColumn noisesX0Z1 =
-                generateNoiseColumn(new BlockPos(startX, 1, endZ), minHeight, maxHeight, numGenerators);
+                generateNoiseColumn(new BlockPos(startX, 1, endZ), minHeight, maxHeight);
         NoiseColumn noisesX1Z0 =
-                generateNoiseColumn(new BlockPos(endX, 1, startZ), minHeight, maxHeight, numGenerators);
+                generateNoiseColumn(new BlockPos(endX, 1, startZ), minHeight, maxHeight);
         NoiseColumn noisesX1Z1 =
-                generateNoiseColumn(new BlockPos(endX, 1, endZ), minHeight, maxHeight, numGenerators);
+                generateNoiseColumn(new BlockPos(endX, 1, endZ), minHeight, maxHeight);
 
         // Initialize cube with 4 corner columns
-        List<List<NoiseColumn>> cube = new ArrayList<>();
-        for (int x = 0; x < subChunkSize; x++) {
-            List<NoiseColumn> xLayer = new ArrayList<>();
-            for (int z = 0; z < subChunkSize; z++) {
-                NoiseColumn col = new NoiseColumn();
-                xLayer.add(col);
-            }
-            cube.add(xLayer);
-        }
+        NoiseCube cube = new NoiseCube(subChunkSize);
         cube.get(0).set(0, noisesX0Z0);
         cube.get(0).set(subChunkSize - 1, noisesX0Z1);
         cube.get(subChunkSize - 1).set(0, noisesX1Z0);
@@ -288,32 +274,21 @@ public class NoiseGen {
     }
 
     /* ------------------------- Private Methods -------------------------*/
-
     /**
-     * Initialize generators if we haven't already initialized the number of generators passed in.
-     * @param numGenerators Number of generators needed. If we've already initialized N generators, then this function
-     *                      will initialize the {@code N - numGenerators} remaining generators.
+     * Initialize fractal noise generators.
      */
-    private void initializeNoiseGens(int numGenerators) {
-        if (numGenerators <= listNoiseGens.size())
-            return; // We already have enough generators initialized
-
-        int numGensNeeded = numGenerators - listNoiseGens.size();
-        int seedModifier = listNoiseGens.size(); // Each seed must be different, but in a reproducible manner
-
-        for (int i = 0; i < numGensNeeded; i++) {
+    private void initializeNoiseGens() {
+        for (int i = 0; i < numGenerators; i++) {
             FastNoise noiseGen = new FastNoise();
             noiseGen.SetFractalType(FastNoise.FractalType.RigidMulti);
-            noiseGen.SetSeed((int)(seed) + (1111 * seedModifier));
+            noiseGen.SetSeed((int)(seed) + (1111 * (i + 1)));
             noiseGen.SetNoiseType(this.noiseType);
             noiseGen.SetFractalOctaves(this.fractalOctaves);
             noiseGen.SetFractalGain(this.fractalGain);
             noiseGen.SetFrequency(this.fractalFrequency);
 
             listNoiseGens.add(noiseGen);
-            seedModifier++;
         }
-
     }
 
     /**

@@ -28,33 +28,33 @@ public class UndergroundCarver {
     /* ============================== Values determined through config ============================== */
     /* ------------- Ridged Multifractal Params ------------- */
     FastNoise.NoiseType noiseType;
-    protected int fractalOctaves;            // Number of ridged multifractal octaves
-    protected float fractalGain;             // Ridged multifractal gain
-    protected float fractalFreq;             // Ridged multifractal frequency
-    protected int numGens;                   // Number of noise values to generate per iteration (block, sub-chunk, etc)
+    protected int       fractalOctaves;            // Number of ridged multifractal octaves
+    protected float     fractalGain;               // Ridged multifractal gain
+    protected float     fractalFreq;               // Ridged multifractal frequency
+    protected int       numGens;                   // Number of noise values to generate per iteration (block, sub-chunk, etc)
 
     /* ----------------- Turbulence Params ----------------- */
-    protected int turbOctaves;               // Number of octaves in turbulence function
-    protected float turbGain;                // Gain of turbulence function
-    protected float turbFreq;                // Frequency of turbulence function
-    protected boolean enableTurbulence;      // Set true to enable turbulence (adds performance overhead, generally not worth it)
+    protected int       turbOctaves;               // Number of octaves in turbulence function
+    protected float     turbGain;                  // Gain of turbulence function
+    protected float     turbFreq;                  // Frequency of turbulence function
+    protected boolean   enableTurbulence;          // Set true to enable turbulence (adds performance overhead, generally not worth it)
 
     /* -------------- Noise Processing Params -------------- */
-    protected float yCompression;            // Vertical cave gen compression
-    protected float xzCompression;           // Horizontal cave gen compression
-    protected float yAdjustF1;               // Adjustment value for the block immediately above. Must be between 0 and 1.0
-    protected float yAdjustF2;               // Adjustment value for the block two blocks above. Must be between 0 and 1.0
-    protected float noiseThreshold;          // Noise threshold for determining whether or not a block gets dug out
-    protected boolean enableYAdjust;         // Set true to perform preprocessing on noise values, adjusting them to increase
-                                             //   headroom in the y direction. This is generally useful for caves (esp. Simplex),
-                                             //   but not really necessary for caverns
+    protected float     yCompression;              // Vertical cave gen compression
+    protected float     xzCompression;             // Horizontal cave gen compression
+    protected float     yAdjustF1;                 // Adjustment value for the block immediately above. Must be between 0 and 1.0
+    protected float     yAdjustF2;                 // Adjustment value for the block two blocks above. Must be between 0 and 1.0
+    protected float     noiseThreshold;            // Noise threshold for determining whether or not a block gets dug out
+    protected boolean   enableYAdjust;             // Set true to perform pre-processing on noise values, adjusting them to increase ...
+                                                   // ... headroom in the y direction. This is generally useful for caves ...
+                                                   // ... (esp. Simplex), but not really necessary for caverns
 
     /* ------------------ Worldgen Params ------------------ */
-    protected int liquidAltitude;
+    protected int       liquidAltitude;
 
     /* -------------------- Debug Params ------------------- */
-    protected IBlockState debugBlock;        // Block used to represent this cave/cavern type in the debug visualizer
-    protected boolean enableDebugVisualizer; // Set true to enable debug visualization for this carver
+    protected IBlockState debugBlock;             // Block used to represent this cave/cavern type in the debug visualizer
+    protected boolean     enableDebugVisualizer;  // Set true to enable debug visualization for this carver
 
     /**
      * Creates and UndergroundCarver from an UndergroundCarverBuilder.

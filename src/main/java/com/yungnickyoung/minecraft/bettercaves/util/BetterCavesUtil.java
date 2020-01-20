@@ -19,9 +19,8 @@ import net.minecraft.world.chunk.ChunkPrimer;
 public class BetterCavesUtil {
     private BetterCavesUtil() {} // Private constructor prevents instantiation
 
-    /* Common IBlockStates used in this class */
+    /* IBlockStates used in this class */
     private static final IBlockState AIR = Blocks.AIR.getDefaultState();
-    private static final IBlockState LAVA = Blocks.LAVA.getDefaultState();
     private static final IBlockState SAND = Blocks.SAND.getDefaultState();
     private static final IBlockState SANDSTONE = Blocks.SANDSTONE.getDefaultState();
     private static final IBlockState REDSANDSTONE = Blocks.RED_SANDSTONE.getDefaultState();
@@ -31,18 +30,15 @@ public class BetterCavesUtil {
      *
      * @param world the Minecraft world this block is in
      * @param primer the ChunkPrimer containing the block
-     * @param localX the block's chunk-local x-coordinate
-     * @param y the block's chunk-local y-coordinate (same as real y-coordinate)
-     * @param localZ the block's chunk-local z-coordinate
-     * @param chunkX the chunk's x coordinate
-     * @param chunkZ the chunk's z coordinate
+     * @param blockPos The block's position
      * @return true if this block is the same type as the biome's designated top block
      */
-    public static boolean isTopBlock(World world, ChunkPrimer primer, int localX, int y, int localZ, int chunkX, int chunkZ) {
-        int realX = (chunkX * 16) + localX;
-        int realZ = (chunkZ * 16) + localZ;
-        Biome biome = world.getBiome(new BlockPos(realX, y, realZ));
-        IBlockState blockState = primer.getBlockState(localX, y, localZ);
+    public static boolean isTopBlock(World world, ChunkPrimer primer, BlockPos blockPos) {
+        int localX = getLocal(blockPos.getX());
+        int localZ = getLocal(blockPos.getZ());
+        int y = blockPos.getY();
+        Biome biome = world.getBiome(blockPos);
+        IBlockState blockState = primer.getBlockState(localX, blockPos.getY(), localZ);
         return blockState == biome.topBlock;
     }
 
@@ -54,33 +50,30 @@ public class BetterCavesUtil {
      *
      * @param world the Minecraft world this block is in
      * @param primer the ChunkPrimer containing the block
+     * @param blockPos The block's position
      * @param liquidBlockState the BlockState to use for liquids. If you want regular lava, you can either specify it, or
      *                       use the wrapper function without this param
      * @param liquidAltitude altitude at and below which air is replaced with liquidBlockState
-     * @param localX the block's chunk-local x coordinate
-     * @param y the block's chunk-local y coordinate (same as real y-coordinate)
-     * @param localZ the block's chunk-local z coordinate
-     * @param chunkX the chunk's x coordinate
-     * @param chunkZ the chunk's z coordinate
      */
-    public static void digBlock(World world, ChunkPrimer primer, IBlockState liquidBlockState, int liquidAltitude, int localX, int y, int localZ, int chunkX, int chunkZ) {
+    public static void digBlock(World world, ChunkPrimer primer, BlockPos blockPos, IBlockState liquidBlockState, int liquidAltitude) {
+        int localX = getLocal(blockPos.getX());
+        int localZ = getLocal(blockPos.getZ());
+        int y = blockPos.getY();
+
         IBlockState blockState = primer.getBlockState(localX, y, localZ);
         IBlockState blockStateAbove = primer.getBlockState(localX, y + 1, localZ);
 
-        int realX = (chunkX * 16) + localX;
-        int realZ = (chunkZ * 16) + localZ;
-
-        Biome biome = world.getBiome(new BlockPos(realX, y, realZ));
+        Biome biome = world.getBiome(blockPos);
         Block biomeTopBlock = biome.topBlock.getBlock();
         Block biomeFillerBlock = biome.fillerBlock.getBlock();
 
         // Only continue if the block is replaceable
         if (canReplaceBlock(blockState, blockStateAbove) || blockState.getBlock() == biomeTopBlock || blockState.getBlock() == biomeFillerBlock) {
-            if (y <= liquidAltitude) { // Replace any air below the liquid altitude with the liquid block passed in
+            if ( y <= liquidAltitude) { // Replace any air below the liquid altitude with the liquid block passed in
                 primer.setBlockState(localX, y, localZ, liquidBlockState);
             } else {
                 // Adjust block below if block removed is biome top block
-                if (isTopBlock(world, primer, localX, y, localZ, chunkX, chunkZ) && canReplaceBlock(primer.getBlockState(localX, y - 1, localZ), AIR))
+                if (isTopBlock(world, primer, blockPos) && canReplaceBlock(primer.getBlockState(localX, y - 1, localZ), AIR))
                     primer.setBlockState(localX, y - 1, localZ, biome.topBlock);
 
                 // Replace this block with air, effectively "digging" it out
@@ -198,8 +191,10 @@ public class BetterCavesUtil {
         return maxHeight;
     }
 
-    public static int estimateMaxSurfaceAltitudeSubChunk(ChunkPrimer primer, int startX, int startZ, int subChunkSize)  {
+    public static int estimateMaxSurfaceAltitudeSubChunk(ChunkPrimer primer, BlockPos startPos, int subChunkSize) {
         int maxHeight = 0;
+        int startX = startPos.getX();
+        int startZ = startPos.getZ();
         int endX = startX + subChunkSize - 1;
         int endZ = startZ + subChunkSize - 1;
 
@@ -255,5 +250,9 @@ public class BetterCavesUtil {
 
     public static String dimensionAsString(int dimensionID, String dimensionName) {
         return "" + dimensionID + " (" + dimensionName + ")";
+    }
+
+    public static int getLocal(int coordinate) {
+        return coordinate & 0xF; // This is same as modulo 16, but quicker
     }
 }

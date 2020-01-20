@@ -8,6 +8,7 @@ import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 
@@ -39,13 +40,9 @@ public class CaveCarver extends UndergroundCarver {
     }
 
     /**
-     * Dig out caves for the column of blocks at x-z position (chunkX*16 + localX, chunkZ*16 + localZ).
-     * A given block will be calculated based on the noise value and noise threshold of this UndergroundCarver object.
-     * @param chunkX The chunk's x-coordinate
-     * @param chunkZ The chunk's z-coordinate
+     * Dig out caves for the column of blocks containing blockPos.
      * @param primer The ChunkPrimer for this chunk
-     * @param localX The chunk-local x-coordinate of this column of blocks (0 <= localX <= 15)
-     * @param localZ The chunk-local z-coordinate of this column of blocks (0 <= localZ <= 15)
+     * @param blockPos Position of any block in the column. Only the x and z coordinates are used.
      * @param bottomY The bottom y-coordinate to start calculating noise for and potentially dig out
      * @param topY The top y-coordinate to start calculating noise for and potentially dig out
      * @param maxSurfaceHeight This column's max surface height. Can be approximated using
@@ -55,8 +52,11 @@ public class CaveCarver extends UndergroundCarver {
      * @param liquidBlock Block to use for liquid, e.g. lava
      */
     @Override
-    public void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
+    public void generateColumn(ChunkPrimer primer, BlockPos blockPos, int bottomY,
                                int topY, int maxSurfaceHeight, int minSurfaceHeight, IBlockState liquidBlock) {
+        int localX = blockPos.getX() % 16;
+        int localZ = blockPos.getZ() % 16;
+
         // Validate vars
         if (localX < 0 || localX > 15)
             return;
@@ -78,7 +78,7 @@ public class CaveCarver extends UndergroundCarver {
         // The noise for an individual block is represented by a NoiseTuple, which is essentially an n-tuple of
         // floats, where n is equal to the number of generators passed to the function
         NoiseColumn noises =
-                noiseGen.generateNoiseColumn(chunkX, chunkZ, bottomY, topY, this.numGens, localX, localZ);
+                noiseGen.generateNoiseColumn(blockPos, bottomY, topY, this.numGens);
 
         // Pre-compute thresholds to ensure accuracy during pre-processing
         Map<Integer, Float> thresholds = generateThresholds(topY, bottomY, transitionBoundary);
@@ -105,7 +105,7 @@ public class CaveCarver extends UndergroundCarver {
             if (this.enableDebugVisualizer)
                 visualizeDigBlock(digBlock, this.debugBlock, primer, localX, realY, localZ);
             else if (digBlock)
-                this.digBlock(primer, liquidBlock, liquidAltitude, chunkX, chunkZ, localX, localZ, realY);
+                this.digBlock(primer, blockPos, liquidBlock, liquidAltitude);
         }
 
         /* ============ Post-Processing to remove any singular floating blocks in the ease-in range ============ */
@@ -120,13 +120,17 @@ public class CaveCarver extends UndergroundCarver {
                     && primer.getBlockState(localX, realY + 1, localZ) == BlockStateAir
                     && primer.getBlockState(localX, realY - 1, localZ) == BlockStateAir
             )
-                this.digBlock(primer, liquidBlock, liquidAltitude, chunkX, chunkZ, localX, localZ, realY);
+                this.digBlock(primer, blockPos, liquidBlock, liquidAltitude);
         }
     }
 
     @Override
-    public void generateColumnWithNoise(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
-                               int topY, int maxSurfaceHeight, int minSurfaceHeight, IBlockState liquidBlock, NoiseColumn noises) {
+    public void generateColumnWithNoise(ChunkPrimer primer, BlockPos blockPos, int bottomY,
+                                        int topY, int maxSurfaceHeight, int minSurfaceHeight,
+                                        IBlockState liquidBlock, NoiseColumn noises) {
+        int localX = blockPos.getX() % 16;
+        int localZ = blockPos.getZ() % 16;
+
         // Validate vars
         if (localX < 0 || localX > 15)
             return;
@@ -169,7 +173,7 @@ public class CaveCarver extends UndergroundCarver {
             if (this.enableDebugVisualizer)
                 visualizeDigBlock(digBlock, this.debugBlock, primer, localX, realY, localZ);
             else if (digBlock)
-                this.digBlock(primer, liquidBlock, liquidAltitude, chunkX, chunkZ, localX, localZ, realY);
+                this.digBlock(primer, blockPos, liquidBlock, liquidAltitude);
         }
 
         /* ============ Post-Processing to remove any singular floating blocks in the ease-in range ============ */
@@ -184,7 +188,7 @@ public class CaveCarver extends UndergroundCarver {
                     && primer.getBlockState(localX, realY + 1, localZ) == BlockStateAir
                     && primer.getBlockState(localX, realY - 1, localZ) == BlockStateAir
             )
-                this.digBlock(primer, liquidBlock, liquidAltitude, chunkX, chunkZ, localX, localZ, realY);
+                this.digBlock(primer, blockPos, liquidBlock, liquidAltitude);
         }
     }
 

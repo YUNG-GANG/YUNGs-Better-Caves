@@ -5,9 +5,11 @@ import com.yungnickyoung.minecraft.bettercaves.noise.NoiseColumn;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 
@@ -172,30 +174,30 @@ public class UndergroundCarver {
     /**
      * Calls util digBlock function if there are no water blocks adjacent, to avoid breaking into oceans and lakes.
      * @param primer The ChunkPrimer for this chunk
+     * @param blockPos Block position
      * @param liquidBlock The IBlockState to use for liquid, e.g. lava
      * @param liquidAltitude the altitude at and below which air is replaced with liquidBlock
-     * @param chunkX The chunk's x-coordinate
-     * @param chunkZ The chunk's z-coordinate
-     * @param localX the chunk-local x-coordinate of the block
-     * @param localZ the chunk-local z-coordinate of the block
-     * @param realY the real Y-coordinate of the block
      */
-    protected void digBlock(ChunkPrimer primer, IBlockState liquidBlock, int liquidAltitude, int chunkX, int chunkZ, int localX, int localZ, int realY) {
+    protected void digBlock(ChunkPrimer primer, BlockPos blockPos, IBlockState liquidBlock, int liquidAltitude) {
+        int blockPosX = blockPos.getX();
+        int blockPosY = blockPos.getY();
+        int blockPosZ = blockPos.getZ();
+
         if (liquidBlock.getMaterial() != Material.WATER) {
             // Check for adjacent water blocks to avoid breaking into lakes or oceans
-            if (primer.getBlockState(localX, realY + 1, localZ).getMaterial() == Material.WATER)
+            if (primer.getBlockState(blockPosX, blockPosY + 1, blockPosZ).getMaterial() == Material.WATER)
                 return;
-            if (localX < 15 && primer.getBlockState(localX + 1, realY, localZ).getMaterial() == Material.WATER)
+            if (blockPosX < 15 && primer.getBlockState(blockPosX + 1, blockPosY, blockPosZ).getMaterial() == Material.WATER)
                 return;
-            if (localX > 0 && primer.getBlockState(localX - 1, realY, localZ).getMaterial() == Material.WATER)
+            if (blockPosX > 0 && primer.getBlockState(blockPosX - 1, blockPosY, blockPosZ).getMaterial() == Material.WATER)
                 return;
-            if (localZ < 15 && primer.getBlockState(localX, realY, localZ + 1).getMaterial() == Material.WATER)
+            if (blockPosZ < 15 && primer.getBlockState(blockPosX, blockPosY, blockPosZ + 1).getMaterial() == Material.WATER)
                 return;
-            if (localZ > 0 && primer.getBlockState(localX, realY, localZ - 1).getMaterial() == Material.WATER)
+            if (blockPosZ > 0 && primer.getBlockState(blockPosX, blockPosY, blockPosZ - 1).getMaterial() == Material.WATER)
                 return;
         }
 
-        BetterCavesUtil.digBlock(this.getWorld(), primer, liquidBlock, liquidAltitude, localX, realY, localZ, chunkX, chunkZ);
+        BetterCavesUtil.digBlock(this.getWorld(), primer, blockPos, liquidBlock, liquidAltitude);
     }
 
     /**
@@ -236,21 +238,21 @@ public class UndergroundCarver {
             primer.setBlockState(localX, realY, localZ, Blocks.AIR.getDefaultState());
     }
 
-    public void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
+    public void generateColumn(ChunkPrimer primer, BlockPos blockPos, int bottomY,
                                int topY, int maxSurfaceHeight, int minSurfaceHeight, IBlockState liquidBlock) {
     }
 
-    public void generateColumn(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
+    public void generateColumn(ChunkPrimer primer, BlockPos blockPos, int bottomY,
                                int topY, int maxSurfaceHeight, int minSurfaceHeight, IBlockState liquidBlock,
                                float smoothAmp) {
     }
 
-    public void generateColumnWithNoise(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
+    public void generateColumnWithNoise(ChunkPrimer primer, BlockPos blockPos, int bottomY,
                                         int topY, int maxSurfaceHeight, int minSurfaceHeight, IBlockState liquidBlock, NoiseColumn noises) {
 
     }
 
-    public void generateColumnWithNoise(int chunkX, int chunkZ, ChunkPrimer primer, int localX, int localZ, int bottomY,
+    public void generateColumnWithNoise(ChunkPrimer primer, BlockPos blockPos, int bottomY,
                                         int topY, int maxSurfaceHeight, int minSurfaceHeight, IBlockState liquidBlock,
                                         float smoothAmp, NoiseColumn noises) {
 

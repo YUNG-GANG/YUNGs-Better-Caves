@@ -1,5 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.noise;
 
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import javax.vecmath.Vector3f;
@@ -24,7 +25,7 @@ public class NoiseGen {
     private float turbulenceGain;
     private float turbulenceFrequency;
 
-    /* ----- Switch for enabling turbulence---- */
+    /* ----------------- Switch for enabling turbulence --------------- */
     private boolean enableTurbulence;
 
     /* ----- Compression values - these control the size of caves ----- */
@@ -71,25 +72,23 @@ public class NoiseGen {
 
     /**
      * Generate NoiseTuples for a column of blocks, as a NoiseColumn.
-     * @param chunkX Chunk x-coordinate
-     * @param chunkZ Chunk z-coordinate
+     * @param blockPos Position of any block in the column (the y-coordinate is ignored)
+
      * @param minHeight The bottom y-coordinate to start generating noise values for
      * @param maxHeight The top y-coordinate to stop generating noise values for
      * @param numGenerators Number of noise values to calculate per block. This number will be the number of noise
      *                      values in each resultant NoiseTuple. Increasing this will impact performance.
-     * @param localX The chunk-local x-coordinate of the column of blocks (0-15, inclusive)
-     * @param localZ The chunk-local z-coordinate of the column of blocks (0-15, inclusive)
      * @return NoiseColumn
      */
-    public NoiseColumn generateNoiseColumn(int chunkX, int chunkZ, int minHeight, int maxHeight, int numGenerators, int localX, int localZ) {
+    public NoiseColumn generateNoiseColumn(BlockPos blockPos, int minHeight, int maxHeight, int numGenerators) {
+        int x = blockPos.getX();
+        int z = blockPos.getZ();
+        NoiseColumn noiseColumn = new NoiseColumn();
+
         initializeNoiseGens(numGenerators);
 
-        NoiseColumn noiseColumn = new NoiseColumn();
-        int realX = localX + 16 * chunkX;
-        int realZ = localZ + 16 * chunkZ;
-
         for (int y = minHeight; y <= maxHeight; y++) {
-            Vector3f f = new Vector3f(realX * xzCompression, y * yCompression, realZ * xzCompression);
+            Vector3f f = new Vector3f(x * xzCompression, y * yCompression, z * xzCompression);
 
             // Use turbulence function to apply gradient perturbation, if enabled
             if (this.enableTurbulence)
@@ -113,32 +112,30 @@ public class NoiseGen {
      *
      * This function is currently unused, since such interpolation along the y-axis ends up reducing
      * cave interconnectivity. It is kept here for possible future use.
-     * @param chunkX Chunk x-coordinate
-     * @param chunkZ Chunk z-coordinate
+     * @param blockPos Position of any block in the column (the y-coordinate is ignored)
      * @param minHeight The bottom y-coordinate to start generating noise values for
      * @param maxHeight The top y-coordinate to stop generating noise values for
      * @param numGenerators Number of noise values to calculate per block. This number will be the number of noise
      *                      values in each resultant NoiseTuple. Increasing this will impact performance.
-     * @param localX The chunk-local x-coordinate of the column of blocks (0-15, inclusive)
-     * @param localZ The chunk-local z-coordinate of the column of blocks (0-15, inclusive)
      * @param subChunkSize size of the subChunk, in blocks. Should be a power of 2.
      * @param startCoeffs Coefficients for the weight of the start noise value for linear interpolation
      * @param endCoeffs Coefficients for the weight of the end noise value for linear interpolation
      * @return NoiseColumn
      */
-    public NoiseColumn interpolateNoiseColumn(int chunkX, int chunkZ, int minHeight, int maxHeight, int numGenerators,
-                                              int localX, int localZ, int subChunkSize, float[] startCoeffs, float[] endCoeffs) {
-        NoiseColumn noiseColumn = new NoiseColumn();
-        initializeNoiseGens(numGenerators);
-        int realX = localX + 16 * chunkX;
-        int realZ = localZ + 16 * chunkZ;
+    public NoiseColumn interpolateNoiseColumn(BlockPos blockPos, int minHeight, int maxHeight, int numGenerators,
+                                              int subChunkSize, float[] startCoeffs, float[] endCoeffs) {
         int startY;
+        int x = blockPos.getX();
+        int z = blockPos.getZ();
+        NoiseColumn noiseColumn = new NoiseColumn();
+
+        initializeNoiseGens(numGenerators);
 
         // Calculate noise for every nth block in the column, using bilinear interpolation for the rest
         for (startY = minHeight; startY <= maxHeight; startY += subChunkSize) {
             int endY = Math.min(startY + subChunkSize - 1, maxHeight);
-            Vector3f subChunkStart = new Vector3f(realX * xzCompression, startY * yCompression, realZ * xzCompression);
-            Vector3f subChunkEnd = new Vector3f(realX * xzCompression, endY * yCompression, realZ * xzCompression);
+            Vector3f subChunkStart = new Vector3f(x * xzCompression, startY * yCompression, z * xzCompression);
+            Vector3f subChunkEnd = new Vector3f(x * xzCompression, endY * yCompression, z * xzCompression);
 
             // Use turbulence function to apply gradient perturbation, if enabled
             if (this.enableTurbulence) {
@@ -181,35 +178,38 @@ public class NoiseGen {
      * Generate NoiseTuples for a cube of blocks.
      * Only columns of blocks at the four corners of each cube have noise values calculated for them.
      * Blocks in between have noise values estimated via a naive implementation of trilinear interpolation.
-     * @param chunkX Chunk x-coordinate
-     * @param chunkZ Chunk z-coordinate
+     * @param startPos Position of any block in the starting corner column of the cube.
+     *                 This column must have x and z coordinates lower than that of endPos.
+     * @param endPos   Position of any block in the ending corner column of the cube.
+     *                 This column must have x and z coordinates higher than that of startPos.
      * @param minHeight The bottom y-coordinate to start generating noise values for
      * @param maxHeight The top y-coordinate to stop generating noise values for
      * @param numGenerators Number of noise values to calculate per block. This number will be the number of noise
      *                      values in each resultant NoiseTuple. Increasing this will impact performance.
-     * @param startX The chunk-local x-coordinate of the column of blocks (0-15, inclusive)
-     * @param endX The chunk-local z-coordinate of the column of blocks (0-15, inclusive)
-     * @param startZ The chunk-local x-coordinate of the column of blocks (0-15, inclusive)
-     * @param endZ The chunk-local z-coordinate of the column of blocks (0-15, inclusive)
      * @param startCoeffs Coefficients for the weight of the start noise value for linear interpolation
      * @param endCoeffs Coefficients for the weight of the end noise value for linear interpolation
      * @return NoiseColumn
      */
-    public List<List<NoiseColumn>> interpolateNoiseCube(int chunkX, int chunkZ, int minHeight, int maxHeight, int numGenerators,
-                                                          int startX, int endX, int startZ, int endZ, float[] startCoeffs, float[] endCoeffs) {
-        initializeNoiseGens(numGenerators);
-        int subChunkSize = endX - startX + 1;
+    public List<List<NoiseColumn>> interpolateNoiseCube(BlockPos startPos,BlockPos endPos, int minHeight, int maxHeight,
+                                                        int numGenerators, float[] startCoeffs, float[] endCoeffs) {
         float startCoeff, endCoeff;
+        int startX       = startPos.getX();
+        int endX         = endPos.getX();
+        int startZ       = startPos.getZ();
+        int endZ         = endPos.getZ();
+        int subChunkSize = endX - startX + 1;
+
+        initializeNoiseGens(numGenerators);
 
         // Calculate noise tuples for four corner columns
         NoiseColumn noisesX0Z0 =
-                generateNoiseColumn(chunkX, chunkZ, minHeight, maxHeight, numGenerators, startX, startZ);
+                generateNoiseColumn(new BlockPos(startX, 1, startZ), minHeight, maxHeight, numGenerators);
         NoiseColumn noisesX0Z1 =
-                generateNoiseColumn(chunkX, chunkZ, minHeight, maxHeight, numGenerators, startX, endZ);
+                generateNoiseColumn(new BlockPos(startX, 1, endZ), minHeight, maxHeight, numGenerators);
         NoiseColumn noisesX1Z0 =
-                generateNoiseColumn(chunkX, chunkZ, minHeight, maxHeight, numGenerators, endX, startZ);
+                generateNoiseColumn(new BlockPos(endX, 1, startZ), minHeight, maxHeight, numGenerators);
         NoiseColumn noisesX1Z1 =
-                generateNoiseColumn(chunkX, chunkZ, minHeight, maxHeight, numGenerators, endX, endZ);
+                generateNoiseColumn(new BlockPos(endX, 1, endZ), minHeight, maxHeight, numGenerators);
 
         // Initialize cube with 4 corner columns
         List<List<NoiseColumn>> cube = new ArrayList<>();

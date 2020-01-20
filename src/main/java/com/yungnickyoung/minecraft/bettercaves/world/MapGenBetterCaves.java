@@ -84,6 +84,9 @@ public class MapGenBetterCaves extends MapGenCaves {
 
     public MapGenBetterCaves(InitMapGenEvent event) {
         this.defaultCaveGen = event.getOriginalGen();
+
+        // Calculate coefficients used for bilinear interpolation during noise calculation.
+        // These are initialized one time here to avoid redundant computation later on.
         for (int n = 0; n < subChunkSize; n++) {
             startCoeffs[n] = (float)(subChunkSize - 1 - n) / (subChunkSize - 1);
             endCoeffs[n] = (float)(n) / (subChunkSize - 1);
@@ -159,8 +162,8 @@ public class MapGenBetterCaves extends MapGenCaves {
                 int startZ = subZ * subChunkSize;
                 int endX = startX + subChunkSize - 1;
                 int endZ = startZ + subChunkSize - 1;
-                BlockPos startPos = new BlockPos(startX, 1, startZ);
-                BlockPos endPos   = new BlockPos(endX, 1, endZ);
+                BlockPos startPos = new BlockPos(chunkX * 16 + startX, 1, chunkZ * 16 + startZ);
+                BlockPos endPos   = new BlockPos(chunkX * 16 + endX, 1, chunkZ * 16 + endZ);
 
                 caveSimplexNoiseCube = null;
                 caveCubicNoiseCube = null;
@@ -181,14 +184,13 @@ public class MapGenBetterCaves extends MapGenCaves {
                     for (int offsetZ = 0; offsetZ < subChunkSize; offsetZ++) {
                         int localX = startX + offsetX;
                         int localZ = startZ + offsetZ;
-                        BlockPos blockPos = new BlockPos(chunkX * 16 + localX, 1, chunkZ * 16 + localZ);
+                        BlockPos colPos = new BlockPos(chunkX * 16 + localX, 1, chunkZ * 16 + localZ);
 
                         cavernNoiseColumn = null;
 
                         /* --------------------------- Configure Caves --------------------------- */
-
                         // Get noise values used to determine cave region
-                        float caveRegionNoise = caveRegionController.GetNoise(blockPos.getX(), blockPos.getZ());
+                        float caveRegionNoise = caveRegionController.GetNoise(colPos.getX(), colPos.getZ());
 
                         /* Determine cave type for this column. We have two thresholds, one for cubic caves and one for
                          * simplex caves. Since the noise value generated for the region is between -1 and 1, we (by
@@ -226,12 +228,12 @@ public class MapGenBetterCaves extends MapGenCaves {
 
                         /* --------------------------- Configure Caverns --------------------------- */
                         // Noise values used to determine cavern region
-                        float cavernRegionNoise = cavernRegionController.GetNoise(blockPos.getX(), blockPos.getZ());
+                        float cavernRegionNoise = cavernRegionController.GetNoise(colPos.getX(), colPos.getZ());
                         float waterRegionNoise = 99;
 
                         // Only bother calculating noise for water region if enabled
                         if (config.enableWaterRegions.get())
-                            waterRegionNoise = waterCavernController.GetNoise(blockPos.getX(), blockPos.getZ());
+                            waterRegionNoise = waterCavernController.GetNoise(colPos.getX(), colPos.getZ());
 
                         // If water region threshold check is passed, change liquid block to water
                         IBlockState liquidBlock = lavaBlock;
@@ -291,7 +293,7 @@ public class MapGenBetterCaves extends MapGenCaves {
                                         cavernWaterNoiseCube = cavernWater.noiseGen.interpolateNoiseCube(startPos, endPos, config.lavaCavernBottom.get(),
                                                 config.lavaCavernTop.get(), config.waterCavernNumGenerators.get(), startCoeffs, endCoeffs);
                                     cavernNoiseColumn = cavernWaterNoiseCube.get(offsetX).get(offsetZ);
-                                    this.cavernWater.generateColumnWithNoise(primer, blockPos, config.lavaCavernBottom.get(), config.lavaCavernTop.get(),
+                                    this.cavernWater.generateColumnWithNoise(primer, colPos, config.lavaCavernBottom.get(), config.lavaCavernTop.get(),
                                             maxSurfaceHeight, minSurfaceHeight, liquidBlock, smoothAmp, cavernNoiseColumn);
                                 }
                                 else {
@@ -299,7 +301,7 @@ public class MapGenBetterCaves extends MapGenCaves {
                                         cavernLavaNoiseCube = cavernLava.noiseGen.interpolateNoiseCube(startPos, endPos, config.lavaCavernBottom.get(),
                                                 config.lavaCavernTop.get(), config.lavaCavernNumGenerators.get(), startCoeffs, endCoeffs);
                                     cavernNoiseColumn = cavernLavaNoiseCube.get(offsetX).get(offsetZ);
-                                    this.cavernLava.generateColumnWithNoise(primer, blockPos, config.lavaCavernBottom.get(), config.lavaCavernTop.get(),
+                                    this.cavernLava.generateColumnWithNoise(primer, colPos, config.lavaCavernBottom.get(), config.lavaCavernTop.get(),
                                             maxSurfaceHeight, minSurfaceHeight, liquidBlock, smoothAmp, cavernNoiseColumn);
                                 }
                             } else if (cavernRegionNoise <= flooredCavernThreshold && cavernRegionNoise >= flooredCavernThreshold - transitionRange) {
@@ -308,7 +310,7 @@ public class MapGenBetterCaves extends MapGenCaves {
                                     cavernFlooredNoiseCube = cavernFloored.noiseGen.interpolateNoiseCube(startPos, endPos, config.flooredCavernBottom.get(),
                                             config.flooredCavernTop.get(), config.flooredCavernNumGenerators.get(), startCoeffs, endCoeffs);
                                 cavernNoiseColumn = cavernFlooredNoiseCube.get(offsetX).get(offsetZ);
-                                this.cavernFloored.generateColumnWithNoise(primer, blockPos, config.flooredCavernBottom.get(), config.flooredCavernTop.get(),
+                                this.cavernFloored.generateColumnWithNoise(primer, colPos, config.flooredCavernBottom.get(), config.flooredCavernTop.get(),
                                         maxSurfaceHeight, minSurfaceHeight, liquidBlock, smoothAmp, cavernNoiseColumn);
                             }
                         }
@@ -316,11 +318,11 @@ public class MapGenBetterCaves extends MapGenCaves {
                         /* --------------- Dig out caves and caverns for this column --------------- */
                         // Top (Cave) layer:
                         if (caveGen != null)
-                            caveGen.generateColumnWithNoise(primer, blockPos, caveBottomY, maxSurfaceHeight,
+                            caveGen.generateColumnWithNoise(primer, colPos, caveBottomY, maxSurfaceHeight,
                                 maxSurfaceHeight, minSurfaceHeight, liquidBlock, caveNoiseColumn);
                         // Bottom (Cavern) layer:
                         if (cavernGen != null)
-                            cavernGen.generateColumnWithNoise(primer, blockPos, cavernBottomY, cavernTopY,
+                            cavernGen.generateColumnWithNoise(primer, colPos, cavernBottomY, cavernTopY,
                                 maxSurfaceHeight, minSurfaceHeight, liquidBlock, cavernNoiseColumn);
 
                     }
@@ -330,7 +332,7 @@ public class MapGenBetterCaves extends MapGenCaves {
     }
 
     /**
-     * Initialize Better Caves generators and cave region controllers for this world.
+     * Initialize Better Caves generators and cave region controllers for this world & dimension.
      * @param worldIn The minecraft world
      */
     private void initialize(World worldIn) {
@@ -414,6 +416,7 @@ public class MapGenBetterCaves extends MapGenCaves {
                 .build();
     }
 
+    /* ============================== Private helper methods ============================== */
     /**
      * @return threshold value for cubic cave spawn rate based on Config setting
      */

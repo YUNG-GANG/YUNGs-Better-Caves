@@ -42,7 +42,7 @@ public class CaveCarver extends UndergroundCarver {
     /**
      * Dig out caves for the column of blocks containing blockPos.
      * @param primer The ChunkPrimer for this chunk
-     * @param blockPos Position of any block in the column. Only the x and z coordinates are used.
+     * @param colPos Position of any block in the column. Only the x and z coordinates are used.
      * @param bottomY The bottom y-coordinate to start calculating noise for and potentially dig out
      * @param topY The top y-coordinate to start calculating noise for and potentially dig out
      * @param maxSurfaceHeight This column's max surface height. Can be approximated using
@@ -52,10 +52,10 @@ public class CaveCarver extends UndergroundCarver {
      * @param liquidBlock Block to use for liquid, e.g. lava
      */
     @Override
-    public void generateColumn(ChunkPrimer primer, BlockPos blockPos, int bottomY,
+    public void generateColumn(ChunkPrimer primer, BlockPos colPos, int bottomY,
                                int topY, int maxSurfaceHeight, int minSurfaceHeight, IBlockState liquidBlock) {
-        int localX = blockPos.getX() % 16;
-        int localZ = blockPos.getZ() % 16;
+        int localX = BetterCavesUtil.getLocal(colPos.getX());
+        int localZ = BetterCavesUtil.getLocal(colPos.getZ());
 
         // Validate vars
         if (localX < 0 || localX > 15)
@@ -78,7 +78,7 @@ public class CaveCarver extends UndergroundCarver {
         // The noise for an individual block is represented by a NoiseTuple, which is essentially an n-tuple of
         // floats, where n is equal to the number of generators passed to the function
         NoiseColumn noises =
-                noiseGen.generateNoiseColumn(blockPos, bottomY, topY, this.numGens);
+                noiseGen.generateNoiseColumn(colPos, bottomY, topY, this.numGens);
 
         // Pre-compute thresholds to ensure accuracy during pre-processing
         Map<Integer, Float> thresholds = generateThresholds(topY, bottomY, transitionBoundary);
@@ -90,46 +90,48 @@ public class CaveCarver extends UndergroundCarver {
             preprocessCaveNoiseCol(noises, topY, bottomY, thresholds, this.numGens);
 
         /* =============== Dig out caves and caverns in this column, based on noise values =============== */
-        for (int realY = topY; realY >= bottomY; realY--) {
-            List<Float> noiseBlock = noises.get(realY).getNoiseValues();
+        for (int y = topY; y >= bottomY; y--) {
+            List<Float> noiseBlock = noises.get(y).getNoiseValues();
             boolean digBlock = true;
 
             for (float noise : noiseBlock) {
-                if (noise < thresholds.get(realY)) {
+                if (noise < thresholds.get(y)) {
                     digBlock = false;
                     break;
                 }
             }
 
+            BlockPos blockPos = new BlockPos(colPos.getX(), y, colPos.getZ());
+
             // Consider digging out the block if it passed the threshold check, using the debug visualizer if enabled
             if (this.enableDebugVisualizer)
-                visualizeDigBlock(digBlock, this.debugBlock, primer, localX, realY, localZ);
+                visualizeDigBlock(primer, blockPos, digBlock, this.debugBlock);
             else if (digBlock)
                 this.digBlock(primer, blockPos, liquidBlock, liquidAltitude);
         }
 
         /* ============ Post-Processing to remove any singular floating blocks in the ease-in range ============ */
         IBlockState BlockStateAir = Blocks.AIR.getDefaultState();
-        for (int realY = transitionBoundary + 1; realY < topY; realY++) {
-            if (realY < 1 || realY > 255)
+        for (int y = transitionBoundary + 1; y < topY; y++) {
+            if (y < 1 || y > 255)
                 break;
 
-            IBlockState currBlock = primer.getBlockState(localX, realY, localZ);
+            IBlockState currBlock = primer.getBlockState(localX, y, localZ);
 
             if (BetterCavesUtil.canReplaceBlock(currBlock, BlockStateAir)
-                    && primer.getBlockState(localX, realY + 1, localZ) == BlockStateAir
-                    && primer.getBlockState(localX, realY - 1, localZ) == BlockStateAir
+                    && primer.getBlockState(localX, y + 1, localZ) == BlockStateAir
+                    && primer.getBlockState(localX, y - 1, localZ) == BlockStateAir
             )
-                this.digBlock(primer, blockPos, liquidBlock, liquidAltitude);
+                this.digBlock(primer, colPos, liquidBlock, liquidAltitude);
         }
     }
 
     @Override
-    public void generateColumnWithNoise(ChunkPrimer primer, BlockPos blockPos, int bottomY,
+    public void generateColumnWithNoise(ChunkPrimer primer, BlockPos colPos, int bottomY,
                                         int topY, int maxSurfaceHeight, int minSurfaceHeight,
                                         IBlockState liquidBlock, NoiseColumn noises) {
-        int localX = blockPos.getX() % 16;
-        int localZ = blockPos.getZ() % 16;
+        int localX = BetterCavesUtil.getLocal(colPos.getX());
+        int localZ = BetterCavesUtil.getLocal(colPos.getZ());
 
         // Validate vars
         if (localX < 0 || localX > 15)
@@ -158,37 +160,39 @@ public class CaveCarver extends UndergroundCarver {
             preprocessCaveNoiseCol(noises, topY, bottomY, thresholds, this.numGens);
 
         /* =============== Dig out caves and caverns in this column, based on noise values =============== */
-        for (int realY = topY; realY >= bottomY; realY--) {
-            List<Float> noiseBlock = noises.get(realY).getNoiseValues();
+        for (int y = topY; y >= bottomY; y--) {
+            List<Float> noiseBlock = noises.get(y).getNoiseValues();
             boolean digBlock = true;
 
             for (float noise : noiseBlock) {
-                if (noise < thresholds.get(realY)) {
+                if (noise < thresholds.get(y)) {
                     digBlock = false;
                     break;
                 }
             }
 
+            BlockPos blockPos = new BlockPos(colPos.getX(), y, colPos.getZ());
+
             // Consider digging out the block if it passed the threshold check, using the debug visualizer if enabled
             if (this.enableDebugVisualizer)
-                visualizeDigBlock(digBlock, this.debugBlock, primer, localX, realY, localZ);
+                visualizeDigBlock(primer, blockPos, digBlock, this.debugBlock);
             else if (digBlock)
                 this.digBlock(primer, blockPos, liquidBlock, liquidAltitude);
         }
 
         /* ============ Post-Processing to remove any singular floating blocks in the ease-in range ============ */
         IBlockState BlockStateAir = Blocks.AIR.getDefaultState();
-        for (int realY = transitionBoundary + 1; realY < topY; realY++) {
-            if (realY < 1 || realY > 255)
+        for (int y = transitionBoundary + 1; y < topY; y++) {
+            if (y < 1 || y > 255)
                 break;
 
-            IBlockState currBlock = primer.getBlockState(localX, realY, localZ);
+            IBlockState currBlock = primer.getBlockState(localX, y, localZ);
 
             if (BetterCavesUtil.canReplaceBlock(currBlock, BlockStateAir)
-                    && primer.getBlockState(localX, realY + 1, localZ) == BlockStateAir
-                    && primer.getBlockState(localX, realY - 1, localZ) == BlockStateAir
+                    && primer.getBlockState(localX, y + 1, localZ) == BlockStateAir
+                    && primer.getBlockState(localX, y - 1, localZ) == BlockStateAir
             )
-                this.digBlock(primer, blockPos, liquidBlock, liquidAltitude);
+                this.digBlock(primer, colPos, liquidBlock, liquidAltitude);
         }
     }
 

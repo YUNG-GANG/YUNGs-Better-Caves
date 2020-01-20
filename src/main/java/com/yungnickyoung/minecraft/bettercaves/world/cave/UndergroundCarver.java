@@ -179,21 +179,21 @@ public class UndergroundCarver {
      * @param liquidAltitude the altitude at and below which air is replaced with liquidBlock
      */
     protected void digBlock(ChunkPrimer primer, BlockPos blockPos, IBlockState liquidBlock, int liquidAltitude) {
-        int blockPosX = blockPos.getX();
-        int blockPosY = blockPos.getY();
-        int blockPosZ = blockPos.getZ();
+        int x = BetterCavesUtil.getLocal(blockPos.getX());
+        int y = blockPos.getY();
+        int z = BetterCavesUtil.getLocal(blockPos.getZ());
 
         if (liquidBlock.getMaterial() != Material.WATER) {
             // Check for adjacent water blocks to avoid breaking into lakes or oceans
-            if (primer.getBlockState(blockPosX, blockPosY + 1, blockPosZ).getMaterial() == Material.WATER)
+            if (primer.getBlockState(x, y + 1, z).getMaterial() == Material.WATER)
                 return;
-            if (blockPosX < 15 && primer.getBlockState(blockPosX + 1, blockPosY, blockPosZ).getMaterial() == Material.WATER)
+            if (x < 15 && primer.getBlockState(x + 1, y, z).getMaterial() == Material.WATER)
                 return;
-            if (blockPosX > 0 && primer.getBlockState(blockPosX - 1, blockPosY, blockPosZ).getMaterial() == Material.WATER)
+            if (x > 0 && primer.getBlockState(x - 1, y, z).getMaterial() == Material.WATER)
                 return;
-            if (blockPosZ < 15 && primer.getBlockState(blockPosX, blockPosY, blockPosZ + 1).getMaterial() == Material.WATER)
+            if (z < 15 && primer.getBlockState(x, y, z + 1).getMaterial() == Material.WATER)
                 return;
-            if (blockPosZ > 0 && primer.getBlockState(blockPosX, blockPosY, blockPosZ - 1).getMaterial() == Material.WATER)
+            if (z > 0 && primer.getBlockState(x, y, z - 1).getMaterial() == Material.WATER)
                 return;
         }
 
@@ -227,32 +227,33 @@ public class UndergroundCarver {
      * @param digBlock Whether or not this block should be considered removed (i.e. surpassed the threshold)
      * @param blockState The blockState to set dug out blocks to
      * @param primer Chunk containing the block
-     * @param localX Chunk-local x-coordinate of the block
-     * @param realY y-coordainte of the block
-     * @param localZ Chunk-local z-coordinate of the block
      */
-    protected void visualizeDigBlock(boolean digBlock, IBlockState blockState, ChunkPrimer primer, int localX, int realY, int localZ) {
+    protected void visualizeDigBlock(ChunkPrimer primer, BlockPos blockPos, boolean digBlock, IBlockState blockState) {
+        int x = BetterCavesUtil.getLocal(blockPos.getX());
+        int y = blockPos.getY();
+        int z = BetterCavesUtil.getLocal(blockPos.getZ());
+
         if (digBlock)
-            primer.setBlockState(localX, realY, localZ, blockState);
+            primer.setBlockState(x, y, z, blockState);
         else
-            primer.setBlockState(localX, realY, localZ, Blocks.AIR.getDefaultState());
+            primer.setBlockState(x, y, z, Blocks.AIR.getDefaultState());
     }
 
-    public void generateColumn(ChunkPrimer primer, BlockPos blockPos, int bottomY,
+    public void generateColumn(ChunkPrimer primer, BlockPos colPos, int bottomY,
                                int topY, int maxSurfaceHeight, int minSurfaceHeight, IBlockState liquidBlock) {
     }
 
-    public void generateColumn(ChunkPrimer primer, BlockPos blockPos, int bottomY,
+    public void generateColumn(ChunkPrimer primer, BlockPos colPos, int bottomY,
                                int topY, int maxSurfaceHeight, int minSurfaceHeight, IBlockState liquidBlock,
                                float smoothAmp) {
     }
 
-    public void generateColumnWithNoise(ChunkPrimer primer, BlockPos blockPos, int bottomY,
+    public void generateColumnWithNoise(ChunkPrimer primer, BlockPos colPos, int bottomY,
                                         int topY, int maxSurfaceHeight, int minSurfaceHeight, IBlockState liquidBlock, NoiseColumn noises) {
 
     }
 
-    public void generateColumnWithNoise(ChunkPrimer primer, BlockPos blockPos, int bottomY,
+    public void generateColumnWithNoise(ChunkPrimer primer, BlockPos colPos, int bottomY,
                                         int topY, int maxSurfaceHeight, int minSurfaceHeight, IBlockState liquidBlock,
                                         float smoothAmp, NoiseColumn noises) {
 

@@ -38,7 +38,7 @@ public class BetterCavesUtil {
         int localZ = getLocal(blockPos.getZ());
         int y = blockPos.getY();
         Biome biome = world.getBiome(blockPos);
-        IBlockState blockState = primer.getBlockState(localX, blockPos.getY(), localZ);
+        IBlockState blockState = primer.getBlockState(localX, y, localZ);
         return blockState == biome.topBlock;
     }
 
@@ -193,8 +193,8 @@ public class BetterCavesUtil {
 
     public static int estimateMaxSurfaceAltitudeSubChunk(ChunkPrimer primer, BlockPos startPos, int subChunkSize) {
         int maxHeight = 0;
-        int startX = startPos.getX();
-        int startZ = startPos.getZ();
+        int startX = getLocal(startPos.getX());
+        int startZ = getLocal(startPos.getZ());
         int endX = startX + subChunkSize - 1;
         int endZ = startZ + subChunkSize - 1;
 

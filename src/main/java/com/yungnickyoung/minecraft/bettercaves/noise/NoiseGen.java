@@ -10,66 +10,53 @@ import java.util.List;
 
 /**
  * Class used to generate NoiseTuples for blocks.
- * This class serves as an interface between Better Caves caves/caverns and FastNoise.
+ * This class serves as an interface between Better Caves and FastNoise.
  */
 public class NoiseGen {
-    private long                seed; // world seed should be used for reproducibility
-    private FastNoise.NoiseType noiseType;
+    /** Noise generation seed. Minecraft world seed should be used for reproducibility. */
+    private long seed;
 
-    /* ------------- Noise generation function parameters ------------- */
-    private int                 fractalOctaves;
-    private float               fractalGain;
-    private float               fractalFrequency;
-    private int                 numGenerators;
+    /** Number of FastNoise functions to use. This will be the number of valuesin a NoiseTuple. Recommended: 2 */
+    private int numGenerators;
 
-    /* ---------------- Turbulence function parameters ---------------- */
-    private int                 turbulenceOctaves;
-    private float               turbulenceGain;
-    private float               turbulenceFrequency;
+    /** Primary noise function parameters */
+    private NoiseSettings noiseSettings;
 
-    /* ----------------- Switch for enabling turbulence --------------- */
-    private boolean             enableTurbulence;
+    /** Turbulence noise function parameters */
+    private NoiseSettings turbulenceSettings;
 
-    /* ----- Compression values - these control the size of caves ----- */
+    /** Flag for enabling turbulence.
+     * Turbulence may make the surfaces of caves (e.g. walls, floors) more natural,
+     * but adds a performance cost. */
+    private boolean enableTurbulence;
+
     /** Determines how steep and tall caves are */
-    private float               yCompression;
+    private float yCompression;
     /** Determines how horizontally large and stretched out caves are */
-    private float               xzCompression;
+    private float xzCompression;
 
-    /** List of all distinct noise generators, one for each octave */
-    private List<FastNoise>     listNoiseGens = new ArrayList<>();
+    /** List of all primary noise generators, one for each octave */
+    private List<FastNoise> listNoiseGens = new ArrayList<>();
 
     /** Turbulence generator */
-    private FastNoise           turbulenceGen = new FastNoise();
+    private FastNoise turbulenceGen = new FastNoise();
 
     /**
-     *
-     * @param noiseType The type of noise to generate, e.g. PerlinFractal, SimplexFractal, etc.
      * @param world World this generaton function will be used in
-     * @param fOctaves Number of fractal octaves used in noise generation
-     * @param fGain Amount of fractal gain used in noise generation
-     * @param fFreq Fractal frequency used in noise generation
+     * @param noiseSettings Primary noise function parameters
+     * @param turbulenceSettings Turbulence noise function parameters
      * @param numGenerators Number of noise values to calculate per block. This number will be the number of noise
      *                      values in each resultant NoiseTuple. Increasing this will impact performance.
-     * @param tOctaves Number of octaves used in the turbulence function
-     * @param tGain Amount of gain used in the turbulence function
-     * @param tFreq Frequency used in the turbulence function
      * @param useTurb Whether or not turbulence should be applied
      * @param yComp y-compression factor
      * @param xzComp xz-compression factor
      */
-    public NoiseGen(FastNoise.NoiseType noiseType, World world,int fOctaves, float fGain, float fFreq,
-                    int numGenerators, int tOctaves, float tGain, float tFreq, boolean useTurb, float yComp,
-                    float xzComp) {
-        this.noiseType = noiseType;
+    public NoiseGen(World world, NoiseSettings noiseSettings, NoiseSettings turbulenceSettings,
+                    int numGenerators, boolean useTurb, float yComp, float xzComp) {
         this.seed = world.getSeed();
-        this.fractalOctaves = fOctaves;
-        this.fractalGain = fGain;
-        this.fractalFrequency = fFreq;
+        this.noiseSettings = noiseSettings;
+        this.turbulenceSettings = turbulenceSettings;
         this.numGenerators = numGenerators;
-        this.turbulenceOctaves = tOctaves;
-        this.turbulenceGain = tGain;
-        this.turbulenceFrequency = tFreq;
         this.enableTurbulence = useTurb;
         this.yCompression = yComp;
         this.xzCompression = xzComp;
@@ -264,10 +251,6 @@ public class NoiseGen {
         return seed;
     }
 
-    public FastNoise.NoiseType getNoiseType() {
-        return this.noiseType;
-    }
-
     /* ------------------------- Private Methods -------------------------*/
     /**
      * Initialize fractal noise generators.
@@ -275,12 +258,12 @@ public class NoiseGen {
     private void initializeNoiseGens() {
         for (int i = 0; i < numGenerators; i++) {
             FastNoise noiseGen = new FastNoise();
-            noiseGen.SetFractalType(FastNoise.FractalType.RigidMulti);
             noiseGen.SetSeed((int)(seed) + (1111 * (i + 1)));
-            noiseGen.SetNoiseType(this.noiseType);
-            noiseGen.SetFractalOctaves(this.fractalOctaves);
-            noiseGen.SetFractalGain(this.fractalGain);
-            noiseGen.SetFrequency(this.fractalFrequency);
+            noiseGen.SetFractalType(noiseSettings.fractalType);
+            noiseGen.SetNoiseType(noiseSettings.noiseType);
+            noiseGen.SetFractalOctaves(noiseSettings.octaves);
+            noiseGen.SetFractalGain(noiseSettings.gain);
+            noiseGen.SetFrequency(noiseSettings.frequency);
 
             listNoiseGens.add(noiseGen);
         }
@@ -290,11 +273,11 @@ public class NoiseGen {
      * Initialize the turbulence function
      */
     private void initializeTurbulenceGen() {
-        turbulenceGen.SetNoiseType(FastNoise.NoiseType.PerlinFractal);
-        turbulenceGen.SetFractalType(FastNoise.FractalType.FBM);
         turbulenceGen.SetSeed((int)(seed) + 69);
-        turbulenceGen.SetFractalOctaves(this.turbulenceOctaves);
-        turbulenceGen.SetFractalGain(this.turbulenceGain);
-        turbulenceGen.SetFrequency(this.turbulenceFrequency);
+        turbulenceGen.SetNoiseType(turbulenceSettings.noiseType);
+        turbulenceGen.SetFractalType(turbulenceSettings.fractalType);
+        turbulenceGen.SetFractalOctaves(turbulenceSettings.octaves);
+        turbulenceGen.SetFractalGain(turbulenceSettings.gain);
+        turbulenceGen.SetFrequency(turbulenceSettings.frequency);
     }
 }

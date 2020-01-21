@@ -1,6 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves.config.cave;
 
 import com.yungnickyoung.minecraft.bettercaves.enums.CaveFrequency;
+import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import net.minecraftforge.common.config.Config;
 
 public class ConfigCubicCave {
@@ -115,4 +116,19 @@ public class ConfigCubicCave {
     @Config.Comment("Factor affecting the block two blocks above a given block.")
     @Config.RangeDouble(min = 0, max = 1f)
     public float yAdjustF2 = .8f;
+
+    @Config.Ignore
+    @Config.Name("Noise Type")
+    @Config.Comment("Type of noise to use for this cave. \nAccepted values:\n" +
+            "Value\n" +
+            "ValueFractal\n" +
+            "Perlin\n" +
+            "PerlinFractal\n" +
+            "Simplex\n" +
+            "SimplexFractal\n" +
+            "Cellular\n" +
+            "WhiteNoise\n" +
+            "Cubic\n" +
+            "CubicFractal")
+    public FastNoise.NoiseType noiseType = FastNoise.NoiseType.CubicFractal;
 }

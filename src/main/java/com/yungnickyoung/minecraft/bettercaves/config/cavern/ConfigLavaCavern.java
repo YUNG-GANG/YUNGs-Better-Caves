@@ -1,6 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves.config.cavern;
 
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernFrequency;
+import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import net.minecraftforge.common.config.Config;
 
 public class ConfigLavaCavern {
@@ -77,4 +78,19 @@ public class ConfigLavaCavern {
             "used to calculate a single noise value.")
     @Config.RequiresWorldRestart
     public int numGenerators = 2;
+
+    @Config.Ignore
+    @Config.Name("Noise Type")
+    @Config.Comment("Type of noise to use for this cave. \nAccepted values:\n" +
+            "Value\n" +
+            "ValueFractal\n" +
+            "Perlin\n" +
+            "PerlinFractal\n" +
+            "Simplex\n" +
+            "SimplexFractal\n" +
+            "Cellular\n" +
+            "WhiteNoise\n" +
+            "Cubic\n" +
+            "CubicFractal")
+    public FastNoise.NoiseType noiseType = FastNoise.NoiseType.PerlinFractal;
 }

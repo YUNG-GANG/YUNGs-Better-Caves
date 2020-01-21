@@ -15,6 +15,8 @@ import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.world.bedrock.FlattenBedrock;
 import com.yungnickyoung.minecraft.bettercaves.world.cave.*;
+import com.yungnickyoung.minecraft.bettercaves.world.cave.builder.CaveCarverBuilder;
+import com.yungnickyoung.minecraft.bettercaves.world.cave.builder.CavernCarverBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -383,27 +385,27 @@ public class MapGenBetterCaves extends MapGenCaves {
         this.waterCavernController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
         /* ---------- Initialize all Better Cave carvers using config options ---------- */
-        this.caveCubic = new CaveCarver.CaveCarverBuilder(worldIn)
+        this.caveCubic = new CaveCarverBuilder(worldIn)
                 .ofTypeFromConfig(CaveType.CUBIC, config)
                 .debugVisualizerBlock(Blocks.PLANKS.getDefaultState())
                 .build();
 
-        this.caveSimplex = new CaveCarver.CaveCarverBuilder(worldIn)
+        this.caveSimplex = new CaveCarverBuilder(worldIn)
                 .ofTypeFromConfig(CaveType.SIMPLEX, config)
                 .debugVisualizerBlock(Blocks.COBBLESTONE.getDefaultState())
                 .build();
 
-        this.cavernLava = new CavernCarver.CavernCarverBuilder(worldIn)
+        this.cavernLava = new CavernCarverBuilder(worldIn)
                 .ofTypeFromConfig(CavernType.LAVA, config)
                 .debugVisualizerBlock(Blocks.REDSTONE_BLOCK.getDefaultState())
                 .build();
 
-        this.cavernFloored = new CavernCarver.CavernCarverBuilder(worldIn)
+        this.cavernFloored = new CavernCarverBuilder(worldIn)
                 .ofTypeFromConfig(CavernType.FLOORED, config)
                 .debugVisualizerBlock(Blocks.GOLD_BLOCK.getDefaultState())
                 .build();
 
-        this.cavernWater = new CavernCarver.CavernCarverBuilder(worldIn)
+        this.cavernWater = new CavernCarverBuilder(worldIn)
                 .ofTypeFromConfig(CavernType.WATER, config)
                 .debugVisualizerBlock(Blocks.LAPIS_BLOCK.getDefaultState())
                 .build();

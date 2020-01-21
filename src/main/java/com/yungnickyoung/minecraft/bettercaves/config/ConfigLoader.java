@@ -2,6 +2,7 @@ package com.yungnickyoung.minecraft.bettercaves.config;
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.enums.*;
+import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
@@ -173,6 +174,8 @@ public class ConfigLoader {
                                                 target.set(RegionSize.valueOf(prop.getString()));
                                             else if (target.type == WaterRegionFrequency.class)
                                                 target.set(WaterRegionFrequency.valueOf(prop.getString()));
+                                            else if (target.type == FastNoise.NoiseType.class)
+                                                target.set(FastNoise.NoiseType.valueOf(prop.getString()));
                                             else
                                                 target.set(prop.getString());
                                     }

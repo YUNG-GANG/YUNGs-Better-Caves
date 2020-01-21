@@ -1,9 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves.config;
 
-import com.yungnickyoung.minecraft.bettercaves.enums.CaveFrequency;
-import com.yungnickyoung.minecraft.bettercaves.enums.CavernFrequency;
-import com.yungnickyoung.minecraft.bettercaves.enums.RegionSize;
-import com.yungnickyoung.minecraft.bettercaves.enums.WaterRegionFrequency;
+import com.yungnickyoung.minecraft.bettercaves.enums.*;
+import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -215,6 +213,10 @@ public class ConfigHolder {
                 .setCategory("general.cave & cavern generation.caves.type 1 caves.advanced settings")
                 .addToMap(properties)
                 .hidden();
+        cubicCaveNoiseType = new ConfigOption<>("Noise Type", Configuration.caveSettings.caves.cubicCave.noiseType)
+                .setCategory("general.cave & cavern generation.caves.type 1 caves.advanced settings")
+                .addToMap(properties)
+                .hidden();
 
         // Simplex (Type 2) cave settings
         simplexCaveNoiseThreshold = new ConfigOption<>("Noise Threshold", Configuration.caveSettings.caves.simplexCave.noiseThreshold)
@@ -265,6 +267,10 @@ public class ConfigHolder {
                 .setCategory("general.cave & cavern generation.caves.type 2 caves.advanced settings")
                 .addToMap(properties)
                 .hidden();
+        simplexCaveNoiseType = new ConfigOption<>("Noise Type", Configuration.caveSettings.caves.simplexCave.noiseType)
+                .setCategory("general.cave & cavern generation.caves.type 2 caves.advanced settings")
+                .addToMap(properties)
+                .hidden();
 
         // Water cavern settings
         waterCavernNoiseThreshold = new ConfigOption<>("Noise Threshold", Configuration.caveSettings.waterRegions.waterCavern.noiseThreshold)
@@ -284,6 +290,10 @@ public class ConfigHolder {
                 .addToMap(properties)
                 .hidden();
         waterCavernNumGenerators = new ConfigOption<>("Number of Generators", Configuration.caveSettings.waterRegions.waterCavern.numGenerators)
+                .setCategory("general.cave & cavern generation.water regions.water caverns.advanced settings")
+                .addToMap(properties)
+                .hidden();
+        waterCavernNoiseType = new ConfigOption<>("Noise Type", Configuration.caveSettings.waterRegions.waterCavern.noiseType)
                 .setCategory("general.cave & cavern generation.water regions.water caverns.advanced settings")
                 .addToMap(properties)
                 .hidden();
@@ -309,54 +319,62 @@ public class ConfigHolder {
                 .setCategory("general.cave & cavern generation.caverns.lava caverns.advanced settings")
                 .addToMap(properties)
                 .hidden();
+        lavaCavernNoiseType = new ConfigOption<>("Noise Type", Configuration.caveSettings.caverns.lavaCavern.noiseType)
+                .setCategory("general.cave & cavern generation.caverns.lava caverns.advanced settings")
+                .addToMap(properties)
+                .hidden();
 
         // Floored cavern settings
         flooredCavernNoiseThreshold = new ConfigOption<>("Noise Threshold", Configuration.caveSettings.caverns.flooredCavern.noiseThreshold)
-                .setCategory("general.cave & cavern generation.caverns.lava caverns.advanced settings")
+                .setCategory("general.cave & cavern generation.caverns.floored caverns.advanced settings")
                 .addToMap(properties)
                 .hidden();
         flooredCavernFractalOctaves = new ConfigOption<>("Fractal Octaves", Configuration.caveSettings.caverns.flooredCavern.fractalOctaves)
-                .setCategory("general.cave & cavern generation.caverns.lava caverns.advanced settings")
+                .setCategory("general.cave & cavern generation.caverns.floored caverns.advanced settings")
                 .addToMap(properties)
                 .hidden();
         flooredCavernFractalGain = new ConfigOption<>("Fractal Gain", Configuration.caveSettings.caverns.flooredCavern.fractalGain)
-                .setCategory("general.cave & cavern generation.caverns.lava caverns.advanced settings")
+                .setCategory("general.cave & cavern generation.caverns.floored caverns.advanced settings")
                 .addToMap(properties)
                 .hidden();
         flooredCavernFractalFrequency = new ConfigOption<>("Fractal Frequency", Configuration.caveSettings.caverns.flooredCavern.fractalFrequency)
-                .setCategory("general.cave & cavern generation.caverns.lava caverns.advanced settings")
+                .setCategory("general.cave & cavern generation.caverns.floored caverns.advanced settings")
                 .addToMap(properties)
                 .hidden();
         flooredCavernNumGenerators = new ConfigOption<>("Number of Generators", Configuration.caveSettings.caverns.flooredCavern.numGenerators)
-                .setCategory("general.cave & cavern generation.caverns.lava caverns.advanced settings")
+                .setCategory("general.cave & cavern generation.caverns.floored caverns.advanced settings")
+                .addToMap(properties)
+                .hidden();
+        flooredCavernNoiseType = new ConfigOption<>("Noise Type", Configuration.caveSettings.caverns.flooredCavern.noiseType)
+                .setCategory("general.cave & cavern generation.caverns.floored caverns.advanced settings")
                 .addToMap(properties)
                 .hidden();
     }
 
     /* ============================== Settings Visible to User ============================== */
     // Dimension-wide settings
-    public ConfigOption<String> lavaBlock;
-    public ConfigOption<String> waterBlock;
+    public ConfigOption<String>  lavaBlock;
+    public ConfigOption<String>  waterBlock;
     public ConfigOption<Integer> liquidAltitude;
 
     // Dimension-wide cave settings
     public ConfigOption<RegionSize> caveRegionSize;
-    public ConfigOption<Integer> surfaceCutoff;
-    public ConfigOption<Integer> maxCaveAltitude;
+    public ConfigOption<Integer>    surfaceCutoff;
+    public ConfigOption<Integer>    maxCaveAltitude;
 
     // Cubic (Type 1) cave settings
-    public ConfigOption<Integer> cubicCaveBottom;
-    public ConfigOption<Float> cubicCaveYCompression;
-    public ConfigOption<Float> cubicCaveXZCompression;
+    public ConfigOption<Integer>       cubicCaveBottom;
+    public ConfigOption<Float>         cubicCaveYCompression;
+    public ConfigOption<Float>         cubicCaveXZCompression;
     public ConfigOption<CaveFrequency> cubicCaveFrequency;
-    public ConfigOption<Float> cubicCaveCustomFrequency;
+    public ConfigOption<Float>         cubicCaveCustomFrequency;
 
     // Simplex (Type 2) cave settings
-    public ConfigOption<Integer> simplexCaveBottom;
-    public ConfigOption<Float> simplexCaveYCompression;
-    public ConfigOption<Float> simplexCaveXZCompression;
+    public ConfigOption<Integer>       simplexCaveBottom;
+    public ConfigOption<Float>         simplexCaveYCompression;
+    public ConfigOption<Float>         simplexCaveXZCompression;
     public ConfigOption<CaveFrequency> simplexCaveFrequency;
-    public ConfigOption<Float> simplexCaveCustomFrequency;
+    public ConfigOption<Float>         simplexCaveCustomFrequency;
 
     // Vanilla cave settings
     public ConfigOption<Boolean> enableVanillaCaves;
@@ -364,28 +382,28 @@ public class ConfigHolder {
 
     // Dimension-wide cavern settings
     public ConfigOption<RegionSize> cavernRegionSize;
-    public ConfigOption<Boolean> enableBoundarySmoothing;
+    public ConfigOption<Boolean>    enableBoundarySmoothing;
 
     // Lava cavern settings
-    public ConfigOption<Integer> lavaCavernBottom;
-    public ConfigOption<Integer> lavaCavernTop;
-    public ConfigOption<Float> lavaCavernYCompression;
-    public ConfigOption<Float> lavaCavernXZCompression;
+    public ConfigOption<Integer>         lavaCavernBottom;
+    public ConfigOption<Integer>         lavaCavernTop;
+    public ConfigOption<Float>           lavaCavernYCompression;
+    public ConfigOption<Float>           lavaCavernXZCompression;
     public ConfigOption<CavernFrequency> lavaCavernFrequency;
-    public ConfigOption<Float> lavaCavernCustomFrequency;
+    public ConfigOption<Float>           lavaCavernCustomFrequency;
 
     // Floored cavern settings
-    public ConfigOption<Integer> flooredCavernBottom;
-    public ConfigOption<Integer> flooredCavernTop;
-    public ConfigOption<Float> flooredCavernYCompression;
-    public ConfigOption<Float> flooredCavernXZCompression;
+    public ConfigOption<Integer>         flooredCavernBottom;
+    public ConfigOption<Integer>         flooredCavernTop;
+    public ConfigOption<Float>           flooredCavernYCompression;
+    public ConfigOption<Float>           flooredCavernXZCompression;
     public ConfigOption<CavernFrequency> flooredCavernFrequency;
-    public ConfigOption<Float> flooredCavernCustomFrequency;
+    public ConfigOption<Float>           flooredCavernCustomFrequency;
 
     // Water region settings
-    public ConfigOption<Boolean> enableWaterRegions;
+    public ConfigOption<Boolean>              enableWaterRegions;
     public ConfigOption<WaterRegionFrequency> waterRegionFrequency;
-    public ConfigOption<Float> waterRegionCustomFrequency;
+    public ConfigOption<Float>                waterRegionCustomFrequency;
 
     // Water cavern settings
     public ConfigOption<Float> waterCavernYCompression;
@@ -403,53 +421,58 @@ public class ConfigHolder {
     // ... because they are very important to cave gen and sensitive to change.
 
     // Cubic (Type 1) cave settings
-    public ConfigOption<Float> cubicCaveNoiseThreshold;
-    public ConfigOption<Integer> cubicCaveFractalOctaves;
-    public ConfigOption<Float> cubicCaveFractalGain;
-    public ConfigOption<Float> cubicCaveFractalFrequency;
-    public ConfigOption<Boolean> cubicCaveEnableTurbulence;
-    public ConfigOption<Integer> cubicCaveTurbulenceOctaves;
-    public ConfigOption<Float> cubicCaveTurbulenceGain;
-    public ConfigOption<Float> cubicCaveTurbulenceFrequency;
-    public ConfigOption<Integer> cubicCaveNumGenerators;
-    public ConfigOption<Boolean> cubicCaveEnableVerticalAdjustment;
-    public ConfigOption<Float> cubicCaveYAdjustF1;
-    public ConfigOption<Float> cubicCaveYAdjustF2;
+    public ConfigOption<Float>               cubicCaveNoiseThreshold;
+    public ConfigOption<Integer>             cubicCaveFractalOctaves;
+    public ConfigOption<Float>               cubicCaveFractalGain;
+    public ConfigOption<Float>               cubicCaveFractalFrequency;
+    public ConfigOption<Boolean>             cubicCaveEnableTurbulence;
+    public ConfigOption<Integer>             cubicCaveTurbulenceOctaves;
+    public ConfigOption<Float>               cubicCaveTurbulenceGain;
+    public ConfigOption<Float>               cubicCaveTurbulenceFrequency;
+    public ConfigOption<Integer>             cubicCaveNumGenerators;
+    public ConfigOption<Boolean>             cubicCaveEnableVerticalAdjustment;
+    public ConfigOption<Float>               cubicCaveYAdjustF1;
+    public ConfigOption<Float>               cubicCaveYAdjustF2;
+    public ConfigOption<FastNoise.NoiseType> cubicCaveNoiseType;
 
     // Simplex (Type 2) cave settings
-    public ConfigOption<Float> simplexCaveNoiseThreshold;
-    public ConfigOption<Integer> simplexCaveFractalOctaves;
-    public ConfigOption<Float> simplexCaveFractalGain;
-    public ConfigOption<Float> simplexCaveFractalFrequency;
-    public ConfigOption<Boolean> simplexCaveEnableTurbulence;
-    public ConfigOption<Integer> simplexCaveTurbulenceOctaves;
-    public ConfigOption<Float> simplexCaveTurbulenceGain;
-    public ConfigOption<Float> simplexCaveTurbulenceFrequency;
-    public ConfigOption<Integer> simplexCaveNumGenerators;
-    public ConfigOption<Boolean> simplexCaveEnableVerticalAdjustment;
-    public ConfigOption<Float> simplexCaveYAdjustF1;
-    public ConfigOption<Float> simplexCaveYAdjustF2;
+    public ConfigOption<Float>               simplexCaveNoiseThreshold;
+    public ConfigOption<Integer>             simplexCaveFractalOctaves;
+    public ConfigOption<Float>               simplexCaveFractalGain;
+    public ConfigOption<Float>               simplexCaveFractalFrequency;
+    public ConfigOption<Boolean>             simplexCaveEnableTurbulence;
+    public ConfigOption<Integer>             simplexCaveTurbulenceOctaves;
+    public ConfigOption<Float>               simplexCaveTurbulenceGain;
+    public ConfigOption<Float>               simplexCaveTurbulenceFrequency;
+    public ConfigOption<Integer>             simplexCaveNumGenerators;
+    public ConfigOption<Boolean>             simplexCaveEnableVerticalAdjustment;
+    public ConfigOption<Float>               simplexCaveYAdjustF1;
+    public ConfigOption<Float>               simplexCaveYAdjustF2;
+    public ConfigOption<FastNoise.NoiseType> simplexCaveNoiseType;
 
     // Water cavern settings
-    public ConfigOption<Float> waterCavernNoiseThreshold;
-    public ConfigOption<Integer> waterCavernFractalOctaves;
-    public ConfigOption<Float> waterCavernFractalGain;
-    public ConfigOption<Float> waterCavernFractalFrequency;
-    public ConfigOption<Integer> waterCavernNumGenerators;
+    public ConfigOption<Float>               waterCavernNoiseThreshold;
+    public ConfigOption<Integer>             waterCavernFractalOctaves;
+    public ConfigOption<Float>               waterCavernFractalGain;
+    public ConfigOption<Float>               waterCavernFractalFrequency;
+    public ConfigOption<Integer>             waterCavernNumGenerators;
+    public ConfigOption<FastNoise.NoiseType> waterCavernNoiseType;
 
     // Lava cavern settings
-    public ConfigOption<Float> lavaCavernNoiseThreshold;
-    public ConfigOption<Integer> lavaCavernFractalOctaves;
-    public ConfigOption<Float> lavaCavernFractalGain;
-    public ConfigOption<Float> lavaCavernFractalFrequency;
-    public ConfigOption<Integer> lavaCavernNumGenerators;
+    public ConfigOption<Float>               lavaCavernNoiseThreshold;
+    public ConfigOption<Integer>             lavaCavernFractalOctaves;
+    public ConfigOption<Float>               lavaCavernFractalGain;
+    public ConfigOption<Float>               lavaCavernFractalFrequency;
+    public ConfigOption<Integer>             lavaCavernNumGenerators;
+    public ConfigOption<FastNoise.NoiseType> lavaCavernNoiseType;
 
     // Floored cavern settings
-    public ConfigOption<Float> flooredCavernNoiseThreshold;
-    public ConfigOption<Integer> flooredCavernFractalOctaves;
-    public ConfigOption<Float> flooredCavernFractalGain;
-    public ConfigOption<Float> flooredCavernFractalFrequency;
-    public ConfigOption<Integer> flooredCavernNumGenerators;
+    public ConfigOption<Float>               flooredCavernNoiseThreshold;
+    public ConfigOption<Integer>             flooredCavernFractalOctaves;
+    public ConfigOption<Float>               flooredCavernFractalGain;
+    public ConfigOption<Float>               flooredCavernFractalFrequency;
+    public ConfigOption<Integer>             flooredCavernNumGenerators;
+    public ConfigOption<FastNoise.NoiseType> flooredCavernNoiseType;
 
     public static class ConfigOption<T> {
         public String name;

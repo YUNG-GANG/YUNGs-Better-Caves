@@ -39,11 +39,11 @@ public class Configuration {
     @Config.Comment("The block used for lava generation at and below the Liquid Altitude. " +
             "Defaults to regular lava if an invalid block is given.")
     @Config.RequiresWorldRestart
-    public static String lavaBlock = "minecraft:flowing_lava";
+    public static String lavaBlock = "minecraft:lava";
 
     @Config.Name("Water Block")
     @Config.Comment("The block used for water generation in water caves/caverns at and below the Liquid Altitude. " +
             "Defaults to regular water if an invalid block is given.")
     @Config.RequiresWorldRestart
-    public static String waterblock = "minecraft:flowing_water";
+    public static String waterblock = "minecraft:water";
 }

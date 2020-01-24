@@ -36,7 +36,7 @@ public class CaveCarver extends UndergroundCarver {
     @Override
     public void generateColumnWithNoise(ChunkPrimer primer, BlockPos colPos, int bottomY,
                                         int topY, int maxSurfaceHeight, int minSurfaceHeight,
-                                        IBlockState liquidBlock, NoiseColumn noises) {
+                                        IBlockState liquidBlock, NoiseColumn noises, boolean liquidBuffer) {
         int localX = BetterCavesUtil.getLocal(colPos.getX());
         int localZ = BetterCavesUtil.getLocal(colPos.getZ());
 
@@ -68,6 +68,9 @@ public class CaveCarver extends UndergroundCarver {
 
         /* =============== Dig out caves and caverns in this column, based on noise values =============== */
         for (int y = topY; y >= bottomY; y--) {
+            if (y <= liquidAltitude && liquidBuffer)
+                break;
+
             List<Float> noiseBlock = noises.get(y).getNoiseValues();
             boolean digBlock = true;
 

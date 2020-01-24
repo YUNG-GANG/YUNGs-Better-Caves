@@ -10,7 +10,6 @@ import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.enums.RegionSize;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseColumn;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseCube;
-import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.world.bedrock.FlattenBedrock;
@@ -28,9 +27,7 @@ import net.minecraft.world.gen.MapGenCaves;
 import net.minecraftforge.event.terraingen.InitMapGenEvent;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Random;
 
 /**
  * Class that overrides vanilla cave gen with Better Caves gen.
@@ -52,7 +49,7 @@ public class MapGenBetterCaves extends MapGenCaves {
 
     // Noise generators to group caves into cave regions based on xz-coordinates.
     // Cavern Region Controller uses simplex noise while the others use Voronoi regions (cellular noise)
-    private FastNoise waterCavernController;
+    private FastNoise waterRegionController;
     private FastNoise cavernRegionController;
     private FastNoise caveRegionController;
 
@@ -64,7 +61,12 @@ public class MapGenBetterCaves extends MapGenCaves {
     private float waterRegionThreshold;
 
     // Dictates the degree of smoothing along cavern region boundaries
-    private float transitionRange = .15f;
+    private float cavernSmoothRange = .15f;
+
+    // Determines size of buffer (filled with stone instead of liquid) between ...
+    // ... water and lava regions
+    private float waterRegionSmoothRange = .05f;
+    private float waterRegionSmoothDelta = .015f;
 
     // Liquid blocks (can be changed from water/lava via config)
     private IBlockState lavaBlock;
@@ -103,8 +105,8 @@ public class MapGenBetterCaves extends MapGenCaves {
         }
 
         // Only operate on whitelisted dimensions.
-        // I tried just setting the event's NewGen to its OriginalGen but that doesn't seem to do anything
-        // after the cave gen process has been initiated.
+        // I tried just setting the event's NewGen to its OriginalGen but that doesn't
+        // seem to do anything after the cave gen process has been initiated.
         if (!isDimensionWhitelisted(dimensionID)) {
             defaultCaveGen.generate(worldIn, chunkX, chunkZ, primer);
             return;
@@ -146,6 +148,10 @@ public class MapGenBetterCaves extends MapGenCaves {
         int cavernTopY;
         int caveBottomY;
 
+        Random rand = new Random(world.getSeed() + chunkX + chunkZ);
+
+        boolean liquidBuffer;
+
         // Flatten bedrock, if enabled
         if (config.flattenBedrock.get())
             FlattenBedrock.flattenBedrock(primer, config.bedrockWidth.get());
@@ -182,6 +188,7 @@ public class MapGenBetterCaves extends MapGenCaves {
                         BlockPos colPos = new BlockPos(chunkX * 16 + localX, 1, chunkZ * 16 + localZ);
 
                         cavernNoiseColumn = null;
+                        liquidBuffer = false;
 
                         /* --------------------------- Configure Caves --------------------------- */
                         // Get noise values used to determine cave region
@@ -228,12 +235,15 @@ public class MapGenBetterCaves extends MapGenCaves {
 
                         // Only bother calculating noise for water region if enabled
                         if (config.enableWaterRegions.get())
-                            waterRegionNoise = waterCavernController.GetNoise(colPos.getX(), colPos.getZ());
+                            waterRegionNoise = waterRegionController.GetNoise(colPos.getX(), colPos.getZ());
 
                         // If water region threshold check is passed, change liquid block to water
                         IBlockState liquidBlock = lavaBlock;
-                        if (waterRegionNoise < waterRegionThreshold)
+                        float randOffset = (rand.nextFloat() * waterRegionSmoothDelta + waterRegionSmoothRange);
+                        if (waterRegionNoise < waterRegionThreshold - randOffset)
                             liquidBlock = waterBlock;
+                        else if (waterRegionNoise < waterRegionThreshold + randOffset)
+                            liquidBuffer = true;
 
                         // Determine cavern type for this column. Caverns generate at low altitudes only.
                         if (cavernRegionNoise < lavaCavernThreshold) {
@@ -281,15 +291,15 @@ public class MapGenBetterCaves extends MapGenCaves {
 
                         // Extra check to provide close-off transitions on cavern edges
                         if (config.enableBoundarySmoothing.get()) {
-                            if (cavernRegionNoise >= lavaCavernThreshold && cavernRegionNoise <= lavaCavernThreshold + transitionRange) {
-                                float smoothAmp = Math.abs((cavernRegionNoise - (lavaCavernThreshold + transitionRange)) / transitionRange);
+                            if (cavernRegionNoise >= lavaCavernThreshold && cavernRegionNoise <= lavaCavernThreshold + cavernSmoothRange) {
+                                float smoothAmp = Math.abs((cavernRegionNoise - (lavaCavernThreshold + cavernSmoothRange)) / cavernSmoothRange);
                                 if (config.enableWaterRegions.get() && waterRegionNoise < this.waterRegionThreshold) {
                                     if (cavernWaterNoiseCube == null)
                                         cavernWaterNoiseCube = cavernWater.noiseGen.interpolateNoiseCube(startPos, endPos, config.lavaCavernBottom.get(),
                                                 config.lavaCavernTop.get());
                                     cavernNoiseColumn = cavernWaterNoiseCube.get(offsetX).get(offsetZ);
                                     this.cavernWater.generateColumnWithNoise(primer, colPos, config.lavaCavernBottom.get(), config.lavaCavernTop.get(),
-                                            maxSurfaceHeight, minSurfaceHeight, liquidBlock, smoothAmp, cavernNoiseColumn);
+                                            maxSurfaceHeight, minSurfaceHeight, liquidBlock, smoothAmp, cavernNoiseColumn, liquidBuffer);
                                 }
                                 else {
                                     if (cavernLavaNoiseCube == null)
@@ -297,16 +307,16 @@ public class MapGenBetterCaves extends MapGenCaves {
                                                 config.lavaCavernTop.get());
                                     cavernNoiseColumn = cavernLavaNoiseCube.get(offsetX).get(offsetZ);
                                     this.cavernLava.generateColumnWithNoise(primer, colPos, config.lavaCavernBottom.get(), config.lavaCavernTop.get(),
-                                            maxSurfaceHeight, minSurfaceHeight, liquidBlock, smoothAmp, cavernNoiseColumn);
+                                            maxSurfaceHeight, minSurfaceHeight, liquidBlock, smoothAmp, cavernNoiseColumn, liquidBuffer);
                                 }
-                            } else if (cavernRegionNoise <= flooredCavernThreshold && cavernRegionNoise >= flooredCavernThreshold - transitionRange) {
-                                float smoothAmp = Math.abs((cavernRegionNoise - (flooredCavernThreshold - transitionRange)) / transitionRange);
+                            } else if (cavernRegionNoise <= flooredCavernThreshold && cavernRegionNoise >= flooredCavernThreshold - cavernSmoothRange) {
+                                float smoothAmp = Math.abs((cavernRegionNoise - (flooredCavernThreshold - cavernSmoothRange)) / cavernSmoothRange);
                                 if (cavernFlooredNoiseCube == null)
                                     cavernFlooredNoiseCube = cavernFloored.noiseGen.interpolateNoiseCube(startPos, endPos, config.flooredCavernBottom.get(),
                                             config.flooredCavernTop.get());
                                 cavernNoiseColumn = cavernFlooredNoiseCube.get(offsetX).get(offsetZ);
                                 this.cavernFloored.generateColumnWithNoise(primer, colPos, config.flooredCavernBottom.get(), config.flooredCavernTop.get(),
-                                        maxSurfaceHeight, minSurfaceHeight, liquidBlock, smoothAmp, cavernNoiseColumn);
+                                        maxSurfaceHeight, minSurfaceHeight, liquidBlock, smoothAmp, cavernNoiseColumn, liquidBuffer);
                             }
                         }
 
@@ -314,11 +324,11 @@ public class MapGenBetterCaves extends MapGenCaves {
                         // Top (Cave) layer:
                         if (caveGen != null)
                             caveGen.generateColumnWithNoise(primer, colPos, caveBottomY, maxSurfaceHeight,
-                                maxSurfaceHeight, minSurfaceHeight, liquidBlock, caveNoiseColumn);
+                                maxSurfaceHeight, minSurfaceHeight, liquidBlock, caveNoiseColumn, liquidBuffer);
                         // Bottom (Cavern) layer:
                         if (cavernGen != null)
                             cavernGen.generateColumnWithNoise(primer, colPos, cavernBottomY, cavernTopY,
-                                maxSurfaceHeight, minSurfaceHeight, liquidBlock, cavernNoiseColumn);
+                                maxSurfaceHeight, minSurfaceHeight, liquidBlock, cavernNoiseColumn, liquidBuffer);
 
                     }
                 }
@@ -360,11 +370,11 @@ public class MapGenBetterCaves extends MapGenCaves {
         // Determine region controller frequencies, which control region sizes
         float caveRegionSize = calcCaveRegionSize();
         float cavernRegionSize = calcCavernRegionSize();
-        float waterCavernRegionSize = .003f;
+        float waterRegionSize = .005f;
 
         // Special case - scale up water region size for ExtraLarge caverns
         if (config.cavernRegionSize.get() == RegionSize.ExtraLarge)
-            waterCavernRegionSize = .0005f;
+            waterRegionSize = .001f;
 
         // Begin initialize region controllers using world seed and user config options for region sizes
         this.caveRegionController = new FastNoise();
@@ -378,11 +388,11 @@ public class MapGenBetterCaves extends MapGenCaves {
         this.cavernRegionController.SetSeed((int)worldIn.getSeed() + 333);
         this.cavernRegionController.SetFrequency(cavernRegionSize);
 
-        this.waterCavernController = new FastNoise();
-        this.waterCavernController.SetSeed((int)worldIn.getSeed() + 444);
-        this.waterCavernController.SetFrequency(waterCavernRegionSize);
-        this.waterCavernController.SetNoiseType(FastNoise.NoiseType.Cellular);
-        this.waterCavernController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
+        this.waterRegionController = new FastNoise();
+        this.waterRegionController.SetSeed((int)worldIn.getSeed() + 444);
+        this.waterRegionController.SetFrequency(waterRegionSize);
+//        this.waterRegionController.SetNoiseType(FastNoise.NoiseType.Cellular);
+//        this.waterRegionController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
         /* ---------- Initialize all Better Cave carvers using config options ---------- */
         this.caveCubic = new CaveCarverBuilder(worldIn)

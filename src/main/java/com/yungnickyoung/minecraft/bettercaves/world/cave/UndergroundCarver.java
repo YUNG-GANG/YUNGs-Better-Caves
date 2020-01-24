@@ -208,8 +208,8 @@ public class UndergroundCarver {
      * @param noises NoiseColumn for the blocks at the given colPos between bottomY and topY (inclusive)
      */
     public void generateColumnWithNoise(ChunkPrimer primer, BlockPos colPos, int bottomY,
-                                        int topY, int maxSurfaceHeight, int minSurfaceHeight, IBlockState liquidBlock, NoiseColumn noises) {
-        generateColumnWithNoise(primer, colPos, bottomY, topY, maxSurfaceHeight, minSurfaceHeight, liquidBlock, 1, noises);
+                                        int topY, int maxSurfaceHeight, int minSurfaceHeight, IBlockState liquidBlock, NoiseColumn noises, boolean liquidBuffer) {
+        generateColumnWithNoise(primer, colPos, bottomY, topY, maxSurfaceHeight, minSurfaceHeight, liquidBlock, 1, noises, liquidBuffer);
     }
 
     /**
@@ -229,7 +229,7 @@ public class UndergroundCarver {
      */
     public void generateColumnWithNoise(ChunkPrimer primer, BlockPos colPos, int bottomY,
                                         int topY, int maxSurfaceHeight, int minSurfaceHeight, IBlockState liquidBlock,
-                                        float smoothAmp, NoiseColumn noises) {
+                                        float smoothAmp, NoiseColumn noises, boolean liquidBuffer) {
     }
 
     /* ------------------------- Public Getters -------------------------*/

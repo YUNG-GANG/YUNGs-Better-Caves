@@ -21,7 +21,7 @@ public class ConfigSimplexCave {
     @Config.Comment("Changes width of caves. Lower value = wider caves.")
     @Config.RangeDouble(min = 0, max = 100)
     @Config.RequiresWorldRestart
-    public float xzCompression = 1.0f;
+    public float xzCompression = 1.5f;
 
     @Config.Name("Type 2 Cave Frequency")
     @Config.Comment("Determines how frequently Type 2 Caves spawn. If this is anything but VeryCommon (the default), vanilla caves will " +
@@ -47,7 +47,7 @@ public class ConfigSimplexCave {
             " = less caves.")
     @Config.RangeDouble(min = -1.0, max = 1.0)
     @Config.RequiresWorldRestart
-    public float noiseThreshold = .86f;
+    public float noiseThreshold = .85f;
 
     @Config.Ignore
     @Config.Name("Fractal Octaves")

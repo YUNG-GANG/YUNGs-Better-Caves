@@ -187,6 +187,7 @@ public class MapGenBetterCaves extends MapGenCaves {
                         int localZ = startZ + offsetZ;
                         BlockPos colPos = new BlockPos(chunkX * 16 + localX, 1, chunkZ * 16 + localZ);
 
+                        caveNoiseColumn = null;
                         cavernNoiseColumn = null;
                         liquidBuffer = false;
 
@@ -226,7 +227,8 @@ public class MapGenBetterCaves extends MapGenCaves {
                             caveBottomY = 256;
                         }
 
-                        caveNoiseColumn = caveNoiseCube.get(offsetX).get(offsetZ);
+                        if (caveNoiseCube != null)
+                            caveNoiseColumn = caveNoiseCube.get(offsetX).get(offsetZ);
 
                         /* --------------------------- Configure Caverns --------------------------- */
                         // Noise values used to determine cavern region

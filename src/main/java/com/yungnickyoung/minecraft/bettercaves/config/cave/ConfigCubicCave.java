@@ -21,7 +21,7 @@ public class ConfigCubicCave {
     @Config.Comment("Changes width of caves. Lower value = wider caves.")
     @Config.RangeDouble(min = 0, max = 100)
     @Config.RequiresWorldRestart
-    public float xzCompression = 1.0f;
+    public float xzCompression = 1.5f;
 
     @Config.Name("Type 1 Cave Frequency")
     @Config.Comment("Determines how frequently Type 1 Caves spawn. If this is anything but VeryCommon (the default), vanilla caves will " +

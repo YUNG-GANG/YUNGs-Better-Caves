@@ -61,7 +61,7 @@ public class MapGenBetterCaves extends MapGenCaves {
     private float waterRegionThreshold;
 
     // Dictates the degree of smoothing along cavern region boundaries
-    private float cavernSmoothRange = .15f;
+    private float cavernSmoothRange = .25f;
 
     // Determines size of buffer (filled with stone instead of liquid) between ...
     // ... water and lava regions
@@ -468,13 +468,13 @@ public class MapGenBetterCaves extends MapGenCaves {
             case Rare:
                 return -.8f;
             case Common:
-                return -.3f;
+                return -.4f;
             case VeryCommon:
                 return -.1f;
             case Custom:
                 return -1f + config.lavaCavernCustomFrequency.get();
             default: // Normal
-                return -.4f;
+                return -.6f;
         }
     }
 
@@ -488,13 +488,13 @@ public class MapGenBetterCaves extends MapGenCaves {
             case Rare:
                 return .8f;
             case Common:
-                return .3f;
+                return .4f;
             case VeryCommon:
                 return .1f;
             case Custom:
                 return 1f - config.flooredCavernCustomFrequency.get();
             default: // Normal
-                return .4f;
+                return .6f;
         }
     }
 

@@ -46,7 +46,7 @@ public class CavernCarver extends UndergroundCarver {
             return;
 
         // Altitude at which caverns start closing off on the top
-        int topTransitionBoundary = topY - 7;
+        int topTransitionBoundary = topY - 10;
 
         // Validate transition boundary
         if (topTransitionBoundary < 1)
@@ -76,7 +76,7 @@ public class CavernCarver extends UndergroundCarver {
             // Adjust threshold if we're in the transition range to provide smoother transition into ceiling
             float noiseThreshold = this.noiseThreshold;
             if (y >= topTransitionBoundary)
-                noiseThreshold *= Math.max((float) (y - topY) / (topTransitionBoundary - topY), .5f);
+                noiseThreshold *= Math.max((float) (y - topY) / (topTransitionBoundary - topY), .3f);
 
             // Force close-off caverns if we're in ease-in depth range
             if (y >= minSurfaceHeight - 5)
@@ -84,7 +84,7 @@ public class CavernCarver extends UndergroundCarver {
 
             // For floored caverns, close off caverns at the bottom to provide floors for the player to walk on
             if ((this.cavernType == CavernType.FLOORED || this.cavernType == CavernType.WATER) && y <= bottomTransitionBoundary)
-                noiseThreshold *= Math.max((float) (y - bottomY) / (bottomTransitionBoundary - bottomY), .5f);
+                noiseThreshold *= Math.max((float) (y - bottomY) / (bottomTransitionBoundary - bottomY), .3f);
 
             // Adjust threshold along region borders to create smooth transition
             if (smoothAmp < 1)

@@ -20,7 +20,7 @@ public class ConfigHolder {
         lavaBlock = new ConfigOption<>("Lava Block", Configuration.lavaBlock)
                 .setCategory("general")
                 .addToMap(properties);
-        waterBlock = new ConfigOption<>("Water Block", Configuration.waterblock)
+        waterBlock = new ConfigOption<>("Water Block", Configuration.waterBlock)
                 .setCategory("general")
                 .addToMap(properties);
         liquidAltitude = new ConfigOption<>("Liquid Altitude", Configuration.liquidAltitude)

@@ -51,7 +51,7 @@ public class ConfigWaterRegions {
         @Config.Comment("Threshold for determining which blocks get mined out as part of cave generation. Higher value = less caves.")
         @Config.RangeDouble(min = -1.0, max = 1.0)
         @Config.RequiresWorldRestart
-        public float noiseThreshold = .75f;
+        public float noiseThreshold = .65f;
 
         @Config.Ignore
         @Config.Name("Fractal Octaves")
@@ -91,6 +91,6 @@ public class ConfigWaterRegions {
                 "WhiteNoise\n" +
                 "Cubic\n" +
                 "CubicFractal")
-        public FastNoise.NoiseType noiseType = FastNoise.NoiseType.PerlinFractal;
+        public FastNoise.NoiseType noiseType = FastNoise.NoiseType.SimplexFractal;
     }
 }

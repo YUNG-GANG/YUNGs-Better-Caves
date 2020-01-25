@@ -28,8 +28,8 @@ public class ConfigLavaCavern {
             "1.0 = 50% chance of spawning (which is the max value). The value does not scale linearly. \nProvided values:\n" +
             "None: 0\n" +
             "Rare: 0.2\n" +
-            "Normal: 0.6\n" +
-            "Common: 0.7\n" +
+            "Normal: 0.4\n" +
+            "Common: 0.6\n" +
             "VeryCommon: 0.9")
     @Config.RangeDouble(min = 0, max = 1)
     @Config.RequiresWorldRestart
@@ -52,7 +52,7 @@ public class ConfigLavaCavern {
     @Config.Comment("Threshold for determining which blocks get mined out as part of cave generation. Higher value = less caves.")
     @Config.RangeDouble(min = -1.0, max = 1.0)
     @Config.RequiresWorldRestart
-    public float noiseThreshold = .7f;
+    public float noiseThreshold = .6f;
 
     @Config.Ignore
     @Config.Name("Fractal Octaves")
@@ -92,5 +92,5 @@ public class ConfigLavaCavern {
             "WhiteNoise\n" +
             "Cubic\n" +
             "CubicFractal")
-    public FastNoise.NoiseType noiseType = FastNoise.NoiseType.PerlinFractal;
+    public FastNoise.NoiseType noiseType = FastNoise.NoiseType.SimplexFractal;
 }

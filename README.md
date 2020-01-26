@@ -1,6 +1,8 @@
 ![Yung's Better Caves](https://github.com/yungnickyoung/Yungs-Better-Caves/blob/1.12.2/src/main/resources/BetterCavesBanner.png "Yung's Better Caves")
 
-**Check out [Yung's Better Caves on CurseForge](https://www.curseforge.com/minecraft/mc-mods/yungs-better-caves)**
+**Check out [Yung's Better Caves on CurseForge](https://www.curseforge.com/minecraft/mc-mods/yungs-better-caves)** 
+
+[![CurseForge Download Tracker](http://cf.way2muchnoise.eu/yungs-better-caves.svg?badge_style=for_the_badge "CurseForge Download Tracker")](https://www.curseforge.com/minecraft/mc-mods/yungs-better-caves)
 
 Explore caves in Minecraft like never before.
 

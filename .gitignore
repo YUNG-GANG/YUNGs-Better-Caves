@@ -42,3 +42,11 @@ run/
 # Mac
 .DS_Store
 
+.idea/encodings.xml
+.idea/runConfigurations/runClient.xml
+.idea/runConfigurations/runServer.xml
+.idea/compiler.xml
+.idea/.name
+.idea/compiler.xml
+.idea/.name
+.idea/compiler.xml

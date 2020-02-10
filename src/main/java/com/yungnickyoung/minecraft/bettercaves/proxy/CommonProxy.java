@@ -5,6 +5,7 @@ import com.yungnickyoung.minecraft.bettercaves.config.BetterCavesConfig;
 import com.yungnickyoung.minecraft.bettercaves.config.ConfigHelper;
 import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.world.WorldCarverBC;
+import com.yungnickyoung.minecraft.bettercaves.world.cave.BubbleCarverBC;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.biome.Biome;
@@ -27,7 +28,9 @@ import java.util.Set;
 
 public class CommonProxy {
     private WorldCarverBC betterCaveCarver;
+    private BubbleCarverBC bubbleCaveCarver;
     private ConfiguredCarver<ProbabilityConfig> configuredCarver;
+    private ConfiguredCarver<ProbabilityConfig> configuredBubbleCarver;
     private long activeWorldSeed = 0;
     private boolean initFlag = false;
 
@@ -36,7 +39,9 @@ public class CommonProxy {
         IEventBus forgeBus = MinecraftForge.EVENT_BUS;
 
         betterCaveCarver = new WorldCarverBC(ProbabilityConfig::deserialize, 256);
+        bubbleCaveCarver = new BubbleCarverBC(ProbabilityConfig::deserialize, 256);
         configuredCarver = Biome.createCarver(betterCaveCarver, new ProbabilityConfig(1));
+        configuredBubbleCarver = Biome.createCarver(bubbleCaveCarver, new ProbabilityConfig(0.1F));
 
         registerListeners(fmlBus, forgeBus);
     }
@@ -94,6 +99,7 @@ public class CommonProxy {
             continue;
 
             setCarvers(b, configuredCarver);
+            addCarvers(b, configuredBubbleCarver);
         }
     }
 
@@ -138,5 +144,15 @@ public class CommonProxy {
         // If enabled, add underwater ravines to ocean biomes
         if (BetterCavesConfig.enableUnderwaterRavines && biomeIn.getCategory() == Biome.Category.OCEAN)
             biomeIn.addCarver(GenerationStage.Carving.LIQUID, Biome.createCarver(WorldCarver.UNDERWATER_CANYON, new ProbabilityConfig(0.02F)));
+    }
+
+    /**
+     * Adds carvers to the biome without deleting or resetting other carvers
+     */
+    private static void addCarvers(Biome biomeIn, ConfiguredCarver<ProbabilityConfig> carver) {
+        List<ConfiguredCarver<?>> airCarvers = biomeIn.getCarvers(GenerationStage.Carving.AIR);
+
+        // Add the carver carver
+        airCarvers.add(carver);
     }
 }

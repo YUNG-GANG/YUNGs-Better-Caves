@@ -6,6 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.material.Material;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
@@ -42,7 +43,7 @@ public class BubbleCarverBC extends CaveWorldCarver
     @Override
     protected int generateCaveStartY(Random random)
     {
-        return random.nextInt(3) + 40;
+        return random.nextInt(4) + 38;
     }
 
 
@@ -105,9 +106,12 @@ public class BubbleCarverBC extends CaveWorldCarver
         posHere.setPos(globalX, y, globalZ);
         BlockState blockState = chunk.getBlockState(posHere);
         BlockState blockStateAbove = chunk.getBlockState(posAbove.setPos(posHere).move(Direction.UP));
+        BlockState fluid = Fluids.WATER.getDefaultState().getBlockState();
 
         // Makes sure we aren't carving a non terrain or liquid space
-        if (!this.canCarveBlock(blockState, blockStateAbove) || isBorderingLiquid(chunk, posHere))
+        // and that the space does not border water when above lava level (y = 10)
+        if (!this.canCarveBlock(blockState, blockStateAbove) ||
+            (y > 10 ? isBorderingLiquid(chunk, posHere) : isBorderingDifferentLiquid(chunk, posHere, fluid.getMaterial())))
         {
             return false;
         }
@@ -130,10 +134,10 @@ public class BubbleCarverBC extends CaveWorldCarver
         {
             chunk.setBlockState(posHere, CAVE_AIR, false);
         }
-        // sets lava below lava level
         else
         {
-            chunk.setBlockState(posHere, LAVA.getBlockState(), false);
+            // Sets fluid below lava level.
+            chunk.setBlockState(posHere, fluid, false);
         }
 
         return true;
@@ -199,6 +203,36 @@ public class BubbleCarverBC extends CaveWorldCarver
         if(chunk.getBlockState(position.up()).getMaterial() == Material.WATER)
         {
             return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Used to determine if the position is bordering a fluid that is not the current fluid being used.
+     *
+     * This is so this feature is more compatible with WorldCarverBC as that can place both lava and water
+     * and without this check, the water would generate touching lava without being updated.
+     *
+     * Again, this is pretty much hacked-together code but wont work on chunk edges.
+     * Use a feature to check for bordering fluids that are different and add a stone border that way.
+     */
+    protected boolean isBorderingDifferentLiquid(IChunk chunk, BlockPos.MutableBlockPos position, Material currentLiquid)
+    {
+        BlockPos.MutableBlockPos borderingPos = new BlockPos.MutableBlockPos();
+
+        for (Direction direction : Direction.Plane.HORIZONTAL)
+        {
+            borderingPos.setPos(position).move(direction);
+
+            //cannot check beyond chunk edges, check if bordering block is a fluid, and then if it's a different fluid.
+            if((int)(borderingPos.getX() / 16) == chunk.getPos().x &&
+                    (int)(borderingPos.getZ() / 16)  == chunk.getPos().z &&
+                    !chunk.getBlockState(position.offset(direction)).getFluidState().isEmpty() &&
+                    chunk.getBlockState(position.offset(direction)).getMaterial() != currentLiquid)
+            {
+                return true;
+            }
         }
 
         return false;

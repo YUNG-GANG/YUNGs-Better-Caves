@@ -39,9 +39,14 @@ public class CommonProxy {
         IEventBus forgeBus = MinecraftForge.EVENT_BUS;
 
         betterCaveCarver = new WorldCarverBC(ProbabilityConfig::deserialize, 256);
-        bubbleCaveCarver = new BubbleCarverBC(ProbabilityConfig::deserialize, 256);
         configuredCarver = Biome.createCarver(betterCaveCarver, new ProbabilityConfig(1));
-        configuredBubbleCarver = Biome.createCarver(bubbleCaveCarver, new ProbabilityConfig(0.1F));
+
+        /* Set the chance to 0.1F if you want to see cool generation when the bubble columns interact with each other!
+         * If you can find a way for each column to generate in a cluster and have each cluster be rare, that would
+         * be incredible to see!
+         */
+        bubbleCaveCarver = new BubbleCarverBC(ProbabilityConfig::deserialize, 256);
+        configuredBubbleCarver = Biome.createCarver(bubbleCaveCarver, new ProbabilityConfig(0.01F));
 
         registerListeners(fmlBus, forgeBus);
     }

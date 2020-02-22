@@ -36,13 +36,13 @@ import java.util.Random;
  */
 public class MapGenBetterCaves extends MapGenCaves {
     // Cave types
-    private UndergroundCarver caveCubic;
-    private UndergroundCarver caveSimplex;
+    private CaveCarver caveCubic;
+    private CaveCarver caveSimplex;
 
     // Cavern types
-    private UndergroundCarver cavernLava;
-    private UndergroundCarver cavernFloored;
-    private UndergroundCarver cavernWater;
+    private CavernCarver cavernLava;
+    private CavernCarver cavernFloored;
+    private CavernCarver cavernWater;
 
     // Vanilla cave gen if user sets config to use it
     private MapGenBase defaultCaveGen;
@@ -124,19 +124,12 @@ public class MapGenBetterCaves extends MapGenCaves {
         int maxSurfaceHeight = 128; // Default 128 for if debug visualizer is enabled
         int minSurfaceHeight = 60;
 
-        // Cave generators - we will determine exactly what type these are based on the cave region for each column
-        UndergroundCarver cavernGen;
-        UndergroundCarver caveGen;
-
         // Noise cubes and columns for storing noise values
         NoiseCube caveSimplexNoiseCube;
         NoiseCube caveCubicNoiseCube;
         NoiseCube cavernLavaNoiseCube;
         NoiseCube cavernFlooredNoiseCube;
         NoiseCube cavernWaterNoiseCube;
-
-        NoiseCube caveNoiseCube;
-        NoiseCube cavernNoiseCube;
 
         NoiseColumn caveNoiseColumn;
         NoiseColumn cavernNoiseColumn;
@@ -168,12 +161,10 @@ public class MapGenBetterCaves extends MapGenCaves {
 
                 caveSimplexNoiseCube = null;
                 caveCubicNoiseCube = null;
-                caveNoiseCube = null;
 
                 cavernLavaNoiseCube = null;
                 cavernFlooredNoiseCube = null;
                 cavernWaterNoiseCube = null;
-                cavernNoiseCube = null;
 
                 if (!config.debugVisualizer.get())
                     maxSurfaceHeight = BetterCavesUtil.estimateMaxSurfaceAltitudeSubChunk(primer, startPos, Settings.SUB_CHUNK_SIZE);
@@ -187,13 +178,26 @@ public class MapGenBetterCaves extends MapGenCaves {
                         int localZ = startZ + offsetZ;
                         BlockPos colPos = new BlockPos(chunkX * 16 + localX, 1, chunkZ * 16 + localZ);
 
-                        caveNoiseColumn = null;
-                        cavernNoiseColumn = null;
                         liquidBuffer = false;
 
                         /* --------------------------- Configure Caves --------------------------- */
                         // Get noise values used to determine cave region
                         float caveRegionNoise = caveRegionController.GetNoise(colPos.getX(), colPos.getZ());
+
+                        float waterRegionNoise = 99;
+                        IBlockState liquidBlock = lavaBlock;
+
+                        // Only bother calculating noise for water region if enabled
+                        if (config.enableWaterRegions.get()) {
+                            waterRegionNoise = waterRegionController.GetNoise(colPos.getX(), colPos.getZ());
+
+                            // If water region threshold check is passed, change liquid block to water
+                            float randOffset = (rand.nextFloat() * waterRegionSmoothDelta + waterRegionSmoothRange);
+                            if (waterRegionNoise < waterRegionThreshold - randOffset)
+                                liquidBlock = waterBlock;
+                            else if (waterRegionNoise < waterRegionThreshold + randOffset)
+                                liquidBuffer = true;
+                        }
 
                         /* Determine cave type for this column. We have two thresholds, one for cubic caves and one for
                          * simplex caves. Since the noise value generated for the region is between -1 and 1, we (by
@@ -205,133 +209,97 @@ public class MapGenBetterCaves extends MapGenCaves {
                          * out of this chunk.
                          */
                         if (caveRegionNoise < this.cubicCaveThreshold) {
-                            caveGen = this.caveCubic;
                             caveBottomY = config.cubicCaveBottom.get();
-                            if (caveCubicNoiseCube == null)
-                                caveCubicNoiseCube = caveCubic.noiseGen.interpolateNoiseCube(startPos, endPos, config.cubicCaveBottom.get(),
-                                        maxSurfaceHeight);
-                            caveNoiseCube = caveCubicNoiseCube;
-                        } else if (caveRegionNoise >= this.simplexCaveThreshold) {
-                            caveGen = this.caveSimplex;
+                            if (caveCubicNoiseCube == null) {
+                                caveCubicNoiseCube = caveCubic.getNoiseGen().interpolateNoiseCube(startPos, endPos, caveBottomY, maxSurfaceHeight);
+                            }
+                            caveNoiseColumn = caveCubicNoiseCube.get(offsetX).get(offsetZ);
+                            caveCubic.generateColumnWithNoise(primer, colPos, caveBottomY, maxSurfaceHeight,
+                                    maxSurfaceHeight, minSurfaceHeight, liquidBlock, caveNoiseColumn, liquidBuffer);
+                        }
+                        else if (caveRegionNoise >= this.simplexCaveThreshold) {
                             caveBottomY = config.simplexCaveBottom.get();
-                            if (caveSimplexNoiseCube == null)
-                                caveSimplexNoiseCube = caveSimplex.noiseGen.interpolateNoiseCube(startPos, endPos, config.simplexCaveBottom.get(),
-                                        maxSurfaceHeight);
-                            caveNoiseCube = caveSimplexNoiseCube;
-                        } else {
+                            if (caveSimplexNoiseCube == null) {
+                                caveSimplexNoiseCube = caveSimplex.getNoiseGen().interpolateNoiseCube(startPos, endPos, config.simplexCaveBottom.get(), maxSurfaceHeight);
+                            }
+                            caveNoiseColumn = caveSimplexNoiseCube.get(offsetX).get(offsetZ);
+                            caveSimplex.generateColumnWithNoise(primer, colPos, caveBottomY, maxSurfaceHeight,
+                                    maxSurfaceHeight, minSurfaceHeight, liquidBlock, caveNoiseColumn, liquidBuffer);
+                        }
+                        else {
                             if (config.enableVanillaCaves.get()) {
                                 defaultCaveGen.generate(worldIn, chunkX, chunkZ, primer);
                                 return;
                             }
-                            caveGen = null;
-                            caveBottomY = 256;
                         }
-
-                        if (caveNoiseCube != null)
-                            caveNoiseColumn = caveNoiseCube.get(offsetX).get(offsetZ);
 
                         /* --------------------------- Configure Caverns --------------------------- */
                         // Noise values used to determine cavern region
                         float cavernRegionNoise = cavernRegionController.GetNoise(colPos.getX(), colPos.getZ());
-                        float waterRegionNoise = 99;
-
-                        // Only bother calculating noise for water region if enabled
-                        if (config.enableWaterRegions.get())
-                            waterRegionNoise = waterRegionController.GetNoise(colPos.getX(), colPos.getZ());
-
-                        // If water region threshold check is passed, change liquid block to water
-                        IBlockState liquidBlock = lavaBlock;
-                        float randOffset = (rand.nextFloat() * waterRegionSmoothDelta + waterRegionSmoothRange);
-                        if (waterRegionNoise < waterRegionThreshold - randOffset)
-                            liquidBlock = waterBlock;
-                        else if (waterRegionNoise < waterRegionThreshold + randOffset)
-                            liquidBuffer = true;
 
                         // Determine cavern type for this column. Caverns generate at low altitudes only.
                         if (cavernRegionNoise < lavaCavernThreshold) {
                             // Water caverns use the same cave top/bottom as lava caverns
                             cavernBottomY = config.lavaCavernBottom.get();
                             cavernTopY = config.lavaCavernTop.get();
-
                             if (config.enableWaterRegions.get() && waterRegionNoise < this.waterRegionThreshold) {
-                                // Generate water cavern in this column
-                                cavernGen = this.cavernWater;
-                                if (cavernWaterNoiseCube == null)
-                                    cavernWaterNoiseCube = cavernWater.noiseGen.interpolateNoiseCube(startPos, endPos, cavernBottomY,
-                                            cavernTopY);
-                                cavernNoiseCube = cavernWaterNoiseCube;
-                            } else {
-                                // Generate lava cavern in this column
-                                cavernGen = this.cavernLava;
-                                if (cavernLavaNoiseCube == null)
-                                    cavernLavaNoiseCube = cavernLava.noiseGen.interpolateNoiseCube(startPos, endPos, cavernBottomY,
-                                            cavernTopY);
-                                cavernNoiseCube = cavernLavaNoiseCube;
+                                if (cavernWaterNoiseCube == null) {
+                                    cavernWaterNoiseCube = cavernWater.getNoiseGen().interpolateNoiseCube(startPos, endPos, cavernBottomY, cavernTopY);
+                                }
+                                cavernNoiseColumn = cavernWaterNoiseCube.get(offsetX).get(offsetZ);
+                                cavernWater.generateColumnWithNoise(primer, colPos, cavernBottomY, cavernTopY,
+                                        maxSurfaceHeight, minSurfaceHeight, liquidBlock, 1, cavernNoiseColumn, liquidBuffer);
                             }
-                        } else if (cavernRegionNoise >= lavaCavernThreshold && cavernRegionNoise <= flooredCavernThreshold) {
-                            /* Similar to determining cave type above, we must check for values between the two adjusted
-                             * thresholds, i.e. lavaCavernThreshold < noiseValue <= flooredCavernThreshold.
-                             * In this case, we just continue generating the caves we were generating above, instead
-                             * of generating a cavern.
-                             */
-                            cavernGen = null;
-                            cavernBottomY = caveBottomY;
-                            cavernTopY = caveBottomY;
-                        } else {
-                            // Generate floored cavern in this column
-                            cavernGen = this.cavernFloored;
+                            else {
+                                if (cavernLavaNoiseCube == null) {
+                                    cavernLavaNoiseCube = cavernLava.getNoiseGen().interpolateNoiseCube(startPos, endPos, cavernBottomY, cavernTopY);
+                                }
+                                cavernNoiseColumn = cavernLavaNoiseCube.get(offsetX).get(offsetZ);
+                                cavernLava.generateColumnWithNoise(primer, colPos, cavernBottomY, cavernTopY,
+                                        maxSurfaceHeight, minSurfaceHeight, liquidBlock, 1, cavernNoiseColumn, liquidBuffer);                            }
+                        }
+                        else if (cavernRegionNoise > flooredCavernThreshold) {
                             cavernBottomY = config.flooredCavernBottom.get();
                             cavernTopY = config.flooredCavernTop.get();
-                            if (cavernFlooredNoiseCube == null)
-                                cavernFlooredNoiseCube = cavernFloored.noiseGen.interpolateNoiseCube(startPos, endPos, cavernBottomY,
-                                        cavernTopY);
-                            cavernNoiseCube = cavernFlooredNoiseCube;
+                            if (cavernFlooredNoiseCube == null) {
+                                cavernFlooredNoiseCube = cavernFloored.getNoiseGen().interpolateNoiseCube(startPos, endPos, cavernBottomY, cavernTopY);
+                            }
+                            cavernNoiseColumn = cavernFlooredNoiseCube.get(offsetX).get(offsetZ);
+                            cavernFloored.generateColumnWithNoise(primer, colPos, cavernBottomY, cavernTopY,
+                                    maxSurfaceHeight, minSurfaceHeight, liquidBlock, 1, cavernNoiseColumn, liquidBuffer);
                         }
-
-                        if (cavernNoiseCube != null)
-                            cavernNoiseColumn = cavernNoiseCube.get(offsetX).get(offsetZ);
 
                         // Extra check to provide close-off transitions on cavern edges
                         if (config.enableBoundarySmoothing.get()) {
                             if (cavernRegionNoise >= lavaCavernThreshold && cavernRegionNoise <= lavaCavernThreshold + cavernSmoothRange) {
                                 float smoothAmp = Math.abs((cavernRegionNoise - (lavaCavernThreshold + cavernSmoothRange)) / cavernSmoothRange);
                                 if (config.enableWaterRegions.get() && waterRegionNoise < this.waterRegionThreshold) {
-                                    if (cavernWaterNoiseCube == null)
-                                        cavernWaterNoiseCube = cavernWater.noiseGen.interpolateNoiseCube(startPos, endPos, config.lavaCavernBottom.get(),
-                                                config.lavaCavernTop.get());
+                                    if (cavernWaterNoiseCube == null) {
+                                        cavernWaterNoiseCube = cavernWater.getNoiseGen().interpolateNoiseCube(startPos, endPos, config.lavaCavernBottom.get(), config.lavaCavernTop.get());
+                                    }
                                     cavernNoiseColumn = cavernWaterNoiseCube.get(offsetX).get(offsetZ);
                                     this.cavernWater.generateColumnWithNoise(primer, colPos, config.lavaCavernBottom.get(), config.lavaCavernTop.get(),
                                             maxSurfaceHeight, minSurfaceHeight, liquidBlock, smoothAmp, cavernNoiseColumn, liquidBuffer);
                                 }
                                 else {
-                                    if (cavernLavaNoiseCube == null)
-                                        cavernLavaNoiseCube = cavernLava.noiseGen.interpolateNoiseCube(startPos, endPos, config.lavaCavernBottom.get(),
-                                                config.lavaCavernTop.get());
+                                    if (cavernLavaNoiseCube == null) {
+                                        cavernLavaNoiseCube = cavernLava.getNoiseGen().interpolateNoiseCube(startPos, endPos, config.lavaCavernBottom.get(), config.lavaCavernTop.get());
+                                    }
                                     cavernNoiseColumn = cavernLavaNoiseCube.get(offsetX).get(offsetZ);
                                     this.cavernLava.generateColumnWithNoise(primer, colPos, config.lavaCavernBottom.get(), config.lavaCavernTop.get(),
                                             maxSurfaceHeight, minSurfaceHeight, liquidBlock, smoothAmp, cavernNoiseColumn, liquidBuffer);
                                 }
-                            } else if (cavernRegionNoise <= flooredCavernThreshold && cavernRegionNoise >= flooredCavernThreshold - cavernSmoothRange) {
+                            }
+                            else if (cavernRegionNoise <= flooredCavernThreshold && cavernRegionNoise >= flooredCavernThreshold - cavernSmoothRange) {
                                 float smoothAmp = Math.abs((cavernRegionNoise - (flooredCavernThreshold - cavernSmoothRange)) / cavernSmoothRange);
-                                if (cavernFlooredNoiseCube == null)
-                                    cavernFlooredNoiseCube = cavernFloored.noiseGen.interpolateNoiseCube(startPos, endPos, config.flooredCavernBottom.get(),
-                                            config.flooredCavernTop.get());
+                                if (cavernFlooredNoiseCube == null) {
+                                    cavernFlooredNoiseCube = cavernFloored.getNoiseGen().interpolateNoiseCube(startPos, endPos, config.flooredCavernBottom.get(), config.flooredCavernTop.get());
+                                }
                                 cavernNoiseColumn = cavernFlooredNoiseCube.get(offsetX).get(offsetZ);
                                 this.cavernFloored.generateColumnWithNoise(primer, colPos, config.flooredCavernBottom.get(), config.flooredCavernTop.get(),
                                         maxSurfaceHeight, minSurfaceHeight, liquidBlock, smoothAmp, cavernNoiseColumn, liquidBuffer);
                             }
                         }
-
-                        /* --------------- Dig out caves and caverns for this column --------------- */
-                        // Top (Cave) layer:
-                        if (caveGen != null)
-                            caveGen.generateColumnWithNoise(primer, colPos, caveBottomY, maxSurfaceHeight,
-                                maxSurfaceHeight, minSurfaceHeight, liquidBlock, caveNoiseColumn, liquidBuffer);
-                        // Bottom (Cavern) layer:
-                        if (cavernGen != null)
-                            cavernGen.generateColumnWithNoise(primer, colPos, cavernBottomY, cavernTopY,
-                                maxSurfaceHeight, minSurfaceHeight, liquidBlock, cavernNoiseColumn, liquidBuffer);
-
                     }
                 }
             }
@@ -393,8 +361,6 @@ public class MapGenBetterCaves extends MapGenCaves {
         this.waterRegionController = new FastNoise();
         this.waterRegionController.SetSeed((int)worldIn.getSeed() + 444);
         this.waterRegionController.SetFrequency(waterRegionSize);
-//        this.waterRegionController.SetNoiseType(FastNoise.NoiseType.Cellular);
-//        this.waterRegionController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
         /* ---------- Initialize all Better Cave carvers using config options ---------- */
         this.caveCubic = new CaveCarverBuilder(worldIn)

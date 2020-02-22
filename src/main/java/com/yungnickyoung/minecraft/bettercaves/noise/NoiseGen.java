@@ -259,11 +259,11 @@ public class NoiseGen {
         for (int i = 0; i < numGenerators; i++) {
             FastNoise noiseGen = new FastNoise();
             noiseGen.SetSeed((int)(seed) + (1111 * (i + 1)));
-            noiseGen.SetFractalType(noiseSettings.fractalType);
-            noiseGen.SetNoiseType(noiseSettings.noiseType);
-            noiseGen.SetFractalOctaves(noiseSettings.octaves);
-            noiseGen.SetFractalGain(noiseSettings.gain);
-            noiseGen.SetFrequency(noiseSettings.frequency);
+            noiseGen.SetFractalType(noiseSettings.getFractalType());
+            noiseGen.SetNoiseType(noiseSettings.getNoiseType());
+            noiseGen.SetFractalOctaves(noiseSettings.getOctaves());
+            noiseGen.SetFractalGain(noiseSettings.getGain());
+            noiseGen.SetFrequency(noiseSettings.getFrequency());
 
             listNoiseGens.add(noiseGen);
         }
@@ -274,10 +274,10 @@ public class NoiseGen {
      */
     private void initializeTurbulenceGen() {
         turbulenceGen.SetSeed((int)(seed) + 69);
-        turbulenceGen.SetNoiseType(turbulenceSettings.noiseType);
-        turbulenceGen.SetFractalType(turbulenceSettings.fractalType);
-        turbulenceGen.SetFractalOctaves(turbulenceSettings.octaves);
-        turbulenceGen.SetFractalGain(turbulenceSettings.gain);
-        turbulenceGen.SetFrequency(turbulenceSettings.frequency);
+        turbulenceGen.SetNoiseType(turbulenceSettings.getNoiseType());
+        turbulenceGen.SetFractalType(turbulenceSettings.getFractalType());
+        turbulenceGen.SetFractalOctaves(turbulenceSettings.getOctaves());
+        turbulenceGen.SetFractalGain(turbulenceSettings.getGain());
+        turbulenceGen.SetFrequency(turbulenceSettings.getFrequency());
     }
 }

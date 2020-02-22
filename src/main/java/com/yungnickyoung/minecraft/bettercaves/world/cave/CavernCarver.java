@@ -11,24 +11,29 @@ import net.minecraft.world.chunk.ChunkPrimer;
 
 import java.util.List;
 
-public class CavernCarver extends UndergroundCarver {
+/**
+ * BetterCaves Cavern carver.
+ * Caverns are large openings generated at the bottom of the world.
+ */
+public class CavernCarver {
+    private CarverSettings settings;
+    private NoiseGen noiseGen;
     private CavernType cavernType;
 
     public CavernCarver(final CavernCarverBuilder builder) {
-        super(builder);
-        cavernType = builder.getCavernType();
+        settings = builder.getSettings();
         noiseGen = new NoiseGen(
-                this.world,
-                this.noiseSettings,
-                this.turbulenceSettings,
-                this.numGens,
-                this.enableTurbulence,
-                this.yCompression,
-                this.xzCompression
+                settings.getWorld(),
+                settings.getNoiseSettings(),
+                settings.getTurbulenceSettings(),
+                settings.getNumGens(),
+                settings.isEnableTurbulence(),
+                settings.getyCompression(),
+                settings.getXzCompression()
         );
+        cavernType = builder.getCavernType();
     }
 
-    @Override
     public void generateColumnWithNoise(ChunkPrimer primer, BlockPos colPos, int bottomY,
                                         int topY, int maxSurfaceHeight, int minSurfaceHeight,
                                         IBlockState liquidBlock, float smoothAmp, NoiseColumn noises, boolean liquidBuffer) {
@@ -55,13 +60,13 @@ public class CavernCarver extends UndergroundCarver {
         // Altitude at which caverns start closing off on the bottom to create "floors"
         int bottomTransitionBoundary = 0;
         if (cavernType == CavernType.FLOORED)
-            bottomTransitionBoundary = (bottomY <= 10) ? liquidAltitude + 4 : bottomY + 7;
+            bottomTransitionBoundary = (bottomY <= 10) ? settings.getLiquidAltitude() + 4 : bottomY + 7;
         else if (cavernType == CavernType.WATER)
             bottomTransitionBoundary = bottomY + 3;
 
         /* =============== Dig out caves and caverns in this chunk, based on noise values =============== */
         for (int y = topY; y >= bottomY; y--) {
-            if (y <= liquidAltitude && liquidBuffer)
+            if (y <= settings.getLiquidAltitude() && liquidBuffer)
                 break;
 
             List<Float> noiseBlock;
@@ -74,7 +79,7 @@ public class CavernCarver extends UndergroundCarver {
                 noise *= n;
 
             // Adjust threshold if we're in the transition range to provide smoother transition into ceiling
-            float noiseThreshold = this.noiseThreshold;
+            float noiseThreshold = settings.getNoiseThreshold();
             if (y >= topTransitionBoundary)
                 noiseThreshold *= Math.max((float) (y - topY) / (topTransitionBoundary - topY), .3f);
 
@@ -96,12 +101,17 @@ public class CavernCarver extends UndergroundCarver {
 
             BlockPos blockPos = new BlockPos(colPos.getX(), y, colPos.getZ());
 
-            // Consider digging out the block if it passed the threshold check, using the debug visualizer if enabled
-            if (this.enableDebugVisualizer)
-                visualizeDigBlock(primer, blockPos, digBlock, this.debugBlock);
+            // Dig out the block if it passed the threshold check, using the debug visualizer if enabled
+            if (settings.isEnableDebugVisualizer()) {
+                CarverUtils.debugDigBlock(primer, blockPos, settings.getDebugBlock(), digBlock);
+            }
             else if (digBlock) {
-                this.digBlock(primer, blockPos, liquidBlock, liquidAltitude);
+                CarverUtils.digBlock(settings.getWorld(), primer, blockPos, liquidBlock, settings.getLiquidAltitude());
             }
         }
+    }
+
+    public NoiseGen getNoiseGen() {
+        return noiseGen;
     }
 }

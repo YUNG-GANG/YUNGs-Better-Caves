@@ -1,14 +1,38 @@
 package com.yungnickyoung.minecraft.bettercaves.noise;
 
 public class NoiseSettings {
-    public FastNoise.NoiseType   noiseType   = FastNoise.NoiseType.SimplexFractal;
-    public FastNoise.FractalType fractalType = FastNoise.FractalType.FBM;
-    public int   octaves   = 3;
-    public float gain      = 0.5f;
-    public float frequency = 0.01f;
+    private FastNoise.NoiseType   noiseType   = FastNoise.NoiseType.SimplexFractal;
+    private FastNoise.FractalType fractalType = FastNoise.FractalType.FBM;
+    private int   octaves   = 3;
+    private float gain      = 0.5f;
+    private float frequency = 0.01f;
 
     public NoiseSettings() {
     }
+
+    /** GETTERS **/
+
+    public FastNoise.NoiseType getNoiseType() {
+        return noiseType;
+    }
+
+    public FastNoise.FractalType getFractalType() {
+        return fractalType;
+    }
+
+    public int getOctaves() {
+        return octaves;
+    }
+
+    public float getGain() {
+        return gain;
+    }
+
+    public float getFrequency() {
+        return frequency;
+    }
+
+    /** SETTERS **/
 
     public NoiseSettings setNoiseType(FastNoise.NoiseType noiseType) {
         this.noiseType = noiseType;

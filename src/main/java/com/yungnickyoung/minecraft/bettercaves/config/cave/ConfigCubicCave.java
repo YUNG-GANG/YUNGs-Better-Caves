@@ -15,13 +15,13 @@ public class ConfigCubicCave {
     @Config.Comment("Changes height of caves. Lower value = taller caves with steeper drops.")
     @Config.RangeDouble(min = 0, max = 100)
     @Config.RequiresWorldRestart
-    public float yCompression = 3.0f;
+    public float yCompression = 5.0f;
 
     @Config.Name("Compression - Horizontal")
     @Config.Comment("Changes width of caves. Lower value = wider caves.")
     @Config.RangeDouble(min = 0, max = 100)
     @Config.RequiresWorldRestart
-    public float xzCompression = 1.5f;
+    public float xzCompression = 1.6f;
 
     @Config.Name("Type 1 Cave Frequency")
     @Config.Comment("Determines how frequently Type 1 Caves spawn. If this is anything but VeryCommon (the default), vanilla caves will " +
@@ -115,7 +115,7 @@ public class ConfigCubicCave {
     @Config.Name("y-adjustment Variable 2")
     @Config.Comment("Factor affecting the block two blocks above a given block.")
     @Config.RangeDouble(min = 0, max = 1f)
-    public float yAdjustF2 = .8f;
+    public float yAdjustF2 = .9f;
 
     @Config.Ignore
     @Config.Name("Noise Type")

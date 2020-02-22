@@ -43,23 +43,13 @@ public class CarverUtils {
         int localZ = BetterCavesUtil.getLocal(blockPos.getZ());
         int y = blockPos.getY();
 
+        // Check for adjacent water blocks to avoid breaking into lakes or oceans
         if (liquidBlockState.getMaterial() != Material.WATER) {
-            // Check for adjacent water blocks to avoid breaking into lakes or oceans
-            if (primer.getBlockState(localX, y + 1, localZ).getMaterial() == Material.WATER)
-                return;
-            if (localX < 15 && primer.getBlockState(localX + 1, y, localZ).getMaterial() == Material.WATER)
-                return;
-            if (localX > 0 && primer.getBlockState(localX - 1, y, localZ).getMaterial() == Material.WATER)
-                return;
-            if (localZ < 15 && primer.getBlockState(localX, y, localZ + 1).getMaterial() == Material.WATER)
-                return;
-            if (localZ > 0 && primer.getBlockState(localX, y, localZ - 1).getMaterial() == Material.WATER)
-                return;
+            if (isWaterAdjacent(primer, blockPos)) return;
         }
 
         IBlockState blockState = primer.getBlockState(localX, y, localZ);
         IBlockState blockStateAbove = primer.getBlockState(localX, y + 1, localZ);
-
         Biome biome = world.getBiome(blockPos);
         Block biomeTopBlock = biome.topBlock.getBlock();
         Block biomeFillerBlock = biome.fillerBlock.getBlock();
@@ -68,7 +58,8 @@ public class CarverUtils {
         if (canReplaceBlock(blockState, blockStateAbove) || blockState.getBlock() == biomeTopBlock || blockState.getBlock() == biomeFillerBlock) {
             if ( y <= liquidAltitude) { // Replace any air below the liquid altitude with the liquid block passed in
                 primer.setBlockState(localX, y, localZ, liquidBlockState);
-            } else {
+            }
+            else {
                 // Adjust block below if block removed is biome top block
                 if (isTopBlock(world, primer, blockPos) && canReplaceBlock(primer.getBlockState(localX, y - 1, localZ), AIR))
                     primer.setBlockState(localX, y - 1, localZ, biome.topBlock);
@@ -166,5 +157,17 @@ public class CarverUtils {
         // Only accept gravel and sand if water is not directly above it
         return (block == Blocks.SAND || block == Blocks.GRAVEL)
                 && blockStateAbove.getMaterial() != Material.WATER;
+    }
+
+    private static boolean isWaterAdjacent(ChunkPrimer primer, BlockPos blockPos) {
+        int localX = BetterCavesUtil.getLocal(blockPos.getX());
+        int localZ = BetterCavesUtil.getLocal(blockPos.getZ());
+        int y = blockPos.getY();
+
+        return primer.getBlockState(localX, y + 1, localZ).getMaterial() == Material.WATER
+                || localX < 15 && primer.getBlockState(localX + 1, y, localZ).getMaterial() == Material.WATER
+                || localX > 0 && primer.getBlockState(localX - 1, y, localZ).getMaterial() == Material.WATER
+                || localZ < 15 && primer.getBlockState(localX, y, localZ + 1).getMaterial() == Material.WATER
+                || localZ > 0 && primer.getBlockState(localX, y, localZ - 1).getMaterial() == Material.WATER;
     }
 }

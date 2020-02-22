@@ -15,13 +15,13 @@ public class ConfigSimplexCave {
     @Config.Comment("Changes height of caves. Lower value = taller caves with steeper drops.")
     @Config.RangeDouble(min = 0, max = 100)
     @Config.RequiresWorldRestart
-    public float yCompression = 3.0f;
+    public float yCompression = 6.5f;
 
     @Config.Name("Compression - Horizontal")
     @Config.Comment("Changes width of caves. Lower value = wider caves.")
     @Config.RangeDouble(min = 0, max = 100)
     @Config.RequiresWorldRestart
-    public float xzCompression = 1.5f;
+    public float xzCompression = 2.0f;
 
     @Config.Name("Type 2 Cave Frequency")
     @Config.Comment("Determines how frequently Type 2 Caves spawn. If this is anything but VeryCommon (the default), vanilla caves will " +
@@ -66,7 +66,7 @@ public class ConfigSimplexCave {
     @Config.Comment("The frequency for ridged multi-fractal noise generation. This determines how spread out or" +
             " tightly knit cave systems are.")
     @Config.RequiresWorldRestart
-    public float fractalFrequency = 0.017f;
+    public float fractalFrequency = 0.012f;
 
     @Config.Ignore
     @Config.Name("Use Turbulence")

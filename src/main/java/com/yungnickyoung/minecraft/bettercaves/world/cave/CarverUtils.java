@@ -1,8 +1,10 @@
 package com.yungnickyoung.minecraft.bettercaves.world.cave;
 
+import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSand;
+import net.minecraft.block.BlockStone;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -24,6 +26,8 @@ public class CarverUtils {
     private static final IBlockState SAND = Blocks.SAND.getDefaultState();
     private static final IBlockState SANDSTONE = Blocks.SANDSTONE.getDefaultState();
     private static final IBlockState REDSANDSTONE = Blocks.RED_SANDSTONE.getDefaultState();
+    private static final IBlockState GRAVEL = Blocks.GRAVEL.getDefaultState();
+    private static final IBlockState ANDESITE = Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.ANDESITE);
 
     /**
      * Digs out the current block, default implementation removes stone, filler, and top block.
@@ -38,7 +42,7 @@ public class CarverUtils {
      *                       use the wrapper function without this param
      * @param liquidAltitude altitude at and below which air is replaced with liquidBlockState
      */
-    public static void digBlock(World world, ChunkPrimer primer, BlockPos blockPos, IBlockState liquidBlockState, int liquidAltitude) {
+    public static void digBlock(World world, ChunkPrimer primer, BlockPos blockPos, IBlockState liquidBlockState, int liquidAltitude, boolean replaceGravel) {
         int localX = BetterCavesUtil.getLocal(blockPos.getX());
         int localZ = BetterCavesUtil.getLocal(blockPos.getZ());
         int y = blockPos.getY();
@@ -67,11 +71,15 @@ public class CarverUtils {
                 // Replace this block with air, effectively "digging" it out
                 primer.setBlockState(localX, y, localZ, AIR);
 
-                // If we caused floating sand to form, replace it with sandstone
+                // Replace floating sand with sandstone
                 if (blockStateAbove == SAND)
                     primer.setBlockState(localX, y + 1, localZ, SANDSTONE);
                 else if (blockStateAbove == SAND.withProperty(BlockSand.VARIANT, BlockSand.EnumType.RED_SAND))
                     primer.setBlockState(localX, y + 1, localZ, REDSANDSTONE);
+
+                // Replace floating gravel with andesite, if enabled
+                if (replaceGravel && blockStateAbove == GRAVEL)
+                    primer.setBlockState(localX, y + 1, localZ, ANDESITE);
             }
         }
     }

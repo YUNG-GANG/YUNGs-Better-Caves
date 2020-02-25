@@ -19,14 +19,27 @@ public class ConfigCaveGen {
             "the regular Better Caves and Caverns, but with water instead of lava.")
     public ConfigWaterRegions waterRegions = new ConfigWaterRegions();
 
-    @Config.Name("Whitelisted Dimension IDs")
-    @Config.Comment("List of ID's of dimensions that will have Better Caves. Ignored if Global Whitelisting is enabled.")
+    @Config.Name("Liquid Altitude")
+    @Config.Comment("Lava (or water in water regions) spawns at and below this y-coordinate.")
+    @Config.RangeInt(min = 0, max = 255)
     @Config.RequiresWorldRestart
-    public int[] whitelistedDimensionIDs = {0};
+    public int liquidAltitude = 10;
 
-    @Config.Name("Enable Global Whitelist")
-    @Config.Comment("Automatically enables Better Caves in every possible dimension, except for the Nether and End. " +
-            "If this is enabled, the Whitelisted Dimension IDs option is ignored.")
+    @Config.Name("Lava Block")
+    @Config.Comment("The block used for lava generation at and below the Liquid Altitude. " +
+            "Defaults to regular lava if an invalid block is given.")
     @Config.RequiresWorldRestart
-    public boolean enableGlobalWhitelist = false;
+    public String lavaBlock = "minecraft:lava";
+
+    @Config.Name("Water Block")
+    @Config.Comment("The block used for water generation in water caves/caverns at and below the Liquid Altitude. " +
+            "Defaults to regular water if an invalid block is given.")
+    @Config.RequiresWorldRestart
+    public String waterBlock = "minecraft:water";
+
+    @Config.Name("Prevent Cascading Gravel")
+    @Config.Comment("Replace naturally generated floating gravel on the ocean floor with andesite. " +
+            "Can prevent lag due to cascading gravel falling into caverns under the ocean.")
+    @Config.RequiresWorldRestart
+    public boolean replaceFloatingGravel = false;
 }

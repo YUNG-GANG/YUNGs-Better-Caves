@@ -106,7 +106,7 @@ public class CavernCarver {
                 CarverUtils.debugDigBlock(primer, blockPos, settings.getDebugBlock(), digBlock);
             }
             else if (digBlock) {
-                CarverUtils.digBlock(settings.getWorld(), primer, blockPos, liquidBlock, settings.getLiquidAltitude());
+                CarverUtils.digBlock(settings.getWorld(), primer, blockPos, liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel());
             }
         }
     }

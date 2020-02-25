@@ -29,21 +29,14 @@ public class Configuration {
     @Config.Comment("Don't mess with these settings for normal gameplay.")
     public static ConfigDebug debugsettings = new ConfigDebug();
 
-    @Config.Name("Liquid Altitude")
-    @Config.Comment("Lava (or water in water regions) spawns at and below this y-coordinate.")
-    @Config.RangeInt(min = 0, max = 255)
+    @Config.Name("Whitelisted Dimension IDs")
+    @Config.Comment("List of ID's of dimensions that will have Better Caves. Ignored if Global Whitelisting is enabled.")
     @Config.RequiresWorldRestart
-    public static int liquidAltitude = 10;
+    public static int[] whitelistedDimensionIDs = {0};
 
-    @Config.Name("Lava Block")
-    @Config.Comment("The block used for lava generation at and below the Liquid Altitude. " +
-            "Defaults to regular lava if an invalid block is given.")
+    @Config.Name("Enable Global Whitelist")
+    @Config.Comment("Automatically enables Better Caves in every possible dimension, except for the Nether and End. " +
+            "If this is enabled, the Whitelisted Dimension IDs option is ignored.")
     @Config.RequiresWorldRestart
-    public static String lavaBlock = "minecraft:lava";
-
-    @Config.Name("Water Block")
-    @Config.Comment("The block used for water generation in water caves/caverns at and below the Liquid Altitude. " +
-            "Defaults to regular water if an invalid block is given.")
-    @Config.RequiresWorldRestart
-    public static String waterBlock = "minecraft:water";
+    public static boolean enableGlobalWhitelist = false;
 }

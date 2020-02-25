@@ -12,19 +12,28 @@ import java.util.Map;
  * YUNG's Better Caves.cfg
  */
 public class ConfigHolder {
+    /** Map of full names to ConfigOptions. Holds all config options.  */
     public Map<String, ConfigOption<?>> properties = new HashMap<>();
 
+    /**
+     * Constructor loads in default global values for all vars.
+     * If a config file for a specific dimension is present, its values will override the ones loaded
+     * in here when the config file is loaded via the ConfigLoader.
+     */
     public ConfigHolder() {
         /* ============================== Settings Visible to User ============================== */
-        // Dimension-wide settings
-        lavaBlock = new ConfigOption<>("Lava Block", Configuration.lavaBlock)
-                .setCategory("general")
+        // Dimension-wide cave & cavern settings
+        lavaBlock = new ConfigOption<>("Lava Block", Configuration.caveSettings.lavaBlock)
+                .setCategory("general.cave & cavern generation")
                 .addToMap(properties);
-        waterBlock = new ConfigOption<>("Water Block", Configuration.waterBlock)
-                .setCategory("general")
+        waterBlock = new ConfigOption<>("Water Block", Configuration.caveSettings.waterBlock)
+                .setCategory("general.cave & cavern generation")
                 .addToMap(properties);
-        liquidAltitude = new ConfigOption<>("Liquid Altitude", Configuration.liquidAltitude)
-                .setCategory("general")
+        liquidAltitude = new ConfigOption<>("Liquid Altitude", Configuration.caveSettings.liquidAltitude)
+                .setCategory("general.cave & cavern generation")
+                .addToMap(properties);
+        replaceFloatingGravel = new ConfigOption<>("Replace Floating Gravel", Configuration.caveSettings.replaceFloatingGravel)
+                .setCategory("general.cave & cavern generation")
                 .addToMap(properties);
 
         // Dimension-wide cave settings
@@ -37,6 +46,7 @@ public class ConfigHolder {
         maxCaveAltitude = new ConfigOption<>("Max Cave Altitude", Configuration.caveSettings.caves.maxCaveAltitude)
                 .setCategory("general.cave & cavern generation.caves")
                 .addToMap(properties);
+
 
         // Cubic (Type 1) cave settings
         cubicCaveBottom = new ConfigOption<>("Cave Bottom Altitude", Configuration.caveSettings.caves.cubicCave.caveBottom)
@@ -352,10 +362,11 @@ public class ConfigHolder {
     }
 
     /* ============================== Settings Visible to User ============================== */
-    // Dimension-wide settings
-    public ConfigOption<String>  lavaBlock;
-    public ConfigOption<String>  waterBlock;
-    public ConfigOption<Integer> liquidAltitude;
+    // Dimension-wide cave & cavern settings
+    public ConfigOption<String>     lavaBlock;
+    public ConfigOption<String>     waterBlock;
+    public ConfigOption<Integer>    liquidAltitude;
+    public ConfigOption<Boolean>    replaceFloatingGravel;
 
     // Dimension-wide cave settings
     public ConfigOption<RegionSize> caveRegionSize;

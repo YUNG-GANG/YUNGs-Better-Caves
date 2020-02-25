@@ -560,12 +560,11 @@ public class MapGenBetterCaves extends MapGenCaves {
 
     private boolean isDimensionWhitelisted(int dimID) {
         // Ignore the dimension ID list if global whitelisting is enabled
-        if (Configuration.caveSettings.enableGlobalWhitelist)
+        if (Configuration.enableGlobalWhitelist)
             return true;
 
-        for (int dim : Configuration.caveSettings.whitelistedDimensionIDs)
-            if (dimID == dim)
-                return true;
+        for (int dim : Configuration.whitelistedDimensionIDs)
+            if (dimID == dim) return true;
 
         return false;
     }

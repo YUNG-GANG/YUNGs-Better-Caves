@@ -105,7 +105,7 @@ public class CaveCarver {
                 CarverUtils.debugDigBlock(primer, blockPos, settings.getDebugBlock(), digBlock);
             }
             else if (digBlock) {
-                CarverUtils.digBlock(settings.getWorld(), primer, blockPos, liquidBlock, settings.getLiquidAltitude());
+                CarverUtils.digBlock(settings.getWorld(), primer, blockPos, liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel());
             }
         }
 
@@ -122,7 +122,7 @@ public class CaveCarver {
                     && primer.getBlockState(localX, y - 1, localZ) == blockStateAir
             ) {
                 BlockPos blockPos = new BlockPos(colPos.getX(), y, colPos.getZ());
-                CarverUtils.digBlock(settings.getWorld(), primer, blockPos, liquidBlock, settings.getLiquidAltitude());
+                CarverUtils.digBlock(settings.getWorld(), primer, blockPos, liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel());
             }
         }
     }

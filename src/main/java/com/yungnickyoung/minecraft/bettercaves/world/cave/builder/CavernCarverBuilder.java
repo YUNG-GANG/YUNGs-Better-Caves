@@ -32,6 +32,7 @@ public class CavernCarverBuilder {
      */
     public CavernCarverBuilder ofTypeFromConfig(CavernType cavernType, ConfigHolder config) {
         this.settings.setLiquidAltitude(config.liquidAltitude.get());
+        this.settings.setReplaceFloatingGravel(config.replaceFloatingGravel.get());
         this.settings.setEnableTurbulence(false);
         this.settings.getNoiseSettings().setFractalType(FastNoise.FractalType.RigidMulti);
         this.settings.setEnableDebugVisualizer(config.debugVisualizer.get());

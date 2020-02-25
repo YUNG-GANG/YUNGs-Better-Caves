@@ -270,35 +270,33 @@ public class MapGenBetterCaves extends MapGenCaves {
                         }
 
                         // Extra check to provide close-off transitions on cavern edges
-                        if (config.enableBoundarySmoothing.get()) {
-                            if (cavernRegionNoise >= lavaCavernThreshold && cavernRegionNoise <= lavaCavernThreshold + cavernSmoothRange) {
-                                float smoothAmp = Math.abs((cavernRegionNoise - (lavaCavernThreshold + cavernSmoothRange)) / cavernSmoothRange);
-                                if (config.enableWaterRegions.get() && waterRegionNoise < this.waterRegionThreshold) {
-                                    if (cavernWaterNoiseCube == null) {
-                                        cavernWaterNoiseCube = cavernWater.getNoiseGen().interpolateNoiseCube(startPos, endPos, config.lavaCavernBottom.get(), config.lavaCavernTop.get());
-                                    }
-                                    cavernNoiseColumn = cavernWaterNoiseCube.get(offsetX).get(offsetZ);
-                                    this.cavernWater.generateColumnWithNoise(primer, colPos, config.lavaCavernBottom.get(), config.lavaCavernTop.get(),
-                                            maxSurfaceHeight, minSurfaceHeight, liquidBlock, smoothAmp, cavernNoiseColumn, liquidBuffer);
+                        if (cavernRegionNoise >= lavaCavernThreshold && cavernRegionNoise <= lavaCavernThreshold + cavernSmoothRange) {
+                            float smoothAmp = Math.abs((cavernRegionNoise - (lavaCavernThreshold + cavernSmoothRange)) / cavernSmoothRange);
+                            if (config.enableWaterRegions.get() && waterRegionNoise < this.waterRegionThreshold) {
+                                if (cavernWaterNoiseCube == null) {
+                                    cavernWaterNoiseCube = cavernWater.getNoiseGen().interpolateNoiseCube(startPos, endPos, config.lavaCavernBottom.get(), config.lavaCavernTop.get());
                                 }
-                                else {
-                                    if (cavernLavaNoiseCube == null) {
-                                        cavernLavaNoiseCube = cavernLava.getNoiseGen().interpolateNoiseCube(startPos, endPos, config.lavaCavernBottom.get(), config.lavaCavernTop.get());
-                                    }
-                                    cavernNoiseColumn = cavernLavaNoiseCube.get(offsetX).get(offsetZ);
-                                    this.cavernLava.generateColumnWithNoise(primer, colPos, config.lavaCavernBottom.get(), config.lavaCavernTop.get(),
-                                            maxSurfaceHeight, minSurfaceHeight, liquidBlock, smoothAmp, cavernNoiseColumn, liquidBuffer);
-                                }
-                            }
-                            else if (cavernRegionNoise <= flooredCavernThreshold && cavernRegionNoise >= flooredCavernThreshold - cavernSmoothRange) {
-                                float smoothAmp = Math.abs((cavernRegionNoise - (flooredCavernThreshold - cavernSmoothRange)) / cavernSmoothRange);
-                                if (cavernFlooredNoiseCube == null) {
-                                    cavernFlooredNoiseCube = cavernFloored.getNoiseGen().interpolateNoiseCube(startPos, endPos, config.flooredCavernBottom.get(), config.flooredCavernTop.get());
-                                }
-                                cavernNoiseColumn = cavernFlooredNoiseCube.get(offsetX).get(offsetZ);
-                                this.cavernFloored.generateColumnWithNoise(primer, colPos, config.flooredCavernBottom.get(), config.flooredCavernTop.get(),
+                                cavernNoiseColumn = cavernWaterNoiseCube.get(offsetX).get(offsetZ);
+                                this.cavernWater.generateColumnWithNoise(primer, colPos, config.lavaCavernBottom.get(), config.lavaCavernTop.get(),
                                         maxSurfaceHeight, minSurfaceHeight, liquidBlock, smoothAmp, cavernNoiseColumn, liquidBuffer);
                             }
+                            else {
+                                if (cavernLavaNoiseCube == null) {
+                                    cavernLavaNoiseCube = cavernLava.getNoiseGen().interpolateNoiseCube(startPos, endPos, config.lavaCavernBottom.get(), config.lavaCavernTop.get());
+                                }
+                                cavernNoiseColumn = cavernLavaNoiseCube.get(offsetX).get(offsetZ);
+                                this.cavernLava.generateColumnWithNoise(primer, colPos, config.lavaCavernBottom.get(), config.lavaCavernTop.get(),
+                                        maxSurfaceHeight, minSurfaceHeight, liquidBlock, smoothAmp, cavernNoiseColumn, liquidBuffer);
+                            }
+                        }
+                        else if (cavernRegionNoise <= flooredCavernThreshold && cavernRegionNoise >= flooredCavernThreshold - cavernSmoothRange) {
+                            float smoothAmp = Math.abs((cavernRegionNoise - (flooredCavernThreshold - cavernSmoothRange)) / cavernSmoothRange);
+                            if (cavernFlooredNoiseCube == null) {
+                                cavernFlooredNoiseCube = cavernFloored.getNoiseGen().interpolateNoiseCube(startPos, endPos, config.flooredCavernBottom.get(), config.flooredCavernTop.get());
+                            }
+                            cavernNoiseColumn = cavernFlooredNoiseCube.get(offsetX).get(offsetZ);
+                            this.cavernFloored.generateColumnWithNoise(primer, colPos, config.flooredCavernBottom.get(), config.flooredCavernTop.get(),
+                                    maxSurfaceHeight, minSurfaceHeight, liquidBlock, smoothAmp, cavernNoiseColumn, liquidBuffer);
                         }
                     }
                 }

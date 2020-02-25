@@ -18,10 +18,4 @@ public class ConfigCaverns {
     @Config.Comment("Determines how large cavern regions are. This controls the average size of caverns.")
     @Config.RequiresWorldRestart
     public RegionSize cavernRegionSize = RegionSize.Small;
-
-    @Config.Name("Enable Smooth Cavern Edges")
-    @Config.Comment("Smooths the transition boundary between Cave and Cavern regions, reducing straight walls found" +
-            " along the edges of caverns in order to create a more natural feel. Disable for pre-v1.5.0 behavior.")
-    @Config.RequiresWorldRestart
-    public boolean enableBoundarySmoothing = true;
 }

@@ -94,9 +94,6 @@ public class ConfigHolder {
         cavernRegionSize = new ConfigOption<>("Cavern Region Size", Configuration.caveSettings.caverns.cavernRegionSize)
                 .setCategory("general.cave & cavern generation.caverns")
                 .addToMap(properties);
-        enableBoundarySmoothing = new ConfigOption<>("Enable Smooth Cavern Edges", Configuration.caveSettings.caverns.enableBoundarySmoothing)
-                .setCategory("general.cave & cavern generation.caverns")
-                .addToMap(properties);
 
         // Lava cavern settings
         lavaCavernBottom = new ConfigOption<>("Cavern Bottom Altitude", Configuration.caveSettings.caverns.lavaCavern.caveBottom)
@@ -393,7 +390,6 @@ public class ConfigHolder {
 
     // Dimension-wide cavern settings
     public ConfigOption<RegionSize> cavernRegionSize;
-    public ConfigOption<Boolean>    enableBoundarySmoothing;
 
     // Lava cavern settings
     public ConfigOption<Integer>         lavaCavernBottom;

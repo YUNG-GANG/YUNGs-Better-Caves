@@ -60,8 +60,9 @@ public class MapGenBetterCaves extends MapGenCaves {
     private float flooredCavernThreshold;
     private float waterRegionThreshold;
 
-    // Dictates the degree of smoothing along cavern region boundaries
+    // Dictates the degree of smoothing along region boundaries
     private float cavernSmoothRange = .25f;
+    private float caveSmoothRange = .15f;
 
     // Determines size of buffer (filled with stone instead of liquid) between ...
     // ... water and lava regions
@@ -180,9 +181,7 @@ public class MapGenBetterCaves extends MapGenCaves {
 
                         liquidBuffer = false;
 
-                        /* --------------------------- Configure Caves --------------------------- */
-                        // Get noise values used to determine cave region
-                        float caveRegionNoise = caveRegionController.GetNoise(colPos.getX(), colPos.getZ());
+                        /* --------------------------- Determine Liquid Region --------------------------- */
 
                         float waterRegionNoise = 99;
                         IBlockState liquidBlock = lavaBlock;
@@ -199,6 +198,8 @@ public class MapGenBetterCaves extends MapGenCaves {
                                 liquidBuffer = true;
                         }
 
+                        /* --------------------------- Configure Caves --------------------------- */
+
                         /* Determine cave type for this column. We have two thresholds, one for cubic caves and one for
                          * simplex caves. Since the noise value generated for the region is between -1 and 1, we (by
                          * default) designate all negative values as cubic caves, and all positive as simplex. However,
@@ -208,6 +209,9 @@ public class MapGenBetterCaves extends MapGenCaves {
                          * In this case, we use vanilla cave generation if it is enabled; otherwise we dig no caves
                          * out of this chunk.
                          */
+                        // Get noise values used to determine cave region
+                        float caveRegionNoise = caveRegionController.GetNoise(colPos.getX(), colPos.getZ());
+
                         if (caveRegionNoise < this.cubicCaveThreshold) {
                             caveBottomY = config.cubicCaveBottom.get();
                             if (caveCubicNoiseCube == null) {
@@ -232,6 +236,28 @@ public class MapGenBetterCaves extends MapGenCaves {
                                 return;
                             }
                         }
+
+                        // Extra check to provide close-off transitions on cave edges
+                        /*
+                        if (caveRegionNoise >= cubicCaveThreshold && caveRegionNoise <= cubicCaveThreshold + caveSmoothRange) {
+                            float smoothAmp = Math.abs((caveRegionNoise - (cubicCaveThreshold + caveSmoothRange)) / caveSmoothRange);
+                            if (caveCubicNoiseCube == null) {
+                                caveCubicNoiseCube = caveCubic.getNoiseGen().interpolateNoiseCube(startPos, endPos, config.cubicCaveBottom.get(), maxSurfaceHeight);
+                            }
+                            caveNoiseColumn = caveCubicNoiseCube.get(offsetX).get(offsetZ);
+                            caveCubic.generateColumnWithNoise(primer, colPos, config.cubicCaveBottom.get(), maxSurfaceHeight,
+                                    maxSurfaceHeight, minSurfaceHeight, liquidBlock, caveNoiseColumn, liquidBuffer);
+                        }
+                        else if (cavernRegionNoise <= flooredCavernThreshold && cavernRegionNoise >= flooredCavernThreshold - cavernSmoothRange) {
+                            float smoothAmp = Math.abs((cavernRegionNoise - (flooredCavernThreshold - cavernSmoothRange)) / cavernSmoothRange);
+                            if (cavernFlooredNoiseCube == null) {
+                                cavernFlooredNoiseCube = cavernFloored.getNoiseGen().interpolateNoiseCube(startPos, endPos, config.flooredCavernBottom.get(), config.flooredCavernTop.get());
+                            }
+                            cavernNoiseColumn = cavernFlooredNoiseCube.get(offsetX).get(offsetZ);
+                            this.cavernFloored.generateColumnWithNoise(primer, colPos, config.flooredCavernBottom.get(), config.flooredCavernTop.get(),
+                                    maxSurfaceHeight, minSurfaceHeight, liquidBlock, smoothAmp, cavernNoiseColumn, liquidBuffer);
+                        }
+                        */
 
                         /* --------------------------- Configure Caverns --------------------------- */
                         // Noise values used to determine cavern region
@@ -347,9 +373,9 @@ public class MapGenBetterCaves extends MapGenCaves {
         // Begin initialize region controllers using world seed and user config options for region sizes
         this.caveRegionController = new FastNoise();
         this.caveRegionController.SetSeed((int)worldIn.getSeed() + 222);
-        this.caveRegionController.SetFrequency(caveRegionSize);
-        this.caveRegionController.SetNoiseType(FastNoise.NoiseType.Cellular);
-        this.caveRegionController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
+        this.caveRegionController.SetFrequency(config.debugCaveRegionFreq.get());
+//        this.caveRegionController.SetNoiseType(FastNoise.NoiseType.Cellular);
+//        this.caveRegionController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
         // Note that Cavern Region Controller uses Simplex noise instead of Cellular
         this.cavernRegionController = new FastNoise();

@@ -37,20 +37,15 @@ public class CaveCarverBuilder {
         this.settings.setReplaceFloatingGravel(config.replaceFloatingGravel.get());
         this.settings.setEnableDebugVisualizer(config.debugVisualizer.get());
         this.settings.getNoiseSettings().setFractalType(FastNoise.FractalType.RigidMulti);
-        this.settings.getTurbulenceSettings().setNoiseType(FastNoise.NoiseType.Simplex);
-        this.settings.getTurbulenceSettings().setFractalType(FastNoise.FractalType.FBM);
         this.surfaceCutoff = config.surfaceCutoff.get();
         switch (caveType) {
             case CUBIC:
+                this.settings.setFastNoise(true);
                 this.settings.setNoiseThreshold(config.cubicCaveNoiseThreshold.get());
                 this.settings.getNoiseSettings().setNoiseType(config.cubicCaveNoiseType.get());
                 this.settings.getNoiseSettings().setOctaves(config.cubicCaveFractalOctaves.get());
                 this.settings.getNoiseSettings().setGain(config.cubicCaveFractalGain.get());
                 this.settings.getNoiseSettings().setFrequency(config.cubicCaveFractalFrequency.get());
-                this.settings.setEnableTurbulence(config.cubicCaveEnableTurbulence.get());
-                this.settings.getTurbulenceSettings().setOctaves(config.cubicCaveTurbulenceOctaves.get());
-                this.settings.getTurbulenceSettings().setGain(config.cubicCaveTurbulenceGain.get());
-                this.settings.getTurbulenceSettings().setFrequency(config.cubicCaveTurbulenceFrequency.get());
                 this.settings.setNumGens(config.cubicCaveNumGenerators.get());
                 this.settings.setXzCompression(config.cubicCaveXZCompression.get());
                 this.settings.setyCompression(config.cubicCaveYCompression.get());
@@ -59,15 +54,12 @@ public class CaveCarverBuilder {
                 this.yAdjustF2 = config.cubicCaveYAdjustF2.get();
                 break;
             case SIMPLEX:
+                this.settings.setFastNoise(false);
                 this.settings.setNoiseThreshold(config.simplexCaveNoiseThreshold.get());
                 this.settings.getNoiseSettings().setNoiseType(config.simplexCaveNoiseType.get());
                 this.settings.getNoiseSettings().setOctaves(config.simplexCaveFractalOctaves.get());
                 this.settings.getNoiseSettings().setGain(config.simplexCaveFractalGain.get());
                 this.settings.getNoiseSettings().setFrequency(config.simplexCaveFractalFrequency.get());
-                this.settings.setEnableTurbulence(config.simplexCaveEnableTurbulence.get());
-                this.settings.getTurbulenceSettings().setOctaves(config.simplexCaveTurbulenceOctaves.get());
-                this.settings.getTurbulenceSettings().setGain(config.simplexCaveTurbulenceGain.get());
-                this.settings.getTurbulenceSettings().setFrequency(config.simplexCaveTurbulenceFrequency.get());
                 this.settings.setNumGens(config.simplexCaveNumGenerators.get());
                 this.settings.setXzCompression(config.simplexCaveXZCompression.get());
                 this.settings.setyCompression(config.simplexCaveYCompression.get());
@@ -117,39 +109,6 @@ public class CaveCarverBuilder {
      */
     public CaveCarverBuilder numberOfGenerators(int numGens) {
         settings.setNumGens(numGens);
-        return this;
-    }
-
-    /**
-     * @param turbOctaves Number of octaves in turbulence function
-     */
-    public CaveCarverBuilder turbulenceOctaves(int turbOctaves) {
-        settings.getTurbulenceSettings().setOctaves(turbOctaves);
-        return this;
-    }
-
-    /**
-     * @param turbGain Gain of turbulence function
-     */
-    public CaveCarverBuilder turbulenceGain(float turbGain) {
-        settings.getTurbulenceSettings().setGain(turbGain);
-        return this;
-    }
-
-    /**
-     * @param turbFreq Frequency of turbulence function
-     */
-    public CaveCarverBuilder turbulenceFrequency(float turbFreq) {
-        settings.getTurbulenceSettings().setFrequency(turbFreq);
-        return this;
-    }
-
-    /**
-     * Enable turbulence (adds performance overhead, generally not worth it).
-     * If not enabled then other turbulence parameters don't matter and are not used.
-     */
-    public CaveCarverBuilder enableTurbulence(boolean enableTurbulence) {
-        settings.setEnableTurbulence(enableTurbulence);
         return this;
     }
 

@@ -13,4 +13,7 @@ public class ConfigDebug {
             "Floored Cavern: Gold Block\n + " +
             "Water Cavern: Lapis Block")
     public boolean debugVisualizer = false;
+
+    public float debugCaveRegionFreq = .005f;
+
 }

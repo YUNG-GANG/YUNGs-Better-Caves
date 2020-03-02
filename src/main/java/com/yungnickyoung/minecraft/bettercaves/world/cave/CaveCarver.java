@@ -1,5 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.world.cave;
 
+import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseColumn;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
@@ -38,10 +39,9 @@ public class CaveCarver {
         settings = builder.getSettings();
         noiseGen = new NoiseGen(
                 settings.getWorld(),
+                settings.isFastNoise(),
                 settings.getNoiseSettings(),
-                settings.getTurbulenceSettings(),
                 settings.getNumGens(),
-                settings.isEnableTurbulence(),
                 settings.getyCompression(),
                 settings.getXzCompression()
         );
@@ -88,10 +88,10 @@ public class CaveCarver {
             if (y <= settings.getLiquidAltitude() && liquidBuffer)
                 break;
 
-            List<Float> noiseBlock = noises.get(y).getNoiseValues();
+            List<Double> noiseBlock = noises.get(y).getNoiseValues();
             boolean digBlock = true;
 
-            for (float noise : noiseBlock) {
+            for (double noise : noiseBlock) {
                 if (noise < thresholds.get(y)) {
                     digBlock = false;
                     break;
@@ -146,7 +146,7 @@ public class CaveCarver {
             float threshold = thresholds.get(realY);
 
             boolean valid = true;
-            for (float noise : noiseBlock.getNoiseValues()) {
+            for (double noise : noiseBlock.getNoiseValues()) {
                 if (noise < threshold) {
                     valid = false;
                     break;

@@ -9,15 +9,15 @@ import java.util.List;
  * This class supports basic put, get, and set operations.
  */
 public class NoiseTuple {
-    private List<Float> noiseValues = new ArrayList<>();
+    private List<Double> noiseValues = new ArrayList<>();
     private int length = 0;
 
     /**
      *
      * @param vals Variable-length array of float values to initialize the tuple with
      */
-    public NoiseTuple(float... vals) {
-        for (float val : vals) {
+    public NoiseTuple(double... vals) {
+        for (double val : vals) {
             noiseValues.add(val);
             length++;
         }
@@ -27,7 +27,7 @@ public class NoiseTuple {
      * Appends the specified noise value to the end of this tuple.
      * @param val Noise value to be appended to this tuple.
      */
-    public void put(float val) {
+    public void put(double val) {
         noiseValues.add(val);
         length++;
     }
@@ -38,7 +38,7 @@ public class NoiseTuple {
      * @return The float value of the noise at the given index
      * @throws IndexOutOfBoundsException if the index is out of this tuple's bounds
      */
-    public float get(int index) throws IndexOutOfBoundsException {
+    public double get(int index) throws IndexOutOfBoundsException {
         if (index < 0 || index >= length)
             throw new IndexOutOfBoundsException("No corresponding noise value in Noise Tuple for index: " + index);
 
@@ -51,7 +51,7 @@ public class NoiseTuple {
      * @param newValue The new noise value
      * @throws IndexOutOfBoundsException if the index is out of this tuple's bounds
      */
-    public void set(int index, float newValue) throws IndexOutOfBoundsException {
+    public void set(int index, double newValue) throws IndexOutOfBoundsException {
         if (index < 0 || index >= length)
             throw new IndexOutOfBoundsException("No corresponding noise value in Noise Tuple for index: " + index);
 
@@ -78,7 +78,7 @@ public class NoiseTuple {
      * Retrieves all the noise values of this tuple as a List of Floats
      * @return {@code List<Float>} of all noise values in this tuple
      */
-    public List<Float> getNoiseValues() {
+    public List<Double> getNoiseValues() {
         return noiseValues;
     }
 

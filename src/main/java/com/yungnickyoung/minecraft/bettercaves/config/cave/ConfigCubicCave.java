@@ -69,31 +69,6 @@ public class ConfigCubicCave {
     public float fractalFrequency = 0.03f;
 
     @Config.Ignore
-    @Config.Name("Use Turbulence")
-    @Config.Comment("Enable to apply turbulence. Turbulence will add some more random variation to cave " +
-            "structure. Will negatively impact performance and probably not do much anyway.")
-    @Config.RequiresWorldRestart
-    public boolean enableTurbulence = false;
-
-    @Config.Ignore
-    @Config.Name("Turbulence Octaves")
-    @Config.Comment("The number of octaves used for the fBM turbulence function.")
-    @Config.RequiresWorldRestart
-    public int turbulenceOctaves = 3;
-
-    @Config.Ignore
-    @Config.Name("Turbulence Gain")
-    @Config.Comment("The gain for the fBM turbulence function.")
-    @Config.RequiresWorldRestart
-    public float turbulenceGain = 45f;
-
-    @Config.Ignore
-    @Config.Name("Turbulence Frequency")
-    @Config.Comment("The frequency for the fBM turbulence function.")
-    @Config.RequiresWorldRestart
-    public float turbulenceFrequency = 0.01f;
-
-    @Config.Ignore
     @Config.Name("Number of Generators")
     @Config.Comment("The number of noise generation functions used. The intersection of these functions is" +
             "used to calculate a single noise value.")

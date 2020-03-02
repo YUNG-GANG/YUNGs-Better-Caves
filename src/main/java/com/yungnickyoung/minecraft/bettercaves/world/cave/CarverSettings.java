@@ -11,11 +11,8 @@ public class CarverSettings {
     /* ============================== Values determined through config ============================== */
     /* ------------- Ridged Multifractal Params ------------- */
     private NoiseSettings noiseSettings = new NoiseSettings();
+    private boolean       isFastNoise; // True if using the FastNoise library; false if using OpenSimplex2S
     private int           numGens; // Number of noise values to generate per iteration (block, sub-chunk, etc)
-
-    /* ----------------- Turbulence Params ----------------- */
-    private NoiseSettings turbulenceSettings = new NoiseSettings();
-    private boolean       enableTurbulence; // Set true to enable turbulence (adds performance overhead, generally not worth it)
 
     /* -------------- Noise Processing Params -------------- */
     private float yCompression;   // Vertical cave gen compression
@@ -59,28 +56,20 @@ public class CarverSettings {
         this.noiseSettings = noiseSettings;
     }
 
+    public boolean isFastNoise() {
+        return isFastNoise;
+    }
+
+    public void setFastNoise(boolean fastNoise) {
+        isFastNoise = fastNoise;
+    }
+
     public int getNumGens() {
         return numGens;
     }
 
     public void setNumGens(int numGens) {
         this.numGens = numGens;
-    }
-
-    public NoiseSettings getTurbulenceSettings() {
-        return turbulenceSettings;
-    }
-
-    public void setTurbulenceSettings(NoiseSettings turbulenceSettings) {
-        this.turbulenceSettings = turbulenceSettings;
-    }
-
-    public boolean isEnableTurbulence() {
-        return enableTurbulence;
-    }
-
-    public void setEnableTurbulence(boolean enableTurbulence) {
-        this.enableTurbulence = enableTurbulence;
     }
 
     public float getyCompression() {

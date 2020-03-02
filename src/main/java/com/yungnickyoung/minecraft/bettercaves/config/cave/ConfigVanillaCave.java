@@ -16,7 +16,7 @@ public class ConfigVanillaCave {
     public boolean enableVanillaRavines = true;
 
 
-    /* Couldnt get to work, ignore for now. Seems like Forge/MC is bugged for lakes gen? */
+    /* Couldnt get to work, ignore for now. Seems like Forge is bugged for lakes gen? */
     @Config.Ignore
     @Config.Name("Enable Water Lakes")
     @Config.Comment("Set to true to enable small water lakes found on the surface and underground in vanilla" +

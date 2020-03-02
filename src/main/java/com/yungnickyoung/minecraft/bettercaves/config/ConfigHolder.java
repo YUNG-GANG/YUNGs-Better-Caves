@@ -167,6 +167,10 @@ public class ConfigHolder {
                 .setCategory("general.debug settings")
                 .addToMap(properties);
 
+        debugCaveRegionFreq = new ConfigOption<>("Debug Cave Region Freq", Configuration.debugsettings.debugCaveRegionFreq)
+                .setCategory("general.debug settings")
+                .addToMap(properties);
+
         /* ============================== Settings Hidden from User ============================== */
         // These are settings that are ordinarily hidden from users ...
         // ... because they are very important to cave gen and sensitive to change.
@@ -185,22 +189,6 @@ public class ConfigHolder {
                 .addToMap(properties)
                 .hidden();
         cubicCaveFractalFrequency = new ConfigOption<>("Fractal Frequency", Configuration.caveSettings.caves.cubicCave.fractalFrequency)
-                .setCategory("general.cave & cavern generation.caves.type 1 caves.advanced settings")
-                .addToMap(properties)
-                .hidden();
-        cubicCaveEnableTurbulence = new ConfigOption<>("Use Turbulence", Configuration.caveSettings.caves.cubicCave.enableTurbulence)
-                .setCategory("general.cave & cavern generation.caves.type 1 caves.advanced settings")
-                .addToMap(properties)
-                .hidden();
-        cubicCaveTurbulenceOctaves = new ConfigOption<>("Turbulence Octaves", Configuration.caveSettings.caves.cubicCave.turbulenceOctaves)
-                .setCategory("general.cave & cavern generation.caves.type 1 caves.advanced settings")
-                .addToMap(properties)
-                .hidden();
-        cubicCaveTurbulenceGain = new ConfigOption<>("Turbulence Gain", Configuration.caveSettings.caves.cubicCave.turbulenceGain)
-                .setCategory("general.cave & cavern generation.caves.type 1 caves.advanced settings")
-                .addToMap(properties)
-                .hidden();
-        cubicCaveTurbulenceFrequency = new ConfigOption<>("Turbulence Frequency", Configuration.caveSettings.caves.cubicCave.turbulenceFrequency)
                 .setCategory("general.cave & cavern generation.caves.type 1 caves.advanced settings")
                 .addToMap(properties)
                 .hidden();
@@ -239,22 +227,6 @@ public class ConfigHolder {
                 .addToMap(properties)
                 .hidden();
         simplexCaveFractalFrequency = new ConfigOption<>("Fractal Frequency", Configuration.caveSettings.caves.simplexCave.fractalFrequency)
-                .setCategory("general.cave & cavern generation.caves.type 2 caves.advanced settings")
-                .addToMap(properties)
-                .hidden();
-        simplexCaveEnableTurbulence = new ConfigOption<>("Use Turbulence", Configuration.caveSettings.caves.simplexCave.enableTurbulence)
-                .setCategory("general.cave & cavern generation.caves.type 2 caves.advanced settings")
-                .addToMap(properties)
-                .hidden();
-        simplexCaveTurbulenceOctaves = new ConfigOption<>("Turbulence Octaves", Configuration.caveSettings.caves.simplexCave.turbulenceOctaves)
-                .setCategory("general.cave & cavern generation.caves.type 2 caves.advanced settings")
-                .addToMap(properties)
-                .hidden();
-        simplexCaveTurbulenceGain = new ConfigOption<>("Turbulence Gain", Configuration.caveSettings.caves.simplexCave.turbulenceGain)
-                .setCategory("general.cave & cavern generation.caves.type 2 caves.advanced settings")
-                .addToMap(properties)
-                .hidden();
-        simplexCaveTurbulenceFrequency = new ConfigOption<>("Turbulence Frequency", Configuration.caveSettings.caves.simplexCave.turbulenceFrequency)
                 .setCategory("general.cave & cavern generation.caves.type 2 caves.advanced settings")
                 .addToMap(properties)
                 .hidden();
@@ -422,6 +394,7 @@ public class ConfigHolder {
 
     // Debug settings
     public ConfigOption<Boolean> debugVisualizer;
+    public ConfigOption<Float> debugCaveRegionFreq;
 
     /* ============================== Settings Hidden from User ============================== */
     // These are settings that are ordinarily hidden from users ...
@@ -432,10 +405,6 @@ public class ConfigHolder {
     public ConfigOption<Integer>             cubicCaveFractalOctaves;
     public ConfigOption<Float>               cubicCaveFractalGain;
     public ConfigOption<Float>               cubicCaveFractalFrequency;
-    public ConfigOption<Boolean>             cubicCaveEnableTurbulence;
-    public ConfigOption<Integer>             cubicCaveTurbulenceOctaves;
-    public ConfigOption<Float>               cubicCaveTurbulenceGain;
-    public ConfigOption<Float>               cubicCaveTurbulenceFrequency;
     public ConfigOption<Integer>             cubicCaveNumGenerators;
     public ConfigOption<Boolean>             cubicCaveEnableVerticalAdjustment;
     public ConfigOption<Float>               cubicCaveYAdjustF1;
@@ -447,10 +416,6 @@ public class ConfigHolder {
     public ConfigOption<Integer>             simplexCaveFractalOctaves;
     public ConfigOption<Float>               simplexCaveFractalGain;
     public ConfigOption<Float>               simplexCaveFractalFrequency;
-    public ConfigOption<Boolean>             simplexCaveEnableTurbulence;
-    public ConfigOption<Integer>             simplexCaveTurbulenceOctaves;
-    public ConfigOption<Float>               simplexCaveTurbulenceGain;
-    public ConfigOption<Float>               simplexCaveTurbulenceFrequency;
     public ConfigOption<Integer>             simplexCaveNumGenerators;
     public ConfigOption<Boolean>             simplexCaveEnableVerticalAdjustment;
     public ConfigOption<Float>               simplexCaveYAdjustF1;

@@ -24,10 +24,9 @@ public class CavernCarver {
         settings = builder.getSettings();
         noiseGen = new NoiseGen(
                 settings.getWorld(),
+                settings.isFastNoise(),
                 settings.getNoiseSettings(),
-                settings.getTurbulenceSettings(),
                 settings.getNumGens(),
-                settings.isEnableTurbulence(),
                 settings.getyCompression(),
                 settings.getXzCompression()
         );
@@ -69,13 +68,13 @@ public class CavernCarver {
             if (y <= settings.getLiquidAltitude() && liquidBuffer)
                 break;
 
-            List<Float> noiseBlock;
+            List<Double> noiseBlock;
             boolean digBlock = false;
 
             // Compute a single noise value to represent all the noise values in the NoiseTuple
             float noise = 1;
             noiseBlock = noises.get(y).getNoiseValues();
-            for (float n : noiseBlock)
+            for (double n : noiseBlock)
                 noise *= n;
 
             // Adjust threshold if we're in the transition range to provide smoother transition into ceiling

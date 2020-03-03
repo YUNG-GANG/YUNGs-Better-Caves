@@ -167,10 +167,6 @@ public class ConfigHolder {
                 .setCategory("general.debug settings")
                 .addToMap(properties);
 
-        debugCaveRegionFreq = new ConfigOption<>("Debug Cave Region Freq", Configuration.debugsettings.debugCaveRegionFreq)
-                .setCategory("general.debug settings")
-                .addToMap(properties);
-
         /* ============================== Settings Hidden from User ============================== */
         // These are settings that are ordinarily hidden from users ...
         // ... because they are very important to cave gen and sensitive to change.
@@ -394,7 +390,6 @@ public class ConfigHolder {
 
     // Debug settings
     public ConfigOption<Boolean> debugVisualizer;
-    public ConfigOption<Float> debugCaveRegionFreq;
 
     /* ============================== Settings Hidden from User ============================== */
     // These are settings that are ordinarily hidden from users ...

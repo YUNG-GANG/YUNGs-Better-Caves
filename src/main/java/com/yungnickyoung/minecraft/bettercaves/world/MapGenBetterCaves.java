@@ -373,9 +373,7 @@ public class MapGenBetterCaves extends MapGenCaves {
         // Begin initialize region controllers using world seed and user config options for region sizes
         this.caveRegionController = new FastNoise();
         this.caveRegionController.SetSeed((int)worldIn.getSeed() + 222);
-        this.caveRegionController.SetFrequency(config.debugCaveRegionFreq.get());
-//        this.caveRegionController.SetNoiseType(FastNoise.NoiseType.Cellular);
-//        this.caveRegionController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
+        this.caveRegionController.SetFrequency(caveRegionSize);
 
         // Note that Cavern Region Controller uses Simplex noise instead of Cellular
         this.cavernRegionController = new FastNoise();
@@ -516,13 +514,13 @@ public class MapGenBetterCaves extends MapGenCaves {
     private float calcCaveRegionSize() {
         switch (config.caveRegionSize.get()) {
             case Small:
-                return .007f;
+                return .01f;
             case Large:
-                return .0032f;
+                return .004f;
             case ExtraLarge:
-                return .001f;
+                return .002f;
             default: // Medium
-                return .005f;
+                return .008f;
         }
     }
 

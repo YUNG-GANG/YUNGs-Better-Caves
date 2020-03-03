@@ -519,6 +519,8 @@ public class MapGenBetterCaves extends MapGenCaves {
                 return .004f;
             case ExtraLarge:
                 return .002f;
+            case Custom:
+                return config.caveRegionCustomSize.get();
             default: // Medium
                 return .008f;
         }
@@ -535,6 +537,8 @@ public class MapGenBetterCaves extends MapGenCaves {
                 return .005f;
             case ExtraLarge:
                 return .001f;
+            case Custom:
+                return config.cavernRegionCustomSize.get();
             default: // Medium
                 return .007f;
         }

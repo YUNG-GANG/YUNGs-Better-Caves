@@ -23,9 +23,20 @@ public class ConfigCaves {
     @Config.Name("Cave Region Size")
     @Config.Comment("Determines how large cave regions are. Controls how long a cave system of a certain cave type" +
             " extends before intersecting with a cave system of another type. Larger Biome Size = more " +
-            "cave interconnectivity for a given area, but possibly less variation.")
+            "cave interconnectivity for a given area, but possibly less variation. Medium is recommended.")
     @Config.RequiresWorldRestart
-    public RegionSize caveRegionSize = RegionSize.Large;
+    public RegionSize caveRegionSize = RegionSize.Medium;
+
+    @Config.Name("Cave Region Size Custom Value")
+    @Config.Comment("Custom value for cave region size. Only works if Cave Region Size is set to Custom. " +
+            "Smaller value = larger regions. This value is very sensitive to change. \nProvided values:\n" +
+            "Small: 0.01\n" +
+            "Medium: 0.008\n" +
+            "Large: 0.004\n" +
+            "ExtraLarge: 0.002")
+    @Config.RangeDouble(min = 0, max = .05)
+    @Config.RequiresWorldRestart
+    public float customRegionSize = 0.008f;
 
     @Config.Name("Cave Surface Cutoff Depth")
     @Config.Comment("The depth from a given point on the surface (or the Max Cave Altitude, whichever is " +

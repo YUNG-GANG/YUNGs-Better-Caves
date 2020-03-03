@@ -40,6 +40,9 @@ public class ConfigHolder {
         caveRegionSize = new ConfigOption<>("Cave Region Size", Configuration.caveSettings.caves.caveRegionSize)
                 .setCategory("general.cave & cavern generation.caves")
                 .addToMap(properties);
+        caveRegionCustomSize = new ConfigOption<>("Cave Region Size Custom Value", Configuration.caveSettings.caves.customRegionSize)
+                .setCategory("general.cave & cavern generation.caves")
+                .addToMap(properties);
         surfaceCutoff = new ConfigOption<>("Cave Surface Cutoff Depth", Configuration.caveSettings.caves.surfaceCutoff)
                 .setCategory("general.cave & cavern generation.caves")
                 .addToMap(properties);
@@ -92,6 +95,9 @@ public class ConfigHolder {
 
         // Dimension-wide cavern settings
         cavernRegionSize = new ConfigOption<>("Cavern Region Size", Configuration.caveSettings.caverns.cavernRegionSize)
+                .setCategory("general.cave & cavern generation.caverns")
+                .addToMap(properties);
+        cavernRegionCustomSize = new ConfigOption<>("Cavern Region Size Custom Value", Configuration.caveSettings.caverns.customRegionSize)
                 .setCategory("general.cave & cavern generation.caverns")
                 .addToMap(properties);
 
@@ -335,6 +341,7 @@ public class ConfigHolder {
 
     // Dimension-wide cave settings
     public ConfigOption<RegionSize> caveRegionSize;
+    public ConfigOption<Float>      caveRegionCustomSize;
     public ConfigOption<Integer>    surfaceCutoff;
     public ConfigOption<Integer>    maxCaveAltitude;
 
@@ -358,6 +365,7 @@ public class ConfigHolder {
 
     // Dimension-wide cavern settings
     public ConfigOption<RegionSize> cavernRegionSize;
+    public ConfigOption<Float>      cavernRegionCustomSize;
 
     // Lava cavern settings
     public ConfigOption<Integer>         lavaCavernBottom;

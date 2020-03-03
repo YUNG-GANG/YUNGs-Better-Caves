@@ -38,15 +38,15 @@ public class CavernCarverBuilder {
         this.settings.setFastNoise(true);
         this.cavernType = cavernType;
         switch (cavernType) {
-            case LAVA:
-                this.settings.setNoiseThreshold(config.lavaCavernNoiseThreshold.get());
-                this.settings.getNoiseSettings().setNoiseType(config.lavaCavernNoiseType.get());
-                this.settings.getNoiseSettings().setOctaves(config.lavaCavernFractalOctaves.get());
-                this.settings.getNoiseSettings().setGain(config.lavaCavernFractalGain.get());
-                this.settings.getNoiseSettings().setFrequency(config.lavaCavernFractalFrequency.get());
-                this.settings.setNumGens(config.lavaCavernNumGenerators.get());
-                this.settings.setyCompression(config.lavaCavernYCompression.get());
-                this.settings.setXzCompression(config.lavaCavernXZCompression.get());
+            case LIQUID:
+                this.settings.setNoiseThreshold(config.liquidCavernNoiseThreshold.get());
+                this.settings.getNoiseSettings().setNoiseType(config.liquidCavernNoiseType.get());
+                this.settings.getNoiseSettings().setOctaves(config.liquidCavernFractalOctaves.get());
+                this.settings.getNoiseSettings().setGain(config.liquidCavernFractalGain.get());
+                this.settings.getNoiseSettings().setFrequency(config.liquidCavernFractalFrequency.get());
+                this.settings.setNumGens(config.liquidCavernNumGenerators.get());
+                this.settings.setyCompression(config.liquidCavernYCompression.get());
+                this.settings.setXzCompression(config.liquidCavernXZCompression.get());
                 break;
             case FLOORED:
                 this.settings.setNoiseThreshold(config.flooredCavernNoiseThreshold.get());
@@ -57,16 +57,6 @@ public class CavernCarverBuilder {
                 this.settings.setNumGens(config.flooredCavernNumGenerators.get());
                 this.settings.setyCompression(config.flooredCavernYCompression.get());
                 this.settings.setXzCompression(config.flooredCavernXZCompression.get());
-                break;
-            case WATER:
-                this.settings.setNoiseThreshold(config.waterCavernNoiseThreshold.get());
-                this.settings.getNoiseSettings().setNoiseType(config.waterCavernNoiseType.get());
-                this.settings.getNoiseSettings().setOctaves(config.waterCavernFractalOctaves.get());
-                this.settings.getNoiseSettings().setGain(config.waterCavernFractalGain.get());
-                this.settings.getNoiseSettings().setFrequency(config.waterCavernFractalFrequency.get());
-                this.settings.setNumGens(config.waterCavernNumGenerators.get());
-                this.settings.setyCompression(config.waterCavernYCompression.get());
-                this.settings.setXzCompression(config.waterCavernXZCompression.get());
                 break;
         }
         return this;

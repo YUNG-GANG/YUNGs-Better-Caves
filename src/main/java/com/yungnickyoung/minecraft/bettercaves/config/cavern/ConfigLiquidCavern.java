@@ -4,27 +4,27 @@ import com.yungnickyoung.minecraft.bettercaves.enums.CavernFrequency;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import net.minecraftforge.common.config.Config;
 
-public class ConfigLavaCavern {
+public class ConfigLiquidCavern {
     @Config.Name("Cavern Top Altitude")
-    @Config.Comment("The top cutoff y-coordinate of Lava Caverns. Note that caverns will attempt " +
+    @Config.Comment("The top cutoff y-coordinate of Liquid Caverns. Note that caverns will attempt " +
             "to close off anyway if this value is greater than the surface y-coordinate.")
     @Config.RangeInt(min = 0, max = 255)
     @Config.RequiresWorldRestart
     public int caveTop = 30;
 
     @Config.Name("Cavern Bottom Altitude")
-    @Config.Comment("The bottom cutoff y-coordinate at which Lava Caverns stop generating.")
+    @Config.Comment("The bottom cutoff y-coordinate at which Liquid Caverns stop generating.")
     @Config.RangeInt(min = 0, max = 255)
     @Config.RequiresWorldRestart
     public int caveBottom = 1;
 
-    @Config.Name("Lava Cavern Frequency")
-    @Config.Comment("Determines how frequently Lava Caverns spawn.")
+    @Config.Name("Liquid Cavern Frequency")
+    @Config.Comment("Determines how frequently Liquid Caverns spawn.")
     @Config.RequiresWorldRestart
     public CavernFrequency caveFrequency = CavernFrequency.Normal;
 
-    @Config.Name("Lava Cavern Frequency Custom Value")
-    @Config.Comment("Custom value for cavern frequency. Only works if Lava Cavern Frequency is set to Custom. 0 = 0% chance of spawning, " +
+    @Config.Name("Liquid Cavern Frequency Custom Value")
+    @Config.Comment("Custom value for cavern frequency. Only works if Liquid Cavern Frequency is set to Custom. 0 = 0% chance of spawning, " +
             "1.0 = 50% chance of spawning (which is the max value). The value does not scale linearly. \nProvided values:\n" +
             "None: 0\n" +
             "Rare: 0.2\n" +

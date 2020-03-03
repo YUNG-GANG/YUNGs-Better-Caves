@@ -4,14 +4,14 @@ import com.yungnickyoung.minecraft.bettercaves.enums.RegionSize;
 import net.minecraftforge.common.config.Config;
 
 public class ConfigCaverns {
-    @Config.Name("Lava Caverns")
-    @Config.Comment("Parameters used in the generation of Lava Caverns found at low altitudes. These are caverns" +
-            " where the floor is predominantly lava.")
-    public ConfigLavaCavern lavaCavern = new ConfigLavaCavern();
+    @Config.Name("Liquid Caverns")
+    @Config.Comment("Parameters used in the generation of Liquid Caverns found at low altitudes. These are caverns" +
+            " where the floor is predominantly water or lava.")
+    public ConfigLiquidCavern liquidCavern = new ConfigLiquidCavern();
 
     @Config.Name("Floored Caverns")
     @Config.Comment("Parameters used in the generation of Floored Caverns. These have much more ground to walk on" +
-            " than Lava Caverns.")
+            " than Liquid Caverns.")
     public ConfigFlooredCavern flooredCavern = new ConfigFlooredCavern();
 
     @Config.Name("Cavern Region Size")

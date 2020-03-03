@@ -60,8 +60,6 @@ public class CavernCarver {
         int bottomTransitionBoundary = 0;
         if (cavernType == CavernType.FLOORED)
             bottomTransitionBoundary = (bottomY <= 10) ? settings.getLiquidAltitude() + 4 : bottomY + 7;
-        else if (cavernType == CavernType.WATER)
-            bottomTransitionBoundary = bottomY + 3;
 
         /* =============== Dig out caves and caverns in this chunk, based on noise values =============== */
         for (int y = topY; y >= bottomY; y--) {
@@ -87,7 +85,7 @@ public class CavernCarver {
                 noiseThreshold *= (float) (y - topY) / (minSurfaceHeight - 5 - topY);
 
             // For floored caverns, close off caverns at the bottom to provide floors for the player to walk on
-            if ((this.cavernType == CavernType.FLOORED || this.cavernType == CavernType.WATER) && y <= bottomTransitionBoundary)
+            if ((this.cavernType == CavernType.FLOORED) && y <= bottomTransitionBoundary)
                 noiseThreshold *= Math.max((float) (y - bottomY) / (bottomTransitionBoundary - bottomY), .3f);
 
             // Adjust threshold along region borders to create smooth transition

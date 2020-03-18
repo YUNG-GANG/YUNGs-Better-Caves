@@ -1,11 +1,12 @@
-package com.yungnickyoung.minecraft.bettercaves.world.cave;
+package com.yungnickyoung.minecraft.bettercaves.world.carver.cave;
 
-import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseColumn;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
-import com.yungnickyoung.minecraft.bettercaves.world.cave.builder.CaveCarverBuilder;
+import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverSettings;
+import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverUtils;
+import com.yungnickyoung.minecraft.bettercaves.world.carver.ICarver;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
@@ -18,10 +19,18 @@ import java.util.Map;
 /**
  * BetterCaves Cave carver
  */
-public class CaveCarver {
+public class CaveCarver implements ICarver {
     private CarverSettings settings;
     private NoiseGen noiseGen;
+
+    /** Surface cutoff depth */
     private int surfaceCutoff;
+
+    /** Cave bottom y-coordinate */
+    private int bottomY;
+
+    /* Cave bottom y-coordinate TODO */
+//    private int topY;
 
     /**
      * Set true to perform pre-processing on noise values, adjusting them to increase ...
@@ -46,14 +55,14 @@ public class CaveCarver {
                 settings.getXzCompression()
         );
         surfaceCutoff = builder.getSurfaceCutoff();
+        bottomY = builder.getBottomY();
+        // topY = builder.getTopY();
         enableYAdjust = builder.isEnableYAdjust();
         yAdjustF1 = builder.getyAdjustF1();
         yAdjustF2 = builder.getyAdjustF2();
     }
 
-    public void generateColumnWithNoise(ChunkPrimer primer, BlockPos colPos, int bottomY,
-                                        int topY, int maxSurfaceHeight, int minSurfaceHeight,
-                                        IBlockState liquidBlock, NoiseColumn noises, boolean liquidBuffer) {
+    public void carveColumn(ChunkPrimer primer, BlockPos colPos, int topY, NoiseColumn noises, IBlockState liquidBlock) {
         int localX = BetterCavesUtil.getLocal(colPos.getX());
         int localZ = BetterCavesUtil.getLocal(colPos.getZ());
 
@@ -68,7 +77,7 @@ public class CaveCarver {
             return;
 
         // Altitude at which caves start closing off so they aren't all open to the surface
-        int transitionBoundary = maxSurfaceHeight - surfaceCutoff;
+        int transitionBoundary = topY - surfaceCutoff;
 
         // Validate transition boundary
         if (transitionBoundary < 1)
@@ -85,7 +94,7 @@ public class CaveCarver {
 
         /* =============== Dig out caves and caverns in this column, based on noise values =============== */
         for (int y = topY; y >= bottomY; y--) {
-            if (y <= settings.getLiquidAltitude() && liquidBuffer)
+            if (y <= settings.getLiquidAltitude() && liquidBlock == null)
                 break;
 
             List<Double> noiseBlock = noises.get(y).getNoiseValues();
@@ -198,5 +207,22 @@ public class CaveCarver {
 
     public NoiseGen getNoiseGen() {
         return noiseGen;
+    }
+
+    public CarverSettings getSettings() {
+        return settings;
+    }
+
+    public int getPriority() {
+        return settings.getPriority();
+    }
+
+    public int getBottomY() {
+        return this.bottomY;
+    }
+
+    public int getTopY() {
+        //TODO - separate top y by cave type
+        return 0;
     }
 }

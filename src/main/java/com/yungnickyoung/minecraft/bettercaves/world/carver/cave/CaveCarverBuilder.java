@@ -1,10 +1,9 @@
-package com.yungnickyoung.minecraft.bettercaves.world.cave.builder;
+package com.yungnickyoung.minecraft.bettercaves.world.carver.cave;
 
 import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
-import com.yungnickyoung.minecraft.bettercaves.world.cave.CarverSettings;
-import com.yungnickyoung.minecraft.bettercaves.world.cave.CaveCarver;
+import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverSettings;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.world.World;
 
@@ -15,6 +14,8 @@ import net.minecraft.world.World;
 public class CaveCarverBuilder {
     private CarverSettings settings;
     private int surfaceCutoff;
+    private int bottomY;
+    // private int topY;
     private boolean enableYAdjust;
     private float yAdjustF1;
     private float yAdjustF2;
@@ -49,6 +50,8 @@ public class CaveCarverBuilder {
                 this.settings.setNumGens(config.cubicCaveNumGenerators.get());
                 this.settings.setXzCompression(config.cubicCaveXZCompression.get());
                 this.settings.setyCompression(config.cubicCaveYCompression.get());
+                this.settings.setPriority(config.cubicCavePriority.get());
+                this.bottomY = config.cubicCaveBottom.get();
                 this.enableYAdjust = config.cubicCaveEnableVerticalAdjustment.get();
                 this.yAdjustF1 = config.cubicCaveYAdjustF1.get();
                 this.yAdjustF2 = config.cubicCaveYAdjustF2.get();
@@ -63,6 +66,8 @@ public class CaveCarverBuilder {
                 this.settings.setNumGens(config.simplexCaveNumGenerators.get());
                 this.settings.setXzCompression(config.simplexCaveXZCompression.get());
                 this.settings.setyCompression(config.simplexCaveYCompression.get());
+                this.settings.setPriority(config.simplexCavePriority.get());
+                this.bottomY = config.simplexCaveBottom.get();
                 this.enableYAdjust = config.simplexCaveEnableVerticalAdjustment.get();
                 this.yAdjustF1 = config.simplexCaveYAdjustF1.get();
                 this.yAdjustF2 = config.simplexCaveYAdjustF2.get();
@@ -129,6 +134,14 @@ public class CaveCarverBuilder {
     }
 
     /**
+     * @param bottomY Cave bottom y-coordinate
+     */
+    public CaveCarverBuilder bottomY(int bottomY) {
+        this.bottomY = bottomY;
+        return this;
+    }
+
+    /**
      * @param yAdjustF1 Adjustment value for the block immediately above. Must be between 0 and 1.0
      */
     public CaveCarverBuilder verticalAdjuster1(float yAdjustF1) {
@@ -188,6 +201,10 @@ public class CaveCarverBuilder {
 
     public CarverSettings getSettings() {
         return settings;
+    }
+
+    public int getBottomY() {
+        return bottomY;
     }
 
     public int getSurfaceCutoff() {

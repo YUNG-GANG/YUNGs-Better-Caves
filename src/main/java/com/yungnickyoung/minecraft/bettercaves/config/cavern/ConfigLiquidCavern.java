@@ -1,6 +1,5 @@
 package com.yungnickyoung.minecraft.bettercaves.config.cavern;
 
-import com.yungnickyoung.minecraft.bettercaves.enums.CavernFrequency;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import net.minecraftforge.common.config.Config;
 
@@ -10,30 +9,13 @@ public class ConfigLiquidCavern {
             "to close off anyway if this value is greater than the surface y-coordinate.")
     @Config.RangeInt(min = 0, max = 255)
     @Config.RequiresWorldRestart
-    public int caveTop = 30;
+    public int cavernTop = 30;
 
     @Config.Name("Cavern Bottom Altitude")
     @Config.Comment("The bottom cutoff y-coordinate at which Liquid Caverns stop generating.")
     @Config.RangeInt(min = 0, max = 255)
     @Config.RequiresWorldRestart
-    public int caveBottom = 1;
-
-    @Config.Name("Liquid Cavern Frequency")
-    @Config.Comment("Determines how frequently Liquid Caverns spawn.")
-    @Config.RequiresWorldRestart
-    public CavernFrequency caveFrequency = CavernFrequency.Normal;
-
-    @Config.Name("Liquid Cavern Frequency Custom Value")
-    @Config.Comment("Custom value for cavern frequency. Only works if Liquid Cavern Frequency is set to Custom. 0 = 0% chance of spawning, " +
-            "1.0 = 50% chance of spawning (which is the max value). The value does not scale linearly. \nProvided values:\n" +
-            "None: 0\n" +
-            "Rare: 0.2\n" +
-            "Normal: 0.4\n" +
-            "Common: 0.6\n" +
-            "VeryCommon: 0.9")
-    @Config.RangeDouble(min = 0, max = 1)
-    @Config.RequiresWorldRestart
-    public float customFrequency = 1.0f;
+    public int cavernBottom = 1;
 
     @Config.Name("Compression - Vertical")
     @Config.Comment("Changes height of formations in caverns. Lower value = more open caverns with larger features.")
@@ -46,6 +28,12 @@ public class ConfigLiquidCavern {
     @Config.RangeDouble(min = 0, max = 100)
     @Config.RequiresWorldRestart
     public float xzCompression = 1.0f;
+
+    @Config.Name("Liquid Cavern Priority")
+    @Config.Comment("Determines how frequently Liquid Caverns spawn.")
+    @Config.RangeInt(min = 0, max = 10)
+    @Config.RequiresWorldRestart
+    public int cavernPriority = 10;
 
     @Config.Ignore
     @Config.Name("Noise Threshold")

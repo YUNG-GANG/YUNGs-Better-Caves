@@ -27,7 +27,6 @@ import java.util.HashMap;
  */
 @Mod(modid = Settings.MOD_ID, name = Settings.NAME, version = Settings.VERSION, useMetadata = Settings.USE_META_DATA, acceptableRemoteVersions = "*")
 public class BetterCaves {
-
     /**
      * Table of active Better Caves carvers. Maps dimension ID to its carver.
      * We create separate carvers per dimension to allow for dimension-specific configuration.

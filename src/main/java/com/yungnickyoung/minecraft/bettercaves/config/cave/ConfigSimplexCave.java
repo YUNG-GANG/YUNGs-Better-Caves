@@ -1,6 +1,5 @@
 package com.yungnickyoung.minecraft.bettercaves.config.cave;
 
-import com.yungnickyoung.minecraft.bettercaves.enums.CaveFrequency;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import net.minecraftforge.common.config.Config;
 
@@ -23,23 +22,11 @@ public class ConfigSimplexCave {
     @Config.RequiresWorldRestart
     public float xzCompression = 0.9f;
 
-    @Config.Name("Type 2 Cave Frequency")
-    @Config.Comment("Determines how frequently Type 2 Caves spawn. If this is anything but VeryCommon (the default), vanilla caves will " +
-            "replace some of the areas where Type 2 Caves would have generated. However, if vanilla caves are disabled, " +
-            "then these areas will instead not have any caves at all.")
+    @Config.Name("Type 2 Cave Priority")
+    @Config.Comment("Determines how frequently Type 2 Caves spawn.")
+    @Config.RangeInt(min = 0, max = 10)
     @Config.RequiresWorldRestart
-    public CaveFrequency caveFrequency = CaveFrequency.VeryCommon;
-
-    @Config.Name("Type 2 Cave Frequency Custom Value")
-    @Config.Comment("Custom value for cave frequency. Only works if Type 2 Cave Frequency is set to Custom. 0 = 0% chance of spawning, " +
-            "1.0 = 50% chance of spawning (which is the max value). The value may not scale linearly. \nProvided values:\n" +
-            "None: 0\n" +
-            "Rare: 0.4\n" +
-            "Common: 0.8\n" +
-            "VeryCommon: 1.0")
-    @Config.RangeDouble(min = 0, max = 1)
-    @Config.RequiresWorldRestart
-    public float customFrequency = 1.0f;
+    public int cavePriority = 3;
 
     @Config.Ignore
     @Config.Name("Noise Threshold")

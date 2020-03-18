@@ -14,6 +14,12 @@ public class ConfigCaverns {
             " than Liquid Caverns.")
     public ConfigFlooredCavern flooredCavern = new ConfigFlooredCavern();
 
+    @Config.Name("Cavern Spawn Chance")
+    @Config.Comment("Percent chance of caverns spawning in a given region. Default: caverns spawn in 50% of regions.")
+    @Config.RangeDouble(min = 0, max = 100)
+    @Config.RequiresWorldRestart
+    public float cavernSpawnChance = 25;
+
     @Config.Name("Cavern Region Size")
     @Config.Comment("Determines how large cavern regions are. This controls the average size of caverns.")
     @Config.RequiresWorldRestart
@@ -28,5 +34,5 @@ public class ConfigCaverns {
             "ExtraLarge: 0.001")
     @Config.RangeDouble(min = 0, max = .05)
     @Config.RequiresWorldRestart
-    public float customRegionSize = 0.008f;
+    public float customRegionSize = 0.01f;
 }

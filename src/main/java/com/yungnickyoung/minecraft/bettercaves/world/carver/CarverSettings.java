@@ -1,12 +1,13 @@
-package com.yungnickyoung.minecraft.bettercaves.world.cave;
+package com.yungnickyoung.minecraft.bettercaves.world.carver;
 
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseSettings;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.world.World;
 
 public class CarverSettings {
-    private World    world;
-    private long     seed;
+    private World world;
+    private long  seed;
+    private int   priority;
 
     /* ============================== Values determined through config ============================== */
     /* ------------- Ridged Multifractal Params ------------- */
@@ -46,6 +47,14 @@ public class CarverSettings {
 
     public void setSeed(long seed) {
         this.seed = seed;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
     }
 
     public NoiseSettings getNoiseSettings() {

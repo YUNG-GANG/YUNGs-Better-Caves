@@ -1,4 +1,4 @@
-package com.yungnickyoung.minecraft.bettercaves.world.cave;
+package com.yungnickyoung.minecraft.bettercaves.world.carver;
 
 import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
@@ -38,8 +38,7 @@ public class CarverUtils {
      * @param world the Minecraft world this block is in
      * @param primer the ChunkPrimer containing the block
      * @param blockPos The block's position
-     * @param liquidBlockState the BlockState to use for liquids. If you want regular lava, you can either specify it, or
-     *                       use the wrapper function without this param
+     * @param liquidBlockState the BlockState to use for liquids. May be null if in buffer zone between liquid regions
      * @param liquidAltitude altitude at and below which air is replaced with liquidBlockState
      */
     public static void digBlock(World world, ChunkPrimer primer, BlockPos blockPos, IBlockState liquidBlockState, int liquidAltitude, boolean replaceGravel) {
@@ -48,7 +47,7 @@ public class CarverUtils {
         int y = blockPos.getY();
 
         // Check for adjacent water blocks to avoid breaking into lakes or oceans
-        if (liquidBlockState.getMaterial() != Material.WATER) {
+        if (liquidBlockState != null && liquidBlockState.getMaterial() != Material.WATER) {
             if (isWaterAdjacent(primer, blockPos)) return;
         }
 
@@ -60,7 +59,7 @@ public class CarverUtils {
 
         // Only continue if the block is replaceable
         if (canReplaceBlock(blockState, blockStateAbove) || blockState.getBlock() == biomeTopBlock || blockState.getBlock() == biomeFillerBlock) {
-            if ( y <= liquidAltitude) { // Replace any air below the liquid altitude with the liquid block passed in
+            if (y <= liquidAltitude && liquidBlockState != null) { // Replace any air below the liquid altitude with the liquid block passed in
                 primer.setBlockState(localX, y, localZ, liquidBlockState);
             }
             else {

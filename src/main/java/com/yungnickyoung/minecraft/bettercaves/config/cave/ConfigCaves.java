@@ -20,20 +20,26 @@ public class ConfigCaves {
     @Config.Comment("Settings controlling vanilla Minecraft cave generation.")
     public ConfigVanillaCave vanillaCave = new ConfigVanillaCave();
 
+    @Config.Name("Cave Spawn Chance")
+    @Config.Comment("Percent chance of caves spawning in a given region. Default: caves spawn in 70% of regions.")
+    @Config.RangeDouble(min = 0, max = 100)
+    @Config.RequiresWorldRestart
+    public float caveSpawnChance = 70;
+
     @Config.Name("Cave Region Size")
     @Config.Comment("Determines how large cave regions are. Controls how long a cave system of a certain cave type" +
-            " extends before intersecting with a cave system of another type. Larger Biome Size = more " +
-            "cave interconnectivity for a given area, but possibly less variation. Medium is recommended.")
+            " extends before intersecting with a cave system of another type. Larger = more " +
+            "cave interconnectivity for a given area, but less variation. Small is recommended.")
     @Config.RequiresWorldRestart
-    public RegionSize caveRegionSize = RegionSize.Medium;
+    public RegionSize caveRegionSize = RegionSize.Small;
 
     @Config.Name("Cave Region Size Custom Value")
     @Config.Comment("Custom value for cave region size. Only works if Cave Region Size is set to Custom. " +
             "Smaller value = larger regions. This value is very sensitive to change. \nProvided values:\n" +
-            "Small: 0.01\n" +
-            "Medium: 0.008\n" +
-            "Large: 0.004\n" +
-            "ExtraLarge: 0.002")
+            "Small: 0.008\n" +
+            "Medium: 0.005\n" +
+            "Large: 0.0032\n" +
+            "ExtraLarge: 0.001")
     @Config.RangeDouble(min = 0, max = .05)
     @Config.RequiresWorldRestart
     public float customRegionSize = 0.008f;

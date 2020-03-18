@@ -1,11 +1,10 @@
-package com.yungnickyoung.minecraft.bettercaves.world.cave.builder;
+package com.yungnickyoung.minecraft.bettercaves.world.carver.cavern;
 
 
 import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
-import com.yungnickyoung.minecraft.bettercaves.world.cave.CarverSettings;
-import com.yungnickyoung.minecraft.bettercaves.world.cave.CavernCarver;
+import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverSettings;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.world.World;
 
@@ -16,6 +15,8 @@ import net.minecraft.world.World;
 public class CavernCarverBuilder {
     private CarverSettings settings;
     private CavernType cavernType;
+    private int bottomY;
+    private int topY;
 
     public CavernCarverBuilder(World world) {
         settings = new CarverSettings(world);
@@ -47,6 +48,9 @@ public class CavernCarverBuilder {
                 this.settings.setNumGens(config.liquidCavernNumGenerators.get());
                 this.settings.setyCompression(config.liquidCavernYCompression.get());
                 this.settings.setXzCompression(config.liquidCavernXZCompression.get());
+                this.settings.setPriority(config.liquidCavernPriority.get());
+                this.bottomY = config.liquidCavernBottom.get();
+                this.topY = config.liquidCavernTop.get();
                 break;
             case FLOORED:
                 this.settings.setNoiseThreshold(config.flooredCavernNoiseThreshold.get());
@@ -57,6 +61,9 @@ public class CavernCarverBuilder {
                 this.settings.setNumGens(config.flooredCavernNumGenerators.get());
                 this.settings.setyCompression(config.flooredCavernYCompression.get());
                 this.settings.setXzCompression(config.flooredCavernXZCompression.get());
+                this.settings.setPriority(config.flooredCavernPriority.get());
+                this.bottomY = config.flooredCavernBottom.get();
+                this.topY = config.flooredCavernTop.get();
                 break;
         }
         return this;
@@ -159,6 +166,22 @@ public class CavernCarverBuilder {
         return this;
     }
 
+    /**
+     * Set cavern bottom Y coordinate
+     */
+    public CavernCarverBuilder bottomY(int bottomY) {
+        this.bottomY = bottomY;
+        return  this;
+    }
+
+    /**
+     * Set cavern top Y coordinate
+     */
+    public CavernCarverBuilder topY(int topY) {
+        this.topY = topY;
+        return this;
+    }
+
     /* ================================== Builder Getters ================================== */
 
     public CarverSettings getSettings() {
@@ -167,5 +190,13 @@ public class CavernCarverBuilder {
 
     public CavernType getCavernType() {
         return cavernType;
+    }
+
+    public int getBottomY() {
+        return bottomY;
+    }
+
+    public int getTopY() {
+        return topY;
     }
 }

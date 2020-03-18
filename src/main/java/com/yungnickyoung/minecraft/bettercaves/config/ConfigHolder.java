@@ -49,7 +49,9 @@ public class ConfigHolder {
         maxCaveAltitude = new ConfigOption<>("Max Cave Altitude", Configuration.caveSettings.caves.maxCaveAltitude)
                 .setCategory("general.cave & cavern generation.caves")
                 .addToMap(properties);
-
+        caveSpawnChance = new ConfigOption<>("Cave Spawn Chance", Configuration.caveSettings.caves.caveSpawnChance)
+                .setCategory("general.cave & cavern generation.caves")
+                .addToMap(properties);
 
         // Cubic (Type 1) cave settings
         cubicCaveBottom = new ConfigOption<>("Cave Bottom Altitude", Configuration.caveSettings.caves.cubicCave.caveBottom)
@@ -61,10 +63,7 @@ public class ConfigHolder {
         cubicCaveXZCompression = new ConfigOption<>("Compression - Horizontal", Configuration.caveSettings.caves.cubicCave.xzCompression)
                 .setCategory("general.cave & cavern generation.caves.type 1 caves")
                 .addToMap(properties);
-        cubicCaveFrequency = new ConfigOption<>("Type 1 Cave Frequency", Configuration.caveSettings.caves.cubicCave.caveFrequency)
-                .setCategory("general.cave & cavern generation.caves.type 1 caves")
-                .addToMap(properties);
-        cubicCaveCustomFrequency = new ConfigOption<>("Type 1 Cave Frequency Custom Value", Configuration.caveSettings.caves.cubicCave.customFrequency)
+        cubicCavePriority = new ConfigOption<>("Type 1 Cave Priority", Configuration.caveSettings.caves.cubicCave.cavePriority)
                 .setCategory("general.cave & cavern generation.caves.type 1 caves")
                 .addToMap(properties);
 
@@ -78,11 +77,8 @@ public class ConfigHolder {
         simplexCaveXZCompression = new ConfigOption<>("Compression - Horizontal", Configuration.caveSettings.caves.simplexCave.xzCompression)
                 .setCategory("general.cave & cavern generation.caves.type 2 caves")
                 .addToMap(properties);
-        simplexCaveFrequency = new ConfigOption<>("Type 2 Cave Frequency", Configuration.caveSettings.caves.simplexCave.caveFrequency)
-                .setCategory("general.cave & cavern generation.caves.type 2 caves")
-                .addToMap(properties);
-        simplexCaveCustomFrequency = new ConfigOption<>("Type 2 Cave Frequency Custom Value", Configuration.caveSettings.caves.simplexCave.customFrequency)
-                .setCategory("general.cave & cavern generation.caves.type 2 caves")
+        simplexCavePriority = new ConfigOption<>("Type 2 Cave Priority", Configuration.caveSettings.caves.simplexCave.cavePriority)
+                .setCategory("general.cave & cavern generation.caves.type 1 caves")
                 .addToMap(properties);
 
         // Vanilla cave settings
@@ -100,12 +96,15 @@ public class ConfigHolder {
         cavernRegionCustomSize = new ConfigOption<>("Cavern Region Size Custom Value", Configuration.caveSettings.caverns.customRegionSize)
                 .setCategory("general.cave & cavern generation.caverns")
                 .addToMap(properties);
+        cavernSpawnChance = new ConfigOption<>("Cavern Spawn Chance", Configuration.caveSettings.caverns.cavernSpawnChance)
+                .setCategory("general.cave & cavern generation.caverns")
+                .addToMap(properties);
 
         // Liquid cavern settings
-        liquidCavernBottom = new ConfigOption<>("Cavern Bottom Altitude", Configuration.caveSettings.caverns.liquidCavern.caveBottom)
+        liquidCavernBottom = new ConfigOption<>("Cavern Bottom Altitude", Configuration.caveSettings.caverns.liquidCavern.cavernBottom)
                 .setCategory("general.cave & cavern generation.caverns.liquid caverns")
                 .addToMap(properties);
-        liquidCavernTop = new ConfigOption<>("Cavern Top Altitude", Configuration.caveSettings.caverns.liquidCavern.caveTop)
+        liquidCavernTop = new ConfigOption<>("Cavern Top Altitude", Configuration.caveSettings.caverns.liquidCavern.cavernTop)
                 .setCategory("general.cave & cavern generation.caverns.liquid caverns")
                 .addToMap(properties);
         liquidCavernYCompression = new ConfigOption<>("Compression - Vertical", Configuration.caveSettings.caverns.liquidCavern.yCompression)
@@ -114,18 +113,15 @@ public class ConfigHolder {
         liquidCavernXZCompression = new ConfigOption<>("Compression - Horizontal", Configuration.caveSettings.caverns.liquidCavern.xzCompression)
                 .setCategory("general.cave & cavern generation.caverns.liquid caverns")
                 .addToMap(properties);
-        liquidCavernFrequency = new ConfigOption<>("Liquid Cavern Frequency", Configuration.caveSettings.caverns.liquidCavern.caveFrequency)
-                .setCategory("general.cave & cavern generation.caverns.liquid caverns")
-                .addToMap(properties);
-        liquidCavernCustomFrequency = new ConfigOption<>("Liquid Cavern Frequency Custom Value", Configuration.caveSettings.caverns.liquidCavern.customFrequency)
+        liquidCavernPriority = new ConfigOption<>("Liquid Cavern Priority", Configuration.caveSettings.caverns.liquidCavern.cavernPriority)
                 .setCategory("general.cave & cavern generation.caverns.liquid caverns")
                 .addToMap(properties);
 
         // Floored cavern settings
-        flooredCavernBottom = new ConfigOption<>("Cavern Bottom Altitude", Configuration.caveSettings.caverns.flooredCavern.caveBottom)
+        flooredCavernBottom = new ConfigOption<>("Cavern Bottom Altitude", Configuration.caveSettings.caverns.flooredCavern.cavernBottom)
                 .setCategory("general.cave & cavern generation.caverns.floored caverns")
                 .addToMap(properties);
-        flooredCavernTop = new ConfigOption<>("Cavern Top Altitude", Configuration.caveSettings.caverns.flooredCavern.caveTop)
+        flooredCavernTop = new ConfigOption<>("Cavern Top Altitude", Configuration.caveSettings.caverns.flooredCavern.cavernTop)
                 .setCategory("general.cave & cavern generation.caverns.floored caverns")
                 .addToMap(properties);
         flooredCavernYCompression = new ConfigOption<>("Compression - Vertical", Configuration.caveSettings.caverns.flooredCavern.yCompression)
@@ -134,10 +130,7 @@ public class ConfigHolder {
         flooredCavernXZCompression = new ConfigOption<>("Compression - Horizontal", Configuration.caveSettings.caverns.flooredCavern.xzCompression)
                 .setCategory("general.cave & cavern generation.caverns.floored caverns")
                 .addToMap(properties);
-        flooredCavernFrequency = new ConfigOption<>("Floored Cavern Frequency", Configuration.caveSettings.caverns.flooredCavern.caveFrequency)
-                .setCategory("general.cave & cavern generation.caverns.floored caverns")
-                .addToMap(properties);
-        flooredCavernCustomFrequency = new ConfigOption<>("Floored Cavern Frequency Custom Value", Configuration.caveSettings.caverns.flooredCavern.customFrequency)
+        flooredCavernPriority = new ConfigOption<>("Floored Cavern Priority", Configuration.caveSettings.caverns.flooredCavern.cavernPriority)
                 .setCategory("general.cave & cavern generation.caverns.floored caverns")
                 .addToMap(properties);
 
@@ -310,20 +303,19 @@ public class ConfigHolder {
     public ConfigOption<Float>      caveRegionCustomSize;
     public ConfigOption<Integer>    surfaceCutoff;
     public ConfigOption<Integer>    maxCaveAltitude;
+    public ConfigOption<Float>      caveSpawnChance;
 
     // Cubic (Type 1) cave settings
     public ConfigOption<Integer>       cubicCaveBottom;
     public ConfigOption<Float>         cubicCaveYCompression;
     public ConfigOption<Float>         cubicCaveXZCompression;
-    public ConfigOption<CaveFrequency> cubicCaveFrequency;
-    public ConfigOption<Float>         cubicCaveCustomFrequency;
+    public ConfigOption<Integer>       cubicCavePriority;
 
     // Simplex (Type 2) cave settings
     public ConfigOption<Integer>       simplexCaveBottom;
     public ConfigOption<Float>         simplexCaveYCompression;
     public ConfigOption<Float>         simplexCaveXZCompression;
-    public ConfigOption<CaveFrequency> simplexCaveFrequency;
-    public ConfigOption<Float>         simplexCaveCustomFrequency;
+    public ConfigOption<Integer>       simplexCavePriority;
 
     // Vanilla cave settings
     public ConfigOption<Boolean> enableVanillaCaves;
@@ -332,22 +324,21 @@ public class ConfigHolder {
     // Dimension-wide cavern settings
     public ConfigOption<RegionSize> cavernRegionSize;
     public ConfigOption<Float>      cavernRegionCustomSize;
+    public ConfigOption<Float>      cavernSpawnChance;
 
     // Liquid cavern settings
     public ConfigOption<Integer>         liquidCavernBottom;
     public ConfigOption<Integer>         liquidCavernTop;
     public ConfigOption<Float>           liquidCavernYCompression;
     public ConfigOption<Float>           liquidCavernXZCompression;
-    public ConfigOption<CavernFrequency> liquidCavernFrequency;
-    public ConfigOption<Float>           liquidCavernCustomFrequency;
+    public ConfigOption<Integer>         liquidCavernPriority;
 
     // Floored cavern settings
     public ConfigOption<Integer>         flooredCavernBottom;
     public ConfigOption<Integer>         flooredCavernTop;
     public ConfigOption<Float>           flooredCavernYCompression;
     public ConfigOption<Float>           flooredCavernXZCompression;
-    public ConfigOption<CavernFrequency> flooredCavernFrequency;
-    public ConfigOption<Float>           flooredCavernCustomFrequency;
+    public ConfigOption<Integer>         flooredCavernPriority;
 
     // Water region settings
     public ConfigOption<Boolean>              enableWaterRegions;

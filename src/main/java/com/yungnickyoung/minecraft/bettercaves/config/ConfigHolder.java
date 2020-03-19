@@ -43,18 +43,18 @@ public class ConfigHolder {
         caveRegionCustomSize = new ConfigOption<>("Cave Region Size Custom Value", Configuration.caveSettings.caves.customRegionSize)
                 .setCategory("general.cave & cavern generation.caves")
                 .addToMap(properties);
-        surfaceCutoff = new ConfigOption<>("Cave Surface Cutoff Depth", Configuration.caveSettings.caves.surfaceCutoff)
-                .setCategory("general.cave & cavern generation.caves")
-                .addToMap(properties);
-        maxCaveAltitude = new ConfigOption<>("Max Cave Altitude", Configuration.caveSettings.caves.maxCaveAltitude)
-                .setCategory("general.cave & cavern generation.caves")
-                .addToMap(properties);
         caveSpawnChance = new ConfigOption<>("Cave Spawn Chance", Configuration.caveSettings.caves.caveSpawnChance)
                 .setCategory("general.cave & cavern generation.caves")
                 .addToMap(properties);
 
         // Cubic (Type 1) cave settings
-        cubicCaveBottom = new ConfigOption<>("Cave Bottom Altitude", Configuration.caveSettings.caves.cubicCave.caveBottom)
+        cubicCaveBottom = new ConfigOption<>("Type 1 Cave Minimum Altitude", Configuration.caveSettings.caves.cubicCave.caveBottom)
+                .setCategory("general.cave & cavern generation.caves.type 1 caves")
+                .addToMap(properties);
+        cubicCaveTop = new ConfigOption<>("Type 1 Cave Maximum Altitude", Configuration.caveSettings.caves.cubicCave.caveTop)
+                .setCategory("general.cave & cavern generation.caves.type 1 caves")
+                .addToMap(properties);
+        cubicCaveSurfaceCutoffDepth = new ConfigOption<>("Type 1 Cave Surface Cutoff Depth", Configuration.caveSettings.caves.cubicCave.caveSurfaceCutoff)
                 .setCategory("general.cave & cavern generation.caves.type 1 caves")
                 .addToMap(properties);
         cubicCaveYCompression = new ConfigOption<>("Compression - Vertical", Configuration.caveSettings.caves.cubicCave.yCompression)
@@ -68,9 +68,15 @@ public class ConfigHolder {
                 .addToMap(properties);
 
         // Simplex (Type 2) cave settings
-        simplexCaveBottom = new ConfigOption<>("Cave Bottom Altitude", Configuration.caveSettings.caves.simplexCave.caveBottom)
-                 .setCategory("general.cave & cavern generation.caves.type 2 caves")
-                 .addToMap(properties);
+        simplexCaveBottom = new ConfigOption<>("Type 2 Cave Minimum Altitude", Configuration.caveSettings.caves.simplexCave.caveBottom)
+                .setCategory("general.cave & cavern generation.caves.type 2 caves")
+                .addToMap(properties);
+        simplexCaveTop = new ConfigOption<>("Type 2 Cave Maximum Altitude", Configuration.caveSettings.caves.simplexCave.caveTop)
+                .setCategory("general.cave & cavern generation.caves.type 2 caves")
+                .addToMap(properties);
+        simplexCaveSurfaceCutoffDepth = new ConfigOption<>("Type 2 Cave Surface Cutoff Depth", Configuration.caveSettings.caves.simplexCave.caveSurfaceCutoff)
+                .setCategory("general.cave & cavern generation.caves.type 2 caves")
+                .addToMap(properties);
         simplexCaveYCompression = new ConfigOption<>("Compression - Vertical", Configuration.caveSettings.caves.simplexCave.yCompression)
                 .setCategory("general.cave & cavern generation.caves.type 2 caves")
                 .addToMap(properties);
@@ -301,18 +307,20 @@ public class ConfigHolder {
     // Dimension-wide cave settings
     public ConfigOption<RegionSize> caveRegionSize;
     public ConfigOption<Float>      caveRegionCustomSize;
-    public ConfigOption<Integer>    surfaceCutoff;
-    public ConfigOption<Integer>    maxCaveAltitude;
     public ConfigOption<Float>      caveSpawnChance;
 
     // Cubic (Type 1) cave settings
     public ConfigOption<Integer>       cubicCaveBottom;
+    public ConfigOption<Integer>       cubicCaveTop;
+    public ConfigOption<Integer>       cubicCaveSurfaceCutoffDepth;
     public ConfigOption<Float>         cubicCaveYCompression;
     public ConfigOption<Float>         cubicCaveXZCompression;
     public ConfigOption<Integer>       cubicCavePriority;
 
     // Simplex (Type 2) cave settings
     public ConfigOption<Integer>       simplexCaveBottom;
+    public ConfigOption<Integer>       simplexCaveTop;
+    public ConfigOption<Integer>       simplexCaveSurfaceCutoffDepth;
     public ConfigOption<Float>         simplexCaveYCompression;
     public ConfigOption<Float>         simplexCaveXZCompression;
     public ConfigOption<Integer>       simplexCavePriority;

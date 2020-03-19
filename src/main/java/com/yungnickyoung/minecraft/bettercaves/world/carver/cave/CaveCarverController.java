@@ -24,14 +24,12 @@ public class CaveCarverController {
     private List<CarverNoiseRange> noiseRanges = new ArrayList<>();
 
     // vars from config
-    private int maxCaveAltitude;
     private boolean isVanillaCavesEnabled;
     private boolean isDebugViewEnabled;
 
     public CaveCarverController(World worldIn, ConfigHolder config, MapGenBase defaultCaveGen) {
         this.world = worldIn;
         this.defaultCaveGen = defaultCaveGen;
-        this.maxCaveAltitude = config.maxCaveAltitude.get();
         this.isVanillaCavesEnabled = config.enableVanillaCaves.get();
         this.isDebugViewEnabled = config.debugVisualizer.get();
 
@@ -120,8 +118,7 @@ public class CaveCarverController {
                             }
                             CaveCarver carver = (CaveCarver)range.getCarver();
                             int bottomY = carver.getBottomY();
-                            int topY = isDebugViewEnabled ? 128 : Math.min(surfaceAltitude, maxCaveAltitude);
-//                                int topY = carver.getTopY();
+                            int topY = isDebugViewEnabled ? 128 : Math.min(surfaceAltitude, carver.getTopY());
                             if (range.getNoiseCube() == null) {
                                 range.setNoiseCube(carver.getNoiseGen().interpolateNoiseCube(startPos, endPos, bottomY, topY));
                             }

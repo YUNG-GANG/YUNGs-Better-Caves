@@ -4,11 +4,24 @@ import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import net.minecraftforge.common.config.Config;
 
 public class ConfigCubicCave {
-    @Config.Name("Cave Bottom Altitude")
-    @Config.Comment("The minimum y-coordinate at which caves start generating.")
+    @Config.Name("Type 1 Cave Minimum Altitude")
+    @Config.Comment("The minimum y-coordinate at which type 1 caves can generate.")
     @Config.RangeInt(min = 0, max = 255)
     @Config.RequiresWorldRestart
     public int caveBottom = 1;
+
+    @Config.Name("Type 1 Cave Maximum Altitude")
+    @Config.Comment("The maximum y-coordinate at which type 1 caves can generate.")
+    @Config.RangeInt(min = 0, max = 255)
+    @Config.RequiresWorldRestart
+    public int caveTop = 128;
+
+    @Config.Name("Type 1 Cave Surface Cutoff Depth")
+    @Config.Comment("The depth from a given point on the surface (or the Max Cave Altitude, whichever is " +
+            "lower) at which type 1 caves start to close off.")
+    @Config.RangeInt(min = 0, max = 255)
+    @Config.RequiresWorldRestart
+    public int caveSurfaceCutoff = 6;
 
     @Config.Name("Compression - Vertical")
     @Config.Comment("Changes height of caves. Lower value = taller caves with steeper drops.")

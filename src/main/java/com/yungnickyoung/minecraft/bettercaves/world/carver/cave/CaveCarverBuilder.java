@@ -15,7 +15,7 @@ public class CaveCarverBuilder {
     private CarverSettings settings;
     private int surfaceCutoff;
     private int bottomY;
-    // private int topY;
+    private int topY;
     private boolean enableYAdjust;
     private float yAdjustF1;
     private float yAdjustF2;
@@ -38,7 +38,6 @@ public class CaveCarverBuilder {
         this.settings.setReplaceFloatingGravel(config.replaceFloatingGravel.get());
         this.settings.setEnableDebugVisualizer(config.debugVisualizer.get());
         this.settings.getNoiseSettings().setFractalType(FastNoise.FractalType.RigidMulti);
-        this.surfaceCutoff = config.surfaceCutoff.get();
         switch (caveType) {
             case CUBIC:
                 this.settings.setFastNoise(true);
@@ -51,7 +50,9 @@ public class CaveCarverBuilder {
                 this.settings.setXzCompression(config.cubicCaveXZCompression.get());
                 this.settings.setyCompression(config.cubicCaveYCompression.get());
                 this.settings.setPriority(config.cubicCavePriority.get());
+                this.surfaceCutoff = config.cubicCaveSurfaceCutoffDepth.get();
                 this.bottomY = config.cubicCaveBottom.get();
+                this.topY = config.cubicCaveTop.get();
                 this.enableYAdjust = config.cubicCaveEnableVerticalAdjustment.get();
                 this.yAdjustF1 = config.cubicCaveYAdjustF1.get();
                 this.yAdjustF2 = config.cubicCaveYAdjustF2.get();
@@ -67,7 +68,9 @@ public class CaveCarverBuilder {
                 this.settings.setXzCompression(config.simplexCaveXZCompression.get());
                 this.settings.setyCompression(config.simplexCaveYCompression.get());
                 this.settings.setPriority(config.simplexCavePriority.get());
+                this.surfaceCutoff = config.simplexCaveSurfaceCutoffDepth.get();
                 this.bottomY = config.simplexCaveBottom.get();
+                this.topY = config.simplexCaveTop.get();
                 this.enableYAdjust = config.simplexCaveEnableVerticalAdjustment.get();
                 this.yAdjustF1 = config.simplexCaveYAdjustF1.get();
                 this.yAdjustF2 = config.simplexCaveYAdjustF2.get();
@@ -134,10 +137,26 @@ public class CaveCarverBuilder {
     }
 
     /**
+     * @param surfaceCutoff Cave surface cutoff depth
+     */
+    public CaveCarverBuilder surfaceCutoff(int surfaceCutoff) {
+        this.surfaceCutoff = surfaceCutoff;
+        return this;
+    }
+
+    /**
      * @param bottomY Cave bottom y-coordinate
      */
     public CaveCarverBuilder bottomY(int bottomY) {
         this.bottomY = bottomY;
+        return this;
+    }
+
+    /**
+     * @param topY Cave top y-coordinate
+     */
+    public CaveCarverBuilder topY(int topY) {
+        this.topY = topY;
         return this;
     }
 
@@ -203,12 +222,16 @@ public class CaveCarverBuilder {
         return settings;
     }
 
+    public int getSurfaceCutoff() {
+        return surfaceCutoff;
+    }
+
     public int getBottomY() {
         return bottomY;
     }
 
-    public int getSurfaceCutoff() {
-        return surfaceCutoff;
+    public int getTopY() {
+        return topY;
     }
 
     public boolean isEnableYAdjust() {

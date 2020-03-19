@@ -30,7 +30,7 @@ public class CaveCarver implements ICarver {
     private int bottomY;
 
     /* Cave bottom y-coordinate TODO */
-//    private int topY;
+    private int topY;
 
     /**
      * Set true to perform pre-processing on noise values, adjusting them to increase ...
@@ -56,7 +56,7 @@ public class CaveCarver implements ICarver {
         );
         surfaceCutoff = builder.getSurfaceCutoff();
         bottomY = builder.getBottomY();
-        // topY = builder.getTopY();
+        topY = builder.getTopY();
         enableYAdjust = builder.isEnableYAdjust();
         yAdjustF1 = builder.getyAdjustF1();
         yAdjustF2 = builder.getyAdjustF2();
@@ -222,7 +222,6 @@ public class CaveCarver implements ICarver {
     }
 
     public int getTopY() {
-        //TODO - separate top y by cave type
-        return 0;
+        return this.topY;
     }
 }

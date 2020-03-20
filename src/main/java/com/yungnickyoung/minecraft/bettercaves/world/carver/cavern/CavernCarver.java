@@ -61,9 +61,10 @@ public class CavernCarver implements ICarver {
             topTransitionBoundary = 1;
 
         // Altitude at which caverns start closing off on the bottom to create "floors"
-        int bottomTransitionBoundary = 0;
-        if (cavernType == CavernType.FLOORED)
-            bottomTransitionBoundary = (bottomY <= 10) ? settings.getLiquidAltitude() + 4 : bottomY + 7;
+        int bottomTransitionBoundary = bottomY + 3;
+        if (cavernType == CavernType.FLOORED) {
+            bottomTransitionBoundary = bottomY < settings.getLiquidAltitude() ? settings.getLiquidAltitude() + 8 : bottomY + 7;
+        }
 
         /* =============== Dig out caves and caverns in this chunk, based on noise values =============== */
         for (int y = topY; y >= bottomY; y--) {
@@ -84,13 +85,9 @@ public class CavernCarver implements ICarver {
             if (y >= topTransitionBoundary)
                 noiseThreshold *= Math.max((float) (y - topY) / (topTransitionBoundary - topY), .3f);
 
-            // Force close-off caverns if we're in ease-in depth range
-//            if (y >= minSurfaceHeight - 5)
-//                noiseThreshold *= (float) (y - topY) / (minSurfaceHeight - 5 - topY);
-
-            // For floored caverns, close off caverns at the bottom to provide floors for the player to walk on
-            if ((this.cavernType == CavernType.FLOORED) && y <= bottomTransitionBoundary)
-                noiseThreshold *= Math.max((float) (y - bottomY) / (bottomTransitionBoundary - bottomY), .3f);
+            // Close off caverns at the bottom to hide bedrock and give some walkable area
+            if (y < bottomTransitionBoundary)
+                noiseThreshold *= (float) (y - bottomY) / (bottomTransitionBoundary - bottomY);
 
             // Adjust threshold along region borders to create smooth transition
             if (smoothAmp < 1)

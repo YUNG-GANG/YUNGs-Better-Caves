@@ -58,7 +58,7 @@ public class ConfigFlooredCavern {
     @Config.Name("Fractal Frequency")
     @Config.Comment("The frequency for ridged multi-fractal noise generation.")
     @Config.RequiresWorldRestart
-    public float fractalFrequency = 0.03f;
+    public float fractalFrequency = 0.028f;
 
     @Config.Ignore
     @Config.Name("Number of Generators")

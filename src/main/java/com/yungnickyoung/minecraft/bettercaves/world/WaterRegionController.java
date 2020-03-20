@@ -26,7 +26,7 @@ public class WaterRegionController {
     private boolean enableWaterRegions;
 
     // Constants
-    private final float waterRegionSmoothRange = .05f;
+    private final float waterRegionSmoothRange = .035f;
     private final float waterRegionSmoothDelta = .015f;
 
     public WaterRegionController(World world, ConfigHolder config) {

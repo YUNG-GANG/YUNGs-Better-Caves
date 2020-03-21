@@ -39,7 +39,7 @@ public class CavernCarver implements ICarver {
         topY = builder.getTopY();
     }
 
-    public void carveColumn(ChunkPrimer primer, BlockPos colPos, int topY, float smoothAmp, NoiseColumn noises, IBlockState liquidBlock) {
+    public void carveColumn(ChunkPrimer primer, BlockPos colPos, int topY, float smoothAmp, NoiseColumn noises, IBlockState liquidBlock, boolean isClosetoSurface) {
         int localX = BetterCavesUtil.getLocal(colPos.getX());
         int localZ = BetterCavesUtil.getLocal(colPos.getZ());
 
@@ -54,17 +54,17 @@ public class CavernCarver implements ICarver {
             return;
 
         // Altitude at which caverns start closing off on the top
-        int topTransitionBoundary = topY - 10;
+        int topTransitionBoundary = isClosetoSurface ? topY - 12 : topY - 4;
 
-        // Validate transition boundary
-        if (topTransitionBoundary < 1)
-            topTransitionBoundary = 1;
-
-        // Altitude at which caverns start closing off on the bottom to create "floors"
+        // Altitude at which caverns start closing off on the bottom
         int bottomTransitionBoundary = bottomY + 3;
-        if (cavernType == CavernType.FLOORED) {
+        if (cavernType == CavernType.FLOORED) { // Close off floored caverns more to create "floors"
             bottomTransitionBoundary = bottomY < settings.getLiquidAltitude() ? settings.getLiquidAltitude() + 8 : bottomY + 7;
         }
+
+        // Validate transition boundaries
+        topTransitionBoundary = Math.max(topTransitionBoundary, 1);
+        bottomTransitionBoundary = Math.min(bottomTransitionBoundary, 255);
 
         /* =============== Dig out caves and caverns in this chunk, based on noise values =============== */
         for (int y = topY; y >= bottomY; y--) {
@@ -83,7 +83,7 @@ public class CavernCarver implements ICarver {
             // Adjust threshold if we're in the transition range to provide smoother transition into ceiling
             float noiseThreshold = settings.getNoiseThreshold();
             if (y >= topTransitionBoundary)
-                noiseThreshold *= Math.max((float) (y - topY) / (topTransitionBoundary - topY), .3f);
+                noiseThreshold *= (float) (y - topY) / (topTransitionBoundary - topY);
 
             // Close off caverns at the bottom to hide bedrock and give some walkable area
             if (y < bottomTransitionBoundary)

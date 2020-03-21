@@ -115,12 +115,13 @@ public class CavernCarverController {
                             CavernCarver carver = (CavernCarver)range.getCarver();
                             int bottomY = carver.getBottomY();
                             int topY = isDebugViewEnabled ? carver.getTopY() : Math.min(surfaceAltitude, carver.getTopY());
+                            boolean isCloseToSurface = surfaceAltitude <= carver.getTopY() + 4;
                             float smoothAmp = range.getSmoothAmp(cavernRegionNoise);
                             if (range.getNoiseCube() == null) {
                                 range.setNoiseCube(carver.getNoiseGen().interpolateNoiseCube(startPos, endPos, bottomY, topY));
                             }
                             NoiseColumn noiseColumn = range.getNoiseCube().get(offsetX).get(offsetZ);
-                            carver.carveColumn(primer, colPos, topY, smoothAmp, noiseColumn, liquidBlock);
+                            carver.carveColumn(primer, colPos, topY, smoothAmp, noiseColumn, liquidBlock, isCloseToSurface);
                             break;
                         }
                     }

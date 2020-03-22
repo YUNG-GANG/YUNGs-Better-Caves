@@ -4,14 +4,14 @@ import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import net.minecraftforge.common.config.Config;
 
 public class ConfigLiquidCavern {
-    @Config.Name("Cavern Top Altitude")
+    @Config.Name("Liquid Cavern Maximum Altitude")
     @Config.Comment("The top cutoff y-coordinate of Liquid Caverns. Note that caverns will attempt " +
             "to close off anyway if this value is greater than the surface y-coordinate.")
     @Config.RangeInt(min = 0, max = 255)
     @Config.RequiresWorldRestart
     public int cavernTop = 35;
 
-    @Config.Name("Cavern Bottom Altitude")
+    @Config.Name("Liquid Cavern Minimum Altitude")
     @Config.Comment("The bottom cutoff y-coordinate at which Liquid Caverns stop generating.")
     @Config.RangeInt(min = 0, max = 255)
     @Config.RequiresWorldRestart

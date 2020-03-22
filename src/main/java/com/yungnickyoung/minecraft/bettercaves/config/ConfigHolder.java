@@ -35,6 +35,9 @@ public class ConfigHolder {
         replaceFloatingGravel = new ConfigOption<>("Replace Floating Gravel", Configuration.caveSettings.replaceFloatingGravel)
                 .setCategory("general.cave & cavern generation")
                 .addToMap(properties);
+        overrideSurfaceDetection = new ConfigOption<>("Override Surface Detection", Configuration.caveSettings.overrideSurfaceDetection)
+                .setCategory("general.cave & cavern generation")
+                .addToMap(properties);
 
         // Dimension-wide cave settings
         caveRegionSize = new ConfigOption<>("Cave Region Size", Configuration.caveSettings.caves.caveRegionSize)
@@ -107,10 +110,10 @@ public class ConfigHolder {
                 .addToMap(properties);
 
         // Liquid cavern settings
-        liquidCavernBottom = new ConfigOption<>("Cavern Bottom Altitude", Configuration.caveSettings.caverns.liquidCavern.cavernBottom)
+        liquidCavernBottom = new ConfigOption<>("Liquid Cavern Minimum Altitude", Configuration.caveSettings.caverns.liquidCavern.cavernBottom)
                 .setCategory("general.cave & cavern generation.caverns.liquid caverns")
                 .addToMap(properties);
-        liquidCavernTop = new ConfigOption<>("Cavern Top Altitude", Configuration.caveSettings.caverns.liquidCavern.cavernTop)
+        liquidCavernTop = new ConfigOption<>("Liquid Cavern Maximum Altitude", Configuration.caveSettings.caverns.liquidCavern.cavernTop)
                 .setCategory("general.cave & cavern generation.caverns.liquid caverns")
                 .addToMap(properties);
         liquidCavernYCompression = new ConfigOption<>("Compression - Vertical", Configuration.caveSettings.caverns.liquidCavern.yCompression)
@@ -124,10 +127,10 @@ public class ConfigHolder {
                 .addToMap(properties);
 
         // Floored cavern settings
-        flooredCavernBottom = new ConfigOption<>("Cavern Bottom Altitude", Configuration.caveSettings.caverns.flooredCavern.cavernBottom)
+        flooredCavernBottom = new ConfigOption<>("Floored Cavern Minimum Altitude", Configuration.caveSettings.caverns.flooredCavern.cavernBottom)
                 .setCategory("general.cave & cavern generation.caverns.floored caverns")
                 .addToMap(properties);
-        flooredCavernTop = new ConfigOption<>("Cavern Top Altitude", Configuration.caveSettings.caverns.flooredCavern.cavernTop)
+        flooredCavernTop = new ConfigOption<>("Floored Cavern Maximum Altitude", Configuration.caveSettings.caverns.flooredCavern.cavernTop)
                 .setCategory("general.cave & cavern generation.caverns.floored caverns")
                 .addToMap(properties);
         flooredCavernYCompression = new ConfigOption<>("Compression - Vertical", Configuration.caveSettings.caverns.flooredCavern.yCompression)
@@ -303,6 +306,7 @@ public class ConfigHolder {
     public ConfigOption<String>     waterBlock;
     public ConfigOption<Integer>    liquidAltitude;
     public ConfigOption<Boolean>    replaceFloatingGravel;
+    public ConfigOption<Boolean>    overrideSurfaceDetection;
 
     // Dimension-wide cave settings
     public ConfigOption<RegionSize> caveRegionSize;

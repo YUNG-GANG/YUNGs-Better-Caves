@@ -42,4 +42,10 @@ public class ConfigCaveGen {
             "Can prevent lag due to cascading gravel falling into caverns under the ocean.")
     @Config.RequiresWorldRestart
     public boolean replaceFloatingGravel = false;
+
+    @Config.Name("Override Surface Detection")
+    @Config.Comment("Ignores surface detection for closing off caves and caverns, forcing them to spawn up until their " +
+            "max height.\n Useful for Nether-like dimensions with no real surface." )
+    @Config.RequiresWorldRestart
+    public boolean overrideSurfaceDetection = false;
 }

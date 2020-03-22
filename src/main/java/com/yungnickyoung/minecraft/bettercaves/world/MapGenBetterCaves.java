@@ -89,7 +89,13 @@ public class MapGenBetterCaves extends MapGenCaves {
                 int startZ = subZ * Settings.SUB_CHUNK_SIZE;
                 for (int offsetX = 0; offsetX < Settings.SUB_CHUNK_SIZE; offsetX++) {
                     for (int offsetZ = 0; offsetZ < Settings.SUB_CHUNK_SIZE; offsetZ++) {
-                        int surfaceHeight = BetterCavesUtil.getSurfaceAltitudeForColumn(primer, startX + offsetX, startZ + offsetZ);
+                        int surfaceHeight;
+                        if (config.overrideSurfaceDetection.get()) {
+                            surfaceHeight = 1; // Don't waste time calculating surface height if it's going to be overridden anyway
+                        }
+                        else {
+                            surfaceHeight = BetterCavesUtil.getSurfaceAltitudeForColumn(primer, startX + offsetX, startZ + offsetZ);
+                        }
                         surfaceAltitudes[startX + offsetX][startZ + offsetZ] = surfaceHeight;
                     }
                 }

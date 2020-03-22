@@ -23,9 +23,11 @@ public class CavernCarverController {
 
     // Vars from config
     private boolean isDebugViewEnabled;
+    private boolean isOverrideSurfaceDetectionEnabled;
 
     public CavernCarverController(World worldIn, ConfigHolder config) {
         this.isDebugViewEnabled = config.debugVisualizer.get();
+        this.isOverrideSurfaceDetectionEnabled = config.overrideSurfaceDetection.get();
 
         // Configure cavern region controller, which determines what type of cavern should be carved in any given region
         float cavernRegionSize = calcCavernRegionSize(config.cavernRegionSize.get(), config.cavernRegionCustomSize.get());
@@ -97,14 +99,16 @@ public class CavernCarverController {
 
                 // Get max height in subchunk. This is needed for calculating the noise cube
                 int maxHeight = 0;
-                for (int x = startX; x < endX; x++) {
-                    for (int z = startZ; z < endZ; z++) {
-                        maxHeight = Math.max(maxHeight, surfaceAltitudes[x][z]);
+                if (!isOverrideSurfaceDetectionEnabled) { // Only necessary if we aren't overriding surface detection
+                    for (int x = startX; x < endX; x++) {
+                        for (int z = startZ; z < endZ; z++) {
+                            maxHeight = Math.max(maxHeight, surfaceAltitudes[x][z]);
+                        }
                     }
-                }
-                for (CarverNoiseRange range : noiseRanges) {
-                    CavernCarver carver = (CavernCarver)range.getCarver();
-                    maxHeight = Math.max(maxHeight, carver.getTopY());
+                    for (CarverNoiseRange range : noiseRanges) {
+                        CavernCarver carver = (CavernCarver) range.getCarver();
+                        maxHeight = Math.max(maxHeight, carver.getTopY());
+                    }
                 }
 
                 for (int offsetX = 0; offsetX < Settings.SUB_CHUNK_SIZE; offsetX++) {
@@ -127,6 +131,10 @@ public class CavernCarverController {
                             CavernCarver carver = (CavernCarver)range.getCarver();
                             int bottomY = carver.getBottomY();
                             int topY = isDebugViewEnabled ? carver.getTopY() : Math.min(surfaceAltitude, carver.getTopY());
+                            if (isOverrideSurfaceDetectionEnabled) {
+                                topY = carver.getTopY();
+                                maxHeight = carver.getTopY();
+                            }
                             float smoothAmp = range.getSmoothAmp(cavernRegionNoise);
                             if (range.getNoiseCube() == null) {
                                 range.setNoiseCube(carver.getNoiseGen().interpolateNoiseCube(startPos, endPos, bottomY, maxHeight));

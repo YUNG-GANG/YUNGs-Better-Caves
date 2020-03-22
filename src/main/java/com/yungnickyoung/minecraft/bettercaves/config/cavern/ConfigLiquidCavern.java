@@ -9,7 +9,7 @@ public class ConfigLiquidCavern {
             "to close off anyway if this value is greater than the surface y-coordinate.")
     @Config.RangeInt(min = 0, max = 255)
     @Config.RequiresWorldRestart
-    public int cavernTop = 30;
+    public int cavernTop = 35;
 
     @Config.Name("Cavern Bottom Altitude")
     @Config.Comment("The bottom cutoff y-coordinate at which Liquid Caverns stop generating.")

@@ -1,6 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves.util;
 
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.ChunkPrimer;
@@ -47,27 +48,6 @@ public class BetterCavesUtil {
         return minHeight;
     }
 
-    /**
-     * Tests every block in a 2x2 "sub-chunk" to get the max surface altitude (y-coordinate) of the sub-chunk.
-     * Note that water blocks also count as the surface.
-     * @param primer primer for chunk
-     * @param subX The x-coordinate of the sub-chunk. Note that this is regular chunk-local x-coordinate divided
-     *             by 2. E.g. If you want the last 2 blocks on the x-axis in the chunk (blocks 14 and 15), use subX = 7.
-     * @param subZ The z-coordinate of the sub-chunk. Note that this is regular chunk-local z-coordinate divided
-     *             by 2. E.g. If you want the last 2 blocks on the z-axis in the chunk (blocks 14 and 15), use subZ = 7.
-     * @return Max surface height of the sub-chunk
-     */
-    public static int getMaxSurfaceAltitudeSubChunk(ChunkPrimer primer, int subX, int subZ)  {
-        int maxHeight = 0;
-        int[] testCoords = {0, 1}; // chunk-local x/z coordinates to test for max height
-
-        for (int x : testCoords)
-            for (int z : testCoords)
-                maxHeight = Math.max(maxHeight, getSurfaceAltitudeForColumn(primer, (subX * 2) + x, (subZ * 2) + z));
-
-        return maxHeight;
-    }
-
     public static int estimateMaxSurfaceAltitudeSubChunk(ChunkPrimer primer, BlockPos startPos, int subChunkSize) {
         int maxHeight = 0;
         int startX = getLocal(startPos.getX());
@@ -82,9 +62,46 @@ public class BetterCavesUtil {
         maxHeight = Math.max(maxHeight, getSurfaceAltitudeForColumn(primer, startX, endZ));
         maxHeight = Math.max(maxHeight, getSurfaceAltitudeForColumn(primer, endX, startZ));
         maxHeight = Math.max(maxHeight, getSurfaceAltitudeForColumn(primer, endX, endZ));
-        maxHeight = Math.max(maxHeight, getSurfaceAltitudeForColumn(primer, (endX - startX) / 2, (endZ - startZ) / 2));
 
         return maxHeight;
+    }
+
+    public static int estimateMinSurfaceAltitudeSubChunk(ChunkPrimer primer, BlockPos startPos, int subChunkSize) {
+        int minHeight = 255;
+        int startX = getLocal(startPos.getX());
+        int startZ = getLocal(startPos.getZ());
+        int endX = startX + subChunkSize - 1;
+        int endZ = startZ + subChunkSize - 1;
+
+        if (subChunkSize == 1)
+            return Math.min(minHeight, getSurfaceAltitudeForColumn(primer, startX, startZ));
+
+        minHeight = Math.min(minHeight, getSurfaceAltitudeForColumn(primer, startX, startZ));
+        minHeight = Math.min(minHeight, getSurfaceAltitudeForColumn(primer, startX, endZ));
+        minHeight = Math.min(minHeight, getSurfaceAltitudeForColumn(primer, endX, startZ));
+        minHeight = Math.min(minHeight, getSurfaceAltitudeForColumn(primer, endX, endZ));
+
+        return minHeight;
+    }
+
+
+    public static int estimateAvgSurfaceAltitudeSubChunk(ChunkPrimer primer, BlockPos startPos, int subChunkSize) {
+        int avgHeight = 0;
+        int startX = getLocal(startPos.getX());
+        int startZ = getLocal(startPos.getZ());
+        int endX = startX + subChunkSize - 1;
+        int endZ = startZ + subChunkSize - 1;
+
+        if (subChunkSize == 1)
+            return getSurfaceAltitudeForColumn(primer, startX, startZ);
+
+        avgHeight += getSurfaceAltitudeForColumn(primer, startX, startZ);
+        avgHeight += getSurfaceAltitudeForColumn(primer, startX, endZ);
+        avgHeight += getSurfaceAltitudeForColumn(primer, endX, startZ);
+        avgHeight += getSurfaceAltitudeForColumn(primer, endX, endZ);
+        avgHeight /= 4;
+
+        return avgHeight;
     }
 
     /**
@@ -118,11 +135,15 @@ public class BetterCavesUtil {
             return 255;
 
         for (int y = bottomY; y <= topY; y++) {
-            if (primer.getBlockState(localX, y, localZ) == Blocks.AIR.getDefaultState() || primer.getBlockState(localX, y, localZ).getMaterial() == Material.WATER)
+            IBlockState blockState = primer.getBlockState(localX, y, localZ);
+            if (
+                    blockState == Blocks.AIR.getDefaultState()
+                    || blockState.getMaterial() == Material.WATER
+            )
                 return y;
         }
 
-        return -1; // Surface somehow not found
+        return 1; // Surface somehow not found
     }
 
     public static String dimensionAsString(int dimensionID, String dimensionName) {

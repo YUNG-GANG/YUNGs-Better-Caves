@@ -95,6 +95,18 @@ public class CavernCarverController {
 
                 noiseRanges.forEach(range -> range.setNoiseCube(null));
 
+                // Get max height in subchunk. This is needed for calculating the noise cube
+                int maxHeight = 0;
+                for (int x = startX; x < endX; x++) {
+                    for (int z = startZ; z < endZ; z++) {
+                        maxHeight = Math.max(maxHeight, surfaceAltitudes[x][z]);
+                    }
+                }
+                for (CarverNoiseRange range : noiseRanges) {
+                    CavernCarver carver = (CavernCarver)range.getCarver();
+                    maxHeight = Math.max(maxHeight, carver.getTopY());
+                }
+
                 for (int offsetX = 0; offsetX < Settings.SUB_CHUNK_SIZE; offsetX++) {
                     for (int offsetZ = 0; offsetZ < Settings.SUB_CHUNK_SIZE; offsetZ++) {
                         int localX = startX + offsetX;
@@ -115,13 +127,12 @@ public class CavernCarverController {
                             CavernCarver carver = (CavernCarver)range.getCarver();
                             int bottomY = carver.getBottomY();
                             int topY = isDebugViewEnabled ? carver.getTopY() : Math.min(surfaceAltitude, carver.getTopY());
-                            boolean isCloseToSurface = surfaceAltitude <= carver.getTopY() + 4;
                             float smoothAmp = range.getSmoothAmp(cavernRegionNoise);
                             if (range.getNoiseCube() == null) {
-                                range.setNoiseCube(carver.getNoiseGen().interpolateNoiseCube(startPos, endPos, bottomY, topY));
+                                range.setNoiseCube(carver.getNoiseGen().interpolateNoiseCube(startPos, endPos, bottomY, maxHeight));
                             }
                             NoiseColumn noiseColumn = range.getNoiseCube().get(offsetX).get(offsetZ);
-                            carver.carveColumn(primer, colPos, topY, smoothAmp, noiseColumn, liquidBlock, isCloseToSurface);
+                            carver.carveColumn(primer, colPos, topY, smoothAmp, noiseColumn, liquidBlock);
                             break;
                         }
                     }

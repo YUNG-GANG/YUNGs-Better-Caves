@@ -10,7 +10,6 @@ import com.yungnickyoung.minecraft.bettercaves.world.bedrock.FlattenBedrock;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.cave.CaveCarverController;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.cavern.CavernCarverController;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.MapGenBase;
@@ -88,12 +87,10 @@ public class MapGenBetterCaves extends MapGenCaves {
             for (int subZ = 0; subZ < 16 / Settings.SUB_CHUNK_SIZE; subZ++) {
                 int startX = subX * Settings.SUB_CHUNK_SIZE;
                 int startZ = subZ * Settings.SUB_CHUNK_SIZE;
-                BlockPos startPos = new BlockPos(chunkX * 16 + startX, 1, chunkZ * 16 + startZ);
-                int maxSurfaceHeight = BetterCavesUtil.estimateMaxSurfaceAltitudeSubChunk(primer, startPos, Settings.SUB_CHUNK_SIZE);
-
                 for (int offsetX = 0; offsetX < Settings.SUB_CHUNK_SIZE; offsetX++) {
                     for (int offsetZ = 0; offsetZ < Settings.SUB_CHUNK_SIZE; offsetZ++) {
-                        surfaceAltitudes[startX + offsetX][startZ + offsetZ] = maxSurfaceHeight;
+                        int surfaceHeight = BetterCavesUtil.getSurfaceAltitudeForColumn(primer, startX + offsetX, startZ + offsetZ);
+                        surfaceAltitudes[startX + offsetX][startZ + offsetZ] = surfaceHeight;
                     }
                 }
             }

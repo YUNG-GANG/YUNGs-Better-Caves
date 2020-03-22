@@ -39,7 +39,7 @@ public class CavernCarver implements ICarver {
         topY = builder.getTopY();
     }
 
-    public void carveColumn(ChunkPrimer primer, BlockPos colPos, int topY, float smoothAmp, NoiseColumn noises, IBlockState liquidBlock, boolean isClosetoSurface) {
+    public void carveColumn(ChunkPrimer primer, BlockPos colPos, int topY, float smoothAmp, NoiseColumn noises, IBlockState liquidBlock) {
         int localX = BetterCavesUtil.getLocal(colPos.getX());
         int localZ = BetterCavesUtil.getLocal(colPos.getZ());
 
@@ -53,10 +53,11 @@ public class CavernCarver implements ICarver {
         if (topY > 255)
             return;
 
-        // Altitude at which caverns start closing off on the top
-        int topTransitionBoundary = isClosetoSurface ? topY - 12 : topY - 4;
+        // Set altitude at which caverns start closing off on the top
+        topY -= 2;
+        int topTransitionBoundary = topY - 6;
 
-        // Altitude at which caverns start closing off on the bottom
+        // Set altitude at which caverns start closing off on the bottom
         int bottomTransitionBoundary = bottomY + 3;
         if (cavernType == CavernType.FLOORED) { // Close off floored caverns more to create "floors"
             bottomTransitionBoundary = bottomY < settings.getLiquidAltitude() ? settings.getLiquidAltitude() + 8 : bottomY + 7;

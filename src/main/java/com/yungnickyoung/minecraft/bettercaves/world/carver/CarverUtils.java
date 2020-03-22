@@ -1,6 +1,5 @@
 package com.yungnickyoung.minecraft.bettercaves.world.carver;
 
-import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSand;
@@ -46,11 +45,6 @@ public class CarverUtils {
         int localZ = BetterCavesUtil.getLocal(blockPos.getZ());
         int y = blockPos.getY();
 
-        // Check for adjacent water blocks to avoid breaking into lakes or oceans
-        if (liquidBlockState != null && liquidBlockState.getMaterial() != Material.WATER) {
-            if (isWaterAdjacent(primer, blockPos)) return;
-        }
-
         IBlockState blockState = primer.getBlockState(localX, y, localZ);
         IBlockState blockStateAbove = primer.getBlockState(localX, y + 1, localZ);
         Biome biome = world.getBiome(blockPos);
@@ -63,12 +57,12 @@ public class CarverUtils {
                 primer.setBlockState(localX, y, localZ, liquidBlockState);
             }
             else {
+                // Check for adjacent water blocks to avoid breaking into lakes or oceans
+                if (isWaterAdjacent(primer, blockPos)) return;
+
                 // Adjust block below if block removed is biome top block
                 if (isTopBlock(world, primer, blockPos) && canReplaceBlock(primer.getBlockState(localX, y - 1, localZ), AIR))
                     primer.setBlockState(localX, y - 1, localZ, biome.topBlock);
-
-                // Replace this block with air, effectively "digging" it out
-                primer.setBlockState(localX, y, localZ, AIR);
 
                 // Replace floating sand with sandstone
                 if (blockStateAbove == SAND)
@@ -79,6 +73,9 @@ public class CarverUtils {
                 // Replace floating gravel with andesite, if enabled
                 if (replaceGravel && blockStateAbove == GRAVEL)
                     primer.setBlockState(localX, y + 1, localZ, ANDESITE);
+
+                // Replace this block with air, effectively "digging" it out
+                primer.setBlockState(localX, y, localZ, AIR);
             }
         }
     }

@@ -21,13 +21,13 @@ public class ConfigFlooredCavern {
     @Config.Comment("Changes height of formations in caverns. Lower value = more open caverns with larger features.")
     @Config.RangeDouble(min = 0, max = 100)
     @Config.RequiresWorldRestart
-    public float yCompression = 1.0f;
+    public float yCompression = 1.3f;
 
     @Config.Name("Compression - Horizontal")
     @Config.Comment("Changes width of formations in caverns. Lower value = more open caverns with larger features.")
     @Config.RangeDouble(min = 0, max = 100)
     @Config.RequiresWorldRestart
-    public float xzCompression = 1.0f;
+    public float xzCompression = 0.7f;
 
     @Config.Name("Floored Cavern Priority")
     @Config.Comment("Determines how frequently Floored Caverns spawn.")

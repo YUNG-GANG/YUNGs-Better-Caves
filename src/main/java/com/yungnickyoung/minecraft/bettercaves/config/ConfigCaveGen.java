@@ -41,7 +41,7 @@ public class ConfigCaveGen {
     @Config.Comment("Replace naturally generated floating gravel on the ocean floor with andesite. " +
             "Can prevent lag due to cascading gravel falling into caverns under the ocean.")
     @Config.RequiresWorldRestart
-    public boolean replaceFloatingGravel = false;
+    public boolean replaceFloatingGravel = true;
 
     @Config.Name("Override Surface Detection")
     @Config.Comment("Ignores surface detection for closing off caves and caverns, forcing them to spawn up until their " +

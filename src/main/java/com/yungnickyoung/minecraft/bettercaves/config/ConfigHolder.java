@@ -144,9 +144,6 @@ public class ConfigHolder {
                 .addToMap(properties);
 
         // Water region settings
-        enableWaterRegions = new ConfigOption<>("Enable Water Regions", Configuration.caveSettings.waterRegions.enableWaterRegions)
-                .setCategory("general.cave & cavern generation.water regions")
-                .addToMap(properties);
         waterRegionFrequency = new ConfigOption<>("Water Region Frequency", Configuration.caveSettings.waterRegions.waterRegionFrequency)
                 .setCategory("general.cave & cavern generation.water regions")
                 .addToMap(properties);
@@ -353,7 +350,6 @@ public class ConfigHolder {
     public ConfigOption<Integer>         flooredCavernPriority;
 
     // Water region settings
-    public ConfigOption<Boolean>              enableWaterRegions;
     public ConfigOption<WaterRegionFrequency> waterRegionFrequency;
     public ConfigOption<Float>                waterRegionCustomFrequency;
 

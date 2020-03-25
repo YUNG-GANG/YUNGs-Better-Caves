@@ -5,7 +5,7 @@ import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.config.ConfigLoader;
-import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
+import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.bedrock.FlattenBedrock;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.cave.CaveCarverController;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.cavern.CavernCarverController;
@@ -72,7 +72,7 @@ public class MapGenBetterCaves extends MapGenCaves {
         counter--;
         if (counter <= 0) {
             Settings.LOGGER.warn("BETTERCAVESWORLD " + world.getSeed() + " | " +
-                    BetterCavesUtil.dimensionAsString(dimensionID, dimensionName) + " | " +
+                    BetterCavesUtils.dimensionAsString(dimensionID, dimensionName) + " | " +
                     BetterCaves.activeCarversMap.size() + " | " + this.hashCode());
             counter = 200;
         }
@@ -94,7 +94,7 @@ public class MapGenBetterCaves extends MapGenCaves {
                             surfaceHeight = 1; // Don't waste time calculating surface height if it's going to be overridden anyway
                         }
                         else {
-                            surfaceHeight = BetterCavesUtil.getSurfaceAltitudeForColumn(primer, startX + offsetX, startZ + offsetZ);
+                            surfaceHeight = BetterCavesUtils.getSurfaceAltitudeForColumn(primer, startX + offsetX, startZ + offsetZ);
                         }
                         surfaceAltitudes[startX + offsetX][startZ + offsetZ] = surfaceHeight;
                     }
@@ -128,7 +128,7 @@ public class MapGenBetterCaves extends MapGenCaves {
         // in the list will be overwritten.
         BetterCaves.activeCarversMap.put(dimensionID, this);
 
-        Settings.LOGGER.info("BETTERCAVESWORLDINIT " + BetterCavesUtil.dimensionAsString(dimensionID, dimensionName));
+        Settings.LOGGER.info("BETTERCAVESWORLDINIT " + BetterCavesUtils.dimensionAsString(dimensionID, dimensionName));
         Settings.LOGGER.info("# of carvers: "+ BetterCaves.activeCarversMap.size());
 
         // Initialize controllers

@@ -11,8 +11,8 @@ import net.minecraft.world.chunk.ChunkPrimer;
  * This class may not be instantiated - all members are {@code public} and {@code static},
  * and as such may be accessed freely.
  */
-public class BetterCavesUtil {
-    private BetterCavesUtil() {} // Private constructor prevents instantiation
+public class BetterCavesUtils {
+    private BetterCavesUtils() {} // Private constructor prevents instantiation
 
     /**
      * Tests 8 edge points and center of chunk to approximate max surface altitude (y-coordinate) of the chunk.

@@ -4,8 +4,8 @@ package com.yungnickyoung.minecraft.bettercaves.noise;
  * Utility functions related to noise.
  * These are currently only used in the CarverNoiseRange and carver controller classes.
  */
-public class NoiseUtil {
-    private NoiseUtil() {}
+public class NoiseUtils {
+    private NoiseUtils() {}
 
     /**
      * Offsets a Fastnoise simplex noise value by a CDF percent amount.

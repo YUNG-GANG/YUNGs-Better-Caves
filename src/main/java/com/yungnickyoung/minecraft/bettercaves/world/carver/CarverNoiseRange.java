@@ -1,7 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves.world.carver;
 
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseCube;
-import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtil;
+import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtils;
 
 /**
  * Couples the bounds of a particular range of noise values with a NoiseCube and carver.
@@ -33,8 +33,8 @@ public class CarverNoiseRange {
         this.bottom = bottom;
         this.top = top;
         float smoothRangePercent = getPercentLength() * SMOOTH_PERCENT;
-        this.smoothBottomCutoff = NoiseUtil.simplexNoiseOffsetByPercent(bottom, smoothRangePercent);
-        this.smoothTopCutoff = NoiseUtil.simplexNoiseNegativeOffsetByPercent(top, smoothRangePercent);
+        this.smoothBottomCutoff = NoiseUtils.simplexNoiseOffsetByPercent(bottom, smoothRangePercent);
+        this.smoothTopCutoff = NoiseUtils.simplexNoiseNegativeOffsetByPercent(top, smoothRangePercent);
         this.carver = carver;
         this.noiseCube = null;
     }
@@ -54,7 +54,7 @@ public class CarverNoiseRange {
     }
 
     public float getPercentLength() {
-        return (top == 1 ? 1 : NoiseUtil.noiseToCDF(top)) - (bottom == -1 ? 0 : NoiseUtil.noiseToCDF(bottom));
+        return (top == 1 ? 1 : NoiseUtils.noiseToCDF(top)) - (bottom == -1 ? 0 : NoiseUtils.noiseToCDF(bottom));
     }
 
     public ICarver getCarver() {

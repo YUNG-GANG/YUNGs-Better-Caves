@@ -6,7 +6,7 @@ import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.enums.RegionSize;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseColumn;
-import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtil;
+import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverNoiseRange;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -68,12 +68,12 @@ public class CavernCarverController {
         for (CavernCarver carver : carvers) {
             Settings.LOGGER.info("--> CARVER");
             float rangeCDFPercent = (float)carver.getPriority() / totalPriority * spawnChance;
-            float topNoise = NoiseUtil.simplexNoiseOffsetByPercent(currNoise, rangeCDFPercent);
+            float topNoise = NoiseUtils.simplexNoiseOffsetByPercent(currNoise, rangeCDFPercent);
             CarverNoiseRange range = new CarverNoiseRange(currNoise, topNoise, carver);
             noiseRanges.add(range);
 
             // Offset currNoise for deadzone region
-            currNoise = NoiseUtil.simplexNoiseOffsetByPercent(topNoise, deadzonePercent);
+            currNoise = NoiseUtils.simplexNoiseOffsetByPercent(topNoise, deadzonePercent);
 
             Settings.LOGGER.info("    --> RANGE PERCENT LENGTH WANTED: " + rangeCDFPercent);
             Settings.LOGGER.info("    --> RANGE FOUND: " + range);

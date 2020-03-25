@@ -1,6 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.world.carver;
 
-import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
+import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSand;
 import net.minecraft.block.BlockStone;
@@ -41,8 +41,8 @@ public class CarverUtils {
      * @param liquidAltitude altitude at and below which air is replaced with liquidBlockState
      */
     public static void digBlock(World world, ChunkPrimer primer, BlockPos blockPos, IBlockState liquidBlockState, int liquidAltitude, boolean replaceGravel) {
-        int localX = BetterCavesUtil.getLocal(blockPos.getX());
-        int localZ = BetterCavesUtil.getLocal(blockPos.getZ());
+        int localX = BetterCavesUtils.getLocal(blockPos.getX());
+        int localZ = BetterCavesUtils.getLocal(blockPos.getZ());
         int y = blockPos.getY();
 
         IBlockState blockState = primer.getBlockState(localX, y, localZ);
@@ -90,8 +90,8 @@ public class CarverUtils {
      * @param blockState The blockState to set dug out blocks to
      */
     public static void debugDigBlock(ChunkPrimer primer, BlockPos blockPos, IBlockState blockState, boolean digBlock) {
-        int localX = BetterCavesUtil.getLocal(blockPos.getX());
-        int localZ = BetterCavesUtil.getLocal(blockPos.getZ());
+        int localX = BetterCavesUtils.getLocal(blockPos.getX());
+        int localZ = BetterCavesUtils.getLocal(blockPos.getZ());
         int y = blockPos.getY();
 
         if (digBlock)
@@ -109,8 +109,8 @@ public class CarverUtils {
      * @return true if this block is the same type as the biome's designated top block
      */
     public static boolean isTopBlock(World world, ChunkPrimer primer, BlockPos blockPos) {
-        int localX = BetterCavesUtil.getLocal(blockPos.getX());
-        int localZ = BetterCavesUtil.getLocal(blockPos.getZ());
+        int localX = BetterCavesUtils.getLocal(blockPos.getX());
+        int localZ = BetterCavesUtils.getLocal(blockPos.getZ());
         int y = blockPos.getY();
         Biome biome = world.getBiome(blockPos);
         IBlockState blockState = primer.getBlockState(localX, y, localZ);
@@ -166,8 +166,8 @@ public class CarverUtils {
     }
 
     private static boolean isWaterAdjacent(ChunkPrimer primer, BlockPos blockPos) {
-        int localX = BetterCavesUtil.getLocal(blockPos.getX());
-        int localZ = BetterCavesUtil.getLocal(blockPos.getZ());
+        int localX = BetterCavesUtils.getLocal(blockPos.getX());
+        int localZ = BetterCavesUtils.getLocal(blockPos.getZ());
         int y = blockPos.getY();
 
         return primer.getBlockState(localX, y + 1, localZ).getMaterial() == Material.WATER

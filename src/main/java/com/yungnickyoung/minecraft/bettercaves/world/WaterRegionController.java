@@ -5,7 +5,7 @@ import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.enums.RegionSize;
 import com.yungnickyoung.minecraft.bettercaves.enums.WaterRegionFrequency;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
-import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
+import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -24,11 +24,10 @@ public class WaterRegionController {
     private IBlockState lavaBlock;
     private IBlockState waterBlock;
     private float waterRegionThreshold;
-    private boolean enableWaterRegions;
 
     // Constants
-    private final float waterRegionSmoothRange = .035f;
-    private final float waterRegionSmoothDelta = .015f;
+    private static final float SMOOTH_RANGE = .035f;
+    private static final float SMOOTH_DELTA = .015f;
 
     public WaterRegionController(World world, ConfigHolder config) {
         worldSeed = world.getSeed();
@@ -39,7 +38,6 @@ public class WaterRegionController {
         lavaBlock = getLavaBlockFromString(config.lavaBlock.get());
         waterBlock = getWaterBlockFromString(config.waterBlock.get());
         waterRegionThreshold = calcWaterRegionThreshold(config.waterRegionFrequency.get(), config.waterRegionCustomFrequency.get());
-        enableWaterRegions = config.enableWaterRegions.get();
 
         // Water region controller
         float waterRegionSize = config.cavernRegionSize.get() == RegionSize.ExtraLarge ? .001f : .004f;
@@ -64,11 +62,11 @@ public class WaterRegionController {
     public IBlockState getLiquidBlockAtPos(BlockPos blockPos) {
         Random rand = new Random(worldSeed + blockPos.getX() / 16 + blockPos.getZ() / 16);
         IBlockState liquidBlock = lavaBlock;
-        if (enableWaterRegions) {
+        if (waterRegionThreshold > -1f) { // Don't bother calculating noise if water regions are disabled
             float waterRegionNoise = waterRegionController.GetNoise(blockPos.getX(), blockPos.getZ());
 
             // If water region threshold check is passed, change liquid block to water
-            float randOffset = rand.nextFloat() * waterRegionSmoothDelta + waterRegionSmoothRange;
+            float randOffset = rand.nextFloat() * SMOOTH_DELTA + SMOOTH_RANGE;
             if (waterRegionNoise < waterRegionThreshold - randOffset)
                 liquidBlock = waterBlock;
             else if (waterRegionNoise < waterRegionThreshold + randOffset)
@@ -82,6 +80,8 @@ public class WaterRegionController {
      */
     private float calcWaterRegionThreshold(WaterRegionFrequency waterRegionFrequency, float waterRegionCustomFrequency) {
         switch (waterRegionFrequency) {
+            case None:
+                return -1;
             case Rare:
                 return -.4f;
             case Common:
@@ -102,7 +102,7 @@ public class WaterRegionController {
         try {
             lavaBlock = Block.getBlockFromName(lavaString).getDefaultState();
             Settings.LOGGER.info("Using block '" + lavaString + "' as lava in cave generation for dimension " +
-                    BetterCavesUtil.dimensionAsString(dimensionID, dimensionName) + " ...");
+                    BetterCavesUtils.dimensionAsString(dimensionID, dimensionName) + " ...");
         } catch (Exception e) {
             Settings.LOGGER.warn("Unable to use block '" + lavaString + "': " + e);
             Settings.LOGGER.warn("Using vanilla lava instead...");
@@ -120,7 +120,7 @@ public class WaterRegionController {
         try {
             waterBlock = Block.getBlockFromName(waterString).getDefaultState();
             Settings.LOGGER.info("Using block '" + waterString + "' as water in cave generation for dimension " +
-                    BetterCavesUtil.dimensionAsString(dimensionID, dimensionName) + " ...");
+                    BetterCavesUtils.dimensionAsString(dimensionID, dimensionName) + " ...");
         } catch (Exception e) {
             Settings.LOGGER.warn("Unable to use block '" + waterString + "': " + e);
             Settings.LOGGER.warn("Using vanilla water instead...");

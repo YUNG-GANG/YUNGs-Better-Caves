@@ -9,6 +9,7 @@ import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.Random;
@@ -47,30 +48,33 @@ public class WaterRegionController {
         waterRegionController.SetFrequency(waterRegionSize);
     }
 
-    // alternatively, remove enable as an option and allow water regions to have None as frequency
     public IBlockState[][] getLiquidBlocksForChunk(int chunkX, int chunkZ) {
-        Random rand = new Random(worldSeed + chunkX + chunkZ);
         IBlockState[][] blocks = new IBlockState[16][16];
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
-                IBlockState liquidBlock = lavaBlock;
-                if (enableWaterRegions) {
-                    int realX = chunkX * 16 + x;
-                    int realZ = chunkZ * 16 + z;
-
-                    float waterRegionNoise = waterRegionController.GetNoise(realX, realZ);
-
-                    // If water region threshold check is passed, change liquid block to water
-                    float randOffset = rand.nextFloat() * waterRegionSmoothDelta + waterRegionSmoothRange;
-                    if (waterRegionNoise < waterRegionThreshold - randOffset)
-                        liquidBlock = waterBlock;
-                    else if (waterRegionNoise < waterRegionThreshold + randOffset)
-                        liquidBlock = null;
-                }
-                blocks[x][z] = liquidBlock;
+                int realX = chunkX * 16 + x;
+                int realZ = chunkZ * 16 + z;
+                BlockPos pos = new BlockPos(realX, 1, realZ);
+                blocks[x][z] = getLiquidBlockAtPos(pos);
             }
         }
         return blocks;
+    }
+
+    public IBlockState getLiquidBlockAtPos(BlockPos blockPos) {
+        Random rand = new Random(worldSeed + blockPos.getX() / 16 + blockPos.getZ() / 16);
+        IBlockState liquidBlock = lavaBlock;
+        if (enableWaterRegions) {
+            float waterRegionNoise = waterRegionController.GetNoise(blockPos.getX(), blockPos.getZ());
+
+            // If water region threshold check is passed, change liquid block to water
+            float randOffset = rand.nextFloat() * waterRegionSmoothDelta + waterRegionSmoothRange;
+            if (waterRegionNoise < waterRegionThreshold - randOffset)
+                liquidBlock = waterBlock;
+            else if (waterRegionNoise < waterRegionThreshold + randOffset)
+                liquidBlock = null;
+        }
+        return liquidBlock;
     }
 
     /**

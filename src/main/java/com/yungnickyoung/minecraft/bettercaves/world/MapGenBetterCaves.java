@@ -28,7 +28,7 @@ public class MapGenBetterCaves extends MapGenCaves {
     private MapGenBase defaultCaveGen;
 
     // Region Controllers
-    private WaterRegionController waterRegionController;
+    public WaterRegionController waterRegionController;
     private CaveCarverController caveCarverController;
     private CavernCarverController cavernCarverController;
 
@@ -109,7 +109,6 @@ public class MapGenBetterCaves extends MapGenCaves {
         caveCarverController.carveChunk(primer, chunkX, chunkZ, surfaceAltitudes, liquidBlocks);
         cavernCarverController.carveChunk(primer, chunkX, chunkZ, surfaceAltitudes, liquidBlocks);
     }
-
 
     /**
      * Initialize Better Caves carvers and controllers for this dimension.

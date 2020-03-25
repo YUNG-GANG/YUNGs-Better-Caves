@@ -53,8 +53,10 @@ public class CarverUtils {
 
         // Only continue if the block is replaceable
         if (canReplaceBlock(blockState, blockStateAbove) || blockState.getBlock() == biomeTopBlock || blockState.getBlock() == biomeFillerBlock) {
-            if (y <= liquidAltitude && liquidBlockState != null) { // Replace any air below the liquid altitude with the liquid block passed in
-                primer.setBlockState(localX, y, localZ, liquidBlockState);
+            if (y <= liquidAltitude) { // Replace any block below the liquid altitude with the liquid block passed in
+                if (liquidBlockState != null) {
+                    primer.setBlockState(localX, y, localZ, liquidBlockState);
+                }
             }
             else {
                 // Check for adjacent water blocks to avoid breaking into lakes or oceans

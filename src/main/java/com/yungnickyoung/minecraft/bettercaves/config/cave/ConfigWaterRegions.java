@@ -26,5 +26,5 @@ public class ConfigWaterRegions {
             "Always: 1.0")
     @Config.RangeDouble(min = 0, max = 1)
     @Config.RequiresWorldRestart
-    public float customFrequency = 1.0f;
+    public float customFrequency = 0.425f;
 }

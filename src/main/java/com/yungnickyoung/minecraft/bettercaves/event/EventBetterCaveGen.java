@@ -24,7 +24,8 @@ public class EventBetterCaveGen {
     @SubscribeEvent(priority = EventPriority.NORMAL)
     public void onCaveEvent(InitMapGenEvent event) {
         // Only replace cave gen if the original gen passed isn't a Better Cave
-        if (event.getType() == InitMapGenEvent.EventType.CAVE && !event.getOriginalGen().getClass().equals(MapGenBetterCaves.class)) {
+        if ((event.getType() == InitMapGenEvent.EventType.CAVE || event.getType() == InitMapGenEvent.EventType.NETHER_CAVE)
+                && !event.getOriginalGen().getClass().equals(MapGenBetterCaves.class)) {
             Settings.LOGGER.info("INITMAPGENEVENT");
             event.setNewGen(new MapGenBetterCaves(event));
         }

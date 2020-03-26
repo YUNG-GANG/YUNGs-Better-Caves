@@ -45,6 +45,7 @@ public class ConfigLiquidCavern {
     @Config.RequiresWorldRestart
     public int cavernPriority = 10;
 
+    @Config.Ignore
     @Config.Name("Advanced Settings")
     @Config.Comment("Don't mess with these if you don't know what you're doing.")
     public Advanced advancedSettings = new Advanced();

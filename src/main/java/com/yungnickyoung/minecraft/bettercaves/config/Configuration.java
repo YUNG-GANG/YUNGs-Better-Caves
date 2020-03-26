@@ -18,7 +18,7 @@ import net.minecraftforge.common.config.Config;
 @Config(modid = Settings.MOD_ID, name = Settings.NAME)
 public class Configuration {
     @Config.Name("Cave & Cavern Generation")
-    @Config.Comment("Configure parameters controlling cave generation.")
+    @Config.Comment("Configure settings related to cave and cavern generation.")
     public static ConfigCaveGen caveSettings = new ConfigCaveGen();
 
     @Config.Name("Bedrock Generation")
@@ -35,8 +35,10 @@ public class Configuration {
     public static int[] whitelistedDimensionIDs = {0};
 
     @Config.Name("Enable Global Whitelist")
-    @Config.Comment("Automatically enables Better Caves in every possible dimension, except for the Nether and End. " +
-            "If this is enabled, the Whitelisted Dimension IDs option is ignored.")
+    @Config.Comment(
+            "Automatically enables Better Caves in every possible dimension, except for the End.\n" +
+            "    If this is enabled, the Whitelisted Dimension IDs option is ignored.\n" +
+            "Default: false")
     @Config.RequiresWorldRestart
     public static boolean enableGlobalWhitelist = false;
 }

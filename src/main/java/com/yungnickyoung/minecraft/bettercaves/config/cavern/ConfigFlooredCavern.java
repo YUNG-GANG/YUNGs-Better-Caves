@@ -4,81 +4,97 @@ import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import net.minecraftforge.common.config.Config;
 
 public class ConfigFlooredCavern {
-    @Config.Name("Floored Cavern Maximum Altitude")
-    @Config.Comment("The top cutoff y-coordinate of Floored Caverns. Note that caverns will attempt " +
-            "to close off anyway if this value is greater than the surface y-coordinate.")
-    @Config.RangeInt(min = 0, max = 255)
-    @Config.RequiresWorldRestart
-    public int cavernTop = 35;
-
     @Config.Name("Floored Cavern Minimum Altitude")
-    @Config.Comment("The bottom cutoff y-coordinate at which Floored Caverns stop generating.")
+    @Config.Comment(
+            "The minimum y-coordinate at which Floored Caverns can generate.\n" +
+            "Default: 1")
     @Config.RangeInt(min = 0, max = 255)
     @Config.RequiresWorldRestart
     public int cavernBottom = 1;
 
+    @Config.Name("Floored Cavern Maximum Altitude")
+    @Config.Comment(
+            "The maximum y-coordinate at which Floored Caverns can generate.\n" +
+            "    Caverns will attempt to close off anyway if this value is greater than the surface's altitude.\n" +
+            "Default: 35")
+    @Config.RangeInt(min = 0, max = 255)
+    @Config.RequiresWorldRestart
+    public int cavernTop = 35;
+
     @Config.Name("Compression - Vertical")
-    @Config.Comment("Changes height of formations in caverns. Lower value = more open caverns with larger features.")
+    @Config.Comment(
+            "Stretches caverns vertically. Lower value = more open caverns with larger features.\n" +
+            "Default: 1.3")
     @Config.RangeDouble(min = 0, max = 100)
     @Config.RequiresWorldRestart
     public float yCompression = 1.3f;
 
     @Config.Name("Compression - Horizontal")
-    @Config.Comment("Changes width of formations in caverns. Lower value = more open caverns with larger features.")
+    @Config.Comment(
+            "Stretches caverns horizontally. Lower value = more open caverns with larger features.\n" +
+            "Default: 0.7")
     @Config.RangeDouble(min = 0, max = 100)
     @Config.RequiresWorldRestart
     public float xzCompression = 0.7f;
 
     @Config.Name("Floored Cavern Priority")
-    @Config.Comment("Determines how frequently Floored Caverns spawn.")
+    @Config.Comment(
+            "Determines how frequently Floored Caverns spawn. 0 = will not spawn at all.\n" +
+            "Default: 10")
     @Config.RangeInt(min = 0, max = 10)
     @Config.RequiresWorldRestart
     public int cavernPriority = 10;
 
     @Config.Ignore
-    @Config.Name("Noise Threshold")
-    @Config.Comment("Threshold for determining which blocks get mined out as part of cave generation. Higher value = less caves.")
-    @Config.RangeDouble(min = -1.0, max = 1.0)
-    @Config.RequiresWorldRestart
-    public float noiseThreshold = .6f;
+    @Config.Name("Advanced Settings")
+    @Config.Comment("Don't mess with these if you don't know what you're doing.")
+    public Advanced advancedSettings = new Advanced();
 
-    @Config.Ignore
-    @Config.Name("Fractal Octaves")
-    @Config.Comment("The number of octaves used for ridged multi-fractal noise generation.")
-    @Config.RequiresWorldRestart
-    public int fractalOctaves = 1;
+    public class Advanced {
+        @Config.Name("Noise Threshold")
+        @Config.Comment(
+                "Noise threshold for determining which blocks get mined out as part of cavern generation\n" +
+                "    Blocks with generated noise values lower than this threshold will be dug out.\n" +
+                "Default: 0.6")
+        @Config.RangeDouble(min = -1.0, max = 1.0)
+        @Config.RequiresWorldRestart
+        public float noiseThreshold = .6f;
 
-    @Config.Ignore
-    @Config.Name("Fractal Gain")
-    @Config.Comment("The gain for ridged multi-fractal noise generation.")
-    @Config.RequiresWorldRestart
-    public float fractalGain = 0.3f;
+        @Config.Name("Fractal Octaves")
+        @Config.Comment(
+                "The number of octaves used for ridged multi-fractal noise generation.\n" +
+                "Default: 1")
+        @Config.RequiresWorldRestart
+        public int fractalOctaves = 1;
 
-    @Config.Ignore
-    @Config.Name("Fractal Frequency")
-    @Config.Comment("The frequency for ridged multi-fractal noise generation.")
-    @Config.RequiresWorldRestart
-    public float fractalFrequency = 0.028f;
+        @Config.Name("Fractal Gain")
+        @Config.Comment(
+                "The gain for successive octaves of ridged multi-fractal noise generation.\n" +
+                "Default: 0.3")
+        @Config.RequiresWorldRestart
+        public float fractalGain = 0.3f;
 
-    @Config.Ignore
-    @Config.Name("Number of Generators")
-    @Config.Comment("The number of noise generation functions used. The intersection of these functions is" +
-            "used to calculate a single noise value.")
-    @Config.RequiresWorldRestart
-    public int numGenerators = 2;
+        @Config.Name("Fractal Frequency")
+        @Config.Comment(
+                "The frequency for ridged multi-fractal noise generation.\n" +
+                "    This determines how spread out or tightly knit the formations in caverns are.\n" +
+                "Default: 0.028")
+        @Config.RequiresWorldRestart
+        public float fractalFrequency = 0.028f;
 
-    @Config.Ignore
-    @Config.Name("Noise Type")
-    @Config.Comment("Type of noise to use for this cave. \nAccepted values:\n" +
-            "Value\n" +
-            "ValueFractal\n" +
-            "Perlin\n" +
-            "PerlinFractal\n" +
-            "Simplex\n" +
-            "SimplexFractal\n" +
-            "Cellular\n" +
-            "WhiteNoise\n" +
-            "Cubic\n" +
-            "CubicFractal")
-    public FastNoise.NoiseType noiseType = FastNoise.NoiseType.SimplexFractal;
+        @Config.Name("Number of Generators")
+        @Config.Comment(
+                "The number of noise generation functions used.\n" +
+                "    The intersection of these functions is used to calculate a single noise value.\n" +
+                "    Increasing this may decrease performance.\n" +
+                "Default: 2")
+        @Config.RequiresWorldRestart
+        public int numGenerators = 2;
+
+        @Config.Name("Noise Type")
+        @Config.Comment(
+                "Type of noise to use for this cavern. \n" +
+                "Default: SimplexFractal")
+        public FastNoise.NoiseType noiseType = FastNoise.NoiseType.SimplexFractal;
+    }
 }

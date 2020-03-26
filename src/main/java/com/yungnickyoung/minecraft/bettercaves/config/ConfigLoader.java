@@ -81,6 +81,7 @@ public class ConfigLoader {
                 int nameStart = -1, nameEnd = -1;
                 boolean skip = false;
                 boolean quoted = false;
+                boolean isTypeSpecified = false;
                 boolean isFirstNonWhitespaceCharOnLine = true;
 
                 for (int i = 0; i < line.length() && !skip; ++i) {
@@ -145,6 +146,10 @@ public class ConfigLoader {
                                 if (currentCat == null)
                                     throw new RuntimeException(String.format("'%s' has no scope (missing category?) in '%s:%d'", name, fileName, lineNum));
 
+                                if (!isTypeSpecified) {
+                                    Settings.LOGGER.warn(String.format("Error in Better Caves config for %s (line %d): missing variable type specifier. Inferring String...", fileName, lineNum));
+                                }
+
                                 Property prop = new Property(name, line.substring(i + 1), type, true);
                                 String fullName = currentCat.getQualifiedName() + "." + name;
                                 ConfigHolder.ConfigOption target = config.properties.get(fullName);
@@ -178,14 +183,18 @@ public class ConfigLoader {
                                     throw new RuntimeException(String.format("Skipping invalid property in config: %s", fullName));
                                 }
 
+                                Settings.LOGGER.info("OVERRIDING CONFIG " + fullName);
+
                                 i = line.length();
                                 break;
                             case ':':
                                 if (tmpList != null) // allow special characters as part of string lists
                                     break;
 
-                                type = Property.Type.tryParse(line.substring(nameStart, nameEnd + 1).charAt(0));
+                                String typeSubstr = line.substring(nameStart, nameEnd + 1);
+                                type = Property.Type.tryParse(typeSubstr.charAt(0));
                                 nameStart = nameEnd = -1;
+                                isTypeSpecified = true;
 
                                 break;
                             case '<':
@@ -226,7 +235,6 @@ public class ConfigLoader {
                         isFirstNonWhitespaceCharOnLine = false;
                     }
                 }
-
                 if (quoted)
                     throw new RuntimeException(String.format("Unmatched quote in '%s:%d'", fileName, lineNum));
                 else if (tmpList != null && !skip)

@@ -4,8 +4,8 @@ import net.minecraftforge.common.config.Config;
 
 public class ConfigBedrockGen {
     @Config.Name("Flatten Bedrock")
-    @Config.Comment("Set this to true to replace the usual bedrock generation pattern with flat layers." +
-            " Activates in all whitelisted dimension, where applicable. The Nether and End are unaffected.")
+    @Config.Comment("Replaces the usual bedrock generation pattern with flat layers.\n" +
+            "    Activates in all whitelisted dimension, where applicable. The End is unaffected.")
     @Config.RequiresWorldRestart
     public boolean flattenBedrock = true;
 

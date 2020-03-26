@@ -22,23 +22,6 @@ public class ConfigHolder {
      */
     public ConfigHolder() {
         /* ============================== Settings Visible to User ============================== */
-        // Dimension-wide cave & cavern settings
-        lavaBlock = new ConfigOption<>("Lava Block", Configuration.caveSettings.lavaBlock)
-                .setCategory("general.cave & cavern generation")
-                .addToMap(properties);
-        waterBlock = new ConfigOption<>("Water Block", Configuration.caveSettings.waterBlock)
-                .setCategory("general.cave & cavern generation")
-                .addToMap(properties);
-        liquidAltitude = new ConfigOption<>("Liquid Altitude", Configuration.caveSettings.liquidAltitude)
-                .setCategory("general.cave & cavern generation")
-                .addToMap(properties);
-        replaceFloatingGravel = new ConfigOption<>("Replace Floating Gravel", Configuration.caveSettings.replaceFloatingGravel)
-                .setCategory("general.cave & cavern generation")
-                .addToMap(properties);
-        overrideSurfaceDetection = new ConfigOption<>("Override Surface Detection", Configuration.caveSettings.overrideSurfaceDetection)
-                .setCategory("general.cave & cavern generation")
-                .addToMap(properties);
-
         // Dimension-wide cave settings
         caveRegionSize = new ConfigOption<>("Cave Region Size", Configuration.caveSettings.caves.caveRegionSize)
                 .setCategory("general.cave & cavern generation.caves")
@@ -148,6 +131,23 @@ public class ConfigHolder {
                 .setCategory("general.cave & cavern generation.water regions")
                 .addToMap(properties);
 
+        // Miscellaneous cave & cavern settings
+        lavaBlock = new ConfigOption<>("Lava Block", Configuration.caveSettings.miscellaneous.lavaBlock)
+                .setCategory("general.cave & cavern generation.miscellaneous")
+                .addToMap(properties);
+        waterBlock = new ConfigOption<>("Water Block", Configuration.caveSettings.miscellaneous.waterBlock)
+                .setCategory("general.cave & cavern generation.miscellaneous")
+                .addToMap(properties);
+        liquidAltitude = new ConfigOption<>("Liquid Altitude", Configuration.caveSettings.miscellaneous.liquidAltitude)
+                .setCategory("general.cave & cavern generation.miscellaneous")
+                .addToMap(properties);
+        replaceFloatingGravel = new ConfigOption<>("Replace Floating Gravel", Configuration.caveSettings.miscellaneous.replaceFloatingGravel)
+                .setCategory("general.cave & cavern generation.miscellaneous")
+                .addToMap(properties);
+        overrideSurfaceDetection = new ConfigOption<>("Override Surface Detection", Configuration.caveSettings.miscellaneous.overrideSurfaceDetection)
+                .setCategory("general.cave & cavern generation.miscellaneous")
+                .addToMap(properties);
+
         // Bedrock settings
         flattenBedrock = new ConfigOption<>("Flatten Bedrock", Configuration.bedrockSettings.flattenBedrock)
                 .setCategory("general.bedrock generation")
@@ -166,142 +166,135 @@ public class ConfigHolder {
         // ... because they are very important to cave gen and sensitive to change.
 
         // Cubic (Type 1) cave settings
-        cubicCaveNoiseThreshold = new ConfigOption<>("Noise Threshold", Configuration.caveSettings.caves.cubicCave.noiseThreshold)
+        cubicCaveNoiseThreshold = new ConfigOption<>("Noise Threshold", Configuration.caveSettings.caves.cubicCave.advancedSettings.noiseThreshold)
                 .setCategory("general.cave & cavern generation.caves.type 1 caves.advanced settings")
                 .addToMap(properties)
                 .hidden();
-        cubicCaveFractalOctaves = new ConfigOption<>("Fractal Octaves", Configuration.caveSettings.caves.cubicCave.fractalOctaves)
+        cubicCaveFractalOctaves = new ConfigOption<>("Fractal Octaves", Configuration.caveSettings.caves.cubicCave.advancedSettings.fractalOctaves)
                 .setCategory("general.cave & cavern generation.caves.type 1 caves.advanced settings")
                 .addToMap(properties)
                 .hidden();
-        cubicCaveFractalGain = new ConfigOption<>("Fractal Gain", Configuration.caveSettings.caves.cubicCave.fractalGain)
+        cubicCaveFractalGain = new ConfigOption<>("Fractal Gain", Configuration.caveSettings.caves.cubicCave.advancedSettings.fractalGain)
                 .setCategory("general.cave & cavern generation.caves.type 1 caves.advanced settings")
                 .addToMap(properties)
                 .hidden();
-        cubicCaveFractalFrequency = new ConfigOption<>("Fractal Frequency", Configuration.caveSettings.caves.cubicCave.fractalFrequency)
+        cubicCaveFractalFrequency = new ConfigOption<>("Fractal Frequency", Configuration.caveSettings.caves.cubicCave.advancedSettings.fractalFrequency)
                 .setCategory("general.cave & cavern generation.caves.type 1 caves.advanced settings")
                 .addToMap(properties)
                 .hidden();
-        cubicCaveNumGenerators = new ConfigOption<>("Number of Generators", Configuration.caveSettings.caves.cubicCave.numGenerators)
+        cubicCaveNumGenerators = new ConfigOption<>("Number of Generators", Configuration.caveSettings.caves.cubicCave.advancedSettings.numGenerators)
                 .setCategory("general.cave & cavern generation.caves.type 1 caves.advanced settings")
                 .addToMap(properties)
                 .hidden();
-        cubicCaveEnableVerticalAdjustment = new ConfigOption<>("Enable y-adjustment", Configuration.caveSettings.caves.cubicCave.yAdjust)
+        cubicCaveEnableVerticalAdjustment = new ConfigOption<>("Enable y-adjustment", Configuration.caveSettings.caves.cubicCave.advancedSettings.yAdjust)
                 .setCategory("general.cave & cavern generation.caves.type 1 caves.advanced settings")
                 .addToMap(properties)
                 .hidden();
-        cubicCaveYAdjustF1 = new ConfigOption<>("y-adjustment Variable 1", Configuration.caveSettings.caves.cubicCave.yAdjustF1)
+        cubicCaveYAdjustF1 = new ConfigOption<>("y-adjustment Variable 1", Configuration.caveSettings.caves.cubicCave.advancedSettings.yAdjustF1)
                 .setCategory("general.cave & cavern generation.caves.type 1 caves.advanced settings")
                 .addToMap(properties)
                 .hidden();
-        cubicCaveYAdjustF2 = new ConfigOption<>("y-adjustment Variable 2", Configuration.caveSettings.caves.cubicCave.yAdjustF2)
+        cubicCaveYAdjustF2 = new ConfigOption<>("y-adjustment Variable 2", Configuration.caveSettings.caves.cubicCave.advancedSettings.yAdjustF2)
                 .setCategory("general.cave & cavern generation.caves.type 1 caves.advanced settings")
                 .addToMap(properties)
                 .hidden();
-        cubicCaveNoiseType = new ConfigOption<>("Noise Type", Configuration.caveSettings.caves.cubicCave.noiseType)
+        cubicCaveNoiseType = new ConfigOption<>("Noise Type", Configuration.caveSettings.caves.cubicCave.advancedSettings.noiseType)
                 .setCategory("general.cave & cavern generation.caves.type 1 caves.advanced settings")
                 .addToMap(properties)
                 .hidden();
 
         // Simplex (Type 2) cave settings
-        simplexCaveNoiseThreshold = new ConfigOption<>("Noise Threshold", Configuration.caveSettings.caves.simplexCave.noiseThreshold)
+        simplexCaveNoiseThreshold = new ConfigOption<>("Noise Threshold", Configuration.caveSettings.caves.simplexCave.advancedSettings.noiseThreshold)
                 .setCategory("general.cave & cavern generation.caves.type 2 caves.advanced settings")
                 .addToMap(properties)
                 .hidden();
-        simplexCaveFractalOctaves = new ConfigOption<>("Fractal Octaves", Configuration.caveSettings.caves.simplexCave.fractalOctaves)
+        simplexCaveFractalOctaves = new ConfigOption<>("Fractal Octaves", Configuration.caveSettings.caves.simplexCave.advancedSettings.fractalOctaves)
                 .setCategory("general.cave & cavern generation.caves.type 2 caves.advanced settings")
                 .addToMap(properties)
                 .hidden();
-        simplexCaveFractalGain = new ConfigOption<>("Fractal Gain", Configuration.caveSettings.caves.simplexCave.fractalGain)
+        simplexCaveFractalGain = new ConfigOption<>("Fractal Gain", Configuration.caveSettings.caves.simplexCave.advancedSettings.fractalGain)
                 .setCategory("general.cave & cavern generation.caves.type 2 caves.advanced settings")
                 .addToMap(properties)
                 .hidden();
-        simplexCaveFractalFrequency = new ConfigOption<>("Fractal Frequency", Configuration.caveSettings.caves.simplexCave.fractalFrequency)
+        simplexCaveFractalFrequency = new ConfigOption<>("Fractal Frequency", Configuration.caveSettings.caves.simplexCave.advancedSettings.fractalFrequency)
                 .setCategory("general.cave & cavern generation.caves.type 2 caves.advanced settings")
                 .addToMap(properties)
                 .hidden();
-        simplexCaveNumGenerators = new ConfigOption<>("Number of Generators", Configuration.caveSettings.caves.simplexCave.numGenerators)
+        simplexCaveNumGenerators = new ConfigOption<>("Number of Generators", Configuration.caveSettings.caves.simplexCave.advancedSettings.numGenerators)
                 .setCategory("general.cave & cavern generation.caves.type 2 caves.advanced settings")
                 .addToMap(properties)
                 .hidden();
-        simplexCaveEnableVerticalAdjustment = new ConfigOption<>("Enable y-adjustment", Configuration.caveSettings.caves.simplexCave.yAdjust)
+        simplexCaveEnableVerticalAdjustment = new ConfigOption<>("Enable y-adjustment", Configuration.caveSettings.caves.simplexCave.advancedSettings.yAdjust)
                 .setCategory("general.cave & cavern generation.caves.type 2 caves.advanced settings")
                 .addToMap(properties)
                 .hidden();
-        simplexCaveYAdjustF1 = new ConfigOption<>("y-adjustment Variable 1", Configuration.caveSettings.caves.simplexCave.yAdjustF1)
+        simplexCaveYAdjustF1 = new ConfigOption<>("y-adjustment Variable 1", Configuration.caveSettings.caves.simplexCave.advancedSettings.yAdjustF1)
                 .setCategory("general.cave & cavern generation.caves.type 2 caves.advanced settings")
                 .addToMap(properties)
                 .hidden();
-        simplexCaveYAdjustF2 = new ConfigOption<>("y-adjustment Variable 2", Configuration.caveSettings.caves.simplexCave.yAdjustF2)
+        simplexCaveYAdjustF2 = new ConfigOption<>("y-adjustment Variable 2", Configuration.caveSettings.caves.simplexCave.advancedSettings.yAdjustF2)
                 .setCategory("general.cave & cavern generation.caves.type 2 caves.advanced settings")
                 .addToMap(properties)
                 .hidden();
-        simplexCaveNoiseType = new ConfigOption<>("Noise Type", Configuration.caveSettings.caves.simplexCave.noiseType)
+        simplexCaveNoiseType = new ConfigOption<>("Noise Type", Configuration.caveSettings.caves.simplexCave.advancedSettings.noiseType)
                 .setCategory("general.cave & cavern generation.caves.type 2 caves.advanced settings")
                 .addToMap(properties)
                 .hidden();
 
         //  Liquid cavern settings
-        liquidCavernNoiseThreshold = new ConfigOption<>("Noise Threshold", Configuration.caveSettings.caverns.liquidCavern.noiseThreshold)
+        liquidCavernNoiseThreshold = new ConfigOption<>("Noise Threshold", Configuration.caveSettings.caverns.liquidCavern.advancedSettings.noiseThreshold)
                 .setCategory("general.cave & cavern generation.caverns.liquid caverns.advanced settings")
                 .addToMap(properties)
                 .hidden();
-        liquidCavernFractalOctaves = new ConfigOption<>("Fractal Octaves", Configuration.caveSettings.caverns.liquidCavern.fractalOctaves)
+        liquidCavernFractalOctaves = new ConfigOption<>("Fractal Octaves", Configuration.caveSettings.caverns.liquidCavern.advancedSettings.fractalOctaves)
                 .setCategory("general.cave & cavern generation.caverns.liquid caverns.advanced settings")
                 .addToMap(properties)
                 .hidden();
-        liquidCavernFractalGain = new ConfigOption<>("Fractal Gain", Configuration.caveSettings.caverns.liquidCavern.fractalGain)
+        liquidCavernFractalGain = new ConfigOption<>("Fractal Gain", Configuration.caveSettings.caverns.liquidCavern.advancedSettings.fractalGain)
                 .setCategory("general.cave & cavern generation.caverns.liquid caverns.advanced settings")
                 .addToMap(properties)
                 .hidden();
-        liquidCavernFractalFrequency = new ConfigOption<>("Fractal Frequency", Configuration.caveSettings.caverns.liquidCavern.fractalFrequency)
+        liquidCavernFractalFrequency = new ConfigOption<>("Fractal Frequency", Configuration.caveSettings.caverns.liquidCavern.advancedSettings.fractalFrequency)
                 .setCategory("general.cave & cavern generation.caverns.liquid caverns.advanced settings")
                 .addToMap(properties)
                 .hidden();
-        liquidCavernNumGenerators = new ConfigOption<>("Number of Generators", Configuration.caveSettings.caverns.liquidCavern.numGenerators)
+        liquidCavernNumGenerators = new ConfigOption<>("Number of Generators", Configuration.caveSettings.caverns.liquidCavern.advancedSettings.numGenerators)
                 .setCategory("general.cave & cavern generation.caverns.liquid caverns.advanced settings")
                 .addToMap(properties)
                 .hidden();
-        liquidCavernNoiseType = new ConfigOption<>("Noise Type", Configuration.caveSettings.caverns.liquidCavern.noiseType)
+        liquidCavernNoiseType = new ConfigOption<>("Noise Type", Configuration.caveSettings.caverns.liquidCavern.advancedSettings.noiseType)
                 .setCategory("general.cave & cavern generation.caverns.liquid caverns.advanced settings")
                 .addToMap(properties)
                 .hidden();
 
         // Floored cavern settings
-        flooredCavernNoiseThreshold = new ConfigOption<>("Noise Threshold", Configuration.caveSettings.caverns.flooredCavern.noiseThreshold)
+        flooredCavernNoiseThreshold = new ConfigOption<>("Noise Threshold", Configuration.caveSettings.caverns.flooredCavern.advancedSettings.noiseThreshold)
                 .setCategory("general.cave & cavern generation.caverns.floored caverns.advanced settings")
                 .addToMap(properties)
                 .hidden();
-        flooredCavernFractalOctaves = new ConfigOption<>("Fractal Octaves", Configuration.caveSettings.caverns.flooredCavern.fractalOctaves)
+        flooredCavernFractalOctaves = new ConfigOption<>("Fractal Octaves", Configuration.caveSettings.caverns.flooredCavern.advancedSettings.fractalOctaves)
                 .setCategory("general.cave & cavern generation.caverns.floored caverns.advanced settings")
                 .addToMap(properties)
                 .hidden();
-        flooredCavernFractalGain = new ConfigOption<>("Fractal Gain", Configuration.caveSettings.caverns.flooredCavern.fractalGain)
+        flooredCavernFractalGain = new ConfigOption<>("Fractal Gain", Configuration.caveSettings.caverns.flooredCavern.advancedSettings.fractalGain)
                 .setCategory("general.cave & cavern generation.caverns.floored caverns.advanced settings")
                 .addToMap(properties)
                 .hidden();
-        flooredCavernFractalFrequency = new ConfigOption<>("Fractal Frequency", Configuration.caveSettings.caverns.flooredCavern.fractalFrequency)
+        flooredCavernFractalFrequency = new ConfigOption<>("Fractal Frequency", Configuration.caveSettings.caverns.flooredCavern.advancedSettings.fractalFrequency)
                 .setCategory("general.cave & cavern generation.caverns.floored caverns.advanced settings")
                 .addToMap(properties)
                 .hidden();
-        flooredCavernNumGenerators = new ConfigOption<>("Number of Generators", Configuration.caveSettings.caverns.flooredCavern.numGenerators)
+        flooredCavernNumGenerators = new ConfigOption<>("Number of Generators", Configuration.caveSettings.caverns.flooredCavern.advancedSettings.numGenerators)
                 .setCategory("general.cave & cavern generation.caverns.floored caverns.advanced settings")
                 .addToMap(properties)
                 .hidden();
-        flooredCavernNoiseType = new ConfigOption<>("Noise Type", Configuration.caveSettings.caverns.flooredCavern.noiseType)
+        flooredCavernNoiseType = new ConfigOption<>("Noise Type", Configuration.caveSettings.caverns.flooredCavern.advancedSettings.noiseType)
                 .setCategory("general.cave & cavern generation.caverns.floored caverns.advanced settings")
                 .addToMap(properties)
                 .hidden();
     }
 
     /* ============================== Settings Visible to User ============================== */
-    // Dimension-wide cave & cavern settings
-    public ConfigOption<String>     lavaBlock;
-    public ConfigOption<String>     waterBlock;
-    public ConfigOption<Integer>    liquidAltitude;
-    public ConfigOption<Boolean>    replaceFloatingGravel;
-    public ConfigOption<Boolean>    overrideSurfaceDetection;
-
     // Dimension-wide cave settings
     public ConfigOption<RegionSize> caveRegionSize;
     public ConfigOption<Float>      caveRegionCustomSize;
@@ -348,6 +341,13 @@ public class ConfigHolder {
 
     // Water region settings
     public ConfigOption<Float> waterRegionSpawnChance;
+
+    // Miscellaneous cave & cavern settings
+    public ConfigOption<String>     lavaBlock;
+    public ConfigOption<String>     waterBlock;
+    public ConfigOption<Integer>    liquidAltitude;
+    public ConfigOption<Boolean>    replaceFloatingGravel;
+    public ConfigOption<Boolean>    overrideSurfaceDetection;
 
     // Bedrock settings
     public ConfigOption<Boolean> flattenBedrock;

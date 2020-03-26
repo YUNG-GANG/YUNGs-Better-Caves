@@ -166,14 +166,8 @@ public class ConfigLoader {
                                             target.set(prop.getBoolean());
                                             break;
                                         default:
-                                            if (target.type == CaveFrequency.class)
-                                                target.set(CaveFrequency.valueOf(prop.getString()));
-                                            else if (target.type == CavernFrequency.class)
-                                                target.set(CavernFrequency.valueOf(prop.getString()));
-                                            else if (target.type == RegionSize.class)
+                                            if (target.type == RegionSize.class)
                                                 target.set(RegionSize.valueOf(prop.getString()));
-                                            else if (target.type == WaterRegionFrequency.class)
-                                                target.set(WaterRegionFrequency.valueOf(prop.getString()));
                                             else if (target.type == FastNoise.NoiseType.class)
                                                 target.set(FastNoise.NoiseType.valueOf(prop.getString()));
                                             else

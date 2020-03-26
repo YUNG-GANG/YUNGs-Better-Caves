@@ -3,7 +3,6 @@ package com.yungnickyoung.minecraft.bettercaves.world;
 import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.enums.RegionSize;
-import com.yungnickyoung.minecraft.bettercaves.enums.WaterRegionFrequency;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtils;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;

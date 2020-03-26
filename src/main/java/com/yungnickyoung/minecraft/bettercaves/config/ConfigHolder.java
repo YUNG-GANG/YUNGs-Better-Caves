@@ -144,10 +144,7 @@ public class ConfigHolder {
                 .addToMap(properties);
 
         // Water region settings
-        waterRegionFrequency = new ConfigOption<>("Water Region Frequency", Configuration.caveSettings.waterRegions.waterRegionFrequency)
-                .setCategory("general.cave & cavern generation.water regions")
-                .addToMap(properties);
-        waterRegionCustomFrequency = new ConfigOption<>("Water Region Frequency Custom Value", Configuration.caveSettings.waterRegions.customFrequency)
+        waterRegionSpawnChance = new ConfigOption<>("Water Region Spawn Chance", Configuration.caveSettings.waterRegions.waterRegionSpawnChance)
                 .setCategory("general.cave & cavern generation.water regions")
                 .addToMap(properties);
 
@@ -350,8 +347,7 @@ public class ConfigHolder {
     public ConfigOption<Integer>         flooredCavernPriority;
 
     // Water region settings
-    public ConfigOption<WaterRegionFrequency> waterRegionFrequency;
-    public ConfigOption<Float>                waterRegionCustomFrequency;
+    public ConfigOption<Float> waterRegionSpawnChance;
 
     // Bedrock settings
     public ConfigOption<Boolean> flattenBedrock;

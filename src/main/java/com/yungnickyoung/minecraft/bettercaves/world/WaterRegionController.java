@@ -5,6 +5,7 @@ import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.enums.RegionSize;
 import com.yungnickyoung.minecraft.bettercaves.enums.WaterRegionFrequency;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
+import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtils;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -37,7 +38,7 @@ public class WaterRegionController {
         // Vars from config
         lavaBlock = getLavaBlockFromString(config.lavaBlock.get());
         waterBlock = getWaterBlockFromString(config.waterBlock.get());
-        waterRegionThreshold = calcWaterRegionThreshold(config.waterRegionFrequency.get(), config.waterRegionCustomFrequency.get());
+        waterRegionThreshold = NoiseUtils.simplexNoiseOffsetByPercent(-1f, config.waterRegionSpawnChance.get() / 100f);
 
         // Water region controller
         float waterRegionSize = config.cavernRegionSize.get() == RegionSize.ExtraLarge ? .001f : .004f;
@@ -73,28 +74,6 @@ public class WaterRegionController {
                 liquidBlock = null;
         }
         return liquidBlock;
-    }
-
-    /**
-     * @return threshold value for water region spawn rate based on Config setting
-     */
-    private float calcWaterRegionThreshold(WaterRegionFrequency waterRegionFrequency, float waterRegionCustomFrequency) {
-        switch (waterRegionFrequency) {
-            case None:
-                return -1;
-            case Rare:
-                return -.4f;
-            case Common:
-                return .1f;
-            case VeryCommon:
-                return .3f;
-            case Always:
-                return 99f;
-            case Custom:
-                return 2f * waterRegionCustomFrequency - 1;
-            default: // Normal
-                return -.15f;
-        }
     }
 
     private IBlockState getLavaBlockFromString(String lavaString) {

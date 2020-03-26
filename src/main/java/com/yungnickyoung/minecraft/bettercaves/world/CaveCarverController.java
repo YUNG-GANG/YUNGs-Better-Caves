@@ -1,88 +1,93 @@
-package com.yungnickyoung.minecraft.bettercaves.world.carver.cavern;
+package com.yungnickyoung.minecraft.bettercaves.world;
 
 import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.config.Settings;
-import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
+import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
 import com.yungnickyoung.minecraft.bettercaves.enums.RegionSize;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseColumn;
-import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverNoiseRange;
+import com.yungnickyoung.minecraft.bettercaves.world.carver.cave.CaveCarver;
+import com.yungnickyoung.minecraft.bettercaves.world.carver.cave.CaveCarverBuilder;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
+import net.minecraft.world.gen.MapGenBase;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CavernCarverController {
-    private FastNoise cavernRegionController;
+public class CaveCarverController {
+    private World world;
+    private MapGenBase defaultCaveGen;
+    private FastNoise caveRegionController;
     private List<CarverNoiseRange> noiseRanges = new ArrayList<>();
 
     // Vars from config
+    private boolean isVanillaCavesEnabled;
     private boolean isDebugViewEnabled;
     private boolean isOverrideSurfaceDetectionEnabled;
 
-    public CavernCarverController(World worldIn, ConfigHolder config) {
+    public CaveCarverController(World worldIn, ConfigHolder config, MapGenBase defaultCaveGen) {
+        this.world = worldIn;
+        this.defaultCaveGen = defaultCaveGen;
+        this.isVanillaCavesEnabled = config.enableVanillaCaves.get();
         this.isDebugViewEnabled = config.debugVisualizer.get();
         this.isOverrideSurfaceDetectionEnabled = config.overrideSurfaceDetection.get();
 
-        // Configure cavern region controller, which determines what type of cavern should be carved in any given region
-        float cavernRegionSize = calcCavernRegionSize(config.cavernRegionSize.get(), config.cavernRegionCustomSize.get());
-        this.cavernRegionController = new FastNoise();
-        this.cavernRegionController.SetSeed((int)worldIn.getSeed() + 333);
-        this.cavernRegionController.SetFrequency(cavernRegionSize);
+        // Configure cave region controller, which determines what type of cave should be
+        // carved in any given region
+        float caveRegionSize = calcCaveRegionSize(config.caveRegionSize.get(), config.caveRegionCustomSize.get());
+        this.caveRegionController = new FastNoise();
+        this.caveRegionController.SetSeed((int)worldIn.getSeed() + 222);
+        this.caveRegionController.SetFrequency(caveRegionSize);
+        this.caveRegionController.SetNoiseType(FastNoise.NoiseType.Cellular);
+        this.caveRegionController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
         // Initialize all carvers using config options
-        List<CavernCarver> carvers = new ArrayList<>();
-        carvers.add(new CavernCarverBuilder(worldIn)
-                .ofTypeFromConfig(CavernType.LIQUID, config)
-                .debugVisualizerBlock(Blocks.REDSTONE_BLOCK.getDefaultState())
+        List<CaveCarver> carvers = new ArrayList<>();
+        carvers.add(new CaveCarverBuilder(worldIn)
+                .ofTypeFromConfig(CaveType.CUBIC, config)
+                .debugVisualizerBlock(Blocks.PLANKS.getDefaultState())
                 .build()
         );
-        carvers.add(new CavernCarverBuilder(worldIn)
-                .ofTypeFromConfig(CavernType.FLOORED, config)
-                .debugVisualizerBlock(Blocks.GOLD_BLOCK.getDefaultState())
+        carvers.add(new CaveCarverBuilder(worldIn)
+                .ofTypeFromConfig(CaveType.SIMPLEX, config)
+                .debugVisualizerBlock(Blocks.COBBLESTONE.getDefaultState())
                 .build()
         );
 
-        float spawnChance = config.cavernSpawnChance.get() / 100f;
-        int totalPriority = carvers.stream().map(CavernCarver::getPriority).reduce(0, Integer::sum);
-
-        Settings.LOGGER.info("CAVERN INFORMATION");
-        Settings.LOGGER.info("--> SPAWN CHANCE SET TO: " + spawnChance);
-        Settings.LOGGER.info("--> TOTAL PRIORITY: " + totalPriority);
-
-        carvers.removeIf(carver -> carver.getPriority() == 0);
-        float totalDeadzonePercent = 1 - spawnChance;
-        float deadzonePercent = carvers.size() > 1
-                ? totalDeadzonePercent / (carvers.size() - 1)
-                : totalDeadzonePercent;
-
-        Settings.LOGGER.info("--> DEADZONE PERCENT: " + deadzonePercent + "(" + totalDeadzonePercent + " TOTAL)");
-
+        float maxPossibleNoiseThreshold = config.caveSpawnChance.get() * .01f * 2 - 1;
+        int totalPriority = carvers.stream().map(CaveCarver::getPriority).reduce(0, Integer::sum);
+        float totalRangeLength = maxPossibleNoiseThreshold - -1f;
         float currNoise = -1f;
+        carvers.removeIf(carver -> carver.getPriority() == 0);
 
-        for (CavernCarver carver : carvers) {
+        Settings.LOGGER.info("CAVE INFORMATION");
+        Settings.LOGGER.info("--> MAX POSSIBLE THRESHOLD: " + maxPossibleNoiseThreshold);
+        Settings.LOGGER.info("--> TOTAL PRIORITY: " + totalPriority);
+        Settings.LOGGER.info("--> TOTAL RANGE LENGTH: " + totalRangeLength);
+
+        for (CaveCarver carver : carvers) {
             Settings.LOGGER.info("--> CARVER");
-            float rangeCDFPercent = (float)carver.getPriority() / totalPriority * spawnChance;
-            float topNoise = NoiseUtils.simplexNoiseOffsetByPercent(currNoise, rangeCDFPercent);
-            CarverNoiseRange range = new CarverNoiseRange(currNoise, topNoise, carver);
+            float noiseRangeLength = (float)carver.getPriority() / totalPriority * totalRangeLength;
+            float rangeTop = currNoise + noiseRangeLength;
+            CarverNoiseRange range = new CarverNoiseRange(currNoise, rangeTop, carver);
+            currNoise = rangeTop;
             noiseRanges.add(range);
 
-            // Offset currNoise for deadzone region
-            currNoise = NoiseUtils.simplexNoiseOffsetByPercent(topNoise, deadzonePercent);
-
-            Settings.LOGGER.info("    --> RANGE PERCENT LENGTH WANTED: " + rangeCDFPercent);
             Settings.LOGGER.info("    --> RANGE FOUND: " + range);
         }
     }
 
     public void carveChunk(ChunkPrimer primer, int chunkX, int chunkZ, int[][] surfaceAltitudes, IBlockState[][] liquidBlocks) {
-        // Prevent unnecessary computation if caverns are disabled
+        // Prevent unnecessary computation if caves are disabled
         if (noiseRanges.size() == 0) {
+            if (isVanillaCavesEnabled) {
+                defaultCaveGen.generate(world, chunkX, chunkZ, primer);
+            }
             return;
         }
 
@@ -106,7 +111,7 @@ public class CavernCarverController {
                         }
                     }
                     for (CarverNoiseRange range : noiseRanges) {
-                        CavernCarver carver = (CavernCarver) range.getCarver();
+                        CaveCarver carver = (CaveCarver) range.getCarver();
                         maxHeight = Math.max(maxHeight, carver.getTopY());
                     }
                 }
@@ -120,28 +125,36 @@ public class CavernCarverController {
                         int surfaceAltitude = surfaceAltitudes[localX][localZ];
                         IBlockState liquidBlock = liquidBlocks[localX][localZ];
 
-                        // Get noise values used to determine cavern region
-                        float cavernRegionNoise = cavernRegionController.GetNoise(colPos.getX(), colPos.getZ());
+                        // Get noise values used to determine cave region
+                        float caveRegionNoise = caveRegionController.GetNoise(colPos.getX(), colPos.getZ());
+                        boolean carved = false;
 
-                        // Carve cavern using matching carver
+                        // Carve cave using matching carver
                         for (CarverNoiseRange range : noiseRanges) {
-                            if (!range.contains(cavernRegionNoise)) {
+                            if (!range.contains(caveRegionNoise)) {
                                 continue;
                             }
-                            CavernCarver carver = (CavernCarver)range.getCarver();
+                            CaveCarver carver = (CaveCarver)range.getCarver();
                             int bottomY = carver.getBottomY();
-                            int topY = isDebugViewEnabled ? carver.getTopY() : Math.min(surfaceAltitude, carver.getTopY());
+                            int topY = isDebugViewEnabled ? 128 : Math.min(surfaceAltitude, carver.getTopY());
                             if (isOverrideSurfaceDetectionEnabled) {
                                 topY = carver.getTopY();
                                 maxHeight = carver.getTopY();
                             }
-                            float smoothAmp = range.getSmoothAmp(cavernRegionNoise);
                             if (range.getNoiseCube() == null) {
                                 range.setNoiseCube(carver.getNoiseGen().interpolateNoiseCube(startPos, endPos, bottomY, maxHeight));
                             }
                             NoiseColumn noiseColumn = range.getNoiseCube().get(offsetX).get(offsetZ);
-                            carver.carveColumn(primer, colPos, topY, smoothAmp, noiseColumn, liquidBlock);
+                            carver.carveColumn(primer, colPos, topY, noiseColumn, liquidBlock);
+                            carved = true;
                             break;
+                        }
+
+                        if (!carved) {
+                            if (isVanillaCavesEnabled) {
+                                defaultCaveGen.generate(world, chunkX, chunkZ, primer);
+                                return;
+                            }
                         }
                     }
                 }
@@ -150,20 +163,20 @@ public class CavernCarverController {
     }
 
     /**
-     * @return frequency value for cavern region controller
+     * @return frequency value for cave region controller
      */
-    private float calcCavernRegionSize(RegionSize cavernRegionSize, float cavernRegionCustomSize) {
-        switch (cavernRegionSize) {
+    private float calcCaveRegionSize(RegionSize caveRegionSize, float caveRegionCustomSize) {
+        switch (caveRegionSize) {
             case Small:
-                return .01f;
+                return .008f;
             case Large:
-                return .005f;
+                return .0032f;
             case ExtraLarge:
                 return .001f;
             case Custom:
-                return cavernRegionCustomSize;
+                return caveRegionCustomSize;
             default: // Medium
-                return .007f;
+                return .005f;
         }
     }
 }

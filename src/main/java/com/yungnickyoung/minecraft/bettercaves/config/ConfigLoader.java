@@ -47,7 +47,7 @@ public class ConfigLoader {
 
     /**
      * Reads a config file and returns a ConfigHolder with those options.
-     * This function is largely taken from Forge's {@link Configuration#load} method.
+     * The file's format is expected to be compliant with Forge's config file structure.
      * @param file Config File
      * @return ConfigHolder populated with data in file. Any config options not specified in the config file will
      *         use the respective value in the global Better Caves config

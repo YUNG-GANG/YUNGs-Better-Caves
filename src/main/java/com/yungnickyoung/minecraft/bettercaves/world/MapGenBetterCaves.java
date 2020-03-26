@@ -7,8 +7,6 @@ import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.config.ConfigLoader;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.bedrock.FlattenBedrock;
-import com.yungnickyoung.minecraft.bettercaves.world.carver.cave.CaveCarverController;
-import com.yungnickyoung.minecraft.bettercaves.world.carver.cavern.CavernCarverController;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;

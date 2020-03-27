@@ -2,32 +2,32 @@ package com.yungnickyoung.minecraft.bettercaves.event;
 
 import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.world.MapGenBetterCaves;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.world.World;
-import net.minecraft.world.gen.MapGenBase;
-import net.minecraft.world.gen.MapGenCaves;
+import com.yungnickyoung.minecraft.bettercaves.world.mineshaft.MapGenBetterMineshaft;
 import net.minecraftforge.event.terraingen.InitMapGenEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import java.lang.reflect.Field;
-
 /**
- * Replaces vanilla cave generation with Better Caves cave generation.
+ * Replaces vanilla cave generation with Better Caves generation.
  * Should be registered to the {@code TERRAIN_GEN_BUS}.
  */
 public class EventBetterCaveGen {
     /**
-     * Replaces cave gen events with Better Caves cave gen
+     * Replaces cave gen and mineshaft gen
      * @param event Map generation event
      */
     @SubscribeEvent(priority = EventPriority.NORMAL)
-    public void onCaveEvent(InitMapGenEvent event) {
-        // Only replace cave gen if the original gen passed isn't a Better Cave
+    public void onInitMapGenEvent(InitMapGenEvent event) {
+        // Replace cave gen with Better Caves if the original gen passed isn't from Better Caves
         if ((event.getType() == InitMapGenEvent.EventType.CAVE || event.getType() == InitMapGenEvent.EventType.NETHER_CAVE)
                 && !event.getOriginalGen().getClass().equals(MapGenBetterCaves.class)) {
             Settings.LOGGER.info("INITMAPGENEVENT");
             event.setNewGen(new MapGenBetterCaves(event));
+        }
+        // Replace mineshaft gen with Better Caves if the original gen passed in isn't from Better Caves
+        else if (event.getType() == InitMapGenEvent.EventType.MINESHAFT
+                && !event.getOriginalGen().getClass().equals(MapGenBetterMineshaft.class)) {
+            event.setNewGen(new MapGenBetterMineshaft(event));
         }
     }
 }

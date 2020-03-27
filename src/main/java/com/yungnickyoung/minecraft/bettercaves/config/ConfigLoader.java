@@ -32,12 +32,12 @@ public class ConfigLoader {
         File configFile = new File(BetterCaves.customConfigDir, fileName);
 
         if (!configFile.exists() || configFile.isDirectory()) {
-            Settings.LOGGER.info("Better Caves config file for dimension " + dimensionID + " not found. Using global config...");
+            Settings.LOGGER.info(String.format("Better Caves config file for dimension %d not found. Using global config...", dimensionID));
             return new ConfigHolder();
         }
 
         if (!configFile.canRead()) {
-            Settings.LOGGER.warn("Better Caves config file for dimension " + dimensionID + " not readable. Using global config...");
+            Settings.LOGGER.warn(String.format("Better Caves config file for dimension %d not readable. Using global config...", dimensionID));
             return new ConfigHolder();
         }
 
@@ -183,7 +183,7 @@ public class ConfigLoader {
                                     throw new RuntimeException(String.format("Skipping invalid property in config: %s", fullName));
                                 }
 
-                                Settings.LOGGER.info("OVERRIDING CONFIG " + fullName);
+                                Settings.LOGGER.debug(String.format("Overriding config option: %s", fullName));
 
                                 i = line.length();
                                 break;

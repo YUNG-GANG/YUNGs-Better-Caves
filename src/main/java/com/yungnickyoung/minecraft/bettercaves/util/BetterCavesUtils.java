@@ -147,7 +147,7 @@ public class BetterCavesUtils {
     }
 
     public static String dimensionAsString(int dimensionID, String dimensionName) {
-        return "" + dimensionID + " (" + dimensionName + ")";
+        return String.format("%d (%s)", dimensionID, dimensionName);
     }
 
     public static int getLocal(int coordinate) {

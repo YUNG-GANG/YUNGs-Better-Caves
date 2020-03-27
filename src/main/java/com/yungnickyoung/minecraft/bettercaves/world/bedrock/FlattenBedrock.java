@@ -21,14 +21,14 @@ public class FlattenBedrock {
         // Replace normal bedrock at bottom of map with stone
         for (int x = 0; x < 16; x++)
             for (int z = 0; z < 16; z++)
-                for (int y = 0; y < 5; y++)
+                for (int y = 1; y < 5; y++)
                     if (primer.getBlockState(x, y, z) == BEDROCK)
                         primer.setBlockState(x, y, z, replacementBlock);
 
         // Create bedrock layer(s) at bottom of map
         for (int x = 0; x < 16; x++)
             for (int z = 0; z < 16; z++)
-                for (int y = 0; y < bedrockLayerWidth; y++)
+                for (int y = 1; y < bedrockLayerWidth; y++)
                     primer.setBlockState(x, y, z, BEDROCK);
     }
 }

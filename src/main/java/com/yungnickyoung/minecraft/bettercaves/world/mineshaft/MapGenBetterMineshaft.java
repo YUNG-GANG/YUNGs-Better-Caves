@@ -17,6 +17,8 @@ import java.util.Random;
 /**
  * Overrides mineshaft generation to remove pieces of mineshafts within 4 blocks of the liquid altitude.
  * This prevents mineshafts from being at risk of burning from lava at the liquid altitude.
+ *
+ * Note -- this was made before my other mod, YUNG's Better Mineshafts, and is not related to it.
  */
 public class MapGenBetterMineshaft extends MapGenMineshaft {
     // Vanilla mineshaft gen

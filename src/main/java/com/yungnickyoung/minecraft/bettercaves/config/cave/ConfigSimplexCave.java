@@ -67,14 +67,14 @@ public class ConfigSimplexCave {
                 "Default: 0.64")
         @Config.RangeDouble(min = -1.0, max = 1.0)
         @Config.RequiresWorldRestart
-        public float noiseThreshold = .64f;
+        public float noiseThreshold = .82f;
 
         @Config.Name("Fractal Octaves")
         @Config.Comment(
                 "The number of octaves used for ridged multi-fractal noise generation.\n" +
                 "Default: 2")
         @Config.RequiresWorldRestart
-        public int fractalOctaves = 2;
+        public int fractalOctaves = 1;
 
         @Config.Name("Fractal Gain")
         @Config.Comment(
@@ -89,7 +89,7 @@ public class ConfigSimplexCave {
                 "    This determines how spread out or tightly knit cave systems are.\n" +
                 "Default: 0.03")
         @Config.RequiresWorldRestart
-        public float fractalFrequency = 0.03f;
+        public float fractalFrequency = 0.025f;
 
         @Config.Name("Number of Generators")
         @Config.Comment(
@@ -120,7 +120,7 @@ public class ConfigSimplexCave {
                 "    Higher value will tend to increase the headroom in caves.\n" +
                 "Default: 0.9")
         @Config.RangeDouble(min = 0, max = 1f)
-        public float yAdjustF2 = .9f;
+        public float yAdjustF2 = .5f;
 
         @Config.Name("Noise Type")
         @Config.Comment("This value is currently unused for Type 2 caves. ")

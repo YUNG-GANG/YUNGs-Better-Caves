@@ -7,6 +7,7 @@ import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.config.ConfigLoader;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.bedrock.FlattenBedrock;
+import com.yungnickyoung.minecraft.bettercaves.world.carver.surface.SurfaceCaveCarver;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
@@ -29,6 +30,7 @@ public class MapGenBetterCaves extends MapGenCaves {
     public WaterRegionController waterRegionController;
     private CaveCarverController caveCarverController;
     private CavernCarverController cavernCarverController;
+    private SurfaceCaveCarver surfaceCaveCarver;
 
     // Dimension this instance of MapGenBetterCaves is used in
     private int dimensionID;
@@ -106,6 +108,7 @@ public class MapGenBetterCaves extends MapGenCaves {
         // Carve chunk
         caveCarverController.carveChunk(primer, chunkX, chunkZ, surfaceAltitudes, liquidBlocks);
         cavernCarverController.carveChunk(primer, chunkX, chunkZ, surfaceAltitudes, liquidBlocks);
+        surfaceCaveCarver.generate(worldIn, chunkX, chunkZ, primer);
     }
 
     /**
@@ -133,6 +136,7 @@ public class MapGenBetterCaves extends MapGenCaves {
         this.waterRegionController = new WaterRegionController(worldIn, config);
         this.caveCarverController = new CaveCarverController(world, config, defaultCaveGen);
         this.cavernCarverController = new CavernCarverController(worldIn, config);
+        this.surfaceCaveCarver = new SurfaceCaveCarver();
     }
 
     /**

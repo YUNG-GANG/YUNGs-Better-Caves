@@ -9,7 +9,7 @@ public class ConfigCaves {
     public ConfigCubicCave cubicCave = new ConfigCubicCave();
 
     @Config.Name("Type 2 Caves")
-    @Config.Comment("Settings used in the generation of type 2 caves, which are more more chaotic and less regular.")
+    @Config.Comment("Settings used in the generation of type 2 caves, which are more spacious and have more rooms.")
     public ConfigSimplexCave simplexCave = new ConfigSimplexCave();
 
     @Config.Name("Vanilla Caves")

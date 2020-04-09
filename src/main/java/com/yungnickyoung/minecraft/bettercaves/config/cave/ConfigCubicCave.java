@@ -15,20 +15,20 @@ public class ConfigCubicCave {
     @Config.Name("Type 1 Cave Maximum Altitude")
     @Config.Comment(
             "The maximum y-coordinate at which type 1 caves can generate.\n" +
-            "Default: 128")
+            "Default: 80")
     @Config.RangeInt(min = 0, max = 255)
     @Config.RequiresWorldRestart
-    public int caveTop = 128;
+    public int caveTop = 80;
 
     @Config.Name("Type 1 Cave Surface Cutoff Depth")
     @Config.Comment(
             "The depth from a given point on the surface at which type 1 caves start to close off.\n" +
             "    Will use the Max Cave Altitude instead of surface height if it is lower.\n" +
             "    Will use the Max Cave Altitude no matter what if Override Surface Detection is enabled.\n" +
-            "Default: 6 (recommended)")
+            "Default: 15 (recommended)")
     @Config.RangeInt(min = 0, max = 255)
     @Config.RequiresWorldRestart
-    public int caveSurfaceCutoff = 6;
+    public int caveSurfaceCutoff = 15;
 
     @Config.Name("Compression - Vertical")
     @Config.Comment(

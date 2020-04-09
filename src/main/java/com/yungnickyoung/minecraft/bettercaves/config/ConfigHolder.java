@@ -73,13 +73,33 @@ public class ConfigHolder {
                 .setCategory("general.cave & cavern generation.caves.type 1 caves")
                 .addToMap(properties);
 
+        // Surface cave settings
+        isSurfaceCavesEnabled = new ConfigOption<>("Enable Surface Caves", Configuration.caveSettings.caves.surfaceCave.enableSurfaceCaves)
+            .setCategory("general.cave & cavern generation.caves.surface caves")
+            .addToMap(properties);
+        surfaceCaveBottom = new ConfigOption<>("Surface Cave Minimum Altitude", Configuration.caveSettings.caves.surfaceCave.caveBottom)
+            .setCategory("general.cave & cavern generation.caves.surface caves")
+            .addToMap(properties);
+        surfaceCaveTop = new ConfigOption<>("Surface Cave Maximum Altitude", Configuration.caveSettings.caves.surfaceCave.caveTop)
+            .setCategory("general.cave & cavern generation.caves.surface caves")
+            .addToMap(properties);
+        surfaceCaveDensity = new ConfigOption<>("Surface Cave Density", Configuration.caveSettings.caves.surfaceCave.caveDensity)
+            .setCategory("general.cave & cavern generation.caves.surface caves")
+            .addToMap(properties);
+
         // Vanilla cave settings
-        enableVanillaCaves = new ConfigOption<>("Enable Vanilla Caves", Configuration.caveSettings.caves.vanillaCave.enableVanillaCaves)
-                .setCategory("general.cave & cavern generation.caves.vanilla caves")
-                .addToMap(properties);
-        enableVanillaRavines = new ConfigOption<>("Enable Ravines", Configuration.caveSettings.caves.vanillaCave.enableVanillaRavines)
-                .setCategory("general.cave & cavern generation.caves.vanilla caves")
-                .addToMap(properties);
+        vanillaCaveBottom = new ConfigOption<>("Vanilla Cave Minimum Altitude", Configuration.caveSettings.caves.vanillaCave.caveBottom)
+            .setCategory("general.cave & cavern generation.caves.vanilla caves")
+            .addToMap(properties);
+        vanillaCaveTop = new ConfigOption<>("Vanilla Cave Maximum Altitude", Configuration.caveSettings.caves.vanillaCave.caveTop)
+            .setCategory("general.cave & cavern generation.caves.vanilla caves")
+            .addToMap(properties);
+        vanillaCaveDensity = new ConfigOption<>("Vanilla Cave Density", Configuration.caveSettings.caves.vanillaCave.caveDensity)
+            .setCategory("general.cave & cavern generation.caves.vanilla caves")
+            .addToMap(properties);
+        vanillaCavePriority = new ConfigOption<>("Vanilla Cave Priority", Configuration.caveSettings.caves.vanillaCave.cavePriority)
+            .setCategory("general.cave & cavern generation.caves.vanilla caves")
+            .addToMap(properties);
 
         // Dimension-wide cavern settings
         cavernRegionSize = new ConfigOption<>("Cavern Region Size", Configuration.caveSettings.caverns.cavernRegionSize)
@@ -147,6 +167,9 @@ public class ConfigHolder {
         overrideSurfaceDetection = new ConfigOption<>("Override Surface Detection", Configuration.caveSettings.miscellaneous.overrideSurfaceDetection)
                 .setCategory("general.cave & cavern generation.miscellaneous")
                 .addToMap(properties);
+        enableVanillaRavines = new ConfigOption<>("Enable Ravines", Configuration.caveSettings.miscellaneous.enableVanillaRavines)
+            .setCategory("general.cave & cavern generation.miscellaneous")
+            .addToMap(properties);
 
         // Bedrock settings
         flattenBedrock = new ConfigOption<>("Flatten Bedrock", Configuration.bedrockSettings.flattenBedrock)
@@ -301,24 +324,32 @@ public class ConfigHolder {
     public ConfigOption<Float>      caveSpawnChance;
 
     // Cubic (Type 1) cave settings
-    public ConfigOption<Integer>       cubicCaveBottom;
-    public ConfigOption<Integer>       cubicCaveTop;
-    public ConfigOption<Integer>       cubicCaveSurfaceCutoffDepth;
-    public ConfigOption<Float>         cubicCaveYCompression;
-    public ConfigOption<Float>         cubicCaveXZCompression;
-    public ConfigOption<Integer>       cubicCavePriority;
+    public ConfigOption<Integer> cubicCaveBottom;
+    public ConfigOption<Integer> cubicCaveTop;
+    public ConfigOption<Integer> cubicCaveSurfaceCutoffDepth;
+    public ConfigOption<Float>   cubicCaveYCompression;
+    public ConfigOption<Float>   cubicCaveXZCompression;
+    public ConfigOption<Integer> cubicCavePriority;
 
     // Simplex (Type 2) cave settings
-    public ConfigOption<Integer>       simplexCaveBottom;
-    public ConfigOption<Integer>       simplexCaveTop;
-    public ConfigOption<Integer>       simplexCaveSurfaceCutoffDepth;
-    public ConfigOption<Float>         simplexCaveYCompression;
-    public ConfigOption<Float>         simplexCaveXZCompression;
-    public ConfigOption<Integer>       simplexCavePriority;
+    public ConfigOption<Integer> simplexCaveBottom;
+    public ConfigOption<Integer> simplexCaveTop;
+    public ConfigOption<Integer> simplexCaveSurfaceCutoffDepth;
+    public ConfigOption<Float>   simplexCaveYCompression;
+    public ConfigOption<Float>   simplexCaveXZCompression;
+    public ConfigOption<Integer> simplexCavePriority;
+
+    // Surface cave settings
+    public ConfigOption<Boolean> isSurfaceCavesEnabled;
+    public ConfigOption<Integer> surfaceCaveBottom;
+    public ConfigOption<Integer> surfaceCaveTop;
+    public ConfigOption<Integer> surfaceCaveDensity;
 
     // Vanilla cave settings
-    public ConfigOption<Boolean> enableVanillaCaves;
-    public ConfigOption<Boolean> enableVanillaRavines;
+    public ConfigOption<Integer> vanillaCaveBottom;
+    public ConfigOption<Integer> vanillaCaveTop;
+    public ConfigOption<Integer> vanillaCaveDensity;
+    public ConfigOption<Integer> vanillaCavePriority;
 
     // Dimension-wide cavern settings
     public ConfigOption<RegionSize> cavernRegionSize;
@@ -326,28 +357,29 @@ public class ConfigHolder {
     public ConfigOption<Float>      cavernSpawnChance;
 
     // Liquid cavern settings
-    public ConfigOption<Integer>         liquidCavernBottom;
-    public ConfigOption<Integer>         liquidCavernTop;
-    public ConfigOption<Float>           liquidCavernYCompression;
-    public ConfigOption<Float>           liquidCavernXZCompression;
-    public ConfigOption<Integer>         liquidCavernPriority;
+    public ConfigOption<Integer> liquidCavernBottom;
+    public ConfigOption<Integer> liquidCavernTop;
+    public ConfigOption<Float>   liquidCavernYCompression;
+    public ConfigOption<Float>   liquidCavernXZCompression;
+    public ConfigOption<Integer> liquidCavernPriority;
 
     // Floored cavern settings
-    public ConfigOption<Integer>         flooredCavernBottom;
-    public ConfigOption<Integer>         flooredCavernTop;
-    public ConfigOption<Float>           flooredCavernYCompression;
-    public ConfigOption<Float>           flooredCavernXZCompression;
-    public ConfigOption<Integer>         flooredCavernPriority;
+    public ConfigOption<Integer>  flooredCavernBottom;
+    public ConfigOption<Integer>  flooredCavernTop;
+    public ConfigOption<Float>    flooredCavernYCompression;
+    public ConfigOption<Float>    flooredCavernXZCompression;
+    public ConfigOption<Integer>  flooredCavernPriority;
 
     // Water region settings
     public ConfigOption<Float> waterRegionSpawnChance;
 
     // Miscellaneous cave & cavern settings
-    public ConfigOption<String>     lavaBlock;
-    public ConfigOption<String>     waterBlock;
-    public ConfigOption<Integer>    liquidAltitude;
-    public ConfigOption<Boolean>    replaceFloatingGravel;
-    public ConfigOption<Boolean>    overrideSurfaceDetection;
+    public ConfigOption<String>  lavaBlock;
+    public ConfigOption<String>  waterBlock;
+    public ConfigOption<Integer> liquidAltitude;
+    public ConfigOption<Boolean> replaceFloatingGravel;
+    public ConfigOption<Boolean> overrideSurfaceDetection;
+    public ConfigOption<Boolean> enableVanillaRavines;
 
     // Bedrock settings
     public ConfigOption<Boolean> flattenBedrock;

@@ -27,7 +27,7 @@ public class EventBetterCaveGen {
         // Replace mineshaft gen with Better Caves if the original gen passed in isn't from Better Caves
         else if (event.getType() == InitMapGenEvent.EventType.MINESHAFT
                 && !event.getOriginalGen().getClass().equals(MapGenBetterMineshaft.class)) {
-            event.setNewGen(new MapGenBetterMineshaft(event));
+            event.setNewGen(new MapGenBetterMineshaft());
         }
     }
 }

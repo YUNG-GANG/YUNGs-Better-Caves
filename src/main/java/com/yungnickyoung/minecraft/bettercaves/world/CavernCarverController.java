@@ -40,14 +40,14 @@ public class CavernCarverController {
         // Initialize all carvers using config options
         List<CavernCarver> carvers = new ArrayList<>();
         carvers.add(new CavernCarverBuilder(worldIn)
-                .ofTypeFromConfig(CavernType.LIQUID, config)
-                .debugVisualizerBlock(Blocks.REDSTONE_BLOCK.getDefaultState())
-                .build()
+            .ofTypeFromConfig(CavernType.LIQUID, config)
+            .debugVisualizerBlock(Blocks.REDSTONE_BLOCK.getDefaultState())
+            .build()
         );
         carvers.add(new CavernCarverBuilder(worldIn)
-                .ofTypeFromConfig(CavernType.FLOORED, config)
-                .debugVisualizerBlock(Blocks.GOLD_BLOCK.getDefaultState())
-                .build()
+            .ofTypeFromConfig(CavernType.FLOORED, config)
+            .debugVisualizerBlock(Blocks.GOLD_BLOCK.getDefaultState())
+            .build()
         );
 
         float spawnChance = config.cavernSpawnChance.get() / 100f;

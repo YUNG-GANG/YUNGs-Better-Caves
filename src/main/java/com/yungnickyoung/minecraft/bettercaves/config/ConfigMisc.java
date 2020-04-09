@@ -40,4 +40,10 @@ public class ConfigMisc {
             "Default: false")
     @Config.RequiresWorldRestart
     public boolean overrideSurfaceDetection = false;
+
+    @Config.Name("Enable Ravines")
+    @Config.Comment(
+        "Set to true to enable ravine generation.\n" +
+        "Default: true")
+    public boolean enableVanillaRavines = true;
 }

@@ -21,14 +21,7 @@ import java.util.Random;
  * Note -- this was made before my other mod, YUNG's Better Mineshafts, and is not related to it.
  */
 public class MapGenBetterMineshaft extends MapGenMineshaft {
-    // Vanilla mineshaft gen
-    private MapGenBase defaultMineshaftGen;
-
     private int liquidAltitude;
-
-    public MapGenBetterMineshaft(InitMapGenEvent event) {
-        this.defaultMineshaftGen = event.getOriginalGen();
-    }
 
     @Override
     protected StructureStart getStructureStart(int chunkX, int chunkZ) {

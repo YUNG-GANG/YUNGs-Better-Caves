@@ -7,35 +7,41 @@ import com.yungnickyoung.minecraft.bettercaves.enums.RegionSize;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseColumn;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverNoiseRange;
+import com.yungnickyoung.minecraft.bettercaves.world.carver.ICarver;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.cave.CaveCarver;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.cave.CaveCarverBuilder;
+import com.yungnickyoung.minecraft.bettercaves.world.carver.surface.VanillaCaveCarver;
+import com.yungnickyoung.minecraft.bettercaves.world.carver.surface.VanillaCaveCarverBuilder;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
-import net.minecraft.world.gen.MapGenBase;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class CaveCarverController {
     private World world;
-    private MapGenBase defaultCaveGen;
+    private VanillaCaveCarver surfaceCaveCarver; // only used if surface caves enabled
     private FastNoise caveRegionController;
     private List<CarverNoiseRange> noiseRanges = new ArrayList<>();
 
     // Vars from config
-    private boolean isVanillaCavesEnabled;
     private boolean isDebugViewEnabled;
     private boolean isOverrideSurfaceDetectionEnabled;
+    private boolean isSurfaceCavesEnabled;
 
-    public CaveCarverController(World worldIn, ConfigHolder config, MapGenBase defaultCaveGen) {
+    public CaveCarverController(World worldIn, ConfigHolder config) {
         this.world = worldIn;
-        this.defaultCaveGen = defaultCaveGen;
-        this.isVanillaCavesEnabled = config.enableVanillaCaves.get();
         this.isDebugViewEnabled = config.debugVisualizer.get();
         this.isOverrideSurfaceDetectionEnabled = config.overrideSurfaceDetection.get();
+        this.isSurfaceCavesEnabled = config.isSurfaceCavesEnabled.get();
+        this.surfaceCaveCarver = new VanillaCaveCarverBuilder()
+            .bottomY(config.surfaceCaveBottom.get())
+            .topY(config.surfaceCaveTop.get())
+            .density(config.surfaceCaveDensity.get())
+            .build();
 
         // Configure cave region controller, which determines what type of cave should be
         // carved in any given region
@@ -47,30 +53,42 @@ public class CaveCarverController {
         this.caveRegionController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
         // Initialize all carvers using config options
-        List<CaveCarver> carvers = new ArrayList<>();
+        List<ICarver> carvers = new ArrayList<>();
+        // Type 1 caves
         carvers.add(new CaveCarverBuilder(worldIn)
-                .ofTypeFromConfig(CaveType.CUBIC, config)
-                .debugVisualizerBlock(Blocks.PLANKS.getDefaultState())
-                .build()
+            .ofTypeFromConfig(CaveType.CUBIC, config)
+            .debugVisualizerBlock(Blocks.PLANKS.getDefaultState())
+            .build()
         );
+        // Type 2 caves
         carvers.add(new CaveCarverBuilder(worldIn)
-                .ofTypeFromConfig(CaveType.SIMPLEX, config)
-                .debugVisualizerBlock(Blocks.COBBLESTONE.getDefaultState())
-                .build()
+            .ofTypeFromConfig(CaveType.SIMPLEX, config)
+            .debugVisualizerBlock(Blocks.COBBLESTONE.getDefaultState())
+            .build()
         );
+        // Vanilla caves
+        carvers.add(new VanillaCaveCarverBuilder()
+            .bottomY(config.vanillaCaveBottom.get())
+            .topY(config.vanillaCaveTop.get())
+            .density(config.vanillaCaveDensity.get())
+            .priority(config.vanillaCavePriority.get())
+            .build());
 
+        // Remove carvers with no priority
+        carvers.removeIf(carver -> carver.getPriority() == 0);
+
+        // Initialize vars for calculating controller noise thresholds
         float maxPossibleNoiseThreshold = config.caveSpawnChance.get() * .01f * 2 - 1;
-        int totalPriority = carvers.stream().map(CaveCarver::getPriority).reduce(0, Integer::sum);
+        int totalPriority = carvers.stream().map(ICarver::getPriority).reduce(0, Integer::sum);
         float totalRangeLength = maxPossibleNoiseThreshold - -1f;
         float currNoise = -1f;
-        carvers.removeIf(carver -> carver.getPriority() == 0);
 
         Settings.LOGGER.info("CAVE INFORMATION");
         Settings.LOGGER.info("--> MAX POSSIBLE THRESHOLD: " + maxPossibleNoiseThreshold);
         Settings.LOGGER.info("--> TOTAL PRIORITY: " + totalPriority);
         Settings.LOGGER.info("--> TOTAL RANGE LENGTH: " + totalRangeLength);
 
-        for (CaveCarver carver : carvers) {
+        for (ICarver carver : carvers) {
             Settings.LOGGER.info("--> CARVER");
             float noiseRangeLength = (float)carver.getPriority() / totalPriority * totalRangeLength;
             float rangeTop = currNoise + noiseRangeLength;
@@ -85,12 +103,19 @@ public class CaveCarverController {
     public void carveChunk(ChunkPrimer primer, int chunkX, int chunkZ, int[][] surfaceAltitudes, IBlockState[][] liquidBlocks) {
         // Prevent unnecessary computation if caves are disabled
         if (noiseRanges.size() == 0) {
-            if (isVanillaCavesEnabled) {
-                defaultCaveGen.generate(world, chunkX, chunkZ, primer);
-            }
             return;
         }
 
+        // Generate surface caves if enabled
+        if (isSurfaceCavesEnabled) {
+            surfaceCaveCarver.generate(world, chunkX, chunkZ, primer);
+        }
+
+        // Flag to keep track of whether or not we've already carved vanilla caves for this chunk, since
+        // vanilla caves operate on a chunk-by-chunk basis rather than by column
+        boolean carvedVanillaCaves = false;
+
+        // Break into subchunks for noise interpolation
         for (int subX = 0; subX < 16 / Settings.SUB_CHUNK_SIZE; subX++) {
             for (int subZ = 0; subZ < 16 / Settings.SUB_CHUNK_SIZE; subZ++) {
                 int startX = subX * Settings.SUB_CHUNK_SIZE;
@@ -111,8 +136,7 @@ public class CaveCarverController {
                         }
                     }
                     for (CarverNoiseRange range : noiseRanges) {
-                        CaveCarver carver = (CaveCarver) range.getCarver();
-                        maxHeight = Math.max(maxHeight, carver.getTopY());
+                        maxHeight = Math.max(maxHeight, range.getCarver().getTopY());
                     }
                 }
 
@@ -127,33 +151,31 @@ public class CaveCarverController {
 
                         // Get noise values used to determine cave region
                         float caveRegionNoise = caveRegionController.GetNoise(colPos.getX(), colPos.getZ());
-                        boolean carved = false;
 
                         // Carve cave using matching carver
                         for (CarverNoiseRange range : noiseRanges) {
                             if (!range.contains(caveRegionNoise)) {
                                 continue;
                             }
-                            CaveCarver carver = (CaveCarver)range.getCarver();
-                            int bottomY = carver.getBottomY();
-                            int topY = isDebugViewEnabled ? 128 : Math.min(surfaceAltitude, carver.getTopY());
-                            if (isOverrideSurfaceDetectionEnabled) {
-                                topY = carver.getTopY();
-                                maxHeight = carver.getTopY();
+                            if (range.getCarver() instanceof CaveCarver) {
+                                CaveCarver carver = (CaveCarver) range.getCarver();
+                                int bottomY = carver.getBottomY();
+                                int topY = isDebugViewEnabled ? 128 : Math.min(surfaceAltitude, carver.getTopY());
+                                if (isOverrideSurfaceDetectionEnabled) {
+                                    topY = carver.getTopY();
+                                    maxHeight = carver.getTopY();
+                                }
+                                if (range.getNoiseCube() == null) {
+                                    range.setNoiseCube(carver.getNoiseGen().interpolateNoiseCube(startPos, endPos, bottomY, maxHeight));
+                                }
+                                NoiseColumn noiseColumn = range.getNoiseCube().get(offsetX).get(offsetZ);
+                                carver.carveColumn(primer, colPos, topY, noiseColumn, liquidBlock);
+                                break;
                             }
-                            if (range.getNoiseCube() == null) {
-                                range.setNoiseCube(carver.getNoiseGen().interpolateNoiseCube(startPos, endPos, bottomY, maxHeight));
-                            }
-                            NoiseColumn noiseColumn = range.getNoiseCube().get(offsetX).get(offsetZ);
-                            carver.carveColumn(primer, colPos, topY, noiseColumn, liquidBlock);
-                            carved = true;
-                            break;
-                        }
-
-                        if (!carved) {
-                            if (isVanillaCavesEnabled) {
-                                defaultCaveGen.generate(world, chunkX, chunkZ, primer);
-                                return;
+                            else if (range.getCarver() instanceof VanillaCaveCarver && !carvedVanillaCaves) {
+                                VanillaCaveCarver carver = (VanillaCaveCarver)range.getCarver();
+                                carver.generate(world, chunkX, chunkZ, primer, true);
+                                carvedVanillaCaves = true;
                             }
                         }
                     }

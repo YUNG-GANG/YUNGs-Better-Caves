@@ -33,7 +33,7 @@ public class MapGenBetterRavine extends MapGenRavine {
                 super.generate(worldIn, x, z, primer);
             }
         } else { // If carver is for some reason not found, use the global Better Caves config setting
-            if (Configuration.caveSettings.caves.vanillaCave.enableVanillaRavines) {
+            if (Configuration.caveSettings.miscellaneous.enableVanillaRavines) {
                 super.generate(worldIn, x, z, primer);
             }
         }

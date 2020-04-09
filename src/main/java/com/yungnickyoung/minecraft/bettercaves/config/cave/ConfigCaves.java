@@ -9,8 +9,12 @@ public class ConfigCaves {
     public ConfigCubicCave cubicCave = new ConfigCubicCave();
 
     @Config.Name("Type 2 Caves")
-    @Config.Comment("Settings used in the generation of type 2 caves, which are more spacious and have more rooms.")
+    @Config.Comment("Settings used in the generation of type 2 caves, which tend to be more open and spacious.")
     public ConfigSimplexCave simplexCave = new ConfigSimplexCave();
+
+    @Config.Name("Surface Caves")
+    @Config.Comment("Settings used in the generation of vanilla-like caves near the surface.")
+    public ConfigSurfaceCave surfaceCave = new ConfigSurfaceCave();
 
     @Config.Name("Vanilla Caves")
     @Config.Comment("Settings controlling vanilla Minecraft cave generation.")

@@ -22,7 +22,7 @@ public class ConfigVanillaCave {
     @Config.Name("Vanilla Cave Density")
     @Config.Comment(
         "The density of vanilla caves. Higher = more caves, closer together. \n" +
-            "Default: 14")
+            "Default: 14 (value used in vanilla)")
     @Config.RangeInt(min = 0, max = 100)
     @Config.RequiresWorldRestart
     public int caveDensity = 14;

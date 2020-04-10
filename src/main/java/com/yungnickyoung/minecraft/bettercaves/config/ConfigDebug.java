@@ -12,7 +12,8 @@ public class ConfigDebug {
             "    Type 2 Cave: Cobblestone\n" +
             "    Lava Cavern: Redstone Block\n" +
             "    Floored Cavern: Gold Block\n" +
-            "    Water Cavern: Lapis Block\n" +
+            "    Surface Cave: Emerald Block\n" +
+            "    Vanilla Cave: Bricks\n" +
             "Default: false")
     public boolean debugVisualizer = false;
 }

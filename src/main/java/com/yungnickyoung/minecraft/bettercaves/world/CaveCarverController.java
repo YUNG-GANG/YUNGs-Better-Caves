@@ -41,6 +41,10 @@ public class CaveCarverController {
             .bottomY(config.surfaceCaveBottom.get())
             .topY(config.surfaceCaveTop.get())
             .density(config.surfaceCaveDensity.get())
+            .liquidAltitude(config.liquidAltitude.get())
+            .replaceGravel(config.replaceFloatingGravel.get())
+            .debugVisualizerEnabled(config.debugVisualizer.get())
+            .debugVisualizerBlock(Blocks.EMERALD_BLOCK.getDefaultState())
             .build();
 
         // Configure cave region controller, which determines what type of cave should be
@@ -72,6 +76,10 @@ public class CaveCarverController {
             .topY(config.vanillaCaveTop.get())
             .density(config.vanillaCaveDensity.get())
             .priority(config.vanillaCavePriority.get())
+            .liquidAltitude(config.liquidAltitude.get())
+            .replaceGravel(config.replaceFloatingGravel.get())
+            .debugVisualizerEnabled(config.debugVisualizer.get())
+            .debugVisualizerBlock(Blocks.BRICK_BLOCK.getDefaultState())
             .build());
 
         // Remove carvers with no priority
@@ -108,12 +116,16 @@ public class CaveCarverController {
 
         // Generate surface caves if enabled
         if (isSurfaceCavesEnabled) {
-            surfaceCaveCarver.generate(world, chunkX, chunkZ, primer);
+            surfaceCaveCarver.generate(world, chunkX, chunkZ, primer, false, liquidBlocks);
         }
 
         // Flag to keep track of whether or not we've already carved vanilla caves for this chunk, since
         // vanilla caves operate on a chunk-by-chunk basis rather than by column
-        boolean carvedVanillaCaves = false;
+        boolean shouldCarveVanillaCaves = false;
+
+        // Since vanilla caves carve by chunk and not by column, we store an array
+        // indicating which x-z coordinates are valid to be carved in
+        boolean[][] vanillaCarvingMask = new boolean[16][16];
 
         // Break into subchunks for noise interpolation
         for (int subX = 0; subX < 16 / Settings.SUB_CHUNK_SIZE; subX++) {
@@ -172,14 +184,25 @@ public class CaveCarverController {
                                 carver.carveColumn(primer, colPos, topY, noiseColumn, liquidBlock);
                                 break;
                             }
-                            else if (range.getCarver() instanceof VanillaCaveCarver && !carvedVanillaCaves) {
-                                VanillaCaveCarver carver = (VanillaCaveCarver)range.getCarver();
-                                carver.generate(world, chunkX, chunkZ, primer, true);
-                                carvedVanillaCaves = true;
+                            else if (range.getCarver() instanceof VanillaCaveCarver) {
+                                vanillaCarvingMask[localX][localZ] = true;
+                                shouldCarveVanillaCaves = true;
                             }
                         }
                     }
                 }
+            }
+        }
+        if (shouldCarveVanillaCaves) {
+            VanillaCaveCarver carver = null;
+            for (CarverNoiseRange range : noiseRanges) {
+                if (range.getCarver() instanceof VanillaCaveCarver) {
+                    carver = (VanillaCaveCarver) range.getCarver();
+                    break;
+                }
+            }
+            if (carver != null) {
+                carver.generate(world, chunkX, chunkZ, primer, true, liquidBlocks, vanillaCarvingMask);
             }
         }
     }

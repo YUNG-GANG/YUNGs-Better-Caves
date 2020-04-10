@@ -1,5 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.world.carver.cavern;
 
+import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseColumn;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
@@ -37,6 +38,12 @@ public class CavernCarver implements ICarver {
         cavernType = builder.getCavernType();
         bottomY = builder.getBottomY();
         topY = builder.getTopY();
+        if (bottomY > topY) {
+            Settings.LOGGER.warn("Warning: Min altitude for caverns should not be greater than max altitude.");
+            Settings.LOGGER.warn("Using default values...");
+            this.bottomY = 1;
+            this.topY = 35;
+        }
     }
 
     public void carveColumn(ChunkPrimer primer, BlockPos colPos, int topY, float smoothAmp, NoiseColumn noises, IBlockState liquidBlock) {
@@ -98,7 +105,7 @@ public class CavernCarver implements ICarver {
             if (noise < noiseThreshold)
                 digBlock = true;
 
-            BlockPos blockPos = new BlockPos(colPos.getX(), y, colPos.getZ());
+            BlockPos blockPos = new BlockPos(localX, y, localZ);
 
             // Dig out the block if it passed the threshold check, using the debug visualizer if enabled
             if (settings.isEnableDebugVisualizer()) {

@@ -1,5 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.world.carver;
 
+import com.google.common.collect.ImmutableSet;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSand;
@@ -27,6 +28,7 @@ public class CarverUtils {
     private static final IBlockState REDSANDSTONE = Blocks.RED_SANDSTONE.getDefaultState();
     private static final IBlockState GRAVEL = Blocks.GRAVEL.getDefaultState();
     private static final IBlockState ANDESITE = Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.ANDESITE);
+    private static final ImmutableSet<IBlockState> DEBUG_BLOCKS = ImmutableSet.of(Blocks.GOLD_BLOCK.getDefaultState(), Blocks.PLANKS.getDefaultState(), Blocks.COBBLESTONE.getDefaultState(), Blocks.REDSTONE_BLOCK.getDefaultState(), Blocks.EMERALD_BLOCK.getDefaultState(), Blocks.BRICK_BLOCK.getDefaultState());
 
     /**
      * Digs out the current block, default implementation removes stone, filler, and top block.
@@ -82,22 +84,32 @@ public class CarverUtils {
         }
     }
 
-    /**
-     * DEBUG method for visualizing cave systems. Used as a replacement for the {@code digBlock} method if the
-     * debugVisualizer config option is enabled.
-     * @param primer Chunk containing the block
-     * @param blockPos block position
-     * @param blockState The blockState to set dug out blocks to
-     */
+    public static void digBlock(World world, ChunkPrimer primer, int x, int y, int z, IBlockState liquidBlockState, int liquidAltitude, boolean replaceGravel) {
+        digBlock(world, primer, new BlockPos(x, y, z), liquidBlockState, liquidAltitude, replaceGravel);
+    }
+
+        /**
+         * DEBUG method for visualizing cave systems. Used as a replacement for the {@code digBlock} method if the
+         * debugVisualizer config option is enabled.
+         * @param primer Chunk containing the block
+         * @param blockPos block position
+         * @param blockState The blockState to set dug out blocks to
+         */
     public static void debugDigBlock(ChunkPrimer primer, BlockPos blockPos, IBlockState blockState, boolean digBlock) {
         int localX = BetterCavesUtils.getLocal(blockPos.getX());
         int localZ = BetterCavesUtils.getLocal(blockPos.getZ());
         int y = blockPos.getY();
 
+        if (DEBUG_BLOCKS.contains(primer.getBlockState(localX, y, localZ))) return;
+
         if (digBlock)
             primer.setBlockState(localX, y, localZ, blockState);
         else
             primer.setBlockState(localX, y, localZ, Blocks.AIR.getDefaultState());
+    }
+
+    public static void debugDigBlock(ChunkPrimer primer, int x, int y, int z, IBlockState blockState, boolean digBlock) {
+        debugDigBlock(primer, new BlockPos(x, y, z), blockState, digBlock);
     }
 
     /**

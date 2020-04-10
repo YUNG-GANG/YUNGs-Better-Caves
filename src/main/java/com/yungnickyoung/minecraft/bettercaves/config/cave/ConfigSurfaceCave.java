@@ -28,8 +28,8 @@ public class ConfigSurfaceCave {
     @Config.Name("Surface Cave Density")
     @Config.Comment(
         "The density of surface caves. Higher = more caves, closer together. \n" +
-            "Default: 10")
+            "Default: 17")
     @Config.RangeInt(min = 0, max = 100)
     @Config.RequiresWorldRestart
-    public int caveDensity = 10;
+    public int caveDensity = 17;
 }

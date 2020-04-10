@@ -16,6 +16,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkPrimer;
 
 import java.util.ArrayList;
@@ -31,12 +32,14 @@ public class CaveCarverController {
     private boolean isDebugViewEnabled;
     private boolean isOverrideSurfaceDetectionEnabled;
     private boolean isSurfaceCavesEnabled;
+    private boolean isFloodedUndergroundEnabled;
 
     public CaveCarverController(World worldIn, ConfigHolder config) {
         this.world = worldIn;
         this.isDebugViewEnabled = config.debugVisualizer.get();
         this.isOverrideSurfaceDetectionEnabled = config.overrideSurfaceDetection.get();
         this.isSurfaceCavesEnabled = config.isSurfaceCavesEnabled.get();
+        this.isFloodedUndergroundEnabled = config.enableFloodedUnderground.get();
         this.surfaceCaveCarver = new VanillaCaveCarverBuilder()
             .bottomY(config.surfaceCaveBottom.get())
             .topY(config.surfaceCaveTop.get())
@@ -114,10 +117,7 @@ public class CaveCarverController {
             return;
         }
 
-        // Generate surface caves if enabled
-        if (isSurfaceCavesEnabled) {
-            surfaceCaveCarver.generate(world, chunkX, chunkZ, primer, false, liquidBlocks);
-        }
+        boolean flooded;
 
         // Flag to keep track of whether or not we've already carved vanilla caves for this chunk, since
         // vanilla caves operate on a chunk-by-chunk basis rather than by column
@@ -157,6 +157,7 @@ public class CaveCarverController {
                         int localX = startX + offsetX;
                         int localZ = startZ + offsetZ;
                         BlockPos colPos = new BlockPos(chunkX * 16 + localX, 1, chunkZ * 16 + localZ);
+                        flooded = isFloodedUndergroundEnabled && world.getBiome(colPos).getTempCategory() == Biome.TempCategory.OCEAN;
 
                         int surfaceAltitude = surfaceAltitudes[localX][localZ];
                         IBlockState liquidBlock = liquidBlocks[localX][localZ];
@@ -181,7 +182,7 @@ public class CaveCarverController {
                                     range.setNoiseCube(carver.getNoiseGen().interpolateNoiseCube(startPos, endPos, bottomY, maxHeight));
                                 }
                                 NoiseColumn noiseColumn = range.getNoiseCube().get(offsetX).get(offsetZ);
-                                carver.carveColumn(primer, colPos, topY, noiseColumn, liquidBlock);
+                                carver.carveColumn(primer, colPos, topY, noiseColumn, liquidBlock, flooded);
                                 break;
                             }
                             else if (range.getCarver() instanceof VanillaCaveCarver) {
@@ -204,6 +205,10 @@ public class CaveCarverController {
             if (carver != null) {
                 carver.generate(world, chunkX, chunkZ, primer, true, liquidBlocks, vanillaCarvingMask);
             }
+        }
+        // Generate surface caves if enabled
+        if (isSurfaceCavesEnabled) {
+            surfaceCaveCarver.generate(world, chunkX, chunkZ, primer, false, liquidBlocks);
         }
     }
 

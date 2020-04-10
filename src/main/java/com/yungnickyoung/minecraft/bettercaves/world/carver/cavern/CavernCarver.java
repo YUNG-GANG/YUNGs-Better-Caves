@@ -9,6 +9,7 @@ import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverSettings;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.ICarver;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.ChunkPrimer;
 
@@ -46,9 +47,11 @@ public class CavernCarver implements ICarver {
         }
     }
 
-    public void carveColumn(ChunkPrimer primer, BlockPos colPos, int topY, float smoothAmp, NoiseColumn noises, IBlockState liquidBlock) {
+    public void carveColumn(ChunkPrimer primer, BlockPos colPos, int topY, float smoothAmp, NoiseColumn noises, IBlockState liquidBlock, boolean flooded) {
         int localX = BetterCavesUtils.getLocal(colPos.getX());
         int localZ = BetterCavesUtils.getLocal(colPos.getZ());
+
+        IBlockState airBlockState = flooded ? Blocks.WATER.getDefaultState() : Blocks.AIR.getDefaultState();
 
         // Validate vars
         if (localX < 0 || localX > 15)
@@ -111,7 +114,7 @@ public class CavernCarver implements ICarver {
             if (settings.isEnableDebugVisualizer()) {
                 CarverUtils.debugDigBlock(primer, blockPos, settings.getDebugBlock(), digBlock);
             } else if (digBlock) {
-                CarverUtils.digBlock(settings.getWorld(), primer, blockPos, liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel());
+                CarverUtils.digBlock(settings.getWorld(), primer, blockPos, airBlockState, liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel());
             }
         }
     }

@@ -17,9 +17,9 @@ import net.minecraftforge.common.config.Config;
  */
 @Config(modid = Settings.MOD_ID, name = Settings.NAME)
 public class Configuration {
-    @Config.Name("Cave & Cavern Generation")
-    @Config.Comment("Configure settings related to cave and cavern generation.")
-    public static ConfigCaveGen caveSettings = new ConfigCaveGen();
+    @Config.Name("Underground Generation")
+    @Config.Comment("Configure settings related to caves, caverns, ravines and more.")
+    public static ConfigUndergroundGen caveSettings = new ConfigUndergroundGen();
 
     @Config.Name("Bedrock Generation")
     @Config.Comment("Configure how bedrock generates in the overworld and nether.")

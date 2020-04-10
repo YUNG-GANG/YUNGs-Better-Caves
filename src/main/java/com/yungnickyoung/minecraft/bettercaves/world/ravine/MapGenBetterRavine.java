@@ -2,11 +2,9 @@ package com.yungnickyoung.minecraft.bettercaves.world.ravine;
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
-import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.world.MapGenBetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverUtils;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -21,7 +19,8 @@ import net.minecraft.world.gen.MapGenRavine;
 public class MapGenBetterRavine extends MapGenRavine {
     private MapGenBetterCaves carver;
     private int liquidAltitude;
-    private boolean replaceFloatingGravel;
+    private boolean isReplaceFloatingGravel;
+    private boolean isFloodedRavinesEnabled;
 
     @Override
     public void generate(World worldIn, int x, int z, ChunkPrimer primer) {
@@ -33,7 +32,7 @@ public class MapGenBetterRavine extends MapGenRavine {
                 super.generate(worldIn, x, z, primer);
             }
         } else { // If carver is for some reason not found, use the global Better Caves config setting
-            if (Configuration.caveSettings.miscellaneous.enableVanillaRavines) {
+            if (Configuration.caveSettings.ravines.enableVanillaRavines) {
                 super.generate(worldIn, x, z, primer);
             }
         }
@@ -41,14 +40,17 @@ public class MapGenBetterRavine extends MapGenRavine {
 
     @Override
     protected void digBlock(ChunkPrimer primer, int x, int y, int z, int chunkX, int chunkZ, boolean foundTop) {
+        IBlockState liquidBlockState, airBlockState;
         BlockPos pos = new BlockPos(x + chunkX * 16, y, z + chunkZ * 16);
-        IBlockState liquidBlock;
         try {
-            liquidBlock = carver.waterRegionController.getLiquidBlockAtPos(pos);
+            liquidBlockState = carver.waterRegionController.getLiquidBlockAtPos(pos);
         } catch (Exception e) {
-            liquidBlock = Blocks.LAVA.getDefaultState();
+            liquidBlockState = Blocks.LAVA.getDefaultState();
         }
-        CarverUtils.digBlock(world, primer, pos, liquidBlock, liquidAltitude, replaceFloatingGravel);
+        airBlockState = (isFloodedRavinesEnabled && world.getBiome(pos).getTempCategory() == Biome.TempCategory.OCEAN)
+            ? Blocks.WATER.getDefaultState()
+            : AIR;
+        CarverUtils.digBlock(world, primer, pos, airBlockState, liquidBlockState, liquidAltitude, isReplaceFloatingGravel);
     }
 
     // Disable built-in water block checks.
@@ -63,6 +65,7 @@ public class MapGenBetterRavine extends MapGenRavine {
         int dimensionID = worldIn.provider.getDimension();
         this.carver = BetterCaves.activeCarversMap.get(dimensionID);
         this.liquidAltitude = carver.config.liquidAltitude.get();
-        this.replaceFloatingGravel = carver.config.replaceFloatingGravel.get();
+        this.isReplaceFloatingGravel = carver.config.replaceFloatingGravel.get();
+        this.isFloodedRavinesEnabled = carver.config.enableFloodedRavines.get();
     }
 }

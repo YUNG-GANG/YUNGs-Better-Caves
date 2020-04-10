@@ -23,6 +23,7 @@ public class CarverUtils {
 
     /* IBlockStates used in this class */
     private static final IBlockState AIR = Blocks.AIR.getDefaultState();
+    private static final IBlockState WATER = Blocks.WATER.getDefaultState();
     private static final IBlockState SAND = Blocks.SAND.getDefaultState();
     private static final IBlockState SANDSTONE = Blocks.SANDSTONE.getDefaultState();
     private static final IBlockState REDSANDSTONE = Blocks.RED_SANDSTONE.getDefaultState();
@@ -39,10 +40,11 @@ public class CarverUtils {
      * @param world the Minecraft world this block is in
      * @param primer the ChunkPrimer containing the block
      * @param blockPos The block's position
+     * @param airBlockState the BlockState to use for air.
      * @param liquidBlockState the BlockState to use for liquids. May be null if in buffer zone between liquid regions
      * @param liquidAltitude altitude at and below which air is replaced with liquidBlockState
      */
-    public static void digBlock(World world, ChunkPrimer primer, BlockPos blockPos, IBlockState liquidBlockState, int liquidAltitude, boolean replaceGravel) {
+    public static void digBlock(World world, ChunkPrimer primer, BlockPos blockPos, IBlockState airBlockState, IBlockState liquidBlockState, int liquidAltitude, boolean replaceGravel) {
         int localX = BetterCavesUtils.getLocal(blockPos.getX());
         int localZ = BetterCavesUtils.getLocal(blockPos.getZ());
         int y = blockPos.getY();
@@ -55,14 +57,14 @@ public class CarverUtils {
 
         // Only continue if the block is replaceable
         if (canReplaceBlock(blockState, blockStateAbove) || blockState.getBlock() == biomeTopBlock || blockState.getBlock() == biomeFillerBlock) {
-            if (y <= liquidAltitude) { // Replace any block below the liquid altitude with the liquid block passed in
+            if (airBlockState == AIR && y <= liquidAltitude) { // Replace any block below the liquid altitude with the liquid block passed in
                 if (liquidBlockState != null) {
                     primer.setBlockState(localX, y, localZ, liquidBlockState);
                 }
             }
             else {
                 // Check for adjacent water blocks to avoid breaking into lakes or oceans
-                if (isWaterAdjacent(primer, blockPos)) return;
+                if (airBlockState == AIR && isWaterAdjacent(primer, blockPos)) return;
 
                 // Adjust block below if block removed is biome top block
                 if (isTopBlock(world, primer, blockPos) && canReplaceBlock(primer.getBlockState(localX, y - 1, localZ), AIR))
@@ -79,22 +81,30 @@ public class CarverUtils {
                     primer.setBlockState(localX, y + 1, localZ, ANDESITE);
 
                 // Replace this block with air, effectively "digging" it out
-                primer.setBlockState(localX, y, localZ, AIR);
+                primer.setBlockState(localX, y, localZ, airBlockState);
             }
         }
+    }
+
+    public static void digBlock(World world, ChunkPrimer primer, BlockPos blockPos, IBlockState liquidBlockState, int liquidAltitude, boolean replaceGravel) {
+        digBlock(world, primer, blockPos, Blocks.AIR.getDefaultState(), liquidBlockState, liquidAltitude, replaceGravel);
     }
 
     public static void digBlock(World world, ChunkPrimer primer, int x, int y, int z, IBlockState liquidBlockState, int liquidAltitude, boolean replaceGravel) {
         digBlock(world, primer, new BlockPos(x, y, z), liquidBlockState, liquidAltitude, replaceGravel);
     }
 
-        /**
-         * DEBUG method for visualizing cave systems. Used as a replacement for the {@code digBlock} method if the
-         * debugVisualizer config option is enabled.
-         * @param primer Chunk containing the block
-         * @param blockPos block position
-         * @param blockState The blockState to set dug out blocks to
-         */
+    public static void digBlock(World world, ChunkPrimer primer, int x, int y, int z, IBlockState airBlockState, IBlockState liquidBlockState, int liquidAltitude, boolean replaceGravel) {
+        digBlock(world, primer, new BlockPos(x, y, z), airBlockState, liquidBlockState, liquidAltitude, replaceGravel);
+    }
+
+    /**
+     * DEBUG method for visualizing cave systems. Used as a replacement for the {@code digBlock} method if the
+     * debugVisualizer config option is enabled.
+     * @param primer Chunk containing the block
+     * @param blockPos block position
+     * @param blockState The blockState to set dug out blocks to
+     */
     public static void debugDigBlock(ChunkPrimer primer, BlockPos blockPos, IBlockState blockState, boolean digBlock) {
         int localX = BetterCavesUtils.getLocal(blockPos.getX());
         int localZ = BetterCavesUtils.getLocal(blockPos.getZ());

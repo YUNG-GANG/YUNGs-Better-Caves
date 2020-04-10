@@ -69,9 +69,11 @@ public class CaveCarver implements ICarver {
         }
     }
 
-    public void carveColumn(ChunkPrimer primer, BlockPos colPos, int topY, NoiseColumn noises, IBlockState liquidBlock) {
+    public void carveColumn(ChunkPrimer primer, BlockPos colPos, int topY, NoiseColumn noises, IBlockState liquidBlock, boolean flooded) {
         int localX = BetterCavesUtils.getLocal(colPos.getX());
         int localZ = BetterCavesUtils.getLocal(colPos.getZ());
+
+        IBlockState airBlockState = flooded ? Blocks.WATER.getDefaultState() : Blocks.AIR.getDefaultState();
 
         // Validate vars
         if (localX < 0 || localX > 15)
@@ -121,24 +123,22 @@ public class CaveCarver implements ICarver {
                 CarverUtils.debugDigBlock(primer, blockPos, settings.getDebugBlock(), digBlock);
             }
             else if (digBlock) {
-                CarverUtils.digBlock(settings.getWorld(), primer, blockPos, liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel());
+                CarverUtils.digBlock(settings.getWorld(), primer, blockPos, airBlockState, liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel());
             }
         }
 
         /* ============ Post-Processing to remove any singular floating blocks in the ease-in range ============ */
-        IBlockState blockStateAir = Blocks.AIR.getDefaultState();
         for (int y = transitionBoundary + 1; y < topY; y++) {
             if (y < 1)
                 break;
 
             IBlockState currBlock = primer.getBlockState(localX, y, localZ);
 
-            if (CarverUtils.canReplaceBlock(currBlock, blockStateAir)
-                    && primer.getBlockState(localX, y + 1, localZ) == blockStateAir
-                    && primer.getBlockState(localX, y - 1, localZ) == blockStateAir
+            if (CarverUtils.canReplaceBlock(currBlock, Blocks.AIR.getDefaultState())
+                    && primer.getBlockState(localX, y + 1, localZ) == airBlockState
+                    && primer.getBlockState(localX, y - 1, localZ) == airBlockState
             ) {
-                BlockPos blockPos = new BlockPos(colPos.getX(), y, colPos.getZ());
-                CarverUtils.digBlock(settings.getWorld(), primer, blockPos, liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel());
+                CarverUtils.digBlock(settings.getWorld(), primer, localX, y, localZ, liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel());
             }
         }
     }

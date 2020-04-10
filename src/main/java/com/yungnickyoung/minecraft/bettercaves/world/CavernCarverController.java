@@ -14,22 +14,27 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkPrimer;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class CavernCarverController {
+    private World world;
     private FastNoise cavernRegionController;
     private List<CarverNoiseRange> noiseRanges = new ArrayList<>();
 
     // Vars from config
     private boolean isDebugViewEnabled;
     private boolean isOverrideSurfaceDetectionEnabled;
+    private boolean isFloodedUndergroundEnabled;
 
     public CavernCarverController(World worldIn, ConfigHolder config) {
+        this.world = worldIn;
         this.isDebugViewEnabled = config.debugVisualizer.get();
         this.isOverrideSurfaceDetectionEnabled = config.overrideSurfaceDetection.get();
+        this.isFloodedUndergroundEnabled = config.enableFloodedUnderground.get();
 
         // Configure cavern region controller, which determines what type of cavern should be carved in any given region
         float cavernRegionSize = calcCavernRegionSize(config.cavernRegionSize.get(), config.cavernRegionCustomSize.get());
@@ -88,6 +93,8 @@ public class CavernCarverController {
             return;
         }
 
+        boolean flooded;
+
         for (int subX = 0; subX < 16 / Settings.SUB_CHUNK_SIZE; subX++) {
             for (int subZ = 0; subZ < 16 / Settings.SUB_CHUNK_SIZE; subZ++) {
                 int startX = subX * Settings.SUB_CHUNK_SIZE;
@@ -118,6 +125,7 @@ public class CavernCarverController {
                         int localX = startX + offsetX;
                         int localZ = startZ + offsetZ;
                         BlockPos colPos = new BlockPos(chunkX * 16 + localX, 1, chunkZ * 16 + localZ);
+                        flooded = isFloodedUndergroundEnabled && world.getBiome(colPos).getTempCategory() == Biome.TempCategory.OCEAN;
 
                         int surfaceAltitude = surfaceAltitudes[localX][localZ];
                         IBlockState liquidBlock = liquidBlocks[localX][localZ];
@@ -142,7 +150,7 @@ public class CavernCarverController {
                                 range.setNoiseCube(carver.getNoiseGen().interpolateNoiseCube(startPos, endPos, bottomY, maxHeight));
                             }
                             NoiseColumn noiseColumn = range.getNoiseCube().get(offsetX).get(offsetZ);
-                            carver.carveColumn(primer, colPos, topY, smoothAmp, noiseColumn, liquidBlock);
+                            carver.carveColumn(primer, colPos, topY, smoothAmp, noiseColumn, liquidBlock, flooded);
                             break;
                         }
                     }

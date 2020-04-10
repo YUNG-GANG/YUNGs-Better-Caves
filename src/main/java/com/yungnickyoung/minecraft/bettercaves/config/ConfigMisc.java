@@ -41,9 +41,9 @@ public class ConfigMisc {
     @Config.RequiresWorldRestart
     public boolean overrideSurfaceDetection = false;
 
-    @Config.Name("Enable Ravines")
+    @Config.Name("Enable Flooded Underground")
     @Config.Comment(
-        "Set to true to enable ravine generation.\n" +
-        "Default: true")
-    public boolean enableVanillaRavines = true;
+        "Set to true to enable flooded underground in ocean biomes.\n" +
+            "Default: true")
+    public boolean enableFloodedUnderground = true;
 }

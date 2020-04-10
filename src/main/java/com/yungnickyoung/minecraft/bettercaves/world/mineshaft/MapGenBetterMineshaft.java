@@ -7,9 +7,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeMesa;
 import net.minecraft.world.chunk.ChunkPrimer;
-import net.minecraft.world.gen.MapGenBase;
 import net.minecraft.world.gen.structure.*;
-import net.minecraftforge.event.terraingen.InitMapGenEvent;
 
 
 import java.util.Random;

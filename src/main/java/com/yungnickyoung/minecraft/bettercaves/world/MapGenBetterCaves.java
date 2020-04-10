@@ -67,9 +67,10 @@ public class MapGenBetterCaves extends MapGenCaves {
             return;
         }
 
+        // DEBUG
         counter--;
         if (counter <= 0) {
-            Settings.LOGGER.warn("BETTERCAVESWORLD " + world.getSeed() + " | " +
+            Settings.LOGGER.debug("BETTERCAVESWORLD " + world.getSeed() + " | " +
                     BetterCavesUtils.dimensionAsString(dimensionID, dimensionName) + " | " +
                     BetterCaves.activeCarversMap.size() + " | " + this.hashCode());
             counter = 200;
@@ -126,8 +127,9 @@ public class MapGenBetterCaves extends MapGenCaves {
         // in the list will be overwritten.
         BetterCaves.activeCarversMap.put(dimensionID, this);
 
-        Settings.LOGGER.info("BETTERCAVESWORLDINIT " + BetterCavesUtils.dimensionAsString(dimensionID, dimensionName));
-        Settings.LOGGER.info("# of carvers: "+ BetterCaves.activeCarversMap.size());
+        // DEBUG
+        Settings.LOGGER.debug("BETTERCAVESWORLDINIT " + BetterCavesUtils.dimensionAsString(dimensionID, dimensionName));
+        Settings.LOGGER.debug("# of carvers: "+ BetterCaves.activeCarversMap.size());
 
         // Initialize controllers
         this.waterRegionController = new WaterRegionController(worldIn, config);

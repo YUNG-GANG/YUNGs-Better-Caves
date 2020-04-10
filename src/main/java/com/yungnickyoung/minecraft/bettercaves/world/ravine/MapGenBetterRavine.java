@@ -2,6 +2,7 @@ package com.yungnickyoung.minecraft.bettercaves.world.ravine;
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
+import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.MapGenBetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverUtils;
 import net.minecraft.block.state.IBlockState;
@@ -22,6 +23,9 @@ public class MapGenBetterRavine extends MapGenRavine {
     private boolean isReplaceFloatingGravel;
     private boolean isFloodedRavinesEnabled;
 
+    IBlockState[][] currChunkLiquidBlocks;
+    int currChunkX, currChunkZ;
+
     @Override
     public void generate(World worldIn, int x, int z, ChunkPrimer primer) {
         if (carver == null) { // First call - lazy initialization
@@ -40,16 +44,28 @@ public class MapGenBetterRavine extends MapGenRavine {
 
     @Override
     protected void digBlock(ChunkPrimer primer, int x, int y, int z, int chunkX, int chunkZ, boolean foundTop) {
-        IBlockState liquidBlockState, airBlockState;
-        BlockPos pos = new BlockPos(x + chunkX * 16, y, z + chunkZ * 16);
-        try {
-            liquidBlockState = carver.waterRegionController.getLiquidBlockAtPos(pos);
-        } catch (Exception e) {
-            liquidBlockState = Blocks.LAVA.getDefaultState();
+        IBlockState liquidBlockState;
+        if (currChunkLiquidBlocks == null || chunkX != currChunkX || chunkZ != currChunkZ) {
+            try {
+                currChunkLiquidBlocks = carver.waterRegionController.getLiquidBlocksForChunk(chunkX, chunkZ);
+                liquidBlockState = currChunkLiquidBlocks[BetterCavesUtils.getLocal(x)][BetterCavesUtils.getLocal(z)];
+            } catch (Exception e) {
+                liquidBlockState = Blocks.LAVA.getDefaultState();
+            }
         }
-        airBlockState = (isFloodedRavinesEnabled && world.getBiome(pos).getTempCategory() == Biome.TempCategory.OCEAN)
+        else {
+            try {
+                liquidBlockState = currChunkLiquidBlocks[BetterCavesUtils.getLocal(x)][BetterCavesUtils.getLocal(z)];
+            } catch (Exception e) {
+                liquidBlockState = Blocks.LAVA.getDefaultState();
+            }
+        }
+
+        BlockPos pos = new BlockPos(x + chunkX * 16, y, z + chunkZ * 16);
+        IBlockState airBlockState = (isFloodedRavinesEnabled && world.getBiome(pos).getTempCategory() == Biome.TempCategory.OCEAN)
             ? Blocks.WATER.getDefaultState()
             : AIR;
+
         CarverUtils.digBlock(world, primer, pos, airBlockState, liquidBlockState, liquidAltitude, isReplaceFloatingGravel);
     }
 

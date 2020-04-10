@@ -94,20 +94,20 @@ public class CaveCarverController {
         float totalRangeLength = maxPossibleNoiseThreshold - -1f;
         float currNoise = -1f;
 
-        Settings.LOGGER.info("CAVE INFORMATION");
-        Settings.LOGGER.info("--> MAX POSSIBLE THRESHOLD: " + maxPossibleNoiseThreshold);
-        Settings.LOGGER.info("--> TOTAL PRIORITY: " + totalPriority);
-        Settings.LOGGER.info("--> TOTAL RANGE LENGTH: " + totalRangeLength);
+        Settings.LOGGER.debug("CAVE INFORMATION");
+        Settings.LOGGER.debug("--> MAX POSSIBLE THRESHOLD: " + maxPossibleNoiseThreshold);
+        Settings.LOGGER.debug("--> TOTAL PRIORITY: " + totalPriority);
+        Settings.LOGGER.debug("--> TOTAL RANGE LENGTH: " + totalRangeLength);
 
         for (ICarver carver : carvers) {
-            Settings.LOGGER.info("--> CARVER");
+            Settings.LOGGER.debug("--> CARVER");
             float noiseRangeLength = (float)carver.getPriority() / totalPriority * totalRangeLength;
             float rangeTop = currNoise + noiseRangeLength;
             CarverNoiseRange range = new CarverNoiseRange(currNoise, rangeTop, carver);
             currNoise = rangeTop;
             noiseRanges.add(range);
 
-            Settings.LOGGER.info("    --> RANGE FOUND: " + range);
+            Settings.LOGGER.debug("    --> RANGE FOUND: " + range);
         }
     }
 
@@ -173,10 +173,14 @@ public class CaveCarverController {
                             if (range.getCarver() instanceof CaveCarver) {
                                 CaveCarver carver = (CaveCarver) range.getCarver();
                                 int bottomY = carver.getBottomY();
-                                int topY = isDebugViewEnabled ? 128 : Math.min(surfaceAltitude, carver.getTopY());
+                                int topY = Math.min(surfaceAltitude, carver.getTopY());
                                 if (isOverrideSurfaceDetectionEnabled) {
                                     topY = carver.getTopY();
                                     maxHeight = carver.getTopY();
+                                }
+                                if (isDebugViewEnabled) {
+                                    topY = 128;
+                                    maxHeight = 128;
                                 }
                                 if (range.getNoiseCube() == null) {
                                     range.setNoiseCube(carver.getNoiseGen().interpolateNoiseCube(startPos, endPos, bottomY, maxHeight));

@@ -19,6 +19,7 @@ public class WaterRegionController {
     private long worldSeed;
     private int dimensionID;
     private String dimensionName;
+    private Random rand;
 
     // Vars from config
     private IBlockState lavaBlock;
@@ -26,13 +27,14 @@ public class WaterRegionController {
     private float waterRegionThreshold;
 
     // Constants
-    private static final float SMOOTH_RANGE = .035f;
-    private static final float SMOOTH_DELTA = .015f;
+    private static final float SMOOTH_RANGE = .04f;
+    private static final float SMOOTH_DELTA = .01f;
 
     public WaterRegionController(World world, ConfigHolder config) {
         worldSeed = world.getSeed();
         dimensionID = world.provider.getDimension();
         dimensionName = world.provider.getDimensionType().toString();
+        rand = new Random();
 
         // Vars from config
         lavaBlock = getLavaBlockFromString(config.lavaBlock.get());
@@ -47,20 +49,20 @@ public class WaterRegionController {
     }
 
     public IBlockState[][] getLiquidBlocksForChunk(int chunkX, int chunkZ) {
+        rand.setSeed(worldSeed ^ chunkX ^ chunkZ);
         IBlockState[][] blocks = new IBlockState[16][16];
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
                 int realX = chunkX * 16 + x;
                 int realZ = chunkZ * 16 + z;
                 BlockPos pos = new BlockPos(realX, 1, realZ);
-                blocks[x][z] = getLiquidBlockAtPos(pos);
+                blocks[x][z] = getLiquidBlockAtPos(rand, pos);
             }
         }
         return blocks;
     }
 
-    public IBlockState getLiquidBlockAtPos(BlockPos blockPos) {
-        Random rand = new Random(worldSeed + blockPos.getX() / 16 + blockPos.getZ() / 16);
+    private IBlockState getLiquidBlockAtPos(Random rand, BlockPos blockPos) {
         IBlockState liquidBlock = lavaBlock;
         if (waterRegionThreshold > -1f) { // Don't bother calculating noise if water regions are disabled
             float waterRegionNoise = waterRegionController.GetNoise(blockPos.getX(), blockPos.getZ());

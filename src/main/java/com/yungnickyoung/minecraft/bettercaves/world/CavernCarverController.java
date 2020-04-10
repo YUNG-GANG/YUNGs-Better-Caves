@@ -58,9 +58,9 @@ public class CavernCarverController {
         float spawnChance = config.cavernSpawnChance.get() / 100f;
         int totalPriority = carvers.stream().map(CavernCarver::getPriority).reduce(0, Integer::sum);
 
-        Settings.LOGGER.info("CAVERN INFORMATION");
-        Settings.LOGGER.info("--> SPAWN CHANCE SET TO: " + spawnChance);
-        Settings.LOGGER.info("--> TOTAL PRIORITY: " + totalPriority);
+        Settings.LOGGER.debug("CAVERN INFORMATION");
+        Settings.LOGGER.debug("--> SPAWN CHANCE SET TO: " + spawnChance);
+        Settings.LOGGER.debug("--> TOTAL PRIORITY: " + totalPriority);
 
         carvers.removeIf(carver -> carver.getPriority() == 0);
         float totalDeadzonePercent = 1 - spawnChance;
@@ -68,12 +68,12 @@ public class CavernCarverController {
                 ? totalDeadzonePercent / (carvers.size() - 1)
                 : totalDeadzonePercent;
 
-        Settings.LOGGER.info("--> DEADZONE PERCENT: " + deadzonePercent + "(" + totalDeadzonePercent + " TOTAL)");
+        Settings.LOGGER.debug("--> DEADZONE PERCENT: " + deadzonePercent + "(" + totalDeadzonePercent + " TOTAL)");
 
         float currNoise = -1f;
 
         for (CavernCarver carver : carvers) {
-            Settings.LOGGER.info("--> CARVER");
+            Settings.LOGGER.debug("--> CARVER");
             float rangeCDFPercent = (float)carver.getPriority() / totalPriority * spawnChance;
             float topNoise = NoiseUtils.simplexNoiseOffsetByPercent(currNoise, rangeCDFPercent);
             CarverNoiseRange range = new CarverNoiseRange(currNoise, topNoise, carver);
@@ -82,8 +82,8 @@ public class CavernCarverController {
             // Offset currNoise for deadzone region
             currNoise = NoiseUtils.simplexNoiseOffsetByPercent(topNoise, deadzonePercent);
 
-            Settings.LOGGER.info("    --> RANGE PERCENT LENGTH WANTED: " + rangeCDFPercent);
-            Settings.LOGGER.info("    --> RANGE FOUND: " + range);
+            Settings.LOGGER.debug("    --> RANGE PERCENT LENGTH WANTED: " + rangeCDFPercent);
+            Settings.LOGGER.debug("    --> RANGE FOUND: " + range);
         }
     }
 

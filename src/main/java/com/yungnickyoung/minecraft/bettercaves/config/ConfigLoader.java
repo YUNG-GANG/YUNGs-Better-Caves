@@ -65,7 +65,7 @@ public class ConfigLoader {
             buffer = new BufferedReader(input);
 
             String line;
-            ConfigCategory currentCat = null;
+            ConfigCategory currCategory = null;
             Property.Type type = null;
             ArrayList<String> tmpList = null;
             int lineNum = 0;
@@ -117,14 +117,14 @@ public class ConfigLoader {
 
                                 name = line.substring(nameStart, nameEnd + 1);
                                 name = name.toLowerCase(Locale.ENGLISH);
-                                String qualifiedName = ConfigCategory.getQualifiedName(name, currentCat);
+                                String qualifiedName = ConfigCategory.getQualifiedName(name, currCategory);
 
-                                ConfigCategory cat = categories.get(qualifiedName);
-                                if (cat == null) {
-                                    currentCat = new ConfigCategory(name, currentCat);
-                                    categories.put(qualifiedName, currentCat);
+                                ConfigCategory category = categories.get(qualifiedName);
+                                if (category == null) {
+                                    currCategory = new ConfigCategory(name, currCategory);
+                                    categories.put(qualifiedName, currCategory);
                                 } else {
-                                    currentCat = cat;
+                                    currCategory = category;
                                 }
 
                                 name = null;
@@ -132,10 +132,10 @@ public class ConfigLoader {
                             case '}':
                                 if (tmpList != null) // allow special characters as part of string lists
                                     break;
-                                if (currentCat == null)
-                                    throw new RuntimeException(String.format("Config file corrupt -> attempted to close too many categories '%s:%d'", fileName, lineNum));
+                                if (currCategory == null)
+                                    throw new RuntimeException(String.format("Invalid config file: attempted to close too many categories '%s:%d'", fileName, lineNum));
 
-                                currentCat = currentCat.parent;
+                                currCategory = currCategory.parent;
                                 break;
                             case '=':
                                 if (tmpList != null) // allow special characters as part of string lists
@@ -143,7 +143,7 @@ public class ConfigLoader {
 
                                 name = line.substring(nameStart, nameEnd + 1);
 
-                                if (currentCat == null)
+                                if (currCategory == null)
                                     throw new RuntimeException(String.format("'%s' has no scope (missing category?) in '%s:%d'", name, fileName, lineNum));
 
                                 if (!isTypeSpecified) {
@@ -151,7 +151,7 @@ public class ConfigLoader {
                                 }
 
                                 Property prop = new Property(name, line.substring(i + 1), type, true);
-                                String fullName = currentCat.getQualifiedName() + "." + name;
+                                String fullName = currCategory.getQualifiedName() + "." + name;
                                 ConfigHolder.ConfigOption target = config.properties.get(fullName);
 
                                 if (target != null) {
@@ -178,12 +178,12 @@ public class ConfigLoader {
                                             else
                                                 target.set(prop.getString());
                                     }
-                                    currentCat.put(name, prop);
+                                    currCategory.put(name, prop);
                                 } else {
                                     throw new RuntimeException(String.format("Skipping invalid property in config: %s", fullName));
                                 }
 
-                                Settings.LOGGER.debug(String.format("Overriding config option: %s", fullName));
+                                Settings.LOGGER.debug(String.format("Better Caves config: overriding config option: %s", fullName));
 
                                 i = line.length();
                                 break;
@@ -202,7 +202,7 @@ public class ConfigLoader {
                                     throw new RuntimeException(String.format("Malformed list property \"%s:%d\"", fileName, lineNum));
                                 } else if (i + 1 == line.length()) {
                                     name = line.substring(nameStart, nameEnd + 1);
-                                    if (currentCat == null)
+                                    if (currCategory == null)
                                         throw new RuntimeException(String.format("'%s' has no scope (missing category?) in '%s:%d'", name, fileName, lineNum));
 
                                     tmpList = new ArrayList<>();
@@ -215,7 +215,7 @@ public class ConfigLoader {
                                     throw new RuntimeException(String.format("Malformed list property \"%s:%d\"", fileName, lineNum));
 
                                 if (isFirstNonWhitespaceCharOnLine) {
-                                    currentCat.put(name, new Property(name, tmpList.toArray(new String[0]), type));
+                                    currCategory.put(name, new Property(name, tmpList.toArray(new String[0]), type));
                                     name = null;
                                     tmpList = null;
                                     type = null;

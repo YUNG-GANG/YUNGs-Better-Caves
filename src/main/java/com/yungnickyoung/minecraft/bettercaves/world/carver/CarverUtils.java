@@ -23,7 +23,6 @@ public class CarverUtils {
 
     /* IBlockStates used in this class */
     private static final IBlockState AIR = Blocks.AIR.getDefaultState();
-    private static final IBlockState WATER = Blocks.WATER.getDefaultState();
     private static final IBlockState SAND = Blocks.SAND.getDefaultState();
     private static final IBlockState SANDSTONE = Blocks.SANDSTONE.getDefaultState();
     private static final IBlockState REDSANDSTONE = Blocks.RED_SANDSTONE.getDefaultState();

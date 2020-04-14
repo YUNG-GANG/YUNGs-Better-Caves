@@ -93,7 +93,8 @@ public class CavernCarverController {
             return;
         }
 
-        boolean flooded;
+        boolean flooded = false;
+        float smoothAmpFactor = 1;
 
         for (int subX = 0; subX < 16 / Settings.SUB_CHUNK_SIZE; subX++) {
             for (int subZ = 0; subZ < 16 / Settings.SUB_CHUNK_SIZE; subZ++) {
@@ -125,7 +126,12 @@ public class CavernCarverController {
                         int localX = startX + offsetX;
                         int localZ = startZ + offsetZ;
                         BlockPos colPos = new BlockPos(chunkX * 16 + localX, 1, chunkZ * 16 + localZ);
-                        flooded = isFloodedUndergroundEnabled && world.getBiome(colPos).getTempCategory() == Biome.TempCategory.OCEAN;
+
+                        if (isFloodedUndergroundEnabled) {
+                            flooded = world.getBiome(colPos).getTempCategory() == Biome.TempCategory.OCEAN;
+                            smoothAmpFactor = calcFloodedSmoothAmp(flooded, colPos);
+                            if (smoothAmpFactor <= 0) continue; // Wall between flooded and normal caves
+                        }
 
                         int surfaceAltitude = surfaceAltitudes[localX][localZ];
                         IBlockState liquidBlock = liquidBlocks[localX][localZ];
@@ -145,7 +151,7 @@ public class CavernCarverController {
                                 topY = carver.getTopY();
                                 maxHeight = carver.getTopY();
                             }
-                            float smoothAmp = range.getSmoothAmp(cavernRegionNoise);
+                            float smoothAmp = range.getSmoothAmp(cavernRegionNoise) * smoothAmpFactor;
                             if (range.getNoiseCube() == null) {
                                 range.setNoiseCube(carver.getNoiseGen().interpolateNoiseCube(startPos, endPos, bottomY, maxHeight));
                             }
@@ -175,5 +181,76 @@ public class CavernCarverController {
             default: // Medium
                 return .007f;
         }
+    }
+
+    private float calcFloodedSmoothAmp(boolean flooded, BlockPos colPos) {
+        if (flooded) {
+            if (world.getBiome(colPos.east(2)).getTempCategory() != Biome.TempCategory.OCEAN) {
+                if (world.getBiome(colPos.east()).getTempCategory() != Biome.TempCategory.OCEAN) {
+                    return -1;
+                }
+                else {
+                    return .7f;
+                }
+            }
+            if (world.getBiome(colPos.north(2)).getTempCategory() != Biome.TempCategory.OCEAN) {
+                if (world.getBiome(colPos.north()).getTempCategory() != Biome.TempCategory.OCEAN) {
+                    return -1;
+                }
+                else {
+                    return .7f;
+                }
+            }
+            if (world.getBiome(colPos.west(2)).getTempCategory() != Biome.TempCategory.OCEAN) {
+                if (world.getBiome(colPos.west()).getTempCategory() != Biome.TempCategory.OCEAN) {
+                    return -1;
+                }
+                else {
+                    return .7f;
+                }                            }
+            if (world.getBiome(colPos.south(2)).getTempCategory() != Biome.TempCategory.OCEAN) {
+                if (world.getBiome(colPos.south()).getTempCategory() != Biome.TempCategory.OCEAN) {
+                    return -1;
+                }
+                else {
+                    return .7f;
+                }
+            }
+        }
+        else {
+            if (world.getBiome(colPos.east(2)).getTempCategory() == Biome.TempCategory.OCEAN) {
+                if (world.getBiome(colPos.east()).getTempCategory() == Biome.TempCategory.OCEAN) {
+                    return -1f;
+                }
+                else {
+                    return .7f;
+                }
+            }
+            if (world.getBiome(colPos.south(2)).getTempCategory() == Biome.TempCategory.OCEAN) {
+                if (world.getBiome(colPos.south()).getTempCategory() == Biome.TempCategory.OCEAN) {
+                    return -1f;
+                }
+                else {
+                    return .7f;
+                }
+            }
+            if (world.getBiome(colPos.west(2)).getTempCategory() == Biome.TempCategory.OCEAN) {
+                if (world.getBiome(colPos.west()).getTempCategory() == Biome.TempCategory.OCEAN) {
+                    return -1f;
+                }
+                else {
+                    return .7f;
+                }
+            }
+            if (world.getBiome(colPos.north(2)).getTempCategory() == Biome.TempCategory.OCEAN) {
+                if (world.getBiome(colPos.north()).getTempCategory() == Biome.TempCategory.OCEAN) {
+                    return -1f;
+                }
+                else {
+                    return .7f;
+                }
+            }
+        }
+        return 1;
     }
 }

@@ -12,6 +12,7 @@ import com.yungnickyoung.minecraft.bettercaves.world.carver.cave.CaveCarver;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.cave.CaveCarverBuilder;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.surface.VanillaCaveCarver;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.surface.VanillaCaveCarverBuilder;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
@@ -152,12 +153,27 @@ public class CaveCarverController {
                     }
                 }
 
+                // Offset within subchunk
                 for (int offsetX = 0; offsetX < Settings.SUB_CHUNK_SIZE; offsetX++) {
                     for (int offsetZ = 0; offsetZ < Settings.SUB_CHUNK_SIZE; offsetZ++) {
                         int localX = startX + offsetX;
                         int localZ = startZ + offsetZ;
                         BlockPos colPos = new BlockPos(chunkX * 16 + localX, 1, chunkZ * 16 + localZ);
                         flooded = isFloodedUndergroundEnabled && world.getBiome(colPos).getTempCategory() == Biome.TempCategory.OCEAN;
+                        if (flooded) {
+                            if (world.getBiome(colPos.east()).getTempCategory() != Biome.TempCategory.OCEAN) {
+                                continue;
+                            }
+                            if (world.getBiome(colPos.north()).getTempCategory() != Biome.TempCategory.OCEAN) {
+                                continue;
+                            }
+                            if (world.getBiome(colPos.west()).getTempCategory() != Biome.TempCategory.OCEAN) {
+                                continue;
+                            }
+                            if (world.getBiome(colPos.south()).getTempCategory() != Biome.TempCategory.OCEAN) {
+                                continue;
+                            }
+                        }
 
                         int surfaceAltitude = surfaceAltitudes[localX][localZ];
                         IBlockState liquidBlock = liquidBlocks[localX][localZ];

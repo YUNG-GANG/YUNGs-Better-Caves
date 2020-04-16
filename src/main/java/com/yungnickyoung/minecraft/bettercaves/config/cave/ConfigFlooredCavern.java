@@ -30,13 +30,13 @@ public class ConfigFlooredCavern {
                 .comment(" Changes height of formations in caverns. Lower value = more open caverns with larger features." +
                         "\n Default: 1.0")
                 .worldRestart()
-                .defineInRange("Compression - Vertical", 1.0f, 0f, 20f);
+                .defineInRange("Compression - Vertical", 1.3f, 0f, 20f);
 
         xzCompression = builder
                 .comment(" Changes width of formations in caverns. Lower value = more open caverns with larger features." +
                         "\n Default: 1.0")
                 .worldRestart()
-                .defineInRange("Compression - Horizontal", 1.0f, 0f, 20f);
+                .defineInRange("Compression - Horizontal", 0.7f, 0f, 20f);
 
         caveFrequency = builder
                 .comment(" Determines how frequently Floored Caverns spawn." +

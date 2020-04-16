@@ -22,13 +22,13 @@ public class ConfigSimplexCave {
                 .comment(" Changes height of caves. Lower value = taller caves with steeper drops." +
                         "\n Default: 3.0")
                 .worldRestart()
-                .defineInRange("Compression - Vertical", 3.0f, 0f, 20f);
+                .defineInRange("Compression - Vertical", 2.2f, 0f, 20f);
 
         xzCompression = builder
                 .comment(" Changes width of caves. Lower value = wider caves." +
                         "\n Default: 1.0")
                 .worldRestart()
-                .defineInRange("Compression - Horizontal", 1.0f, 0f, 20f);
+                .defineInRange("Compression - Horizontal", 0.9f, 0f, 20f);
 
         caveFrequency = builder
                 .comment(" Determines how frequently Type 2 Caves spawn. If this is anything but VeryCommon (the default), " +

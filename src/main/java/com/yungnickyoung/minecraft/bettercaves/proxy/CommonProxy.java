@@ -9,6 +9,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
+import net.minecraft.world.dimension.Dimension;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraft.world.gen.carver.WorldCarver;
@@ -59,7 +61,7 @@ public class CommonProxy {
             BetterCaves.LOGGER.debug("Baked client config");
         }
 
-        betterCaveCarver.initialize(activeWorldSeed);
+        betterCaveCarver.initialize(activeWorldSeed, -100, "placeholderdim");
     }
 
     public void worldLoad(WorldEvent.Load event) {
@@ -114,7 +116,8 @@ public class CommonProxy {
         BetterCaves.LOGGER.info("--> Initializing Better Caves carver with seed: " + seed + " " + event);
 
         // Initialize Better Caves with world seed
-        betterCaveCarver.initialize(seed);
+        Dimension dim = event.getWorld().getDimension();
+        betterCaveCarver.initialize(seed, dim.getType().getId(), DimensionType.getKey(dim.getType()).toString());
     }
 
     private static void setCarvers(Biome biomeIn, ConfiguredCarver<ProbabilityConfig> carver) {

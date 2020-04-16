@@ -18,7 +18,7 @@ public final class ConfigHelper {
         clientConfig = config;
 
         // General
-        BetterCavesConfig.lavaDepth = ConfigHolder.CLIENT.lavaDepth.get();
+        BetterCavesConfig.liquidAltitude = ConfigHolder.CLIENT.liquidAltitude.get();
         BetterCavesConfig.lavaBlock = ConfigHolder.CLIENT.lavaBlock.get();
         BetterCavesConfig.waterBlock = ConfigHolder.CLIENT.waterBlock.get();
 
@@ -43,16 +43,16 @@ public final class ConfigHelper {
         BetterCavesConfig.simplexCustomFrequency = ConfigHolder.CLIENT.configCaveGen.configSimplexCave.customFrequency.get();
 
         // Lava Cavern settings
-        BetterCavesConfig.lavaCavernCaveTop = ConfigHolder.CLIENT.configCaveGen.configLavaCavern.caveTop.get();
-        BetterCavesConfig.lavaCavernCaveBottom = ConfigHolder.CLIENT.configCaveGen.configLavaCavern.caveBottom.get();
-        BetterCavesConfig.lavaCavernYComp = ConfigHolder.CLIENT.configCaveGen.configLavaCavern.yCompression.get();
-        BetterCavesConfig.lavaCavernXZComp = ConfigHolder.CLIENT.configCaveGen.configLavaCavern.xzCompression.get();
-        BetterCavesConfig.lavaCavernCaveFreq = ConfigHolder.CLIENT.configCaveGen.configLavaCavern.caveFrequency.get();
-        BetterCavesConfig.lavaCavernCustomFrequency = ConfigHolder.CLIENT.configCaveGen.configLavaCavern.customFrequency.get();
+        BetterCavesConfig.liquidCavernTop = ConfigHolder.CLIENT.configCaveGen.configLavaCavern.caveTop.get();
+        BetterCavesConfig.liquidCavernBottom = ConfigHolder.CLIENT.configCaveGen.configLavaCavern.caveBottom.get();
+        BetterCavesConfig.liquidCavernYComp = ConfigHolder.CLIENT.configCaveGen.configLavaCavern.yCompression.get();
+        BetterCavesConfig.liquidCavernXZComp = ConfigHolder.CLIENT.configCaveGen.configLavaCavern.xzCompression.get();
+        BetterCavesConfig.liquidCavernFreq = ConfigHolder.CLIENT.configCaveGen.configLavaCavern.caveFrequency.get();
+        BetterCavesConfig.liquidCavernCustomFreq = ConfigHolder.CLIENT.configCaveGen.configLavaCavern.customFrequency.get();
 
         // Floored Cavern settings
-        BetterCavesConfig.flooredCavernCaveTop = ConfigHolder.CLIENT.configCaveGen.configFlooredCavern.caveTop.get();
-        BetterCavesConfig.flooredCavernCaveBottom = ConfigHolder.CLIENT.configCaveGen.configFlooredCavern.caveBottom.get();
+        BetterCavesConfig.flooredCavernTop = ConfigHolder.CLIENT.configCaveGen.configFlooredCavern.caveTop.get();
+        BetterCavesConfig.flooredCavernBottom = ConfigHolder.CLIENT.configCaveGen.configFlooredCavern.caveBottom.get();
         BetterCavesConfig.flooredCavernYComp = ConfigHolder.CLIENT.configCaveGen.configFlooredCavern.yCompression.get();
         BetterCavesConfig.flooredCavernXZComp = ConfigHolder.CLIENT.configCaveGen.configFlooredCavern.xzCompression.get();
         BetterCavesConfig.flooredCavernCaveFreq = ConfigHolder.CLIENT.configCaveGen.configFlooredCavern.caveFrequency.get();

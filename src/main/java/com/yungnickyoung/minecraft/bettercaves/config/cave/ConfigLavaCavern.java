@@ -18,7 +18,7 @@ public class ConfigLavaCavern {
                         "to close off anyway if this value is greater than the surface y-coordinate." +
                         "\n Default: 30")
                 .worldRestart()
-                .defineInRange("Cavern Top Altitude", 30, 0, 255);
+                .defineInRange("Cavern Top Altitude", 35, 0, 255);
 
         caveBottom = builder
                 .comment(" The bottom cutoff y-coordinate at which Lava Caverns stop generating." +
@@ -30,13 +30,13 @@ public class ConfigLavaCavern {
                 .comment(" Changes height of formations in caverns. Lower value = more open caverns with larger features." +
                         "\n Default: 1.0")
                 .worldRestart()
-                .defineInRange("Compression - Vertical", 1.0f, 0f, 20f);
+                .defineInRange("Compression - Vertical", 1.3f, 0f, 20f);
 
         xzCompression = builder
                 .comment(" Changes width of formations in caverns. Lower value = more open caverns with larger features." +
                         "\n Default: 1.0")
                 .worldRestart()
-                .defineInRange("Compression - Horizontal", 1.0f, 0f, 20f);
+                .defineInRange("Compression - Horizontal", 0.7f, 0f, 20f);
 
         caveFrequency = builder
                 .comment(" Determines how frequently Lava Caverns spawn." +

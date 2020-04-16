@@ -25,7 +25,7 @@ public class ConfigCaveGen {
                         "cave interconnectivity for a given area, but possibly less variation.\n Accepted values: Small, Medium, Large, ExtraLarge" +
                         "\n Default: Large")
                 .worldRestart()
-                .define("Cave Region Size", "Large");
+                .define("Cave Region Size", "Small");
 
         cavernRegionSize = builder
                 .comment(" Determines how large cavern regions are. This controls the average size of caverns." +
@@ -45,7 +45,7 @@ public class ConfigCaveGen {
         maxCaveAltitude = builder
                 .comment(" The maximum altitude at which caves can generate.\n Default: 128")
                 .worldRestart()
-                .defineInRange("Max Cave Altitude", 128, 0, 255);
+                .defineInRange("Max Cave Altitude", 80, 0, 255);
 
         configCubicCave = new ConfigCubicCave(builder);
         configSimplexCave = new ConfigSimplexCave(builder);

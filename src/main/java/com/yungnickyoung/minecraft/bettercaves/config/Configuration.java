@@ -6,7 +6,7 @@ final class Configuration {
 
     public final ConfigCaveGen configCaveGen;
     public final ConfigDebug configDebug;
-    final ForgeConfigSpec.ConfigValue<Integer> lavaDepth;
+    final ForgeConfigSpec.ConfigValue<Integer> liquidAltitude;
     final ForgeConfigSpec.ConfigValue<Boolean> flattenBedrock;
     final ForgeConfigSpec.ConfigValue<String> lavaBlock;
     final ForgeConfigSpec.ConfigValue<String> waterBlock;
@@ -14,7 +14,7 @@ final class Configuration {
     Configuration(final ForgeConfigSpec.Builder builder) {
         builder.push("Better Caves");
 
-        lavaDepth = builder
+        liquidAltitude = builder
                 .comment(" Lava (or water in water regions) spawns at and below this y-coordinate." +
                         "\n Default: 10")
                 .worldRestart()

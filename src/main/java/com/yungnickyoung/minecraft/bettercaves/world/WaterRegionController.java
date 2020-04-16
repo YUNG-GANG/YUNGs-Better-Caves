@@ -42,7 +42,7 @@ public class WaterRegionController {
         waterRegionThreshold = NoiseUtils.simplexNoiseOffsetByPercent(-1f, config.waterRegionSpawnChance.get() / 100f);
 
         // Water region controller
-        float waterRegionSize = config.cavernRegionSize.get() == RegionSize.ExtraLarge ? .001f : .004f;
+        float waterRegionSize = calcWaterRegionSize(config.waterRegionSize.get(), config.waterRegionCustomSize.get());
         waterRegionController = new FastNoise();
         waterRegionController.SetSeed((int)world.getSeed() + 444);
         waterRegionController.SetFrequency(waterRegionSize);
@@ -113,5 +113,23 @@ public class WaterRegionController {
         }
 
         return waterBlock;
+    }
+
+    /**
+     * @return frequency value for water region controller
+     */
+    private float calcWaterRegionSize(RegionSize waterRegionSize, float waterRegionCustomSize) {
+        switch (waterRegionSize) {
+            case Small:
+                return .008f;
+            case Large:
+                return .0028f;
+            case ExtraLarge:
+                return .001f;
+            case Custom:
+                return waterRegionCustomSize;
+            default: // Medium
+                return .004f;
+        }
     }
 }

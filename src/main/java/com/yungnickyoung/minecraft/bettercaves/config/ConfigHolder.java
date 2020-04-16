@@ -150,6 +150,12 @@ public class ConfigHolder {
         waterRegionSpawnChance = new ConfigOption<>("Water Region Spawn Chance", Configuration.caveSettings.waterRegions.waterRegionSpawnChance)
             .setCategory("general.underground generation.water regions")
             .addToMap(properties);
+        waterRegionSize = new ConfigOption<>("Water Region Size", Configuration.caveSettings.waterRegions.waterRegionSize)
+            .setCategory("general.underground generation.water regions")
+            .addToMap(properties);
+        waterRegionCustomSize = new ConfigOption<>("Water Region Custom Size", Configuration.caveSettings.waterRegions.waterRegionCustomSize)
+            .setCategory("general.underground generation.water regions")
+            .addToMap(properties);
 
         // Ravines
         enableVanillaRavines = new ConfigOption<>("Enable Ravines", Configuration.caveSettings.ravines.enableVanillaRavines)
@@ -379,7 +385,9 @@ public class ConfigHolder {
     public ConfigOption<Integer>  flooredCavernPriority;
 
     // Water region settings
-    public ConfigOption<Float> waterRegionSpawnChance;
+    public ConfigOption<Float>      waterRegionSpawnChance;
+    public ConfigOption<RegionSize> waterRegionSize;
+    public ConfigOption<Float>      waterRegionCustomSize;
 
     // Ravines
     public ConfigOption<Boolean> enableVanillaRavines;

@@ -127,7 +127,7 @@ public class CavernCarverController {
                         int localZ = startZ + offsetZ;
                         BlockPos colPos = new BlockPos(chunkX * 16 + localX, 1, chunkZ * 16 + localZ);
 
-                        if (isFloodedUndergroundEnabled) {
+                        if (isFloodedUndergroundEnabled && !isDebugViewEnabled) {
                             flooded = world.getBiome(colPos).getTempCategory() == Biome.TempCategory.OCEAN;
                             smoothAmpFactor = calcFloodedSmoothAmp(flooded, colPos);
                             if (smoothAmpFactor <= 0) continue; // Wall between flooded and normal caves

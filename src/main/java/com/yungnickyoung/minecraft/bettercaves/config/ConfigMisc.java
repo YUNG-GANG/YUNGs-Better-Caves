@@ -4,7 +4,9 @@ import net.minecraftforge.common.config.Config;
 
 public class ConfigMisc {
     @Config.Name("Liquid Altitude")
-    @Config.Comment("Lava (or water in water regions) spawns at and below this y-coordinate.")
+    @Config.Comment(
+        "Lava (or water in water regions) spawns at and below this y-coordinate.\n" +
+        "Default: 10")
     @Config.RangeInt(min = 0, max = 255)
     @Config.RequiresWorldRestart
     public int liquidAltitude = 10;
@@ -44,6 +46,6 @@ public class ConfigMisc {
     @Config.Name("Enable Flooded Underground")
     @Config.Comment(
         "Set to true to enable flooded underground in ocean biomes.\n" +
-            "Default: true")
+        "Default: true")
     public boolean enableFloodedUnderground = true;
 }

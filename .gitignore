@@ -30,6 +30,9 @@ build
 .idea/modules.xml
 .idea/*.iml
 .idea/modules
+.idea/jarRepositories.xml
+.idea/compiler.xml
+.idea/artifacts
 *.iml
 *.ipr
 

@@ -86,11 +86,11 @@ public class WaterRegionController {
         } catch (Exception e) {
             Settings.LOGGER.warn("Unable to use block '" + lavaString + "': " + e);
             Settings.LOGGER.warn("Using vanilla lava instead...");
-            lavaBlock = Blocks.FLOWING_LAVA.getDefaultState();
+            lavaBlock = Blocks.LAVA.getDefaultState();
         }
         if (lavaBlock == null) {
             Settings.LOGGER.warn("Unable to use block '" + lavaString + "': null block returned.\n Using vanilla lava instead...");
-            lavaBlock = Blocks.FLOWING_LAVA.getDefaultState();
+            lavaBlock = Blocks.LAVA.getDefaultState();
         }
         return lavaBlock;
     }
@@ -104,12 +104,12 @@ public class WaterRegionController {
         } catch (Exception e) {
             Settings.LOGGER.warn("Unable to use block '" + waterString + "': " + e);
             Settings.LOGGER.warn("Using vanilla water instead...");
-            waterBlock = Blocks.FLOWING_WATER.getDefaultState();
+            waterBlock = Blocks.WATER.getDefaultState();
         }
 
         if (waterBlock == null) {
             Settings.LOGGER.warn("Unable to use block '" + waterString + "': null block returned.\n Using vanilla water instead...");
-            waterBlock = Blocks.FLOWING_WATER.getDefaultState();
+            waterBlock = Blocks.WATER.getDefaultState();
         }
 
         return waterBlock;

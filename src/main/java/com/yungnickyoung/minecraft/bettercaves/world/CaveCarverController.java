@@ -114,7 +114,7 @@ public class CaveCarverController {
 
     public void carveChunk(ChunkPrimer primer, int chunkX, int chunkZ, int[][] surfaceAltitudes, IBlockState[][] liquidBlocks) {
         // Prevent unnecessary computation if caves are disabled
-        if (noiseRanges.size() == 0) {
+        if (noiseRanges.size() == 0 && !isSurfaceCavesEnabled) {
             return;
         }
 
@@ -161,16 +161,12 @@ public class CaveCarverController {
                         BlockPos colPos = new BlockPos(chunkX * 16 + localX, 1, chunkZ * 16 + localZ);
                         flooded = isFloodedUndergroundEnabled && !isDebugViewEnabled && world.getBiome(colPos).getTempCategory() == Biome.TempCategory.OCEAN;
                         if (flooded) {
-                            if (world.getBiome(colPos.east()).getTempCategory() != Biome.TempCategory.OCEAN) {
-                                continue;
-                            }
-                            if (world.getBiome(colPos.north()).getTempCategory() != Biome.TempCategory.OCEAN) {
-                                continue;
-                            }
-                            if (world.getBiome(colPos.west()).getTempCategory() != Biome.TempCategory.OCEAN) {
-                                continue;
-                            }
-                            if (world.getBiome(colPos.south()).getTempCategory() != Biome.TempCategory.OCEAN) {
+                            if (
+                                world.getBiome(colPos.east()).getTempCategory()  != Biome.TempCategory.OCEAN ||
+                                world.getBiome(colPos.north()).getTempCategory() != Biome.TempCategory.OCEAN ||
+                                world.getBiome(colPos.west()).getTempCategory()  != Biome.TempCategory.OCEAN ||
+                                world.getBiome(colPos.south()).getTempCategory() != Biome.TempCategory.OCEAN
+                            ) {
                                 continue;
                             }
                         }

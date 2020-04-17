@@ -11,8 +11,10 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 
 import java.util.Random;
+import java.util.function.Function;
 
 public class WaterRegionController {
     private FastNoise waterRegionController;
@@ -31,21 +33,21 @@ public class WaterRegionController {
     private static final float SMOOTH_DELTA = .01f;
 
     public WaterRegionController(World world, ConfigHolder config) {
-        worldSeed = world.getSeed();
-        dimensionID = world.provider.getDimension();
-        dimensionName = world.provider.getDimensionType().toString();
-        rand = new Random();
+        this.worldSeed = world.getSeed();
+        this.dimensionID = world.provider.getDimension();
+        this.dimensionName = world.provider.getDimensionType().toString();
+        this.rand = new Random();
 
         // Vars from config
-        lavaBlock = getLavaBlockFromString(config.lavaBlock.get());
-        waterBlock = getWaterBlockFromString(config.waterBlock.get());
-        waterRegionThreshold = NoiseUtils.simplexNoiseOffsetByPercent(-1f, config.waterRegionSpawnChance.get() / 100f);
+        this.lavaBlock = getLavaBlockFromString(config.lavaBlock.get());
+        this.waterBlock = getWaterBlockFromString(config.waterBlock.get());
+        this.waterRegionThreshold = NoiseUtils.simplexNoiseOffsetByPercent(-1f, config.waterRegionSpawnChance.get() / 100f);
 
         // Water region controller
         float waterRegionSize = calcWaterRegionSize(config.waterRegionSize.get(), config.waterRegionCustomSize.get());
-        waterRegionController = new FastNoise();
-        waterRegionController.SetSeed((int)world.getSeed() + 444);
-        waterRegionController.SetFrequency(waterRegionSize);
+        this.waterRegionController = new FastNoise();
+        this.waterRegionController.SetSeed((int)world.getSeed() + 444);
+        this.waterRegionController.SetFrequency(waterRegionSize);
     }
 
     public IBlockState[][] getLiquidBlocksForChunk(int chunkX, int chunkZ) {
@@ -60,6 +62,62 @@ public class WaterRegionController {
             }
         }
         return blocks;
+    }
+
+    public static float getDistFactor(World world, BlockPos pos, int distance, Function<Biome.TempCategory, Boolean> isTargetBiome) {
+        // First check unit circle
+        // Cardinal directions
+        if (
+            isTargetBiome.apply(world.getBiome(pos.north()).getTempCategory()) ||
+                isTargetBiome.apply(world.getBiome(pos.east()).getTempCategory()) ||
+                isTargetBiome.apply(world.getBiome(pos.south()).getTempCategory()) ||
+                isTargetBiome.apply(world.getBiome(pos.west()).getTempCategory())
+        ) {
+            return 0;
+        }
+        // Corners
+        if (
+            isTargetBiome.apply(world.getBiome(pos.north().east()).getTempCategory()) ||
+                isTargetBiome.apply(world.getBiome(pos.east().south()).getTempCategory()) ||
+                isTargetBiome.apply(world.getBiome(pos.south().west()).getTempCategory()) ||
+                isTargetBiome.apply(world.getBiome(pos.west().north()).getTempCategory())
+        ) {
+            return 2f / (distance * 2);
+        }
+
+        // 2-circle
+        // Cardinal directions
+        if (
+            isTargetBiome.apply(world.getBiome(pos.north(2)).getTempCategory()) ||
+                isTargetBiome.apply(world.getBiome(pos.east(2)).getTempCategory()) ||
+                isTargetBiome.apply(world.getBiome(pos.south(2)).getTempCategory()) ||
+                isTargetBiome.apply(world.getBiome(pos.west(2)).getTempCategory())
+        ) {
+            return 2f / (distance * 2);
+        }
+        // 3 away
+        if (
+            isTargetBiome.apply(world.getBiome(pos.north(2).east(1)).getTempCategory()) ||
+                isTargetBiome.apply(world.getBiome(pos.north(2).west(1)).getTempCategory()) ||
+                isTargetBiome.apply(world.getBiome(pos.east(2).north(1)).getTempCategory()) ||
+                isTargetBiome.apply(world.getBiome(pos.east(2).south(1)).getTempCategory()) ||
+                isTargetBiome.apply(world.getBiome(pos.south(2).east(1)).getTempCategory()) ||
+                isTargetBiome.apply(world.getBiome(pos.south(2).west()).getTempCategory()) ||
+                isTargetBiome.apply(world.getBiome(pos.west(2).south(1)).getTempCategory()) ||
+                isTargetBiome.apply(world.getBiome(pos.west(2).north(1)).getTempCategory())
+        ) {
+            return 3f / (distance * 2);
+        }
+        // Corners
+        if (
+            isTargetBiome.apply(world.getBiome(pos.north(2).east(2)).getTempCategory()) ||
+                isTargetBiome.apply(world.getBiome(pos.east(2).south(2)).getTempCategory()) ||
+                isTargetBiome.apply(world.getBiome(pos.south(2).west(2)).getTempCategory()) ||
+                isTargetBiome.apply(world.getBiome(pos.west(2).north(2)).getTempCategory())
+        ) {
+            return 1;
+        }
+        return 1;
     }
 
     private IBlockState getLiquidBlockAtPos(Random rand, BlockPos blockPos) {

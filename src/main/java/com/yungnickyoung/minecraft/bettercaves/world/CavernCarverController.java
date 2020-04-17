@@ -10,7 +10,6 @@ import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverNoiseRange;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.cavern.CavernCarver;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.cavern.CavernCarverBuilder;
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
@@ -31,6 +30,10 @@ public class CavernCarverController {
     private boolean isDebugViewEnabled;
     private boolean isOverrideSurfaceDetectionEnabled;
     private boolean isFloodedUndergroundEnabled;
+
+    // Equality checking functions used for closing off flooded caves
+    private static Function<Biome.TempCategory, Boolean> isOcean = b -> b == Biome.TempCategory.OCEAN;
+    private static Function<Biome.TempCategory, Boolean> isNotOcean = b -> b != Biome.TempCategory.OCEAN;
 
     public CavernCarverController(World worldIn, ConfigHolder config) {
         this.world = worldIn;
@@ -131,10 +134,10 @@ public class CavernCarverController {
 
                         if (isFloodedUndergroundEnabled && !isDebugViewEnabled) {
                             flooded = world.getBiome(colPos).getTempCategory() == Biome.TempCategory.OCEAN;
-                            Function<Biome.TempCategory, Boolean> compareFunc = flooded ? (b -> b != Biome.TempCategory.OCEAN) : (b -> b == Biome.TempCategory.OCEAN);
-                            smoothAmpFactor = getDistFactor(colPos, 2, compareFunc);
-//                            smoothAmpFactor = calcFloodedSmoothAmp(flooded, colPos);
-                            if (smoothAmpFactor <= 0) continue; // Wall between flooded and normal caves
+                            smoothAmpFactor = WaterRegionController.getDistFactor(world, colPos, 2, flooded ? isNotOcean : isOcean);
+                            if (smoothAmpFactor <= 0) { // Wall between flooded and normal caves.
+                                continue; // Continue to prevent unnecessary noise calculation
+                            }
                         }
 
                         int surfaceAltitude = surfaceAltitudes[localX][localZ];
@@ -185,128 +188,5 @@ public class CavernCarverController {
             default: // Medium
                 return .007f;
         }
-    }
-
-//    private float calcFloodedSmoothAmp(boolean flooded, BlockPos colPos) {
-//        float dist1away, dist2away;
-//        if (flooded)
-//        {
-//            dist2away = isNonOceanAtDistanceFromPos(colPos, 2);
-//            if (dist2away != 0)
-//            {
-//                dist1away = isNonOceanAtDistanceFromPos(colPos, 1);
-//
-//                if (dist1away == 1)
-//                    return -1;
-//                else if (dist1away > 0)
-//                    return .5f * dist1away;
-//
-//                return .7f;
-//            }
-//        }
-//        else {
-//            if (isOceanAtDistanceFromPos(colPos, 2)) {
-//                if (isOceanAtDistanceFromPos(colPos, 1)) {
-//                    return .2f;
-//                }
-//                return .4f;
-//            }
-//        }
-//        return 1;
-//    }
-
-    private float getDistFactor(BlockPos pos, int distance, Function<Biome.TempCategory, Boolean> isTargetBiome) {
-        // First check unit circle
-        // Cardinal directions
-        if (
-            isTargetBiome.apply(world.getBiome(pos.north()).getTempCategory()) ||
-            isTargetBiome.apply(world.getBiome(pos.east()).getTempCategory()) ||
-            isTargetBiome.apply(world.getBiome(pos.south()).getTempCategory()) ||
-            isTargetBiome.apply(world.getBiome(pos.west()).getTempCategory())
-        ) {
-//            return 1f / (distance * 2);
-            return 0;
-        }
-        // Corners
-        if (
-            isTargetBiome.apply(world.getBiome(pos.north().east()).getTempCategory()) ||
-            isTargetBiome.apply(world.getBiome(pos.east().south()).getTempCategory()) ||
-            isTargetBiome.apply(world.getBiome(pos.south().west()).getTempCategory()) ||
-            isTargetBiome.apply(world.getBiome(pos.west().north()).getTempCategory())
-        ) {
-            return 2f / (distance * 2);
-        }
-
-        // 2-circle
-        // Cardinal directions
-        if (
-            isTargetBiome.apply(world.getBiome(pos.north(2)).getTempCategory()) ||
-            isTargetBiome.apply(world.getBiome(pos.east(2)).getTempCategory()) ||
-            isTargetBiome.apply(world.getBiome(pos.south(2)).getTempCategory()) ||
-            isTargetBiome.apply(world.getBiome(pos.west(2)).getTempCategory())
-        ) {
-            return 2f / (distance * 2);
-        }
-        // 3 away
-        if (
-            isTargetBiome.apply(world.getBiome(pos.north(2).east(1)).getTempCategory()) ||
-            isTargetBiome.apply(world.getBiome(pos.north(2).west(1)).getTempCategory()) ||
-            isTargetBiome.apply(world.getBiome(pos.east(2).north(1)).getTempCategory()) ||
-            isTargetBiome.apply(world.getBiome(pos.east(2).south(1)).getTempCategory()) ||
-            isTargetBiome.apply(world.getBiome(pos.south(2).east(1)).getTempCategory()) ||
-            isTargetBiome.apply(world.getBiome(pos.south(2).west()).getTempCategory()) ||
-            isTargetBiome.apply(world.getBiome(pos.west(2).south(1)).getTempCategory()) ||
-            isTargetBiome.apply(world.getBiome(pos.west(2).north(1)).getTempCategory())
-        ) {
-            return 3f / (distance * 2);
-        }
-        // Corners
-        if (
-            isTargetBiome.apply(world.getBiome(pos.north(2).east(2)).getTempCategory()) ||
-            isTargetBiome.apply(world.getBiome(pos.east(2).south(2)).getTempCategory()) ||
-            isTargetBiome.apply(world.getBiome(pos.south(2).west(2)).getTempCategory()) ||
-            isTargetBiome.apply(world.getBiome(pos.west(2).north(2)).getTempCategory())
-        ) {
-            return 1;
-        }
-        return 1;
-    }
-
-    private float isOceanAtDistanceFromPos(BlockPos pos, int distance) {
-        for (int z = 0; z <= distance; z++) {
-            for (int x = 0; x <= distance; x++) {
-                if (x == distance || z == distance) {
-                    if (
-                        world.getBiome(pos.north(z).west(x)).getTempCategory() == Biome.TempCategory.OCEAN ||
-                            world.getBiome(pos.north(z).east(x)).getTempCategory() == Biome.TempCategory.OCEAN ||
-                            world.getBiome(pos.south(z).west(x)).getTempCategory() == Biome.TempCategory.OCEAN ||
-                            world.getBiome(pos.south(z).east(x)).getTempCategory() == Biome.TempCategory.OCEAN
-                    ) {
-                        return (float)(x + z) / distance;
-                    }
-                }
-            }
-        }
-        return 0;
-    }
-
-    private float isNonOceanAtDistanceFromPos(BlockPos pos, int distance) {
-        float min = 99;
-        for (int z = 0; z <= distance; z++) {
-            for (int x = 0; x <= distance; x++) {
-                if (x == distance || z == distance) {
-                    if (
-                        world.getBiome(pos.north(z).west(x)).getTempCategory() != Biome.TempCategory.OCEAN ||
-                            world.getBiome(pos.north(z).east(x)).getTempCategory() != Biome.TempCategory.OCEAN ||
-                            world.getBiome(pos.south(z).west(x)).getTempCategory() != Biome.TempCategory.OCEAN ||
-                            world.getBiome(pos.south(z).east(x)).getTempCategory() != Biome.TempCategory.OCEAN
-                    ) {
-                        min = Math.min((float)(x + z) / distance, min);
-                        if (x + z == distance) return min; // lowest it could possibly be
-                    }
-                }
-            }
-        }
-        return min == 99 ? -1 : min;
     }
 }

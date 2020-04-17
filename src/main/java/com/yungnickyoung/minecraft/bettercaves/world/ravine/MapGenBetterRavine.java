@@ -4,6 +4,7 @@ import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.MapGenBetterCaves;
+import com.yungnickyoung.minecraft.bettercaves.world.WaterRegionController;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverUtils;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -14,8 +15,7 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.MapGenRavine;
 
 /**
- * Overrides MapGenRavine, disabling ravine generation if the config option
- * is set to false.
+ * Overrides MapGenRavine, tweaking it to work with config options.
  */
 public class MapGenBetterRavine extends MapGenRavine {
     private MapGenBetterCaves carver;
@@ -45,6 +45,8 @@ public class MapGenBetterRavine extends MapGenRavine {
     @Override
     protected void digBlock(ChunkPrimer primer, int x, int y, int z, int chunkX, int chunkZ, boolean foundTop) {
         IBlockState liquidBlockState;
+        BlockPos pos = new BlockPos(x + chunkX * 16, y, z + chunkZ * 16);
+
         if (currChunkLiquidBlocks == null || chunkX != currChunkX || chunkZ != currChunkZ) {
             try {
                 currChunkLiquidBlocks = carver.waterRegionController.getLiquidBlocksForChunk(chunkX, chunkZ);
@@ -61,11 +63,16 @@ public class MapGenBetterRavine extends MapGenRavine {
             }
         }
 
-        BlockPos pos = new BlockPos(x + chunkX * 16, y, z + chunkZ * 16);
-        IBlockState airBlockState = (isFloodedRavinesEnabled && world.getBiome(pos).getTempCategory() == Biome.TempCategory.OCEAN)
-            ? Blocks.WATER.getDefaultState()
-            : AIR;
+        // Don't dig boundaries between flooded and unflooded openings.
+        boolean flooded = isFloodedRavinesEnabled && world.getBiome(pos).getTempCategory() == Biome.TempCategory.OCEAN;
+        if (flooded) {
+            float smoothAmpFactor = WaterRegionController.getDistFactor(world, pos, 2, b -> b != Biome.TempCategory.OCEAN);
+            if (smoothAmpFactor <= .25f) { // Wall between flooded and normal caves.
+                return;
+            }
+        }
 
+        IBlockState airBlockState = flooded ? Blocks.WATER.getDefaultState() : AIR;
         CarverUtils.digBlock(world, primer, pos, airBlockState, liquidBlockState, liquidAltitude, isReplaceFloatingGravel);
     }
 

@@ -1,15 +1,10 @@
 {
   "homepage": "https://www.curseforge.com/minecraft/mc-mods/yungs-better-caves",
   "1.12.2": {
-    "1.0.3.0":"      Add water biomes with new user config.",
-    "1.0.3.1":"      Add max cave altitude option. Add extra boundary checks to prevent crashes with some mods.",
-    "1.4.0":"      Add dimension whitelisting. Change versioning system to MAJOR.MINOR.PATCH. Update gradle build to be better.",
-    "1.5.0":"      Add cavern edge smoothing. Fix biome controllers. Reorganize config. Add global whitelisting option.",
-    "1.5.1":"      Vanilla MC clients can now connect to Forge servers running Better Caves. Bedrock no longer gets carved out.",
-    "1.6.0":"      Rework config and add options for custom frequency. Bugfixes."
+    "2.0": "Big boi update."
   },
   "promos": {
-    "1.12.2-latest": "1.6.0",
-    "1.12.2-recommended": "1.6.0"
+    "1.12.2-latest": "2.0",
+    "1.12.2-recommended": "2.0"
   }
 }

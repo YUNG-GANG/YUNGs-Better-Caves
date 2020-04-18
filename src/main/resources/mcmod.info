@@ -8,5 +8,5 @@
   "updateJSON": "https://raw.githubusercontent.com/yungnickyoung/YUNGs-Better-Caves/1.12.2/versions.json",
   "authorList": ["YUNGNICKYOUNG"],
   "credits": "${credits}",
-  "logoFile": "BetterCavesBanner.png"
+  "logoFile": "BetterCavesLogo.png"
 }]

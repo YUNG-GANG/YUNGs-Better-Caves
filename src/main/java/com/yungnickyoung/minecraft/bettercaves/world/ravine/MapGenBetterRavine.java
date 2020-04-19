@@ -2,6 +2,7 @@ package com.yungnickyoung.minecraft.bettercaves.world.ravine;
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
+import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.MapGenBetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.world.WaterRegionController;
@@ -87,6 +88,11 @@ public class MapGenBetterRavine extends MapGenRavine {
         this.world = worldIn;
         int dimensionID = worldIn.provider.getDimension();
         this.carver = BetterCaves.activeCarversMap.get(dimensionID);
+        // Check for error loading carver
+        if (carver == null) {
+            Settings.LOGGER.error(String.format("Failed to find Better Caves carver in dimension %s during ravine generation!", world.provider.getDimensionType().toString()));
+            Settings.LOGGER.error("Is another cave mod installed?");
+        }
         this.liquidAltitude = carver.config.liquidAltitude.get();
         this.isReplaceFloatingGravel = carver.config.replaceFloatingGravel.get();
         this.isFloodedRavinesEnabled = carver.config.enableFloodedRavines.get();

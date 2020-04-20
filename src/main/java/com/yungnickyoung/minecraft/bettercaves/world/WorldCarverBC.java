@@ -7,6 +7,7 @@ import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.BetterCavesConfig;
 import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
+import com.yungnickyoung.minecraft.bettercaves.world.bedrock.FlattenBedrock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
@@ -70,15 +71,7 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
 
         // Flatten bedrock into single layer, if enabled in user config
         if (BetterCavesConfig.flattenBedrock) {
-            for (int localX = 0; localX < 16; localX++) {
-                for (int localZ = 0; localZ < 16; localZ++) {
-                    for (int y = 1; y <= 4; y++) {
-                        BlockPos blockPos = new BlockPos(localX, y, localZ);
-                        if (chunkIn.getBlockState(blockPos) == Blocks.BEDROCK.getDefaultState())
-                            chunkIn.setBlockState(blockPos, Blocks.STONE.getDefaultState(), false);
-                    }
-                }
-            }
+            FlattenBedrock.flattenBedrock(chunkIn, BetterCavesConfig.bedrockWidth);
         }
 
         // Determine surface altitudes in this chunk

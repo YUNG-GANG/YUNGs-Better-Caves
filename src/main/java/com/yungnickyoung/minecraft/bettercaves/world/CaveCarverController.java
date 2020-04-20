@@ -13,6 +13,7 @@ import com.yungnickyoung.minecraft.bettercaves.world.carver.cave.CaveCarver;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.cave.CaveCarverBuilder;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.IChunk;
@@ -111,7 +112,7 @@ public class CaveCarverController {
 
     public void carveChunk(IChunk chunk, int chunkX, int chunkZ, int[][] surfaceAltitudes, BlockState[][] liquidBlocks) {
         // Prevent unnecessary computation if caves are disabled
-        if (noiseRanges.size() == 0) {
+        if (noiseRanges.size() == 0 && !isSurfaceCavesEnabled) {
             return;
         }
 
@@ -156,18 +157,14 @@ public class CaveCarverController {
                         int localX = startX + offsetX;
                         int localZ = startZ + offsetZ;
                         BlockPos colPos = new BlockPos(chunkX * 16 + localX, 1, chunkZ * 16 + localZ);
-                        flooded = isFloodedUndergroundEnabled && chunk.getBiome(colPos).getCategory() == Biome.Category.OCEAN;
+                        flooded = isFloodedUndergroundEnabled && !isDebugViewEnabled && chunk.getBiome(colPos).getCategory() == Biome.Category.OCEAN;
                         if (flooded) {
-                            if (chunk.getBiome(colPos.east()).getCategory() != Biome.Category.OCEAN) {
-                                continue;
-                            }
-                            if (chunk.getBiome(colPos.north()).getCategory() != Biome.Category.OCEAN) {
-                                continue;
-                            }
-                            if (chunk.getBiome(colPos.west()).getCategory() != Biome.Category.OCEAN) {
-                                continue;
-                            }
-                            if (chunk.getBiome(colPos.south()).getCategory() != Biome.Category.OCEAN) {
+                            if (
+                                chunk.getBiome(colPos.east()).getCategory() != Biome.Category.OCEAN ||
+                                chunk.getBiome(colPos.north()).getCategory() != Biome.Category.OCEAN ||
+                                chunk.getBiome(colPos.west()).getCategory() != Biome.Category.OCEAN ||
+                                chunk.getBiome(colPos.south()).getCategory() != Biome.Category.OCEAN
+                            ) {
                                 continue;
                             }
                         }

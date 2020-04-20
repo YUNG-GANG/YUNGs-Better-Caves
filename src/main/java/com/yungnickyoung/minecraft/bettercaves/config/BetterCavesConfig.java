@@ -101,5 +101,6 @@ public final class BetterCavesConfig {
     public static float cavernRegionCustomSize = 0f;
     public static float cavernSpawnChance = 25f;
     public static float waterRegionSpawnChance = 40f;
+    public static int bedrockWidth = 1;
 
 }

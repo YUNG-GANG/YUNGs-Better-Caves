@@ -167,7 +167,7 @@ public class CarverUtils {
 
         // Only accept gravel and sand if water is not directly above it
         return (block == Blocks.SAND || block == Blocks.GRAVEL)
-            && !blockStateAbove.getFluidState().isTagged(FluidTags.WATER);
+            && blockStateAbove.getMaterial() != Material.WATER;
     }
 
     private static boolean isWaterAdjacent(IChunk chunkIn, BlockPos blockPos) {

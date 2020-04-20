@@ -10,7 +10,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.chunk.IChunk;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Random;
@@ -61,10 +60,6 @@ public class WaterRegionController {
             }
         }
         return blocks;
-    }
-
-    public BlockState[][] getLiquidBlocksForChunk(IChunk chunk) {
-        return getLiquidBlocksForChunk(chunk.getPos().x, chunk.getPos().z);
     }
 
     private BlockState getLiquidBlockAtPos(Random rand, BlockPos blockPos) {

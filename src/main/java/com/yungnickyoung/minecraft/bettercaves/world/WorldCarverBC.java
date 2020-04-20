@@ -102,7 +102,8 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
         caveCarverController.carveChunk(chunkIn, chunkX, chunkZ, surfaceAltitudes, liquidBlocks);
         cavernCarverController.carveChunk(chunkIn, chunkX, chunkZ, surfaceAltitudes, liquidBlocks);
 
-        chunkIn.setModified(true);
+        // Unsure if this is needed?
+//        chunkIn.setModified(true);
         return true;
     }
 

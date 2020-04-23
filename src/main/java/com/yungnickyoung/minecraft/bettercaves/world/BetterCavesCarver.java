@@ -1,7 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.world;
 
 
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.util.Pair;
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.BetterCavesConfig;
@@ -9,46 +8,39 @@ import com.yungnickyoung.minecraft.bettercaves.config.Settings;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
 import com.yungnickyoung.minecraft.bettercaves.world.bedrock.FlattenBedrock;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.IChunk;
-import net.minecraft.world.gen.carver.*;
-import net.minecraft.world.gen.feature.ProbabilityConfig;
+import net.minecraft.world.dimension.DimensionType;
 
-import java.util.BitSet;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
-import java.util.function.Function;
 
-public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
-    public static int counter = 0;
-    public long oldSeed = 0;
+public class BetterCavesCarver {
+    public int counter = 0;
+    private long oldSeed = 0;
 
     private CaveCarverController caveCarverController;
     private CavernCarverController cavernCarverController;
-    private WaterRegionController waterRegionController;
+    public WaterRegionController waterRegionController;
 
     // The minecraft world
-    private long seed = 0; // world seed
-    private int dimensionId;
-    private String dimensionName;
+    public long seed = 0; // world seed
+    private DimensionType dimensionType;
 
     // List used to avoid operating on a chunk more than once
     public Set<Pair<Integer, Integer>> coordList = new HashSet<>();
 
-    public WorldCarverBC(Function<Dynamic<?>, ? extends ProbabilityConfig> p_i49929_1_, int p_i49929_2_) {
-        super(p_i49929_1_, p_i49929_2_);
+    public BetterCavesCarver() {
     }
 
     // Override the default carver's method to use Better Caves carving instead.
-    @Override
-    public boolean carve(IChunk chunkIn, Random rand, int seaLevel, int cX, int cZ, int chunkX, int chunkZ, BitSet carvingMask, ProbabilityConfig config) {
+    public boolean carve(IChunk chunkIn, int chunkX, int chunkZ) {
         // Since the ChunkGenerator calls this method many times per chunk (~300), we must
         // check for duplicates so we don't operate on the same chunk more than once.
         Pair<Integer, Integer> pair = new Pair<>(chunkX, chunkZ);
-        if (coordList.contains(pair))
+        if (coordList.contains(pair)) {
+            BetterCaves.LOGGER.warn("WARNING: DUPLICATE PAIR");
             return true;
+        }
 
         // Clear the list occasionally to prevent excessive memory usage.
         // This is a hacky solution, and may introduce bugs due to chunks being over- or under-processed
@@ -103,18 +95,16 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
         cavernCarverController.carveChunk(chunkIn, chunkX, chunkZ, surfaceAltitudes, liquidBlocks);
 
         // Unsure if this is needed?
-//        chunkIn.setModified(true);
         return true;
     }
 
     /**
      * Initialize Better Caves generators and cave region controllers for this world.
      */
-    public void initialize(long seed, int dimensionId, String dimensionName) {
+    public void initialize(long seed, DimensionType dimensionType) {
         // Extract world information
         this.seed = seed;
-        this.dimensionId = dimensionId;
-        this.dimensionName = dimensionName;
+        this.dimensionType = dimensionType;
 
         // TODO - load config for this dimension
 
@@ -125,17 +115,10 @@ public class WorldCarverBC extends WorldCarver<ProbabilityConfig> {
         this.caveCarverController = new CaveCarverController(seed, null);
         this.cavernCarverController = new CavernCarverController(seed, null);
 
+        int dimensionId = dimensionType.getId();
+        String dimensionName = DimensionType.getKey(dimensionType).toString();
         BetterCaves.LOGGER.debug("BETTER CAVES WORLD CARVER INITIALIZED WITH SEED " + this.seed);
-        BetterCaves.LOGGER.debug(String.format("DIMENSION %d: %s", dimensionId, dimensionName));
-    }
-
-    @Override
-    public boolean shouldCarve(Random rand, int chunkX, int chunkZ, ProbabilityConfig config) {
-        return true;
-    }
-
-    @Override
-    protected boolean func_222708_a(double p_222708_1_, double p_222708_3_, double p_222708_5_, int p_222708_7_) {
-        return false;
+        BetterCaves.LOGGER.debug(String.format("  > DIMENSION %d: %s", dimensionId, dimensionName));
+        BetterCaves.LOGGER.debug(String.format("  > COUNTER: %d", counter));
     }
 }

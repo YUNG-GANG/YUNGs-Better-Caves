@@ -96,11 +96,14 @@ public final class BetterCavesConfig {
     public static boolean overrideSurfaceDetection = true;
     public static boolean enableSurfaceCaves = true;
     public static boolean enableFloodedUnderground = true;
+    public static boolean enableFloodedRavines = true;
     public static float caveRegionCustomSize = 0f;
     public static float caveSpawnChance = 100f;
     public static float cavernRegionCustomSize = 0f;
     public static float cavernSpawnChance = 25f;
     public static float waterRegionSpawnChance = 40f;
     public static int bedrockWidth = 1;
+    public static int[] whitelistedDimensions = {0};
+    public static boolean enableGlobalWhitelisting = true;
 
 }

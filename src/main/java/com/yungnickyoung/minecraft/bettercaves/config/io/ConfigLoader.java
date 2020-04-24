@@ -158,20 +158,40 @@ public class ConfigLoader {
                                 if (target != null) {
                                     switch(type) {
                                         case INTEGER:
+                                            if (!(target.type.equals(Integer.TYPE) || target.type.equals(Integer.class))) {
+                                                BetterCaves.LOGGER.error(String.format("ERROR: WRONG TYPE for %s in config %s. Skipping...", fullName, fileName));
+                                                i = line.length();
+                                                continue;
+                                            }
                                             target.set(prop.getInt());
                                             break;
                                         case DOUBLE:
+                                            if (!(target.type.equals(Double.TYPE) || target.type.equals(Double.class) || target.type.equals(Float.TYPE) || target.type.equals(Float.class))) {
+                                                BetterCaves.LOGGER.error(String.format("ERROR: WRONG TYPE for %s in config %s. Skipping...", fullName, fileName));
+                                                i = line.length();
+                                                continue;
+                                            }
                                             if (target.type == Float.class)
                                                 target.set((float)prop.getDouble());
                                             else
                                                 target.set(prop.getDouble());
                                             break;
                                         case BOOLEAN:
+                                            if (!(target.type.equals(Boolean.TYPE) || target.type.equals(Boolean.class))) {
+                                                BetterCaves.LOGGER.error(String.format("ERROR: WRONG TYPE for %s in config %s. Skipping...", fullName, fileName));
+                                                i = line.length();
+                                                continue;
+                                            }
                                             if (!(line.substring(i+ 1).toLowerCase().equals("true") || line.substring(i+1).toLowerCase().equals("false")))
                                                 throw new RuntimeException(String.format("Invalid Boolean value for property '%s:%d'", fullName, lineNum));
                                             target.set(prop.getBoolean());
                                             break;
-                                        default:
+                                        default: // Strings or enums
+                                            if (!(target.type.equals(String.class) || target.type.equals(RegionSize.class) || target.type.equals(FastNoise.NoiseType.class))) {
+                                                BetterCaves.LOGGER.error(String.format("ERROR: WRONG TYPE for %s in config %s. Skipping...", fullName, fileName));
+                                                i = line.length();
+                                                continue;
+                                            }
                                             if (target.type == RegionSize.class)
                                                 target.set(RegionSize.valueOf(prop.getString()));
                                             else if (target.type == FastNoise.NoiseType.class)
@@ -181,10 +201,12 @@ public class ConfigLoader {
                                     }
                                     currCategory.put(name, prop);
                                 } else {
-                                    throw new RuntimeException(String.format("Skipping invalid property in config: %s", fullName));
+                                    BetterCaves.LOGGER.error(String.format("ERROR: INVALID PROPERTY %s in config %s. Skipping...", fullName, fileName));
+                                    i = line.length();
+                                    continue;
                                 }
 
-                                BetterCaves.LOGGER.debug(String.format("Better Caves config: overriding config option: %s", fullName));
+                                BetterCaves.LOGGER.debug(String.format("%s: overriding config option: %s", fileName, fullName));
 
                                 i = line.length();
                                 break;
@@ -243,7 +265,7 @@ public class ConfigLoader {
             }
         } catch (Exception e) {
             BetterCaves.LOGGER.error(String.format("ERROR LOADING BETTER CAVES CONFIG %s: %s.", fileName, e.toString()));
-            BetterCaves.LOGGER.info("USING GLOBAL CONFIG FILE INSTEAD!");
+            BetterCaves.LOGGER.info("USING GLOBAL CONFIG FILE INSTEAD...");
             return new ConfigHolder();
         } finally {
             IOUtils.closeQuietly(buffer);

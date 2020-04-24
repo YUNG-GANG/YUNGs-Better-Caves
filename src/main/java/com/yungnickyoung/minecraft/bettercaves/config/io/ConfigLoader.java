@@ -242,8 +242,8 @@ public class ConfigLoader {
                     tmpList.add(line.trim());
             }
         } catch (Exception e) {
-            BetterCaves.LOGGER.error(String.format("Error loading Better Caves config %s: %s.", fileName, e.toString()));
-            BetterCaves.LOGGER.info("Using global config file...");
+            BetterCaves.LOGGER.error(String.format("ERROR LOADING BETTER CAVES CONFIG %s: %s.", fileName, e.toString()));
+            BetterCaves.LOGGER.info("USING GLOBAL CONFIG FILE INSTEAD!");
             return new ConfigHolder();
         } finally {
             IOUtils.closeQuietly(buffer);

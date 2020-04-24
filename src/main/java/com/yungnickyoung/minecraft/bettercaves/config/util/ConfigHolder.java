@@ -155,7 +155,7 @@ public class ConfigHolder {
         waterRegionSize = new ConfigOption<>("Water Region Size", Configuration.caveSettings.waterRegions.waterRegionSize)
             .setCategory("general.underground generation.water regions")
             .addToMap(properties);
-        waterRegionCustomSize = new ConfigOption<>("Water Region Custom Size", Configuration.caveSettings.waterRegions.waterRegionCustomSize)
+        waterRegionCustomSize = new ConfigOption<>("Water Region Size Custom Value", Configuration.caveSettings.waterRegions.waterRegionCustomSize)
             .setCategory("general.underground generation.water regions")
             .addToMap(properties);
 
@@ -177,7 +177,7 @@ public class ConfigHolder {
         liquidAltitude = new ConfigOption<>("Liquid Altitude", Configuration.caveSettings.miscellaneous.liquidAltitude)
                 .setCategory("general.underground generation.miscellaneous")
                 .addToMap(properties);
-        replaceFloatingGravel = new ConfigOption<>("Replace Floating Gravel", Configuration.caveSettings.miscellaneous.replaceFloatingGravel)
+        replaceFloatingGravel = new ConfigOption<>("Prevent Cascading Gravel", Configuration.caveSettings.miscellaneous.replaceFloatingGravel)
                 .setCategory("general.underground generation.miscellaneous")
                 .addToMap(properties);
         overrideSurfaceDetection = new ConfigOption<>("Override Surface Detection", Configuration.caveSettings.miscellaneous.overrideSurfaceDetection)

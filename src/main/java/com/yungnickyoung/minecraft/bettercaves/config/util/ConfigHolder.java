@@ -1,5 +1,6 @@
-package com.yungnickyoung.minecraft.bettercaves.config;
+package com.yungnickyoung.minecraft.bettercaves.config.util;
 
+import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.enums.*;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 
@@ -9,7 +10,8 @@ import java.util.Map;
 /**
  * Holds all the config values specific to a single dimension.
  * By default, a dimension's values are equivalent to the global configuration found in
- * YUNG's Better Caves.cfg
+ * the base config file. This lets users only specify the options they want to override
+ * for each dimension.
  */
 public class ConfigHolder {
     /** Map of full names to ConfigOptions. Holds all config options.  */

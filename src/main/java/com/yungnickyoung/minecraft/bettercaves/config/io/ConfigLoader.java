@@ -1,6 +1,7 @@
-package com.yungnickyoung.minecraft.bettercaves.config;
+package com.yungnickyoung.minecraft.bettercaves.config.io;
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
+import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.enums.*;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import net.minecraftforge.common.config.ConfigCategory;
@@ -32,16 +33,16 @@ public class ConfigLoader {
         File configFile = new File(BetterCaves.customConfigDir, fileName);
 
         if (!configFile.exists() || configFile.isDirectory()) {
-            Settings.LOGGER.info(String.format("Better Caves config file for dimension %d not found. Using global config...", dimensionID));
+            BetterCaves.LOGGER.info(String.format("Better Caves config file for dimension %d not found. Using global config...", dimensionID));
             return new ConfigHolder();
         }
 
         if (!configFile.canRead()) {
-            Settings.LOGGER.warn(String.format("Better Caves config file for dimension %d not readable. Using global config...", dimensionID));
+            BetterCaves.LOGGER.warn(String.format("Better Caves config file for dimension %d not readable. Using global config...", dimensionID));
             return new ConfigHolder();
         }
 
-        Settings.LOGGER.info(String.format("Reading Better Caves config from file for dimension %d...", dimensionID));
+        BetterCaves.LOGGER.info(String.format("Reading Better Caves config from file for dimension %d...", dimensionID));
         return parseConfigFromFile(configFile);
     }
 
@@ -147,7 +148,7 @@ public class ConfigLoader {
                                     throw new RuntimeException(String.format("'%s' has no scope (missing category?) in '%s:%d'", name, fileName, lineNum));
 
                                 if (!isTypeSpecified) {
-                                    Settings.LOGGER.warn(String.format("Error in Better Caves config for %s (line %d): missing variable type specifier. Inferring String...", fileName, lineNum));
+                                    BetterCaves.LOGGER.warn(String.format("Error in Better Caves config for %s (line %d): missing variable type specifier. Inferring String...", fileName, lineNum));
                                 }
 
                                 Property prop = new Property(name, line.substring(i + 1), type, true);
@@ -183,7 +184,7 @@ public class ConfigLoader {
                                     throw new RuntimeException(String.format("Skipping invalid property in config: %s", fullName));
                                 }
 
-                                Settings.LOGGER.debug(String.format("Better Caves config: overriding config option: %s", fullName));
+                                BetterCaves.LOGGER.debug(String.format("Better Caves config: overriding config option: %s", fullName));
 
                                 i = line.length();
                                 break;
@@ -241,8 +242,8 @@ public class ConfigLoader {
                     tmpList.add(line.trim());
             }
         } catch (Exception e) {
-            Settings.LOGGER.error(String.format("Error loading Better Caves config %s: %s.", fileName, e.toString()));
-            Settings.LOGGER.info("Using global config file...");
+            BetterCaves.LOGGER.error(String.format("Error loading Better Caves config %s: %s.", fileName, e.toString()));
+            BetterCaves.LOGGER.info("Using global config file...");
             return new ConfigHolder();
         } finally {
             IOUtils.closeQuietly(buffer);

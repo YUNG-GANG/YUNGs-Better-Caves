@@ -1,13 +1,16 @@
 package com.yungnickyoung.minecraft.bettercaves.world.mineshaft;
 
-import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
-import com.yungnickyoung.minecraft.bettercaves.config.ConfigLoader;
+import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
+import com.yungnickyoung.minecraft.bettercaves.config.io.ConfigLoader;
+import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeMesa;
 import net.minecraft.world.chunk.ChunkPrimer;
+import net.minecraft.world.gen.MapGenBase;
 import net.minecraft.world.gen.structure.*;
+import net.minecraftforge.event.terraingen.InitMapGenEvent;
 
 
 import java.util.Random;
@@ -19,7 +22,12 @@ import java.util.Random;
  * Note -- this was made before my other mod, YUNG's Better Mineshafts, and is not related to it.
  */
 public class MapGenBetterMineshaft extends MapGenMineshaft {
+    private MapGenBase defaultMineshaftGen;
     private int liquidAltitude;
+
+    public MapGenBetterMineshaft(InitMapGenEvent event) {
+        this.defaultMineshaftGen = event.getOriginalGen();
+    }
 
     @Override
     protected StructureStart getStructureStart(int chunkX, int chunkZ) {
@@ -32,6 +40,12 @@ public class MapGenBetterMineshaft extends MapGenMineshaft {
 
     @Override
     public void generate(World worldIn, int x, int z, ChunkPrimer primer) {
+        // Only operate on whitelisted dimensions.
+        if (!BetterCavesUtils.isDimensionWhitelisted(worldIn.provider.getDimension())) {
+            defaultMineshaftGen.generate(worldIn, x, z, primer);
+            return;
+        }
+
         if (world == null) { // First call - lazy initialization
             this.initialize(worldIn);
         }

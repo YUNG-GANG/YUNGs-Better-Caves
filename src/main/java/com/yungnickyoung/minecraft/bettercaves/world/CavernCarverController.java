@@ -1,7 +1,8 @@
 package com.yungnickyoung.minecraft.bettercaves.world;
 
-import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
-import com.yungnickyoung.minecraft.bettercaves.config.Settings;
+import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
+import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
+import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.enums.RegionSize;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
@@ -63,9 +64,9 @@ public class CavernCarverController {
         float spawnChance = config.cavernSpawnChance.get() / 100f;
         int totalPriority = carvers.stream().map(CavernCarver::getPriority).reduce(0, Integer::sum);
 
-        Settings.LOGGER.debug("CAVERN INFORMATION");
-        Settings.LOGGER.debug("--> SPAWN CHANCE SET TO: " + spawnChance);
-        Settings.LOGGER.debug("--> TOTAL PRIORITY: " + totalPriority);
+        BetterCaves.LOGGER.debug("CAVERN INFORMATION");
+        BetterCaves.LOGGER.debug("--> SPAWN CHANCE SET TO: " + spawnChance);
+        BetterCaves.LOGGER.debug("--> TOTAL PRIORITY: " + totalPriority);
 
         carvers.removeIf(carver -> carver.getPriority() == 0);
         float totalDeadzonePercent = 1 - spawnChance;
@@ -73,12 +74,12 @@ public class CavernCarverController {
                 ? totalDeadzonePercent / (carvers.size() - 1)
                 : totalDeadzonePercent;
 
-        Settings.LOGGER.debug("--> DEADZONE PERCENT: " + deadzonePercent + "(" + totalDeadzonePercent + " TOTAL)");
+        BetterCaves.LOGGER.debug("--> DEADZONE PERCENT: " + deadzonePercent + "(" + totalDeadzonePercent + " TOTAL)");
 
         float currNoise = -1f;
 
         for (CavernCarver carver : carvers) {
-            Settings.LOGGER.debug("--> CARVER");
+            BetterCaves.LOGGER.debug("--> CARVER");
             float rangeCDFPercent = (float)carver.getPriority() / totalPriority * spawnChance;
             float topNoise = NoiseUtils.simplexNoiseOffsetByPercent(currNoise, rangeCDFPercent);
             CarverNoiseRange range = new CarverNoiseRange(currNoise, topNoise, carver);
@@ -87,8 +88,8 @@ public class CavernCarverController {
             // Offset currNoise for deadzone region
             currNoise = NoiseUtils.simplexNoiseOffsetByPercent(topNoise, deadzonePercent);
 
-            Settings.LOGGER.debug("    --> RANGE PERCENT LENGTH WANTED: " + rangeCDFPercent);
-            Settings.LOGGER.debug("    --> RANGE FOUND: " + range);
+            BetterCaves.LOGGER.debug("    --> RANGE PERCENT LENGTH WANTED: " + rangeCDFPercent);
+            BetterCaves.LOGGER.debug("    --> RANGE FOUND: " + range);
         }
     }
 
@@ -101,12 +102,12 @@ public class CavernCarverController {
         boolean flooded = false;
         float smoothAmpFactor = 1;
 
-        for (int subX = 0; subX < 16 / Settings.SUB_CHUNK_SIZE; subX++) {
-            for (int subZ = 0; subZ < 16 / Settings.SUB_CHUNK_SIZE; subZ++) {
-                int startX = subX * Settings.SUB_CHUNK_SIZE;
-                int startZ = subZ * Settings.SUB_CHUNK_SIZE;
-                int endX = startX + Settings.SUB_CHUNK_SIZE - 1;
-                int endZ = startZ + Settings.SUB_CHUNK_SIZE - 1;
+        for (int subX = 0; subX < 16 / BCSettings.SUB_CHUNK_SIZE; subX++) {
+            for (int subZ = 0; subZ < 16 / BCSettings.SUB_CHUNK_SIZE; subZ++) {
+                int startX = subX * BCSettings.SUB_CHUNK_SIZE;
+                int startZ = subZ * BCSettings.SUB_CHUNK_SIZE;
+                int endX = startX + BCSettings.SUB_CHUNK_SIZE - 1;
+                int endZ = startZ + BCSettings.SUB_CHUNK_SIZE - 1;
                 BlockPos startPos = new BlockPos(chunkX * 16 + startX, 1, chunkZ * 16 + startZ);
                 BlockPos endPos = new BlockPos(chunkX * 16 + endX, 1, chunkZ * 16 + endZ);
 
@@ -126,8 +127,8 @@ public class CavernCarverController {
                     }
                 }
 
-                for (int offsetX = 0; offsetX < Settings.SUB_CHUNK_SIZE; offsetX++) {
-                    for (int offsetZ = 0; offsetZ < Settings.SUB_CHUNK_SIZE; offsetZ++) {
+                for (int offsetX = 0; offsetX < BCSettings.SUB_CHUNK_SIZE; offsetX++) {
+                    for (int offsetZ = 0; offsetZ < BCSettings.SUB_CHUNK_SIZE; offsetZ++) {
                         int localX = startX + offsetX;
                         int localZ = startZ + offsetZ;
                         BlockPos colPos = new BlockPos(chunkX * 16 + localX, 1, chunkZ * 16 + localZ);

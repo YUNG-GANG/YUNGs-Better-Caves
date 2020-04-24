@@ -1,17 +1,12 @@
 package com.yungnickyoung.minecraft.bettercaves.world.carver.surface;
 
-import com.yungnickyoung.minecraft.bettercaves.config.Settings;
+import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
-import com.yungnickyoung.minecraft.bettercaves.world.WaterRegionController;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.ICarver;
-import net.minecraft.block.BlockSand;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.MapGenCaves;
 
@@ -44,8 +39,8 @@ public class VanillaCaveCarver extends MapGenCaves implements ICarver {
         this.isDebugVisualizerEnabled = builder.isDebugVisualizerEnabled();
         this.isReplaceGravel = builder.isReplaceGravel();
         if (bottomY > topY) {
-            Settings.LOGGER.warn("Warning: Min altitude for vanilla caves should not be greater than max altitude.");
-            Settings.LOGGER.warn("Using default values...");
+            BetterCaves.LOGGER.warn("Warning: Min altitude for vanilla caves should not be greater than max altitude.");
+            BetterCaves.LOGGER.warn("Using default values...");
             this.bottomY = 40;
             this.topY = 128;
         }

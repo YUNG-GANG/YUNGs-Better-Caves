@@ -15,7 +15,7 @@ import net.minecraftforge.common.config.Config;
  * ConfigHolder is created. Separate ConfigHolders are created for each dimension. This allows any or all
  * config values to be overridden differently for each dimension.
  */
-@Config(modid = Settings.MOD_ID, name = "bettercaves-1_12_2")
+@Config(modid = BCSettings.MOD_ID, name = "bettercaves-1_12_2")
 public class Configuration {
     @Config.Name("Underground Generation")
     @Config.Comment("Configure settings related to caves, caverns, ravines and more.")

@@ -1,6 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.event;
 
-import com.yungnickyoung.minecraft.bettercaves.config.Settings;
+import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
@@ -17,8 +17,8 @@ public class EventConfigReload {
     @SubscribeEvent
     public void onConfigReload(ConfigChangedEvent.OnConfigChangedEvent event) {
         // Only mess with config syncing if it is this mod being changed
-        if (Settings.MOD_ID.equals(event.getModID()))
-            ConfigManager.sync(Settings.MOD_ID, Config.Type.INSTANCE);
+        if (BCSettings.MOD_ID.equals(event.getModID()))
+            ConfigManager.sync(BCSettings.MOD_ID, Config.Type.INSTANCE);
     }
 
 

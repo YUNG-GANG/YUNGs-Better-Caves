@@ -1,5 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.util;
 
+import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -152,5 +153,19 @@ public class BetterCavesUtils {
 
     public static int getLocal(int coordinate) {
         return coordinate & 0xF; // This is same as modulo 16, but quicker
+    }
+
+    /**
+     * @return true if the provided dimension ID is whitelisted in the config
+     */
+    public static boolean isDimensionWhitelisted(int dimID) {
+        // Ignore the dimension ID list if global whitelisting is enabled
+        if (Configuration.enableGlobalWhitelist)
+            return true;
+
+        for (int dim : Configuration.whitelistedDimensionIDs)
+            if (dimID == dim) return true;
+
+        return false;
     }
 }

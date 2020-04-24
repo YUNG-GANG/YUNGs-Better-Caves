@@ -1,6 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.world.carver.cave;
 
-import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
+import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverSettings;

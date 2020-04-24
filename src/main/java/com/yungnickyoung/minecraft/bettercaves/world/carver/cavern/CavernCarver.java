@@ -1,6 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.world.carver.cavern;
 
-import com.yungnickyoung.minecraft.bettercaves.config.Settings;
+import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseColumn;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
@@ -40,8 +40,8 @@ public class CavernCarver implements ICarver {
         bottomY = builder.getBottomY();
         topY = builder.getTopY();
         if (bottomY > topY) {
-            Settings.LOGGER.warn("Warning: Min altitude for caverns should not be greater than max altitude.");
-            Settings.LOGGER.warn("Using default values...");
+            BetterCaves.LOGGER.warn("Warning: Min altitude for caverns should not be greater than max altitude.");
+            BetterCaves.LOGGER.warn("Using default values...");
             this.bottomY = 1;
             this.topY = 35;
         }

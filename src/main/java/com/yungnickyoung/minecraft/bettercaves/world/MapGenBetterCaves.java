@@ -1,10 +1,9 @@
 package com.yungnickyoung.minecraft.bettercaves.world;
 
-import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
-import com.yungnickyoung.minecraft.bettercaves.config.Settings;
-import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
-import com.yungnickyoung.minecraft.bettercaves.config.ConfigLoader;
+import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
+import com.yungnickyoung.minecraft.bettercaves.config.io.ConfigLoader;
+import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.bedrock.FlattenBedrock;
 import net.minecraft.block.state.IBlockState;
@@ -30,15 +29,8 @@ public class MapGenBetterCaves extends MapGenCaves {
     private CaveCarverController caveCarverController;
     private CavernCarverController cavernCarverController;
 
-    // Dimension this instance of MapGenBetterCaves is used in
-    private int dimensionID;
-    private String dimensionName;
-
-    // Config holder for non-global config options that may be specific to this carver
-    public ConfigHolder config = new ConfigHolder();
-
-    // DEBUG
-    private int counter = 200;
+    // Config holder for options specific to this carver
+    public ConfigHolder config;
 
     public MapGenBetterCaves(InitMapGenEvent event) {
         this.defaultCaveGen = event.getOriginalGen();
@@ -55,25 +47,14 @@ public class MapGenBetterCaves extends MapGenCaves {
      */
     @Override
     public void generate(World worldIn, int chunkX, int chunkZ, @Nonnull ChunkPrimer primer) {
-        if (world == null) { // First call - lazy initialization of all controllers and config
-            this.initialize(worldIn);
-        }
-
         // Only operate on whitelisted dimensions.
-        // I tried just setting the event's NewGen to its OriginalGen but turns out that doesn't
-        // doesn't do anything after the cave gen process has been initiated.
-        if (!isDimensionWhitelisted(dimensionID)) {
+        if (!BetterCavesUtils.isDimensionWhitelisted(worldIn.provider.getDimension())) {
             defaultCaveGen.generate(worldIn, chunkX, chunkZ, primer);
             return;
         }
 
-        // DEBUG
-        counter--;
-        if (counter <= 0) {
-            Settings.LOGGER.debug("BETTERCAVESWORLD " + world.getSeed() + " | " +
-                    BetterCavesUtils.dimensionAsString(dimensionID, dimensionName) + " | " +
-                    BetterCaves.activeCarversMap.size() + " | " + this.hashCode());
-            counter = 200;
+        if (world == null) { // First call - lazy initialization of all controllers and config
+            this.initialize(worldIn);
         }
 
         // Flatten bedrock, if enabled
@@ -82,12 +63,12 @@ public class MapGenBetterCaves extends MapGenCaves {
 
         // Determine surface altitudes in this chunk
         int[][] surfaceAltitudes = new int[16][16];
-        for (int subX = 0; subX < 16 / Settings.SUB_CHUNK_SIZE; subX++) {
-            for (int subZ = 0; subZ < 16 / Settings.SUB_CHUNK_SIZE; subZ++) {
-                int startX = subX * Settings.SUB_CHUNK_SIZE;
-                int startZ = subZ * Settings.SUB_CHUNK_SIZE;
-                for (int offsetX = 0; offsetX < Settings.SUB_CHUNK_SIZE; offsetX++) {
-                    for (int offsetZ = 0; offsetZ < Settings.SUB_CHUNK_SIZE; offsetZ++) {
+        for (int subX = 0; subX < 16 / BCSettings.SUB_CHUNK_SIZE; subX++) {
+            for (int subZ = 0; subZ < 16 / BCSettings.SUB_CHUNK_SIZE; subZ++) {
+                int startX = subX * BCSettings.SUB_CHUNK_SIZE;
+                int startZ = subZ * BCSettings.SUB_CHUNK_SIZE;
+                for (int offsetX = 0; offsetX < BCSettings.SUB_CHUNK_SIZE; offsetX++) {
+                    for (int offsetZ = 0; offsetZ < BCSettings.SUB_CHUNK_SIZE; offsetZ++) {
                         int surfaceHeight;
                         if (config.overrideSurfaceDetection.get()) {
                             surfaceHeight = 1; // Don't waste time calculating surface height if it's going to be overridden anyway
@@ -116,38 +97,13 @@ public class MapGenBetterCaves extends MapGenCaves {
     private void initialize(World worldIn) {
         // Extract world information
         this.world = worldIn;
-        this.dimensionID = worldIn.provider.getDimension();
-        this.dimensionName = worldIn.provider.getDimensionType().toString();
 
         // Load config for this dimension
-        this.config = ConfigLoader.loadConfigFromFileForDimension(this.dimensionID);
-
-        // Add this carver to map of active carvers by dimension ID.
-        // Note that if a carver already exists for this dimension ID, its position
-        // in the list will be overwritten.
-        BetterCaves.activeCarversMap.put(dimensionID, this);
-
-        // DEBUG
-        Settings.LOGGER.debug("BETTERCAVESWORLDINIT " + BetterCavesUtils.dimensionAsString(dimensionID, dimensionName));
-        Settings.LOGGER.debug("# of carvers: "+ BetterCaves.activeCarversMap.size());
+        this.config = ConfigLoader.loadConfigFromFileForDimension(world.provider.getDimension());
 
         // Initialize controllers
-        this.waterRegionController = new WaterRegionController(worldIn, config);
+        this.waterRegionController = new WaterRegionController(world, config);
         this.caveCarverController = new CaveCarverController(world, config);
         this.cavernCarverController = new CavernCarverController(worldIn, config);
-    }
-
-    /**
-     * @return true if the provided dimension ID is whitelisted in the config
-     */
-    private boolean isDimensionWhitelisted(int dimID) {
-        // Ignore the dimension ID list if global whitelisting is enabled
-        if (Configuration.enableGlobalWhitelist)
-            return true;
-
-        for (int dim : Configuration.whitelistedDimensionIDs)
-            if (dimID == dim) return true;
-
-        return false;
     }
 }

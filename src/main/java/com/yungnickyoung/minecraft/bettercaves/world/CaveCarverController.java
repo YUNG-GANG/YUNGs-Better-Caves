@@ -1,7 +1,8 @@
 package com.yungnickyoung.minecraft.bettercaves.world;
 
-import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
-import com.yungnickyoung.minecraft.bettercaves.config.Settings;
+import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
+import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
+import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
 import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
 import com.yungnickyoung.minecraft.bettercaves.enums.RegionSize;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
@@ -12,7 +13,6 @@ import com.yungnickyoung.minecraft.bettercaves.world.carver.cave.CaveCarver;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.cave.CaveCarverBuilder;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.surface.VanillaCaveCarver;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.surface.VanillaCaveCarverBuilder;
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
@@ -95,20 +95,20 @@ public class CaveCarverController {
         float totalRangeLength = maxPossibleNoiseThreshold - -1f;
         float currNoise = -1f;
 
-        Settings.LOGGER.debug("CAVE INFORMATION");
-        Settings.LOGGER.debug("--> MAX POSSIBLE THRESHOLD: " + maxPossibleNoiseThreshold);
-        Settings.LOGGER.debug("--> TOTAL PRIORITY: " + totalPriority);
-        Settings.LOGGER.debug("--> TOTAL RANGE LENGTH: " + totalRangeLength);
+        BetterCaves.LOGGER.debug("CAVE INFORMATION");
+        BetterCaves.LOGGER.debug("--> MAX POSSIBLE THRESHOLD: " + maxPossibleNoiseThreshold);
+        BetterCaves.LOGGER.debug("--> TOTAL PRIORITY: " + totalPriority);
+        BetterCaves.LOGGER.debug("--> TOTAL RANGE LENGTH: " + totalRangeLength);
 
         for (ICarver carver : carvers) {
-            Settings.LOGGER.debug("--> CARVER");
+            BetterCaves.LOGGER.debug("--> CARVER");
             float noiseRangeLength = (float)carver.getPriority() / totalPriority * totalRangeLength;
             float rangeTop = currNoise + noiseRangeLength;
             CarverNoiseRange range = new CarverNoiseRange(currNoise, rangeTop, carver);
             currNoise = rangeTop;
             noiseRanges.add(range);
 
-            Settings.LOGGER.debug("    --> RANGE FOUND: " + range);
+            BetterCaves.LOGGER.debug("    --> RANGE FOUND: " + range);
         }
     }
 
@@ -129,12 +129,12 @@ public class CaveCarverController {
         boolean[][] vanillaCarvingMask = new boolean[16][16];
 
         // Break into subchunks for noise interpolation
-        for (int subX = 0; subX < 16 / Settings.SUB_CHUNK_SIZE; subX++) {
-            for (int subZ = 0; subZ < 16 / Settings.SUB_CHUNK_SIZE; subZ++) {
-                int startX = subX * Settings.SUB_CHUNK_SIZE;
-                int startZ = subZ * Settings.SUB_CHUNK_SIZE;
-                int endX = startX + Settings.SUB_CHUNK_SIZE - 1;
-                int endZ = startZ + Settings.SUB_CHUNK_SIZE - 1;
+        for (int subX = 0; subX < 16 / BCSettings.SUB_CHUNK_SIZE; subX++) {
+            for (int subZ = 0; subZ < 16 / BCSettings.SUB_CHUNK_SIZE; subZ++) {
+                int startX = subX * BCSettings.SUB_CHUNK_SIZE;
+                int startZ = subZ * BCSettings.SUB_CHUNK_SIZE;
+                int endX = startX + BCSettings.SUB_CHUNK_SIZE - 1;
+                int endZ = startZ + BCSettings.SUB_CHUNK_SIZE - 1;
                 BlockPos startPos = new BlockPos(chunkX * 16 + startX, 1, chunkZ * 16 + startZ);
                 BlockPos endPos = new BlockPos(chunkX * 16 + endX, 1, chunkZ * 16 + endZ);
 
@@ -154,8 +154,8 @@ public class CaveCarverController {
                 }
 
                 // Offset within subchunk
-                for (int offsetX = 0; offsetX < Settings.SUB_CHUNK_SIZE; offsetX++) {
-                    for (int offsetZ = 0; offsetZ < Settings.SUB_CHUNK_SIZE; offsetZ++) {
+                for (int offsetX = 0; offsetX < BCSettings.SUB_CHUNK_SIZE; offsetX++) {
+                    for (int offsetZ = 0; offsetZ < BCSettings.SUB_CHUNK_SIZE; offsetZ++) {
                         int localX = startX + offsetX;
                         int localZ = startZ + offsetZ;
                         BlockPos colPos = new BlockPos(chunkX * 16 + localX, 1, chunkZ * 16 + localZ);

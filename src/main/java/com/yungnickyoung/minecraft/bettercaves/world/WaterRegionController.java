@@ -1,7 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves.world;
 
-import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
-import com.yungnickyoung.minecraft.bettercaves.config.Settings;
+import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
+import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.enums.RegionSize;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtils;
@@ -23,7 +23,7 @@ public class WaterRegionController {
     private String dimensionName;
     private Random rand;
 
-    // Vars from config
+    // Vars determined from config
     private IBlockState lavaBlock;
     private IBlockState waterBlock;
     private float waterRegionThreshold;
@@ -139,15 +139,15 @@ public class WaterRegionController {
         IBlockState lavaBlock;
         try {
             lavaBlock = Block.getBlockFromName(lavaString).getDefaultState();
-            Settings.LOGGER.info("Using block '" + lavaString + "' as lava in cave generation for dimension " +
+            BetterCaves.LOGGER.info("Using block '" + lavaString + "' as lava in cave generation for dimension " +
                     BetterCavesUtils.dimensionAsString(dimensionID, dimensionName) + " ...");
         } catch (Exception e) {
-            Settings.LOGGER.warn("Unable to use block '" + lavaString + "': " + e);
-            Settings.LOGGER.warn("Using vanilla lava instead...");
+            BetterCaves.LOGGER.warn("Unable to use block '" + lavaString + "': " + e);
+            BetterCaves.LOGGER.warn("Using vanilla lava instead...");
             lavaBlock = Blocks.LAVA.getDefaultState();
         }
         if (lavaBlock == null) {
-            Settings.LOGGER.warn("Unable to use block '" + lavaString + "': null block returned.\n Using vanilla lava instead...");
+            BetterCaves.LOGGER.warn("Unable to use block '" + lavaString + "': null block returned.\n Using vanilla lava instead...");
             lavaBlock = Blocks.LAVA.getDefaultState();
         }
         return lavaBlock;
@@ -157,16 +157,16 @@ public class WaterRegionController {
         IBlockState waterBlock;
         try {
             waterBlock = Block.getBlockFromName(waterString).getDefaultState();
-            Settings.LOGGER.info("Using block '" + waterString + "' as water in cave generation for dimension " +
+            BetterCaves.LOGGER.info("Using block '" + waterString + "' as water in cave generation for dimension " +
                     BetterCavesUtils.dimensionAsString(dimensionID, dimensionName) + " ...");
         } catch (Exception e) {
-            Settings.LOGGER.warn("Unable to use block '" + waterString + "': " + e);
-            Settings.LOGGER.warn("Using vanilla water instead...");
+            BetterCaves.LOGGER.warn("Unable to use block '" + waterString + "': " + e);
+            BetterCaves.LOGGER.warn("Using vanilla water instead...");
             waterBlock = Blocks.WATER.getDefaultState();
         }
 
         if (waterBlock == null) {
-            Settings.LOGGER.warn("Unable to use block '" + waterString + "': null block returned.\n Using vanilla water instead...");
+            BetterCaves.LOGGER.warn("Unable to use block '" + waterString + "': null block returned.\n Using vanilla water instead...");
             waterBlock = Blocks.WATER.getDefaultState();
         }
 

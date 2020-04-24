@@ -72,7 +72,7 @@ public class ConfigHolder {
                 .setCategory("general.underground generation.caves.type 2 caves")
                 .addToMap(properties);
         simplexCavePriority = new ConfigOption<>("Type 2 Cave Priority", Configuration.caveSettings.caves.simplexCave.cavePriority)
-                .setCategory("general.underground generation.caves.type 1 caves")
+                .setCategory("general.underground generation.caves.type 2 caves")
                 .addToMap(properties);
 
         // Surface cave settings

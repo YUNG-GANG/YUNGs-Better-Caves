@@ -3,7 +3,8 @@ package com.yungnickyoung.minecraft.bettercaves.proxy;
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.ConfigHelper;
 import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
-import com.yungnickyoung.minecraft.bettercaves.config.Settings;
+import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
+import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.world.CarverFeature;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.Biome;
@@ -22,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class NewCommonProxy {
-    private static final DeferredRegister<Feature<?>> FEATURES = new DeferredRegister<>(ForgeRegistries.FEATURES, Settings.MOD_ID);
+    private static final DeferredRegister<Feature<?>> FEATURES = new DeferredRegister<>(ForgeRegistries.FEATURES, BCSettings.MOD_ID);
     public static final CarverFeature BETTERCAVES_CARVER = new CarverFeature(NoFeatureConfig::deserialize);
     public static final RegistryObject<Feature<?>> BETTERCAVES_CARVER_FEATURE = FEATURES.register("bettercave", () -> BETTERCAVES_CARVER);
 
@@ -55,8 +56,8 @@ public class NewCommonProxy {
     public static void configChanged(ModConfig.ModConfigEvent event) {
         final ModConfig config = event.getConfig();
 
-        // Rebake the configs when they change
-        if (config.getSpec() == ConfigHolder.CLIENT_SPEC) {
+        // Rebake the config settings when they change
+        if (config.getSpec() == Configuration.SPEC) {
             ConfigHelper.bakeClient(config);
             BetterCaves.LOGGER.debug("Baked client config");
         }

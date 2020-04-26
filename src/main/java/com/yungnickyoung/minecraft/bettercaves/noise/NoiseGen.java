@@ -1,6 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.noise;
 
-import com.yungnickyoung.minecraft.bettercaves.config.Settings;
+import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -135,8 +135,8 @@ public class NoiseGen {
                     startCoeff = (float)(endY - startY - y - startY) / (endY - startY);
                     endCoeff = (float)(y - startY) / (endY - startY);
                 } else {
-                    startCoeff = Settings.START_COEFFS[y - startY];
-                    endCoeff = Settings.END_COEFFS[y - startY];
+                    startCoeff = BCSettings.START_COEFFS[y - startY];
+                    endCoeff = BCSettings.END_COEFFS[y - startY];
                 }
                 NoiseTuple newTuple = startTuple
                     .times(startCoeff)
@@ -188,8 +188,8 @@ public class NoiseGen {
 
         // Populate edge planes along x axis
         for (int x = 1; x < subChunkSize - 1; x++) {
-            startCoeff = Settings.START_COEFFS[x];
-            endCoeff = Settings.END_COEFFS[x];
+            startCoeff = BCSettings.START_COEFFS[x];
+            endCoeff = BCSettings.END_COEFFS[x];
 
             NoiseColumn xz0 = cube.get(x).get(0);
             for (int y = minHeight; y <= maxHeight; y++) {
@@ -217,8 +217,8 @@ public class NoiseGen {
         // Populate rest of cube by interpolating the two edge planes
         for (int x = 0; x < subChunkSize; x++) {
             for (int z = 1; z < subChunkSize - 1; z++) {
-                startCoeff = Settings.START_COEFFS[z];
-                endCoeff = Settings.END_COEFFS[z];
+                startCoeff = BCSettings.START_COEFFS[z];
+                endCoeff = BCSettings.END_COEFFS[z];
 
                 NoiseColumn xz = cube.get(x).get(z);
 

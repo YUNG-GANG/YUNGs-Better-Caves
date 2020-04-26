@@ -4,7 +4,7 @@ package com.yungnickyoung.minecraft.bettercaves.world;
 import com.mojang.datafixers.util.Pair;
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.BetterCavesConfig;
-import com.yungnickyoung.minecraft.bettercaves.config.Settings;
+import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
 import com.yungnickyoung.minecraft.bettercaves.world.bedrock.FlattenBedrock;
 import net.minecraft.block.BlockState;
@@ -68,12 +68,12 @@ public class BetterCavesCarver {
 
         // Determine surface altitudes in this chunk
         int[][] surfaceAltitudes = new int[16][16];
-        for (int subX = 0; subX < 16 / Settings.SUB_CHUNK_SIZE; subX++) {
-            for (int subZ = 0; subZ < 16 / Settings.SUB_CHUNK_SIZE; subZ++) {
-                int startX = subX * Settings.SUB_CHUNK_SIZE;
-                int startZ = subZ * Settings.SUB_CHUNK_SIZE;
-                for (int offsetX = 0; offsetX < Settings.SUB_CHUNK_SIZE; offsetX++) {
-                    for (int offsetZ = 0; offsetZ < Settings.SUB_CHUNK_SIZE; offsetZ++) {
+        for (int subX = 0; subX < 16 / BCSettings.SUB_CHUNK_SIZE; subX++) {
+            for (int subZ = 0; subZ < 16 / BCSettings.SUB_CHUNK_SIZE; subZ++) {
+                int startX = subX * BCSettings.SUB_CHUNK_SIZE;
+                int startZ = subZ * BCSettings.SUB_CHUNK_SIZE;
+                for (int offsetX = 0; offsetX < BCSettings.SUB_CHUNK_SIZE; offsetX++) {
+                    for (int offsetZ = 0; offsetZ < BCSettings.SUB_CHUNK_SIZE; offsetZ++) {
                         int surfaceHeight;
                         if (BetterCavesConfig.overrideSurfaceDetection) {
                             surfaceHeight = 1; // Don't waste time calculating surface height if it's going to be overridden anyway

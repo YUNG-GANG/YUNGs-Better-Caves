@@ -3,7 +3,7 @@ package com.yungnickyoung.minecraft.bettercaves.world;
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.BetterCavesConfig;
 import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
-import com.yungnickyoung.minecraft.bettercaves.config.Settings;
+import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
 import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseColumn;
@@ -13,7 +13,6 @@ import com.yungnickyoung.minecraft.bettercaves.world.carver.cave.CaveCarver;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.cave.CaveCarverBuilder;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.IChunk;
@@ -127,12 +126,12 @@ public class CaveCarverController {
         boolean[][] vanillaCarvingMask = new boolean[16][16];
 
         // Break into subchunks for noise interpolation
-        for (int subX = 0; subX < 16 / Settings.SUB_CHUNK_SIZE; subX++) {
-            for (int subZ = 0; subZ < 16 / Settings.SUB_CHUNK_SIZE; subZ++) {
-                int startX = subX * Settings.SUB_CHUNK_SIZE;
-                int startZ = subZ * Settings.SUB_CHUNK_SIZE;
-                int endX = startX + Settings.SUB_CHUNK_SIZE - 1;
-                int endZ = startZ + Settings.SUB_CHUNK_SIZE - 1;
+        for (int subX = 0; subX < 16 / BCSettings.SUB_CHUNK_SIZE; subX++) {
+            for (int subZ = 0; subZ < 16 / BCSettings.SUB_CHUNK_SIZE; subZ++) {
+                int startX = subX * BCSettings.SUB_CHUNK_SIZE;
+                int startZ = subZ * BCSettings.SUB_CHUNK_SIZE;
+                int endX = startX + BCSettings.SUB_CHUNK_SIZE - 1;
+                int endZ = startZ + BCSettings.SUB_CHUNK_SIZE - 1;
                 BlockPos startPos = new BlockPos(chunkX * 16 + startX, 1, chunkZ * 16 + startZ);
                 BlockPos endPos = new BlockPos(chunkX * 16 + endX, 1, chunkZ * 16 + endZ);
 
@@ -152,8 +151,8 @@ public class CaveCarverController {
                 }
 
                 // Offset within subchunk
-                for (int offsetX = 0; offsetX < Settings.SUB_CHUNK_SIZE; offsetX++) {
-                    for (int offsetZ = 0; offsetZ < Settings.SUB_CHUNK_SIZE; offsetZ++) {
+                for (int offsetX = 0; offsetX < BCSettings.SUB_CHUNK_SIZE; offsetX++) {
+                    for (int offsetZ = 0; offsetZ < BCSettings.SUB_CHUNK_SIZE; offsetZ++) {
                         int localX = startX + offsetX;
                         int localZ = startZ + offsetZ;
                         BlockPos colPos = new BlockPos(chunkX * 16 + localX, 1, chunkZ * 16 + localZ);

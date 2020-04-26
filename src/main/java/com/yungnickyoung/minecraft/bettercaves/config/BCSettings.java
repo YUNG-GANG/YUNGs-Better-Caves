@@ -4,7 +4,7 @@ package com.yungnickyoung.minecraft.bettercaves.config;
  * Class containing settings and information for Better Caves.
  * All fields are {@code static}.
  */
-public class Settings {
+public class BCSettings {
     public static final String MOD_ID = "bettercaves";
 
     public static final String CUSTOM_CONFIG_PATH = "bettercaves-1_14_4";
@@ -22,5 +22,5 @@ public class Settings {
         }
     }
 
-    private Settings() {} // private constructor prevents instantiation
+    private BCSettings() {} // private constructor prevents instantiation
 }

@@ -2,48 +2,46 @@ package com.yungnickyoung.minecraft.bettercaves.config;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * Configuration options for Better Caves.
+ * <p>
+ * This class and all of its fields provide default config values.
+ * The values here are not actually used directly - they are baked into a ConfigHolder each time a new
+ * ConfigHolder is created. Separate ConfigHolders are created for each dimension. This allows any or all
+ * config values to be overridden differently for each dimension.
+ */
 public final class Configuration {
     public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
     public static final ForgeConfigSpec SPEC;
 
-    static final ConfigCaveGen configCaveGen;
-    static final ConfigDebug configDebug;
-    static final ForgeConfigSpec.ConfigValue<Integer> liquidAltitude;
-    static final ForgeConfigSpec.ConfigValue<Boolean> flattenBedrock;
-    static final ForgeConfigSpec.ConfigValue<String> lavaBlock;
-    static final ForgeConfigSpec.ConfigValue<String> waterBlock;
+    public static final ConfigUndergroundGen caveSettings;
+    public static final ConfigBedrockGen bedrockSettings;
+    public static final ConfigDebug debugSettings;
+    public static final ForgeConfigSpec.ConfigValue<List<Integer>> whitelistedDimensionIDs;
+    public static final ForgeConfigSpec.ConfigValue<Boolean> enableGlobalWhitelist;
 
-    static  {
+    static {
         BUILDER.push("Better Caves");
 
-        liquidAltitude = BUILDER
-                .comment(" Lava (or water in water regions) spawns at and below this y-coordinate." +
-                        "\n Default: 10")
-                .worldRestart()
-                .defineInRange("Liquid Altitude", 10, 0, 255);
+        caveSettings = new ConfigUndergroundGen(BUILDER);
+        bedrockSettings = new ConfigBedrockGen(BUILDER);
+        debugSettings = new ConfigDebug(BUILDER);
 
-        flattenBedrock = BUILDER
-                .comment(" Set this to true to replace the usual bedrock generation with a single flat layer." +
-                        "\n Default: true")
-                .worldRestart()
-                .define("Flatten Bedrock", true);
+        whitelistedDimensionIDs = BUILDER
+            .comment(" List of ID's of dimensions that will have Better Caves. Ignored if Global Whitelisting is enabled.")
+            .worldRestart()
+            .define("Whitelisted Dimension IDs", Arrays.asList(0));
 
-        lavaBlock = BUILDER
-                .comment("The block used for lava generation at and below the Liquid Altitude. " +
-                        "Defaults to regular lava if an invalid block is given." +
-                        "\n Default: minecraft:flowing_lava")
-                .worldRestart()
-                .define("Lava Block", "minecraft:lava");
-
-        waterBlock = BUILDER
-                .comment("The block used for water generation in  water caves/caverns at and below the Liquid Altitude. " +
-                        "Defaults to regular water if an invalid block is given." +
-                        "\n Default: minecraft:water")
-                .worldRestart()
-                .define("Water Block", "minecraft:water");
-
-        configCaveGen = new ConfigCaveGen(BUILDER);
-        configDebug = new ConfigDebug(BUILDER);
+        enableGlobalWhitelist = BUILDER
+            .comment(
+                " Automatically enables Better Caves in every possible dimension.\n" +
+                "     If this is enabled, the Whitelisted Dimension IDs option is ignored.\n" +
+                " Default: false")
+            .worldRestart()
+            .define("Enable Global Whitelist", false);
 
         BUILDER.pop();
 

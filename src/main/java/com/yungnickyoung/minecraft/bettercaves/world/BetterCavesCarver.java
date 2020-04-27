@@ -3,8 +3,8 @@ package com.yungnickyoung.minecraft.bettercaves.world;
 
 import com.mojang.datafixers.util.Pair;
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
-import com.yungnickyoung.minecraft.bettercaves.config.BetterCavesConfig;
 import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
+import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
 import com.yungnickyoung.minecraft.bettercaves.world.bedrock.FlattenBedrock;
 import net.minecraft.block.BlockState;
@@ -15,6 +15,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class BetterCavesCarver {
+    public ConfigHolder config;
+
     public int counter = 0;
     private long oldSeed = 0;
 
@@ -24,7 +26,6 @@ public class BetterCavesCarver {
 
     // The minecraft world
     public long seed = 0; // world seed
-    private DimensionType dimensionType;
 
     // List used to avoid operating on a chunk more than once
     public Set<Pair<Integer, Integer>> coordList = new HashSet<>();
@@ -62,8 +63,8 @@ public class BetterCavesCarver {
         counter++;
 
         // Flatten bedrock into single layer, if enabled in user config
-        if (BetterCavesConfig.flattenBedrock) {
-            FlattenBedrock.flattenBedrock(chunkIn, BetterCavesConfig.bedrockWidth);
+        if (config.flattenBedrock.get()) {
+            FlattenBedrock.flattenBedrock(chunkIn, config.bedrockWidth.get());
         }
 
         // Determine surface altitudes in this chunk
@@ -75,7 +76,7 @@ public class BetterCavesCarver {
                 for (int offsetX = 0; offsetX < BCSettings.SUB_CHUNK_SIZE; offsetX++) {
                     for (int offsetZ = 0; offsetZ < BCSettings.SUB_CHUNK_SIZE; offsetZ++) {
                         int surfaceHeight;
-                        if (BetterCavesConfig.overrideSurfaceDetection) {
+                        if (config.overrideSurfaceDetection.get()) {
                             surfaceHeight = 1; // Don't waste time calculating surface height if it's going to be overridden anyway
                         }
                         else {
@@ -104,16 +105,16 @@ public class BetterCavesCarver {
     public void initialize(long seed, DimensionType dimensionType) {
         // Extract world information
         this.seed = seed;
-        this.dimensionType = dimensionType;
 
         // TODO - load config for this dimension
+        this.config = new ConfigHolder();
 
         // TODO - add this carver to map of active carvers by dimension ID
 
         // Initialize controllers
-        this.waterRegionController = new WaterRegionController(seed, null);
-        this.caveCarverController = new CaveCarverController(seed, null);
-        this.cavernCarverController = new CavernCarverController(seed, null);
+        this.waterRegionController = new WaterRegionController(seed, config);
+        this.caveCarverController = new CaveCarverController(seed, config);
+        this.cavernCarverController = new CavernCarverController(seed, config);
 
         int dimensionId = dimensionType.getId();
         String dimensionName = DimensionType.getKey(dimensionType).toString();

@@ -1,7 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.world.carver.cavern;
 
-import com.yungnickyoung.minecraft.bettercaves.config.BetterCavesConfig;
-import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
+import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverSettings;
@@ -31,38 +30,38 @@ public class CavernCarverBuilder {
      * @param config the config
      */
     public CavernCarverBuilder ofTypeFromConfig(CavernType cavernType, ConfigHolder config) {
-        this.settings.setLiquidAltitude(BetterCavesConfig.liquidAltitude);
-        this.settings.setReplaceFloatingGravel(BetterCavesConfig.replaceFloatingGravel);
+        this.settings.setLiquidAltitude(config.liquidAltitude.get());
+        this.settings.setReplaceFloatingGravel(config.replaceFloatingGravel.get());
         this.settings.getNoiseSettings().setFractalType(FastNoise.FractalType.RigidMulti);
-        this.settings.setEnableDebugVisualizer(BetterCavesConfig.enableDebugVisualizer);
+        this.settings.setEnableDebugVisualizer(config.debugVisualizer.get());
         this.settings.setFastNoise(true);
         this.cavernType = cavernType;
         switch (cavernType) {
             case LIQUID:
-                this.settings.setNoiseThreshold(BetterCavesConfig.liquidCavernNoiseThreshold);
-                this.settings.getNoiseSettings().setNoiseType(FastNoise.NoiseType.SimplexFractal); // TODO - split into config option
-                this.settings.getNoiseSettings().setOctaves(BetterCavesConfig.liquidCavernFractalOctaves);
-                this.settings.getNoiseSettings().setGain(BetterCavesConfig.liquidCavernFractalGain);
-                this.settings.getNoiseSettings().setFrequency(BetterCavesConfig.liquidCavernFractalFreq);
-                this.settings.setNumGens(BetterCavesConfig.liquidCavernNumGenerators);
-                this.settings.setyCompression((float)BetterCavesConfig.liquidCavernYComp);
-                this.settings.setXzCompression((float)BetterCavesConfig.liquidCavernXZComp);
-                this.settings.setPriority(10);                                                      // TODO
-                this.bottomY = BetterCavesConfig.liquidCavernBottom;
-                this.topY = BetterCavesConfig.liquidCavernTop;
+                this.settings.setNoiseThreshold(config.liquidCavernNoiseThreshold.get().floatValue());
+                this.settings.getNoiseSettings().setNoiseType(FastNoise.NoiseType.valueOf(config.liquidCavernNoiseType.get()));
+                this.settings.getNoiseSettings().setOctaves(config.liquidCavernFractalOctaves.get());
+                this.settings.getNoiseSettings().setGain(config.liquidCavernFractalGain.get().floatValue());
+                this.settings.getNoiseSettings().setFrequency(config.liquidCavernFractalFrequency.get().floatValue());
+                this.settings.setNumGens(config.liquidCavernNumGenerators.get());
+                this.settings.setyCompression(config.liquidCavernYCompression.get().floatValue());
+                this.settings.setXzCompression(config.liquidCavernXZCompression.get().floatValue());
+                this.settings.setPriority(config.liquidCavernPriority.get());
+                this.bottomY = config.liquidCavernBottom.get();
+                this.topY = config.liquidCavernTop.get();
                 break;
             case FLOORED:
-                this.settings.setNoiseThreshold(BetterCavesConfig.flooredCavernNoiseThreshold);
-                this.settings.getNoiseSettings().setNoiseType(FastNoise.NoiseType.SimplexFractal); // TODO - split into config option
-                this.settings.getNoiseSettings().setOctaves(BetterCavesConfig.flooredCavernFractalOctaves);
-                this.settings.getNoiseSettings().setGain(BetterCavesConfig.flooredCavernFractalGain);
-                this.settings.getNoiseSettings().setFrequency(BetterCavesConfig.flooredCavernFractalFreq);
-                this.settings.setNumGens(BetterCavesConfig.flooredCavernNumGenerators);
-                this.settings.setyCompression((float)BetterCavesConfig.flooredCavernYComp);
-                this.settings.setXzCompression((float)BetterCavesConfig.flooredCavernXZComp);
-                this.settings.setPriority(10);                                                      // TODO
-                this.bottomY = BetterCavesConfig.flooredCavernBottom;
-                this.topY = BetterCavesConfig.flooredCavernTop;
+                this.settings.setNoiseThreshold(config.flooredCavernNoiseThreshold.get().floatValue());
+                this.settings.getNoiseSettings().setNoiseType(FastNoise.NoiseType.valueOf(config.flooredCavernNoiseType.get()));
+                this.settings.getNoiseSettings().setOctaves(config.flooredCavernFractalOctaves.get());
+                this.settings.getNoiseSettings().setGain(config.flooredCavernFractalGain.get().floatValue());
+                this.settings.getNoiseSettings().setFrequency(config.flooredCavernFractalFrequency.get().floatValue());
+                this.settings.setNumGens(config.flooredCavernNumGenerators.get());
+                this.settings.setyCompression(config.flooredCavernYCompression.get().floatValue());
+                this.settings.setXzCompression(config.flooredCavernXZCompression.get().floatValue());
+                this.settings.setPriority(config.flooredCavernPriority.get());
+                this.bottomY = config.flooredCavernBottom.get();
+                this.topY = config.flooredCavernTop.get();
                 break;
         }
         return this;

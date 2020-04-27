@@ -1,8 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves.world;
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
-import com.yungnickyoung.minecraft.bettercaves.config.BetterCavesConfig;
-import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
+import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtils;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
@@ -37,12 +36,12 @@ public class WaterRegionController {
         rand = new Random();
 
         // Vars from config
-        lavaBlock = getLavaBlockFromString(BetterCavesConfig.lavaBlock);
-        waterBlock = getWaterBlockFromString(BetterCavesConfig.waterBlock);
-        waterRegionThreshold = NoiseUtils.simplexNoiseOffsetByPercent(-1f, BetterCavesConfig.waterRegionSpawnChance / 100f);
+        lavaBlock = getLavaBlockFromString(config.lavaBlock.get());
+        waterBlock = getWaterBlockFromString(config.waterBlock.get());
+        waterRegionThreshold = NoiseUtils.simplexNoiseOffsetByPercent(-1f, config.waterRegionSpawnChance.get().floatValue() / 100f);
 
         // Water region controller
-        float waterRegionSize = BetterCavesConfig.cavernRegionSize.equals("ExtraLarge") ? .001f : .004f;
+        float waterRegionSize = config.cavernRegionSize.get().equals("ExtraLarge") ? .001f : .004f;
         waterRegionController = new FastNoise();
         waterRegionController.SetSeed((int)seed + 444);
         waterRegionController.SetFrequency(waterRegionSize);
@@ -90,7 +89,7 @@ public class WaterRegionController {
         }
 
         // Default to vanilla lava if lavaBlock is null or contains air (the default registry block) when air was not specified
-        if (lavaBlock == null || (lavaBlock == Blocks.AIR.getDefaultState() && !BetterCavesConfig.lavaBlock.equals("minecraft:air"))) {
+        if (lavaBlock == null || (lavaBlock == Blocks.AIR.getDefaultState() && !lavaString.equals("minecraft:air"))) {
             BetterCaves.LOGGER.warn("Unable to use block '" + lavaString + "': null block returned.\n Using vanilla lava instead...");
             lavaBlock = Blocks.LAVA.getDefaultState();
         }
@@ -110,7 +109,7 @@ public class WaterRegionController {
         }
 
         // Default to vanilla water if waterBlock is null or contains air (the default registry block) when air was not specified
-        if (waterBlock == null || (waterBlock == Blocks.AIR.getDefaultState() && !BetterCavesConfig.waterBlock.equals("minecraft:air"))) {
+        if (waterBlock == null || (waterBlock == Blocks.AIR.getDefaultState() && !waterString.equals("minecraft:air"))) {
             BetterCaves.LOGGER.warn("Unable to use block '" + waterString + "': null block returned.\n Using vanilla water instead...");
             waterBlock = Blocks.WATER.getDefaultState();
         }

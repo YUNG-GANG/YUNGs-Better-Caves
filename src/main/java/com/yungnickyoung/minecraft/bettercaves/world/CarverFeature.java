@@ -2,7 +2,7 @@ package com.yungnickyoung.minecraft.bettercaves.world;
 
 import com.mojang.datafixers.Dynamic;
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
-import com.yungnickyoung.minecraft.bettercaves.config.BetterCavesConfig;
+import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import net.minecraft.util.SharedSeedRandom;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -89,10 +89,10 @@ public class CarverFeature extends Feature<NoFeatureConfig> {
      */
     private boolean isDimensionWhitelisted(int dimID) {
         // Ignore the dimension ID list if global whitelisting is enabled
-        if (BetterCavesConfig.enableGlobalWhitelisting)
+        if (Configuration.enableGlobalWhitelist.get())
             return true;
 
-        for (int dim : BetterCavesConfig.whitelistedDimensions)
+        for (int dim : Configuration.whitelistedDimensionIDs.get())
             if (dimID == dim) return true;
 
         return false;

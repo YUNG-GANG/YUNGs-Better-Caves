@@ -1,7 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.world.carver.cave;
 
-import com.yungnickyoung.minecraft.bettercaves.config.BetterCavesConfig;
-import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
+import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverSettings;
@@ -34,46 +33,46 @@ public class CaveCarverBuilder {
      * @param config the config
      */
     public CaveCarverBuilder ofTypeFromConfig(CaveType caveType, ConfigHolder config) {
-        this.settings.setLiquidAltitude(BetterCavesConfig.liquidAltitude);
-        this.settings.setReplaceFloatingGravel(BetterCavesConfig.replaceFloatingGravel);
-        this.settings.setEnableDebugVisualizer(BetterCavesConfig.enableDebugVisualizer);
+        this.settings.setLiquidAltitude(config.liquidAltitude.get());
+        this.settings.setReplaceFloatingGravel(config.replaceFloatingGravel.get());
+        this.settings.setEnableDebugVisualizer(config.debugVisualizer.get());
         this.settings.getNoiseSettings().setFractalType(FastNoise.FractalType.RigidMulti);
         switch (caveType) {
             case CUBIC:
                 this.settings.setFastNoise(true);
-                this.settings.setNoiseThreshold(BetterCavesConfig.cubicNoiseThreshold);
-                this.settings.getNoiseSettings().setNoiseType(FastNoise.NoiseType.CubicFractal); // TODO - split into config option
-                this.settings.getNoiseSettings().setOctaves(BetterCavesConfig.cubicFractalOctaves);
-                this.settings.getNoiseSettings().setGain(BetterCavesConfig.cubicFractalGain);
-                this.settings.getNoiseSettings().setFrequency(BetterCavesConfig.cubicFractalFreq);
-                this.settings.setNumGens(BetterCavesConfig.cubicNumGenerators);
-                this.settings.setXzCompression((float)BetterCavesConfig.cubicXZComp);
-                this.settings.setyCompression((float)BetterCavesConfig.cubicYComp);
-                this.settings.setPriority(10);                                                  // TODO
-                this.surfaceCutoff = BetterCavesConfig.surfaceCutoff;                           // TODO - separate by cave
-                this.bottomY = BetterCavesConfig.cubicCaveBottom;
-                this.topY = BetterCavesConfig.maxCaveAltitude;                                  // TODO - separate by cave
-                this.enableYAdjust = BetterCavesConfig.cubicYAdjust;
-                this.yAdjustF1 = BetterCavesConfig.cubicYAdjustF1;
-                this.yAdjustF2 = BetterCavesConfig.cubicYAdjustF2;
+                this.settings.setNoiseThreshold(config.cubicCaveNoiseThreshold.get().floatValue());
+                this.settings.getNoiseSettings().setNoiseType(FastNoise.NoiseType.valueOf(config.cubicCaveNoiseType.get()));
+                this.settings.getNoiseSettings().setOctaves(config.cubicCaveFractalOctaves.get());
+                this.settings.getNoiseSettings().setGain(config.cubicCaveFractalGain.get().floatValue());
+                this.settings.getNoiseSettings().setFrequency(config.cubicCaveFractalFrequency.get().floatValue());
+                this.settings.setNumGens(config.cubicCaveNumGenerators.get());
+                this.settings.setXzCompression(config.cubicCaveXZCompression.get().floatValue());
+                this.settings.setyCompression(config.cubicCaveYCompression.get().floatValue());
+                this.settings.setPriority(config.cubicCavePriority.get());
+                this.surfaceCutoff = config.cubicCaveSurfaceCutoffDepth.get();
+                this.bottomY = config.cubicCaveBottom.get();
+                this.topY = config.cubicCaveTop.get();
+                this.enableYAdjust = config.cubicCaveEnableVerticalAdjustment.get();
+                this.yAdjustF1 = config.cubicCaveYAdjustF1.get().floatValue();
+                this.yAdjustF2 = config.cubicCaveYAdjustF2.get().floatValue();
                 break;
             case SIMPLEX:
                 this.settings.setFastNoise(false);
-                this.settings.setNoiseThreshold(BetterCavesConfig.simplexNoiseThreshold);
-                this.settings.getNoiseSettings().setNoiseType(FastNoise.NoiseType.SimplexFractal); // TODO - split into config option
-                this.settings.getNoiseSettings().setOctaves(BetterCavesConfig.simplexFractalOctaves);
-                this.settings.getNoiseSettings().setGain(BetterCavesConfig.simplexFractalGain);
-                this.settings.getNoiseSettings().setFrequency(BetterCavesConfig.simplexFractalFreq);
-                this.settings.setNumGens(BetterCavesConfig.simplexNumGenerators);
-                this.settings.setXzCompression((float)BetterCavesConfig.simplexXZComp);
-                this.settings.setyCompression((float)BetterCavesConfig.simplexYComp);
-                this.settings.setPriority(10);                                                  // TODO
-                this.surfaceCutoff = BetterCavesConfig.surfaceCutoff;                           // TODO - separate by cave
-                this.bottomY = BetterCavesConfig.simplexCaveBottom;
-                this.topY = BetterCavesConfig.maxCaveAltitude;                                  // TODO - separate by cave
-                this.enableYAdjust = BetterCavesConfig.simplexYAdjust;
-                this.yAdjustF1 = BetterCavesConfig.simplexYAdjustF1;
-                this.yAdjustF2 = BetterCavesConfig.simplexYAdjustF2;
+                this.settings.setNoiseThreshold(config.simplexCaveNoiseThreshold.get().floatValue());
+                this.settings.getNoiseSettings().setNoiseType(FastNoise.NoiseType.valueOf(config.simplexCaveNoiseType.get()));
+                this.settings.getNoiseSettings().setOctaves(config.simplexCaveFractalOctaves.get());
+                this.settings.getNoiseSettings().setGain(config.simplexCaveFractalGain.get().floatValue());
+                this.settings.getNoiseSettings().setFrequency(config.simplexCaveFractalFrequency.get().floatValue());
+                this.settings.setNumGens(config.simplexCaveNumGenerators.get());
+                this.settings.setXzCompression(config.simplexCaveXZCompression.get().floatValue());
+                this.settings.setyCompression(config.simplexCaveYCompression.get().floatValue());
+                this.settings.setPriority(config.simplexCavePriority.get());
+                this.surfaceCutoff = config.simplexCaveSurfaceCutoffDepth.get();
+                this.bottomY = config.simplexCaveBottom.get();
+                this.topY = config.simplexCaveTop.get();
+                this.enableYAdjust = config.simplexCaveEnableVerticalAdjustment.get();
+                this.yAdjustF1 = config.simplexCaveYAdjustF1.get().floatValue();
+                this.yAdjustF2 = config.simplexCaveYAdjustF2.get().floatValue();
                 break;
         }
         return this;

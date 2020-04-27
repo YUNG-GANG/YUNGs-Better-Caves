@@ -1,12 +1,14 @@
 package com.yungnickyoung.minecraft.bettercaves.config;
 
 import com.yungnickyoung.minecraft.bettercaves.config.cave.*;
+import com.yungnickyoung.minecraft.bettercaves.config.cavern.ConfigFlooredCavern;
+import com.yungnickyoung.minecraft.bettercaves.config.cavern.ConfigLiquidCavern;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 public class ConfigCaveGen {
     public final ConfigCubicCave configCubicCave;
     public final ConfigSimplexCave configSimplexCave;
-    public final ConfigLavaCavern configLavaCavern;
+    public final ConfigLiquidCavern configLiquidCavern;
     public final ConfigFlooredCavern configFlooredCavern;
     public final ConfigWaterRegions configWaterRegions;
     public final ConfigVanillaCave configVanillaCave;
@@ -50,7 +52,7 @@ public class ConfigCaveGen {
         configCubicCave = new ConfigCubicCave(builder);
         configSimplexCave = new ConfigSimplexCave(builder);
         configFlooredCavern = new ConfigFlooredCavern(builder);
-        configLavaCavern = new ConfigLavaCavern(builder);
+        configLiquidCavern = new ConfigLiquidCavern(builder);
         configVanillaCave = new ConfigVanillaCave(builder);
         configWaterRegions = new ConfigWaterRegions(builder);
 

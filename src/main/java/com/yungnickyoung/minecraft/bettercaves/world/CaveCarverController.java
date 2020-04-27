@@ -1,9 +1,8 @@
 package com.yungnickyoung.minecraft.bettercaves.world;
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
-import com.yungnickyoung.minecraft.bettercaves.config.BetterCavesConfig;
-import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
+import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseColumn;
@@ -34,10 +33,10 @@ public class CaveCarverController {
 
     public CaveCarverController(long seed, ConfigHolder config) {
         this.seed = seed;
-        this.isDebugViewEnabled = BetterCavesConfig.enableDebugVisualizer;
-        this.isOverrideSurfaceDetectionEnabled = BetterCavesConfig.overrideSurfaceDetection;
-        this.isSurfaceCavesEnabled = BetterCavesConfig.enableSurfaceCaves;
-        this.isFloodedUndergroundEnabled = BetterCavesConfig.enableFloodedUnderground;
+        this.isDebugViewEnabled = config.debugVisualizer.get();
+        this.isOverrideSurfaceDetectionEnabled = config.overrideSurfaceDetection.get();
+        this.isSurfaceCavesEnabled = config.isSurfaceCavesEnabled.get();
+        this.isFloodedUndergroundEnabled = config.enableFloodedUnderground.get();
 //        this.surfaceCaveCarver = new VanillaCaveCarverBuilder()
 //            .bottomY(config.surfaceCaveBottom.get())
 //            .topY(config.surfaceCaveTop.get())
@@ -50,7 +49,7 @@ public class CaveCarverController {
 
         // Configure cave region controller, which determines what type of cave should be
         // carved in any given region
-        float caveRegionSize = calcCaveRegionSize(BetterCavesConfig.caveRegionSize, BetterCavesConfig.caveRegionCustomSize);
+        float caveRegionSize = calcCaveRegionSize(config.caveRegionSize.get(), config.caveRegionCustomSize.get().floatValue());
         this.caveRegionController = new FastNoise();
         this.caveRegionController.SetSeed((int)seed + 222);
         this.caveRegionController.SetFrequency(caveRegionSize);
@@ -87,7 +86,7 @@ public class CaveCarverController {
         carvers.removeIf(carver -> carver.getPriority() == 0);
 
         // Initialize vars for calculating controller noise thresholds
-        float maxPossibleNoiseThreshold = BetterCavesConfig.caveSpawnChance * .01f * 2 - 1;
+        float maxPossibleNoiseThreshold = config.caveSpawnChance.get().floatValue() * .01f * 2 - 1;
         int totalPriority = carvers.stream().map(ICarver::getPriority).reduce(0, Integer::sum);
         float totalRangeLength = maxPossibleNoiseThreshold - -1f;
         float currNoise = -1f;

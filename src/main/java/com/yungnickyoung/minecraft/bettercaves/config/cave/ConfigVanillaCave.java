@@ -3,24 +3,47 @@ package com.yungnickyoung.minecraft.bettercaves.config.cave;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 public class ConfigVanillaCave {
-    public final ForgeConfigSpec.ConfigValue<Boolean> enableRavines;
-    public final ForgeConfigSpec.ConfigValue<Boolean> enableUnderwaterRavines;
+    public final ForgeConfigSpec.ConfigValue<Integer> caveBottom;
+    public final ForgeConfigSpec.ConfigValue<Integer> caveTop;
+    public final ForgeConfigSpec.ConfigValue<Integer> caveDensity;
+    public final ForgeConfigSpec.ConfigValue<Integer> cavePriority;
 
-    public ConfigVanillaCave(final ForgeConfigSpec.Builder builder) {
-        builder.push("Vanilla Generation");
+    public ConfigVanillaCave(final ForgeConfigSpec.Builder BUILDER) {
+        BUILDER
+            .comment(
+                "##########################################################################################################\n" +
+                "# Settings controlling vanilla Minecraft cave generation.\n" +
+                "##########################################################################################################")
+            .push("Vanilla Caves");
 
-        enableRavines = builder
-                .comment(" Set to true to enable normal vanilla ravine generation." +
-                        "\n Default: true")
-                .worldRestart()
-                .define("Enable Ravines", true);
+        caveBottom = BUILDER
+            .comment(
+                " The minimum y-coordinate at which vanilla caves can generate.\n" +
+                " Default: 8")
+            .worldRestart()
+            .defineInRange("Vanilla Cave Minimum Altitude", 8, 0, 255);
 
-        enableUnderwaterRavines = builder
-                .comment(" Set to true to enable underwater vanilla ravine generation in ocean biomes." +
-                        "\n Default: true")
-                .worldRestart()
-                .define("Enable Underwater Ravines", true);
+        caveTop = BUILDER
+            .comment(
+                " The maximum y-coordinate at which vanilla caves can generate.\n" +
+                " Default: 128")
+            .worldRestart()
+            .defineInRange("Vanilla Cave Maximum Altitude", 128, 0, 255);
 
-        builder.pop();
+        caveDensity = BUILDER
+            .comment(
+                " The density of vanilla caves. Higher = more caves, closer together. \n" +
+                " Default: 14 (value used in vanilla)")
+            .worldRestart()
+            .defineInRange("Vanilla Cave Density", 14, 0, 100);
+
+        cavePriority = BUILDER
+            .comment(
+                " Determines how frequently vanilla caves spawn. 0 = will not spawn at all.\n" +
+                " Default: 0")
+            .worldRestart()
+            .defineInRange("Vanilla Cave Priority", 0, 0, 10);
+
+        BUILDER.pop();
     }
 }

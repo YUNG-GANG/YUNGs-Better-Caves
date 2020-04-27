@@ -1,8 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.proxy;
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
-import com.yungnickyoung.minecraft.bettercaves.config.ConfigHelper;
-import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.world.CarverFeature;
@@ -58,8 +56,11 @@ public class NewCommonProxy {
 
         // Rebake the config settings when they change
         if (config.getSpec() == Configuration.SPEC) {
-            ConfigHelper.bakeClient(config);
-            BetterCaves.LOGGER.debug("Baked client config");
+            BetterCaves.activeCarversMap.values().forEach(carver -> {
+                carver.config.bakeClient();
+                // TODO - may need to call ConfigLoader.loadFromFile on config?
+            });
+            BetterCaves.LOGGER.debug("Baked config values.");
         }
     }
 }

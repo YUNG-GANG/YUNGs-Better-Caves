@@ -1,9 +1,8 @@
 package com.yungnickyoung.minecraft.bettercaves.world;
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
-import com.yungnickyoung.minecraft.bettercaves.config.BetterCavesConfig;
-import com.yungnickyoung.minecraft.bettercaves.config.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
+import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseColumn;
@@ -32,12 +31,12 @@ public class CavernCarverController {
 
     public CavernCarverController(long seed, ConfigHolder config) {
         this.seed = seed;
-        this.isDebugViewEnabled = BetterCavesConfig.enableDebugVisualizer;
-        this.isOverrideSurfaceDetectionEnabled = BetterCavesConfig.overrideSurfaceDetection;
-        this.isFloodedUndergroundEnabled = BetterCavesConfig.enableFloodedUnderground;
+        this.isDebugViewEnabled = config.debugVisualizer.get();
+        this.isOverrideSurfaceDetectionEnabled = config.overrideSurfaceDetection.get();
+        this.isFloodedUndergroundEnabled = config.enableFloodedUnderground.get();
 
         // Configure cavern region controller, which determines what type of cavern should be carved in any given region
-        float cavernRegionSize = calcCavernRegionSize(BetterCavesConfig.cavernRegionSize, BetterCavesConfig.cavernRegionCustomSize);
+        float cavernRegionSize = calcCavernRegionSize(config.cavernRegionSize.get(), config.cavernRegionCustomSize.get().floatValue());
         this.cavernRegionController = new FastNoise();
         this.cavernRegionController.SetSeed((int)seed + 333);
         this.cavernRegionController.SetFrequency(cavernRegionSize);
@@ -55,7 +54,7 @@ public class CavernCarverController {
             .build()
         );
 
-        float spawnChance = BetterCavesConfig.cavernSpawnChance / 100f;
+        float spawnChance = config.cavernSpawnChance.get().floatValue() / 100f;
         int totalPriority = carvers.stream().map(CavernCarver::getPriority).reduce(0, Integer::sum);
 
         BetterCaves.LOGGER.debug("CAVERN INFORMATION");

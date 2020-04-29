@@ -492,5 +492,13 @@ public class ConfigHolder {
             map.put(fullName, this);
             return this;
         }
+
+        public String getCategory() {
+            return category;
+        }
+
+        public String getFullName() {
+            return fullName;
+        }
     }
 }

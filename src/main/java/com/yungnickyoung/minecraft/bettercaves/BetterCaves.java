@@ -1,6 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves;
 
 import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
+import com.yungnickyoung.minecraft.bettercaves.config.io.ConfigLoader;
 import com.yungnickyoung.minecraft.bettercaves.init.BCModConfig;
 import com.yungnickyoung.minecraft.bettercaves.proxy.NewCommonProxy;
 import com.yungnickyoung.minecraft.bettercaves.world.BetterCavesCarver;
@@ -48,5 +49,7 @@ public class BetterCaves {
 //        proxy = DistExecutor.runForDist(() -> ClientProxy::new, () -> CommonProxy::new);
 //        proxy.start();
         NewCommonProxy.init();
+
+        ConfigLoader.loadConfigFromFileForDimension(3);
     }
 }

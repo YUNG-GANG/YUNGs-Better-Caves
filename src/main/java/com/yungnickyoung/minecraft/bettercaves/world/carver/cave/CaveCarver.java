@@ -20,14 +20,8 @@ import java.util.Map;
 public class CaveCarver implements ICarver {
     private CarverSettings settings;
     private NoiseGen noiseGen;
-
-    /** Surface cutoff depth */
     private int surfaceCutoff;
-
-    /** Cave bottom y-coordinate */
     private int bottomY;
-
-    /* Cave bottom y-coordinate TODO */
     private int topY;
 
     /**

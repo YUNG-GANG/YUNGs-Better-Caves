@@ -53,7 +53,7 @@ public class ConfigFlooredCavern {
                 " Determines how frequently Floored Caverns spawn. 0 = will not spawn at all.\n" +
                 " Default: 10")
             .worldRestart()
-            .defineInRange("Liquid Cavern Priority", 10, 0, 10);
+            .defineInRange("Floored Cavern Priority", 10, 0, 10);
 
         advancedSettings = new ConfigFlooredCavern.Advanced(BUILDER);
 

@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class ConfigHolder {
     /** Map of full names to ConfigOptions. Holds all config options.  */
-    public Map<String, ConfigOption<?>> properties = new HashMap<>();
+    public CaseInsensitiveMap properties = new CaseInsensitiveMap();
 
     /**
      * Constructor loads in default global values for all vars.
@@ -21,10 +21,10 @@ public class ConfigHolder {
      * in here when the config file is loaded via the ConfigLoader.
      */
     public ConfigHolder() {
-        bakeClient();
+        loadDefaultValues();
     }
 
-    public void bakeClient() {
+    public void loadDefaultValues() {
         /* ============================== Settings Visible to User ============================== */
         // Dimension-wide cave settings
         caveRegionSize = new ConfigOption<>("Cave Region Size", Configuration.caveSettings.caves.caveRegionSize.get())
@@ -79,30 +79,30 @@ public class ConfigHolder {
 
         // Surface cave settings
         isSurfaceCavesEnabled = new ConfigOption<>("Enable Surface Caves", Configuration.caveSettings.caves.surfaceCave.enableSurfaceCaves.get())
-            .setCategory("Better Caves.Underground Generation.Caves.surface.Caves")
+            .setCategory("Better Caves.Underground Generation.Caves.surface caves")
             .addToMap(properties);
         surfaceCaveBottom = new ConfigOption<>("Surface Cave Minimum Altitude", Configuration.caveSettings.caves.surfaceCave.caveBottom.get())
-            .setCategory("Better Caves.Underground Generation.Caves.surface.Caves")
+            .setCategory("Better Caves.Underground Generation.Caves.surface caves")
             .addToMap(properties);
         surfaceCaveTop = new ConfigOption<>("Surface Cave Maximum Altitude", Configuration.caveSettings.caves.surfaceCave.caveTop.get())
-            .setCategory("Better Caves.Underground Generation.Caves.surface.Caves")
+            .setCategory("Better Caves.Underground Generation.Caves.surface caves")
             .addToMap(properties);
         surfaceCaveDensity = new ConfigOption<>("Surface Cave Density", Configuration.caveSettings.caves.surfaceCave.caveDensity.get())
-            .setCategory("Better Caves.Underground Generation.Caves.surface.Caves")
+            .setCategory("Better Caves.Underground Generation.Caves.surface caves")
             .addToMap(properties);
 
         // Vanilla cave settings
         vanillaCaveBottom = new ConfigOption<>("Vanilla Cave Minimum Altitude", Configuration.caveSettings.caves.vanillaCave.caveBottom.get())
-            .setCategory("Better Caves.Underground Generation.Caves.vanilla.Caves")
+            .setCategory("Better Caves.Underground Generation.Caves.vanilla Caves")
             .addToMap(properties);
         vanillaCaveTop = new ConfigOption<>("Vanilla Cave Maximum Altitude", Configuration.caveSettings.caves.vanillaCave.caveTop.get())
-            .setCategory("Better Caves.Underground Generation.Caves.vanilla.Caves")
+            .setCategory("Better Caves.Underground Generation.Caves.vanilla Caves")
             .addToMap(properties);
         vanillaCaveDensity = new ConfigOption<>("Vanilla Cave Density", Configuration.caveSettings.caves.vanillaCave.caveDensity.get())
-            .setCategory("Better Caves.Underground Generation.Caves.vanilla.Caves")
+            .setCategory("Better Caves.Underground Generation.Caves.vanilla Caves")
             .addToMap(properties);
         vanillaCavePriority = new ConfigOption<>("Vanilla Cave Priority", Configuration.caveSettings.caves.vanillaCave.cavePriority.get())
-            .setCategory("Better Caves.Underground Generation.Caves.vanilla.Caves")
+            .setCategory("Better Caves.Underground Generation.Caves.vanilla Caves")
             .addToMap(properties);
 
         // Dimension-wide cavern settings
@@ -457,7 +457,7 @@ public class ConfigHolder {
     public static class ConfigOption<T> {
         public String name;
         public String fullName;
-        public Class<?> type;
+        private Class<?> type;
         private T value;
         private boolean hidden = false;
         private String category = "";
@@ -493,12 +493,27 @@ public class ConfigHolder {
             return this;
         }
 
+        public Class<?> getType() {
+            return type;
+        }
+
         public String getCategory() {
             return category;
         }
 
         public String getFullName() {
             return fullName;
+        }
+    }
+
+    public static class CaseInsensitiveMap extends HashMap<String, ConfigOption<?>> {
+        @Override
+        public ConfigOption<?> put(String key, ConfigOption<?> value) {
+            return super.put(key.toLowerCase(), value);
+        }
+
+        public ConfigOption<?> get(String key) {
+            return super.get(key.toLowerCase());
         }
     }
 }

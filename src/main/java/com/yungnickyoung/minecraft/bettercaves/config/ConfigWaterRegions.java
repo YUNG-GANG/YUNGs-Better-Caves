@@ -40,7 +40,7 @@ public class ConfigWaterRegions {
                 "         ExtraLarge: 0.001\n" +
                 " Default: 0.004")
             .worldRestart()
-            .defineInRange("Water Region Custom Value", .004, 0, .05);
+            .defineInRange("Water Region Size Custom Value", .004, 0, .05);
 
         BUILDER.pop();
     }

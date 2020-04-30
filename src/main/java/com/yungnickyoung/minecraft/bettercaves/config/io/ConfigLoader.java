@@ -1,23 +1,14 @@
 package com.yungnickyoung.minecraft.bettercaves.config.io;
 
 import com.electronwill.nightconfig.core.AbstractConfig;
-import com.electronwill.nightconfig.core.CommentedConfig;
-import com.electronwill.nightconfig.core.Config;
-import com.electronwill.nightconfig.core.UnmodifiableCommentedConfig;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
-import com.electronwill.nightconfig.core.utils.UnmodifiableConfigWrapper;
-import com.electronwill.nightconfig.toml.TomlFormat;
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import net.minecraftforge.fml.config.ConfigFileTypeHandler;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Set;
 
 public class ConfigLoader {
     /**
@@ -62,24 +53,53 @@ public class ConfigLoader {
             return new ConfigHolder();
         }
 
-        if (configData.valueMap().size() == 0) { // Empty file?
+        // Check empty file
+        if (configData.valueMap().size() == 0) {
             return new ConfigHolder();
         }
 
+        // Check that config has only one topmost level, called "Better Caves"
+        if (configData.valueMap().size() != 1 || configData.valueMap().get("Better Caves") == null) {
+            BetterCaves.LOGGER.error(String.format("ERROR - Invalid Better Caves config file %s", file.getName()));
+            BetterCaves.LOGGER.error("Is there only one topmost category level, called \"Better Caves\"?");
+            BetterCaves.LOGGER.info("USING GLOBAL CONFIG FILE INSTEAD...");
+            return new ConfigHolder();
+        }
+
+        // Populate path map with the config file's contents
         Map<String, Object> pathMap = configToMap((AbstractConfig)configData.valueMap().get("Better Caves"));
 
-        pathMap.entrySet().forEach(entry -> {
-            String key = entry.getKey();
-            Object value = entry.getValue();
-            BetterCaves.LOGGER.info(key + ":: " + value);
-        });
-
+        // Clean up I/O
         configData.close();
 
-        // TODO - process pathMap to create ConfigHolder
-        // can use config.properties.get(fullName)  -- should prob use some kind of equalsIgnoreCase
+        // Populate ConfigHolder with config file entries
+        ConfigHolder config = new ConfigHolder();
+        for (Map.Entry<String, Object> entry : pathMap.entrySet()) {
+            String fullName = entry.getKey();
+            Object value = entry.getValue();
 
-        return null;
+            ConfigHolder.ConfigOption configOption = config.properties.get(fullName);
+
+            // Verify that fullName (category path + property name) is correct
+            if (configOption == null) {
+                BetterCaves.LOGGER.error(String.format("ERROR: INVALID PROPERTY %s in config %s. Skipping...", fullName, file.getName()));
+                continue;
+            }
+
+            Class<?> type = configOption.getType();
+
+            if ((type == Double.TYPE || type == Double.class) && value.getClass() == Integer.class) {
+                configOption.set(((Integer) value).doubleValue());
+                BetterCaves.LOGGER.debug(String.format("%s: overriding config option: %s", file.getName(), fullName));
+            } else if (type != value.getClass()) {
+                BetterCaves.LOGGER.error(String.format("ERROR: WRONG TYPE for %s in config %s. Skipping...", fullName, file.getName()));
+            } else {
+                configOption.set(value);
+                BetterCaves.LOGGER.debug(String.format("%s: overriding config option: %s", file.getName(), fullName));
+            }
+        }
+
+        return config;
     }
 
     /**

@@ -4,6 +4,7 @@ package com.yungnickyoung.minecraft.bettercaves.world;
 import com.mojang.datafixers.util.Pair;
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
+import com.yungnickyoung.minecraft.bettercaves.config.io.ConfigLoader;
 import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
 import com.yungnickyoung.minecraft.bettercaves.world.bedrock.FlattenBedrock;
@@ -39,7 +40,7 @@ public class BetterCavesCarver {
         // check for duplicates so we don't operate on the same chunk more than once.
         Pair<Integer, Integer> pair = new Pair<>(chunkX, chunkZ);
         if (coordList.contains(pair)) {
-            BetterCaves.LOGGER.warn("WARNING: DUPLICATE PAIR");
+            BetterCaves.LOGGER.warn("WARNING: DUPLICATE PAIR: " + pair);
             return true;
         }
 
@@ -105,19 +106,17 @@ public class BetterCavesCarver {
     public void initialize(long seed, DimensionType dimensionType) {
         // Extract world information
         this.seed = seed;
+        int dimensionId = dimensionType.getId();
+        String dimensionName = DimensionType.getKey(dimensionType).toString();
 
-        // TODO - load config for this dimension
-        this.config = new ConfigHolder();
-
-        // TODO - add this carver to map of active carvers by dimension ID
+        // Load config from file for this dimension
+        this.config = ConfigLoader.loadConfigFromFileForDimension(dimensionId);
 
         // Initialize controllers
-        this.waterRegionController = new WaterRegionController(seed, config);
+        this.waterRegionController = new WaterRegionController(seed, dimensionType, config);
         this.caveCarverController = new CaveCarverController(seed, config);
         this.cavernCarverController = new CavernCarverController(seed, config);
 
-        int dimensionId = dimensionType.getId();
-        String dimensionName = DimensionType.getKey(dimensionType).toString();
         BetterCaves.LOGGER.debug("BETTER CAVES WORLD CARVER INITIALIZED WITH SEED " + this.seed);
         BetterCaves.LOGGER.debug(String.format("  > DIMENSION %d: %s", dimensionId, dimensionName));
         BetterCaves.LOGGER.debug(String.format("  > COUNTER: %d", counter));

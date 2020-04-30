@@ -57,7 +57,7 @@ public class NewCommonProxy {
         // Rebake the config settings when they change
         if (config.getSpec() == Configuration.SPEC) {
             BetterCaves.activeCarversMap.values().forEach(carver -> {
-                carver.config.bakeClient();
+                carver.config.loadDefaultValues();
                 // TODO - may need to call ConfigLoader.loadFromFile on config?
             });
             BetterCaves.LOGGER.debug("Baked config values.");

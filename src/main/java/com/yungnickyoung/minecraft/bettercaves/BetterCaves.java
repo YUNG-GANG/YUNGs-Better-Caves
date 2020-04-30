@@ -49,7 +49,5 @@ public class BetterCaves {
 //        proxy = DistExecutor.runForDist(() -> ClientProxy::new, () -> CommonProxy::new);
 //        proxy.start();
         NewCommonProxy.init();
-
-        ConfigLoader.loadConfigFromFileForDimension(3);
     }
 }

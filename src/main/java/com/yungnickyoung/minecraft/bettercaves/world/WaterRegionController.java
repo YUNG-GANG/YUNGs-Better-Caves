@@ -9,6 +9,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Random;
@@ -16,7 +17,7 @@ import java.util.Random;
 public class WaterRegionController {
     private FastNoise waterRegionController;
     private long seed;
-    private int dimensionID;
+    private int dimensionId;
     private String dimensionName;
     private Random rand;
 
@@ -29,10 +30,10 @@ public class WaterRegionController {
     private static final float SMOOTH_RANGE = .04f;
     private static final float SMOOTH_DELTA = .01f;
 
-    public WaterRegionController(long seed, ConfigHolder config) {
+    public WaterRegionController(long seed, DimensionType dimensionType, ConfigHolder config) {
         this.seed = seed;
-        dimensionID = -99;                        // TODO
-        dimensionName = "PLACEHOLDERDIMNAME";     // TODO
+        this.dimensionId = dimensionType.getId();
+        this.dimensionName = DimensionType.getKey(dimensionType).toString();
         rand = new Random();
 
         // Vars from config
@@ -81,7 +82,7 @@ public class WaterRegionController {
         try {
             lavaBlock = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(lavaString)).getDefaultState();
             BetterCaves.LOGGER.info("Using block '" + lavaString + "' as lava in cave generation for dimension " +
-                BetterCavesUtil.dimensionAsString(dimensionID, dimensionName) + " ...");
+                BetterCavesUtil.dimensionAsString(dimensionId, dimensionName) + " ...");
         } catch (Exception e) {
             BetterCaves.LOGGER.warn("Unable to use block '" + lavaString + "': " + e);
             BetterCaves.LOGGER.warn("Using vanilla lava instead...");
@@ -101,7 +102,7 @@ public class WaterRegionController {
         try {
             waterBlock = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(waterString)).getDefaultState();
             BetterCaves.LOGGER.info("Using block '" + waterString + "' as water in cave generation for dimension " +
-                BetterCavesUtil.dimensionAsString(dimensionID, dimensionName) + " ...");
+                BetterCavesUtil.dimensionAsString(dimensionId, dimensionName) + " ...");
         } catch (Exception e) {
             BetterCaves.LOGGER.warn("Unable to use block '" + waterString + "': " + e);
             BetterCaves.LOGGER.warn("Using vanilla water instead...");

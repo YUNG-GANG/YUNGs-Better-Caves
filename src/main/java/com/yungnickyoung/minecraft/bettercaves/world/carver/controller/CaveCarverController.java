@@ -10,9 +10,12 @@ import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverNoiseRange;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.ICarver;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.cave.CaveCarver;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.cave.CaveCarverBuilder;
+import com.yungnickyoung.minecraft.bettercaves.world.carver.vanilla.VanillaCaveCarver;
+import com.yungnickyoung.minecraft.bettercaves.world.carver.vanilla.VanillaCaveCarverBuilder;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.IChunk;
 
@@ -20,8 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CaveCarverController {
-    private long seed;
-//    private VanillaCaveCarver surfaceCaveCarver; // only used if surface caves enabled
+    private IWorld world;
+    private VanillaCaveCarver surfaceCaveCarver; // only used if surface caves enabled
     private FastNoise caveRegionController;
     private List<CarverNoiseRange> noiseRanges = new ArrayList<>();
 
@@ -31,27 +34,27 @@ public class CaveCarverController {
     private boolean isSurfaceCavesEnabled;
     private boolean isFloodedUndergroundEnabled;
 
-    public CaveCarverController(long seed, ConfigHolder config) {
-        this.seed = seed;
+    public CaveCarverController(IWorld worldIn, ConfigHolder config) {
+        this.world = worldIn;
         this.isDebugViewEnabled = config.debugVisualizer.get();
         this.isOverrideSurfaceDetectionEnabled = config.overrideSurfaceDetection.get();
         this.isSurfaceCavesEnabled = config.isSurfaceCavesEnabled.get();
         this.isFloodedUndergroundEnabled = config.enableFloodedUnderground.get();
-//        this.surfaceCaveCarver = new VanillaCaveCarverBuilder()
-//            .bottomY(config.surfaceCaveBottom.get())
-//            .topY(config.surfaceCaveTop.get())
-//            .density(config.surfaceCaveDensity.get())
-//            .liquidAltitude(config.liquidAltitude.get())
-//            .replaceGravel(config.replaceFloatingGravel.get())
-//            .debugVisualizerEnabled(config.debugVisualizer.get())
-//            .debugVisualizerBlock(Blocks.EMERALD_BLOCK.getDefaultState())
-//            .build();
+        this.surfaceCaveCarver = new VanillaCaveCarverBuilder()
+            .bottomY(config.surfaceCaveBottom.get())
+            .topY(config.surfaceCaveTop.get())
+            .density(config.surfaceCaveDensity.get())
+            .liquidAltitude(config.liquidAltitude.get())
+            .replaceGravel(config.replaceFloatingGravel.get())
+            .debugVisualizerEnabled(config.debugVisualizer.get())
+            .debugVisualizerBlock(Blocks.EMERALD_BLOCK.getDefaultState())
+            .build();
 
         // Configure cave region controller, which determines what type of cave should be
         // carved in any given region
         float caveRegionSize = calcCaveRegionSize(config.caveRegionSize.get(), config.caveRegionCustomSize.get().floatValue());
         this.caveRegionController = new FastNoise();
-        this.caveRegionController.SetSeed((int)seed + 222);
+        this.caveRegionController.SetSeed((int)worldIn.getSeed() + 222);
         this.caveRegionController.SetFrequency(caveRegionSize);
         this.caveRegionController.SetNoiseType(FastNoise.NoiseType.Cellular);
         this.caveRegionController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
@@ -59,28 +62,39 @@ public class CaveCarverController {
         // Initialize all carvers using config options
         List<ICarver> carvers = new ArrayList<>();
         // Type 1 caves
-        carvers.add(new CaveCarverBuilder(seed)
+        carvers.add(new CaveCarverBuilder(worldIn.getSeed())
             .ofTypeFromConfig(CaveType.CUBIC, config)
             .debugVisualizerBlock(Blocks.OAK_PLANKS.getDefaultState())
             .build()
         );
         // Type 2 caves
-        carvers.add(new CaveCarverBuilder(seed)
+        carvers.add(new CaveCarverBuilder(worldIn.getSeed())
             .ofTypeFromConfig(CaveType.SIMPLEX, config)
             .debugVisualizerBlock(Blocks.COBBLESTONE.getDefaultState())
             .build()
         );
         // Vanilla caves
-//        carvers.add(new VanillaCaveCarverBuilder()
-//            .bottomY(config.vanillaCaveBottom.get())
-//            .topY(config.vanillaCaveTop.get())
-//            .density(config.vanillaCaveDensity.get())
-//            .priority(config.vanillaCavePriority.get())
-//            .liquidAltitude(config.liquidAltitude.get())
-//            .replaceGravel(config.replaceFloatingGravel.get())
-//            .debugVisualizerEnabled(config.debugVisualizer.get())
-//            .debugVisualizerBlock(Blocks.BRICK_BLOCK.getDefaultState())
-//            .build());
+        VanillaCaveCarver vanillaCarver = new VanillaCaveCarverBuilder()
+            .bottomY(config.vanillaCaveBottom.get())
+            .topY(config.vanillaCaveTop.get())
+            .density(config.vanillaCaveDensity.get())
+            .priority(config.vanillaCavePriority.get())
+            .liquidAltitude(config.liquidAltitude.get())
+            .replaceGravel(config.replaceFloatingGravel.get())
+            .debugVisualizerEnabled(config.debugVisualizer.get())
+            .debugVisualizerBlock(Blocks.BRICKS.getDefaultState())
+            .build();
+
+        carvers.add(new VanillaCaveCarverBuilder()
+            .bottomY(config.vanillaCaveBottom.get())
+            .topY(config.vanillaCaveTop.get())
+            .density(config.vanillaCaveDensity.get())
+            .priority(config.vanillaCavePriority.get())
+            .liquidAltitude(config.liquidAltitude.get())
+            .replaceGravel(config.replaceFloatingGravel.get())
+            .debugVisualizerEnabled(config.debugVisualizer.get())
+            .debugVisualizerBlock(Blocks.BRICKS.getDefaultState())
+            .build());
 
         // Remove carvers with no priority
         carvers.removeIf(carver -> carver.getPriority() == 0);
@@ -197,30 +211,30 @@ public class CaveCarverController {
                                 carver.carveColumn(chunk, colPos, topY, noiseColumn, liquidBlock, flooded);
                                 break;
                             }
-//                            else if (range.getCarver() instanceof VanillaCaveCarver) {
-//                                vanillaCarvingMask[localX][localZ] = true;
-//                                shouldCarveVanillaCaves = true;
-//                            }
+                            else if (range.getCarver() instanceof VanillaCaveCarver) {
+                                vanillaCarvingMask[localX][localZ] = true;
+                                shouldCarveVanillaCaves = true;
+                            }
                         }
                     }
                 }
             }
         }
         if (shouldCarveVanillaCaves) {
-//            VanillaCaveCarver carver = null;
-//            for (CarverNoiseRange range : noiseRanges) {
-//                if (range.getCarver() instanceof VanillaCaveCarver) {
-//                    carver = (VanillaCaveCarver) range.getCarver();
-//                    break;
-//                }
-//            }
-//            if (carver != null) {
-//                carver.generate(world, chunkX, chunkZ, primer, true, liquidBlocks, vanillaCarvingMask);
-//            }
+            VanillaCaveCarver carver = null;
+            for (CarverNoiseRange range : noiseRanges) {
+                if (range.getCarver() instanceof VanillaCaveCarver) {
+                    carver = (VanillaCaveCarver) range.getCarver();
+                    break;
+                }
+            }
+            if (carver != null) {
+                carver.generate(world, chunkX, chunkZ, chunk, true, liquidBlocks, vanillaCarvingMask);
+            }
         }
         // Generate surface caves if enabled
         if (isSurfaceCavesEnabled) {
-//            surfaceCaveCarver.generate(world, chunkX, chunkZ, primer, false, liquidBlocks);
+            surfaceCaveCarver.generate(world, chunkX, chunkZ, chunk, false, liquidBlocks);
         }
     }
 
@@ -241,5 +255,9 @@ public class CaveCarverController {
             default:
                 return .005f;
         }
+    }
+
+    public void setWorld(IWorld worldIn) {
+        this.world = worldIn;
     }
 }

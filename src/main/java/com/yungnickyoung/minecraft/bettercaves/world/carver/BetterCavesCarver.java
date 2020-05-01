@@ -12,6 +12,7 @@ import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.CaveCarve
 import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.CavernCarverController;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.WaterRegionController;
 import net.minecraft.block.BlockState;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.dimension.DimensionType;
 
@@ -38,13 +39,13 @@ public class BetterCavesCarver {
     }
 
     // Override the default carver's method to use Better Caves carving instead.
-    public boolean carve(IChunk chunkIn, int chunkX, int chunkZ) {
+    public void carve(IChunk chunkIn, int chunkX, int chunkZ) {
         // Since the ChunkGenerator calls this method many times per chunk (~300), we must
         // check for duplicates so we don't operate on the same chunk more than once.
         Pair<Integer, Integer> pair = new Pair<>(chunkX, chunkZ);
         if (coordList.contains(pair)) {
             BetterCaves.LOGGER.warn("WARNING: DUPLICATE PAIR: " + pair);
-            return true;
+            return;
         }
 
         // Clear the list occasionally to prevent excessive memory usage.
@@ -98,30 +99,33 @@ public class BetterCavesCarver {
         // Carve chunk
         caveCarverController.carveChunk(chunkIn, chunkX, chunkZ, surfaceAltitudes, liquidBlocks);
         cavernCarverController.carveChunk(chunkIn, chunkX, chunkZ, surfaceAltitudes, liquidBlocks);
-
-        // Unsure if this is needed?
-        return true;
     }
 
     /**
      * Initialize Better Caves generators and cave region controllers for this world.
      */
-    public void initialize(long seed, DimensionType dimensionType) {
+    public void initialize(IWorld world) {
         // Extract world information
-        this.seed = seed;
-        int dimensionId = dimensionType.getId();
-        String dimensionName = DimensionType.getKey(dimensionType).toString();
+        this.seed = world.getSeed();
+        int dimensionId = world.getDimension().getType().getId();
+        String dimensionName = DimensionType.getKey(world.getDimension().getType()).toString();
 
         // Load config from file for this dimension
         this.config = ConfigLoader.loadConfigFromFileForDimension(dimensionId);
 
         // Initialize controllers
-        this.waterRegionController = new WaterRegionController(seed, dimensionType, config);
-        this.caveCarverController = new CaveCarverController(seed, config);
-        this.cavernCarverController = new CavernCarverController(seed, config);
+        this.waterRegionController = new WaterRegionController(world, config);
+        this.caveCarverController = new CaveCarverController(world, config);
+        this.cavernCarverController = new CavernCarverController(world, config);
 
         BetterCaves.LOGGER.debug("BETTER CAVES WORLD CARVER INITIALIZED WITH SEED " + this.seed);
         BetterCaves.LOGGER.debug(String.format("  > DIMENSION %d: %s", dimensionId, dimensionName));
         BetterCaves.LOGGER.debug(String.format("  > COUNTER: %d", counter));
+    }
+
+    public void setWorld(IWorld worldIn) {
+        this.waterRegionController.setWorld(worldIn);
+        this.caveCarverController.setWorld(worldIn);
+        this.cavernCarverController.setWorld(worldIn);
     }
 }

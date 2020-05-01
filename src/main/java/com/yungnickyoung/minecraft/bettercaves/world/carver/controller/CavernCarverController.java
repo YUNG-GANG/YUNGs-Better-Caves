@@ -13,14 +13,16 @@ import com.yungnickyoung.minecraft.bettercaves.world.carver.cavern.CavernCarverB
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.IChunk;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 public class CavernCarverController {
-    private long seed;
+    private IWorld world;
     private FastNoise cavernRegionController;
     private List<CarverNoiseRange> noiseRanges = new ArrayList<>();
 
@@ -29,8 +31,12 @@ public class CavernCarverController {
     private boolean isOverrideSurfaceDetectionEnabled;
     private boolean isFloodedUndergroundEnabled;
 
-    public CavernCarverController(long seed, ConfigHolder config) {
-        this.seed = seed;
+    // Equality checking functions used for closing off flooded caves
+    private static Function<Biome.Category, Boolean> isOcean = b -> b == Biome.Category.OCEAN;
+    private static Function<Biome.Category, Boolean> isNotOcean = b -> b != Biome.Category.OCEAN;
+
+    public CavernCarverController(IWorld worldIn, ConfigHolder config) {
+        this.world = worldIn;
         this.isDebugViewEnabled = config.debugVisualizer.get();
         this.isOverrideSurfaceDetectionEnabled = config.overrideSurfaceDetection.get();
         this.isFloodedUndergroundEnabled = config.enableFloodedUnderground.get();
@@ -38,17 +44,17 @@ public class CavernCarverController {
         // Configure cavern region controller, which determines what type of cavern should be carved in any given region
         float cavernRegionSize = calcCavernRegionSize(config.cavernRegionSize.get(), config.cavernRegionCustomSize.get().floatValue());
         this.cavernRegionController = new FastNoise();
-        this.cavernRegionController.SetSeed((int)seed + 333);
+        this.cavernRegionController.SetSeed((int)world.getSeed() + 333);
         this.cavernRegionController.SetFrequency(cavernRegionSize);
 
         // Initialize all carvers using config options
         List<CavernCarver> carvers = new ArrayList<>();
-        carvers.add(new CavernCarverBuilder(seed)
+        carvers.add(new CavernCarverBuilder(world.getSeed())
             .ofTypeFromConfig(CavernType.LIQUID, config)
             .debugVisualizerBlock(Blocks.REDSTONE_BLOCK.getDefaultState())
             .build()
         );
-        carvers.add(new CavernCarverBuilder(seed)
+        carvers.add(new CavernCarverBuilder(world.getSeed())
             .ofTypeFromConfig(CavernType.FLOORED, config)
             .debugVisualizerBlock(Blocks.GOLD_BLOCK.getDefaultState())
             .build()
@@ -126,11 +132,12 @@ public class CavernCarverController {
                         int localZ = startZ + offsetZ;
                         BlockPos colPos = new BlockPos(chunkX * 16 + localX, 1, chunkZ * 16 + localZ);
 
-                        if (isFloodedUndergroundEnabled) {
-                            flooded = isFloodedUndergroundEnabled && chunk.getBiome(colPos).getCategory() == Biome.Category.OCEAN;
-                            smoothAmpFactor = calcFloodedSmoothAmp(flooded, chunk, colPos);
-                            if (smoothAmpFactor <= 0) continue; // Wall between flooded and normal caves
-                        }
+                        if (isFloodedUndergroundEnabled && !isDebugViewEnabled) {
+                            flooded = chunk.getBiome(colPos).getCategory() == Biome.Category.OCEAN;
+                            smoothAmpFactor = WaterRegionController.getDistFactor(world, colPos, 2, flooded ? isNotOcean : isOcean);
+                            if (smoothAmpFactor <= 0) { // Wall between flooded and normal caves.
+                                continue; // Continue to prevent unnecessary noise calculation
+                            }                        }
 
                         int surfaceAltitude = surfaceAltitudes[localX][localZ];
                         BlockState liquidBlock = liquidBlocks[localX][localZ];
@@ -183,74 +190,7 @@ public class CavernCarverController {
         }
     }
 
-    private float calcFloodedSmoothAmp(boolean flooded, IChunk chunk, BlockPos colPos) {
-        if (flooded) {
-            if (chunk.getBiome(colPos.east(2)).getCategory() != Biome.Category.OCEAN) {
-                if (chunk.getBiome(colPos.east()).getCategory() != Biome.Category.OCEAN) {
-                    return -1;
-                }
-                else {
-                    return .7f;
-                }
-            }
-            if (chunk.getBiome(colPos.north(2)).getCategory() != Biome.Category.OCEAN) {
-                if (chunk.getBiome(colPos.north()).getCategory() != Biome.Category.OCEAN) {
-                    return -1;
-                }
-                else {
-                    return .7f;
-                }
-            }
-            if (chunk.getBiome(colPos.west(2)).getCategory() != Biome.Category.OCEAN) {
-                if (chunk.getBiome(colPos.west()).getCategory() != Biome.Category.OCEAN) {
-                    return -1;
-                }
-                else {
-                    return .7f;
-                }                            }
-            if (chunk.getBiome(colPos.south(2)).getCategory() != Biome.Category.OCEAN) {
-                if (chunk.getBiome(colPos.south()).getCategory() != Biome.Category.OCEAN) {
-                    return -1;
-                }
-                else {
-                    return .7f;
-                }
-            }
-        }
-        else {
-            if (chunk.getBiome(colPos.east(2)).getCategory() == Biome.Category.OCEAN) {
-                if (chunk.getBiome(colPos.east()).getCategory() == Biome.Category.OCEAN) {
-                    return -1f;
-                }
-                else {
-                    return .7f;
-                }
-            }
-            if (chunk.getBiome(colPos.south(2)).getCategory() == Biome.Category.OCEAN) {
-                if (chunk.getBiome(colPos.south()).getCategory() == Biome.Category.OCEAN) {
-                    return -1f;
-                }
-                else {
-                    return .7f;
-                }
-            }
-            if (chunk.getBiome(colPos.west(2)).getCategory() == Biome.Category.OCEAN) {
-                if (chunk.getBiome(colPos.west()).getCategory() == Biome.Category.OCEAN) {
-                    return -1f;
-                }
-                else {
-                    return .7f;
-                }
-            }
-            if (chunk.getBiome(colPos.north(2)).getCategory() == Biome.Category.OCEAN) {
-                if (chunk.getBiome(colPos.north()).getCategory() == Biome.Category.OCEAN) {
-                    return -1f;
-                }
-                else {
-                    return .7f;
-                }
-            }
-        }
-        return 1;
+    public void setWorld(IWorld worldIn) {
+        this.world = worldIn;
     }
 }

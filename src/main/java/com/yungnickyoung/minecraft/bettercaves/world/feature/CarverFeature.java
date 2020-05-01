@@ -79,10 +79,12 @@ public class CarverFeature extends Feature<NoFeatureConfig> {
             BetterCavesCarver newCarver = new BetterCavesCarver();
             BetterCaves.activeCarversMap.put(dimId, newCarver);
             BetterCaves.LOGGER.info(String.format("CREATING AND INIT'ING CARVER W DIMENSION %s...", dimId));
-            newCarver.initialize(world.getSeed(), world.getDimension().getType());
+            newCarver.initialize(world);
         }
 
-        BetterCaves.activeCarversMap.get(dimId).carve(chunk, xChunkPos, zChunkPos);
+        BetterCavesCarver carver = BetterCaves.activeCarversMap.get(dimId);
+        carver.setWorld(world);
+        carver.carve(chunk, xChunkPos, zChunkPos);
 
         return true;
     }

@@ -1,10 +1,9 @@
 package com.yungnickyoung.minecraft.bettercaves;
 
 import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
-import com.yungnickyoung.minecraft.bettercaves.config.io.ConfigLoader;
 import com.yungnickyoung.minecraft.bettercaves.init.BCModConfig;
-import com.yungnickyoung.minecraft.bettercaves.proxy.NewCommonProxy;
-import com.yungnickyoung.minecraft.bettercaves.world.BetterCavesCarver;
+import com.yungnickyoung.minecraft.bettercaves.init.BCFeature;
+import com.yungnickyoung.minecraft.bettercaves.world.carver.BetterCavesCarver;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraftforge.fml.common.Mod;
@@ -39,15 +38,16 @@ public class BetterCaves {
     public static File customConfigDir;
 
     public static final Logger LOGGER = LogManager.getLogger(BCSettings.MOD_ID);
-//    public static CommonProxy proxy;
 
     public BetterCaves() {
         LOGGER.debug("Better Caves entry point");
-
-        BCModConfig.init();
-
+        init();
 //        proxy = DistExecutor.runForDist(() -> ClientProxy::new, () -> CommonProxy::new);
 //        proxy.start();
-        NewCommonProxy.init();
+    }
+
+    private void init() {
+        BCModConfig.init();
+        BCFeature.init();
     }
 }

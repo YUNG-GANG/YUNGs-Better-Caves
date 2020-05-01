@@ -20,11 +20,7 @@ public class ConfigHolder {
      * If a config file for a specific dimension is present, its values will override the ones loaded
      * in here when the config file is loaded via the ConfigLoader.
      */
-    public ConfigHolder() {
-        loadDefaultValues();
-    }
-
-    public void loadDefaultValues() {
+     public ConfigHolder() {
         /* ============================== Settings Visible to User ============================== */
         // Dimension-wide cave settings
         caveRegionSize = new ConfigOption<>("Cave Region Size", Configuration.caveSettings.caves.caveRegionSize.get())

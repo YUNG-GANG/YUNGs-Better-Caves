@@ -1,4 +1,4 @@
-package com.yungnickyoung.minecraft.bettercaves.world;
+package com.yungnickyoung.minecraft.bettercaves.world.carver.controller;
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;

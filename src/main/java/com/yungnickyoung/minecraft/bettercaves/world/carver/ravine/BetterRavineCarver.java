@@ -1,10 +1,10 @@
-//package com.yungnickyoung.minecraft.bettercaves.world.ravine;
+//package com.yungnickyoung.minecraft.bettercaves.world.carver.ravine;
 //
 //import com.mojang.datafixers.Dynamic;
 //import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 //import com.yungnickyoung.minecraft.bettercaves.config.BetterCavesConfig;
 //import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
-//import com.yungnickyoung.minecraft.bettercaves.world.BetterCavesCarver;
+//import com.yungnickyoung.minecraft.bettercaves.world.carver.BetterCavesCarver;
 //import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverUtils;
 //import net.minecraft.block.BlockState;
 //import net.minecraft.block.Blocks;

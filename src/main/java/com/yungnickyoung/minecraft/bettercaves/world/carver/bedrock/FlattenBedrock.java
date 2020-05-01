@@ -1,4 +1,4 @@
-package com.yungnickyoung.minecraft.bettercaves.world.bedrock;
+package com.yungnickyoung.minecraft.bettercaves.world.carver.bedrock;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;

@@ -1,4 +1,4 @@
-package com.yungnickyoung.minecraft.bettercaves.world;
+package com.yungnickyoung.minecraft.bettercaves.world.carver;
 
 
 import com.mojang.datafixers.util.Pair;
@@ -7,7 +7,10 @@ import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
 import com.yungnickyoung.minecraft.bettercaves.config.io.ConfigLoader;
 import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
-import com.yungnickyoung.minecraft.bettercaves.world.bedrock.FlattenBedrock;
+import com.yungnickyoung.minecraft.bettercaves.world.carver.bedrock.FlattenBedrock;
+import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.CaveCarverController;
+import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.CavernCarverController;
+import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.WaterRegionController;
 import net.minecraft.block.BlockState;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.dimension.DimensionType;

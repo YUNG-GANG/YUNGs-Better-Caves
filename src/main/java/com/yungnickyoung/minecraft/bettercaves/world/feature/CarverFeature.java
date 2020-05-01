@@ -1,8 +1,9 @@
-package com.yungnickyoung.minecraft.bettercaves.world;
+package com.yungnickyoung.minecraft.bettercaves.world.feature;
 
 import com.mojang.datafixers.Dynamic;
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
+import com.yungnickyoung.minecraft.bettercaves.world.carver.BetterCavesCarver;
 import net.minecraft.util.SharedSeedRandom;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -22,8 +23,9 @@ import java.util.Random;
 import java.util.function.Function;
 
 /**
- * Feature to wrap the Better Caves carver so that we have access to the world.
- * This allows us to check the dimension, enabling per-dimension configurability.
+ * Feature to wrap the Better Caves carver so that we have access to the world instance.
+ * This allows us to do things like check the dimension (enabling per-dimension configurability),
+ * retrieve the seed, and fallback to pre-existing carvers for non-whitelisted dimensions.
  */
 public class CarverFeature extends Feature<NoFeatureConfig> {
     public CarverFeature(Function<Dynamic<?>, ? extends NoFeatureConfig> configFactory) {

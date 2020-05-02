@@ -58,6 +58,8 @@ public class MapGenBetterRavine extends MapGenRavine {
             try {
                 currChunkLiquidBlocks = waterRegionController.getLiquidBlocksForChunk(chunkX, chunkZ);
                 liquidBlockState = currChunkLiquidBlocks[BetterCavesUtils.getLocal(x)][BetterCavesUtils.getLocal(z)];
+                currChunkX = chunkX;
+                currChunkZ = chunkZ;
             } catch (Exception e) {
                 liquidBlockState = Blocks.LAVA.getDefaultState();
             }

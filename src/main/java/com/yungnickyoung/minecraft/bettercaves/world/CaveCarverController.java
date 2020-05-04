@@ -47,6 +47,7 @@ public class CaveCarverController {
             .density(config.surfaceCaveDensity.get())
             .liquidAltitude(config.liquidAltitude.get())
             .replaceGravel(config.replaceFloatingGravel.get())
+            .floodedUnderground(config.enableFloodedUnderground.get())
             .debugVisualizerEnabled(config.debugVisualizer.get())
             .debugVisualizerBlock(Blocks.EMERALD_BLOCK.getDefaultState())
             .build();
@@ -82,6 +83,7 @@ public class CaveCarverController {
             .priority(config.vanillaCavePriority.get())
             .liquidAltitude(config.liquidAltitude.get())
             .replaceGravel(config.replaceFloatingGravel.get())
+            .floodedUnderground(config.enableFloodedUnderground.get())
             .debugVisualizerEnabled(config.debugVisualizer.get())
             .debugVisualizerBlock(Blocks.BRICK_BLOCK.getDefaultState())
             .build());

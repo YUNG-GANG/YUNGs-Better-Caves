@@ -12,7 +12,8 @@ public class VanillaCaveCarverBuilder {
     private IBlockState debugBlock;
     private boolean
         isDebugVisualizerEnabled,
-        isReplaceGravel;
+        isReplaceGravel,
+        isFloodedUndergroundEnabled;
 
     public VanillaCaveCarver build() {
         return new VanillaCaveCarver(this);
@@ -77,6 +78,11 @@ public class VanillaCaveCarverBuilder {
         return this;
     }
 
+    public VanillaCaveCarverBuilder floodedUnderground(boolean floodedUnderground) {
+        isFloodedUndergroundEnabled = floodedUnderground;
+        return this;
+    }
+
 
     /* ================================== Builder Getters ================================== */
     public int getBottomY() {
@@ -109,5 +115,9 @@ public class VanillaCaveCarverBuilder {
 
     public boolean isReplaceGravel() {
         return isReplaceGravel;
+    }
+
+    public boolean isFloodedUndergroundEnabled() {
+        return isFloodedUndergroundEnabled;
     }
 }

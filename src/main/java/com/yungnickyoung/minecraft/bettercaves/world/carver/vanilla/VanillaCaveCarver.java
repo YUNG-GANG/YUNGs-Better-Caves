@@ -32,7 +32,8 @@ public class VanillaCaveCarver extends MapGenCaves implements ICarver {
     private IBlockState debugBlock;
     private boolean
         isDebugVisualizerEnabled,
-        isReplaceGravel;
+        isReplaceGravel,
+        isFloodedUndergroundEnabled;
 
     public VanillaCaveCarver(final VanillaCaveCarverBuilder builder) {
         this.bottomY = builder.getBottomY();
@@ -43,6 +44,7 @@ public class VanillaCaveCarver extends MapGenCaves implements ICarver {
         this.debugBlock = builder.getDebugBlock();
         this.isDebugVisualizerEnabled = builder.isDebugVisualizerEnabled();
         this.isReplaceGravel = builder.isReplaceGravel();
+        this.isFloodedUndergroundEnabled = builder.isFloodedUndergroundEnabled();
         if (bottomY > topY) {
             BetterCaves.LOGGER.warn("Warning: Min altitude for vanilla caves should not be greater than max altitude.");
             BetterCaves.LOGGER.warn("Using default values...");
@@ -300,7 +302,7 @@ public class VanillaCaveCarver extends MapGenCaves implements ICarver {
         BlockPos pos = new BlockPos(chunkX * 16 + localX, y, chunkZ * 16 + localZ);
 
         // Don't dig boundaries between flooded and unflooded openings.
-        boolean flooded = world.getBiome(pos).getTempCategory() == Biome.TempCategory.OCEAN;
+        boolean flooded = isFloodedUndergroundEnabled && !isDebugVisualizerEnabled && world.getBiome(pos).getTempCategory() == Biome.TempCategory.OCEAN;
 
         if (flooded) {
             if (

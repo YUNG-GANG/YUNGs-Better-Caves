@@ -1,4 +1,4 @@
-package com.yungnickyoung.minecraft.bettercaves.world.carver.surface;
+package com.yungnickyoung.minecraft.bettercaves.world.carver.vanilla;
 
 import net.minecraft.block.state.IBlockState;
 

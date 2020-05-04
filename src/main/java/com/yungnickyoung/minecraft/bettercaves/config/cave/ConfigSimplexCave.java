@@ -64,7 +64,7 @@ public class ConfigSimplexCave {
         @Config.Comment(
                 "Noise threshold for determining which blocks get mined out as part of cave generation\n" +
                 "    Blocks with generated noise values greater than this threshold will be dug out.\n" +
-                "Default: 0.64")
+                "Default: 0.82f")
         @Config.RangeDouble(min = -1.0, max = 1.0)
         @Config.RequiresWorldRestart
         public float noiseThreshold = .82f;
@@ -72,7 +72,7 @@ public class ConfigSimplexCave {
         @Config.Name("Fractal Octaves")
         @Config.Comment(
                 "The number of octaves used for ridged multi-fractal noise generation.\n" +
-                "Default: 2")
+                "Default: 1")
         @Config.RequiresWorldRestart
         public int fractalOctaves = 1;
 
@@ -87,7 +87,7 @@ public class ConfigSimplexCave {
         @Config.Comment(
                 "The frequency for ridged multi-fractal noise generation.\n" +
                 "    This determines how spread out or tightly knit cave systems are.\n" +
-                "Default: 0.03")
+                "Default: 0.025")
         @Config.RequiresWorldRestart
         public float fractalFrequency = 0.025f;
 
@@ -118,7 +118,7 @@ public class ConfigSimplexCave {
         @Config.Comment(
                 "Adjustment factor affecting the block two blocks above a given block.\n" +
                 "    Higher value will tend to increase the headroom in caves.\n" +
-                "Default: 0.9")
+                "Default: 0.5")
         @Config.RangeDouble(min = 0, max = 1f)
         public float yAdjustF2 = .5f;
 

@@ -1,20 +1,23 @@
 package com.yungnickyoung.minecraft.bettercaves.world.carver.vanilla;
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
-import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
+import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.ICarver;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.material.Material;
+import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.IChunk;
+import net.minecraft.world.gen.WorldGenRegion;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Random;
+
+import static com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils.isPosInWorld;
 
 public class VanillaCaveCarver implements ICarver {
     private int
@@ -26,7 +29,8 @@ public class VanillaCaveCarver implements ICarver {
     private BlockState debugBlock;
     private boolean
         isDebugVisualizerEnabled,
-        isReplaceGravel;
+        isReplaceGravel,
+        isFloodedUndergroundEnabled;
     private Random rand = new Random();
     private IWorld world;
 
@@ -41,6 +45,7 @@ public class VanillaCaveCarver implements ICarver {
         this.debugBlock = builder.getDebugBlock();
         this.isDebugVisualizerEnabled = builder.isDebugVisualizerEnabled();
         this.isReplaceGravel = builder.isReplaceGravel();
+        this.isFloodedUndergroundEnabled = builder.isFloodedUndergroundEnabled();
         if (bottomY > topY) {
             BetterCaves.LOGGER.warn("Warning: Min altitude for vanilla caves should not be greater than max altitude.");
             BetterCaves.LOGGER.warn("Using default values...");
@@ -49,19 +54,21 @@ public class VanillaCaveCarver implements ICarver {
         }
     }
 
-    public void generate(IWorld worldIn, int x, int z, IChunk chunk, boolean addRooms, BlockState[][] liquidBlocks, boolean[][] carvingMask) {
-        int i = this.range;
+    /**
+     * Calls recursiveGenerate() on all chunks within a certain square range (default 8) of this chunk.
+     */
+    public void generate(IWorld worldIn, int chunkX, int chunkZ, IChunk primer, boolean addRooms, BlockState[][] liquidBlocks, boolean[][] carvingMask) {
+        int chunkRadius = this.range;
         this.world = worldIn;
         this.rand.setSeed(worldIn.getSeed());
         long j = this.rand.nextLong();
         long k = this.rand.nextLong();
-
-        for (int chunkX = x - i; chunkX <= x + i; ++chunkX) {
-            for (int chunkZ = z - i; chunkZ <= z + i; ++chunkZ) {
-                long j1 = (long) chunkX * j;
-                long k1 = (long) chunkZ * k;
+        for (int currChunkX = chunkX - chunkRadius; currChunkX <= chunkX + chunkRadius; ++currChunkX) {
+            for (int currChunkZ = chunkZ - chunkRadius; currChunkZ <= chunkZ + chunkRadius; ++currChunkZ) {
+                long j1 = (long) currChunkX * j;
+                long k1 = (long) currChunkZ * k;
                 this.rand.setSeed(j1 ^ k1 ^ worldIn.getSeed());
-                this.recursiveGenerate(chunkX, chunkZ, x, z, chunk, addRooms, liquidBlocks, carvingMask);
+                this.recursiveGenerate(worldIn, currChunkX, currChunkZ, chunkX, chunkZ, primer, addRooms, liquidBlocks, carvingMask);
             }
         }
     }
@@ -73,39 +80,48 @@ public class VanillaCaveCarver implements ICarver {
         generate(worldIn, x, z, primer, addRooms, liquidBlocks, carvingMask);
     }
 
-    protected void recursiveGenerate(int chunkX, int chunkZ, int originalX, int originalZ, @Nonnull IChunk chunkPrimerIn, boolean addRooms, BlockState[][] liquidBlocks, boolean[][] carvingMask) {
-        int i = this.rand.nextInt(this.rand.nextInt(this.rand.nextInt(15) + 1) + 1);
+    /**
+     * Calls addTunnel and addRoom (wrapper for addTunnel) for this chunk.
+     * Note that each call to this function (and subsequently addTunnel) will be done with the same rand seed.
+     * This means that when a chunk is checked multiple times by different neighbor chunks, each time it will be processed
+     * the same way, ensuring the tunnels are always consistent and connecting.
+     */
+    private void recursiveGenerate(IWorld worldIn, int chunkX, int chunkZ, int originalChunkX, int originalChunkZ, @Nonnull IChunk primer, boolean addRooms, BlockState[][] liquidBlocks, boolean[][] carvingMask) {
+        int numAttempts = this.rand.nextInt(this.rand.nextInt(this.rand.nextInt(15) + 1) + 1);
 
         if (this.rand.nextInt(100) > this.density) {
-            i = 0;
+            numAttempts = 0;
         }
 
-        for (int j = 0; j < i; ++j) {
-            double d0 = chunkX * 16 + this.rand.nextInt(16);
-            double d1 = this.rand.nextInt(this.topY - this.bottomY) + this.bottomY;
-            double d2 = chunkZ * 16 + this.rand.nextInt(16);
-            int k = 1;
+        for (int i = 0; i < numAttempts; ++i) {
+            double caveStartX = chunkX * 16 + this.rand.nextInt(16);
+            double caveStartY = this.rand.nextInt(this.topY - this.bottomY) + this.bottomY;
+            double caveStartZ = chunkZ * 16 + this.rand.nextInt(16);
+
+            int numAddTunnelCalls = 1;
 
             if (addRooms && this.rand.nextInt(4) == 0) {
-                this.addRoom(this.rand.nextLong(), chunkX, chunkZ, originalX, originalZ, chunkPrimerIn, d0, d1, d2, liquidBlocks, carvingMask);
-                k += this.rand.nextInt(4);
+                this.addRoom(worldIn, this.rand.nextLong(), originalChunkX, originalChunkZ, primer, caveStartX, caveStartY, caveStartZ, liquidBlocks, carvingMask);
+                numAddTunnelCalls += this.rand.nextInt(4);
             }
 
-            for (int l = 0; l < k; ++l) {
+            for (int j = 0; j < numAddTunnelCalls; ++j) {
                 float yaw = this.rand.nextFloat() * ((float) Math.PI * 2F);
                 float pitch = (this.rand.nextFloat() - 0.5F) * 2.0F / 8.0F;
                 float width = this.rand.nextFloat() * 2.0F + this.rand.nextFloat();
 
+                // Chance of wider caves.
+                // Although not actually related to adding rooms, I perform an addRoom check here
+                // to avoid the chance of really large caves when generating surface caves.
                 if (addRooms && this.rand.nextInt(10) == 0) {
                     width *= this.rand.nextFloat() * this.rand.nextFloat() * 3.0F + 1.0F;
                 }
 
-                this.addTunnel(this.rand.nextLong(), chunkX, chunkZ, originalX, originalZ, chunkPrimerIn, d0, d1, d2, width, yaw, pitch, 0, 0, 1.0D, liquidBlocks, carvingMask);
+                this.addTunnel(worldIn, this.rand.nextLong(), originalChunkX, originalChunkZ, primer, caveStartX, caveStartY, caveStartZ, width, yaw, pitch, 0, 0, 1.0D, liquidBlocks, carvingMask);
             }
         }
     }
 
-    @Override
     public int getPriority() {
         return this.priority;
     }
@@ -115,161 +131,197 @@ public class VanillaCaveCarver implements ICarver {
         return this.topY;
     }
 
-    protected void addRoom(long p_180703_1_, int chunkX, int chunkZ, int p_180703_3_, int p_180703_4_, IChunk p_180703_5_, double p_180703_6_, double p_180703_8_, double p_180703_10_, BlockState[][] liquidBlocks, boolean[][] carvingMask) {
-        this.addTunnel(p_180703_1_, chunkX, chunkZ, p_180703_3_, p_180703_4_, p_180703_5_, p_180703_6_, p_180703_8_, p_180703_10_, 1.0F + this.rand.nextFloat() * 6.0F, 0.0F, 0.0F, -1, -1, 0.5D, liquidBlocks, carvingMask);
+
+    private void addRoom(IWorld worldIn, long seed, int originChunkX, int originChunkZ, IChunk primer, double caveStartX, double caveStartY, double caveStartZ, BlockState[][] liquidBlocks, boolean[][] carvingMask) {
+        this.addTunnel(worldIn, seed, originChunkX, originChunkZ, primer, caveStartX, caveStartY, caveStartZ, 1.0F + this.rand.nextFloat() * 6.0F, 0.0F, 0.0F, -1, -1, 0.5D, liquidBlocks, carvingMask);
     }
 
-    protected void addTunnel(long seed, int chunkX, int chunkZ, int originalX, int originalZ, IChunk chunk, double startX, double startY, double startZ, float width, float yaw, float pitch, int p_180702_15_, int p_180702_16_, double p_180702_17_, BlockState[][] liquidBlocks, boolean[][] carvingMask) {
+    protected void addTunnel(IWorld worldIn, long seed, int originChunkX, int originChunkZ, IChunk chunk, double caveStartX, double caveStartY, double caveStartZ, float width, float yaw, float pitch, int startCounter, int endCounter, double heightModifier, BlockState[][] liquidBlocks, boolean[][] carvingMask) {
         BlockState liquidBlock;
-        double d0 = (originalX * 16 + 8);
-        double d1 = (originalZ * 16 + 8);
-        float f = 0.0F;
-        float f1 = 0.0F;
         Random random = new Random(seed);
 
-        if (p_180702_16_ <= 0) {
+        // Center block of the origin chunk
+        double originBlockX = (originChunkX * 16 + 8);
+        double originBlockZ = (originChunkZ * 16 + 8);
+
+        // Variables to slightly change the yaw/pitch for each iteration in the while loop below.
+        float yawModifier = 0.0F;
+        float pitchModifier = 0.0F;
+
+        // Raw calls to addTunnel from recursiveGenerate give startCounter and endCounter a value of 0.
+        // Calls from addRoom make them both -1.
+
+        // This appears to be called regardless of where addTunnel was called from.
+        if (endCounter <= 0) {
             int i = this.range * 16 - 16;
-            p_180702_16_ = i - random.nextInt(i / 4);
+            endCounter = i - random.nextInt(i / 4);
         }
 
-        boolean flag2 = false;
+        // Whether or not this function call was made from addRoom.
+        boolean comesFromRoom = false;
 
-        if (p_180702_15_ == -1) {
-            p_180702_15_ = p_180702_16_ / 2;
-            flag2 = true;
+        // Only called if the function call came from addRoom.
+        // If this call came from addRoom, startCounter is set to halfway to endCounter.
+        // If this is a raw call from recursiveGenerate, startCounter will be zero.
+        if (startCounter == -1) {
+            startCounter = endCounter / 2;
+            comesFromRoom = true;
         }
 
-        int j = random.nextInt(p_180702_16_ / 2) + p_180702_16_ / 4;
+        int randomCounterValue = random.nextInt(endCounter / 2) + endCounter / 4;
 
-        for (boolean flag = random.nextInt(6) == 0; p_180702_15_ < p_180702_16_; ++p_180702_15_) {
-            double xzOffset = 1.5D + (double) (MathHelper.sin((float) p_180702_15_ * (float) Math.PI / (float) p_180702_16_) * width);
-            double yOffset = xzOffset * p_180702_17_;
+        // Loops one block at a time to the endCounter (about 6-7 chunks away on average).
+        // startCounter starts at either zero or endCounter / 2.
+        while (startCounter < endCounter) {
+            // Appears to change how wide caves are. Value will be between 1.5 and 1.5 + width.
+            // Note that caves will become wider toward the middle, and close off on the ends.
+            double xzOffset = 1.5D + (double) (MathHelper.sin((float) startCounter * (float) Math.PI / (float) endCounter) * width);
+
+            // Appears to just be a linear modifier for the cave height
+            double yOffset = xzOffset * heightModifier;
+
             float pitchXZ = MathHelper.cos(pitch);
             float pitchY = MathHelper.sin(pitch);
-            startX += MathHelper.cos(yaw) * pitchXZ;
-            startY += pitchY;
-            startZ += MathHelper.sin(yaw) * pitchXZ;
+            caveStartX += MathHelper.cos(yaw) * pitchXZ;
+            caveStartY += pitchY;
+            caveStartZ += MathHelper.sin(yaw) * pitchXZ;
 
+            boolean flag = random.nextInt(6) == 0;
             if (flag) {
                 pitch = pitch * 0.92F;
             } else {
                 pitch = pitch * 0.7F;
             }
 
-            pitch = pitch + f1 * 0.1F;
-            yaw += f * 0.1F;
-            f1 = f1 * 0.9F;
-            f = f * 0.75F;
-            f1 = f1 + (random.nextFloat() - random.nextFloat()) * random.nextFloat() * 2.0F;
-            f = f + (random.nextFloat() - random.nextFloat()) * random.nextFloat() * 4.0F;
+            pitch = pitch + pitchModifier * 0.1F;
+            yaw += yawModifier * 0.1F;
 
-            if (!flag2 && p_180702_15_ == j && width > 1.0F && p_180702_16_ > 0) {
-                this.addTunnel(random.nextLong(), chunkX, chunkZ, originalX, originalZ, chunk, startX, startY, startZ, random.nextFloat() * 0.5F + 0.5F, yaw - ((float) Math.PI / 2F), pitch / 3.0F, p_180702_15_, p_180702_16_, 1.0D, liquidBlocks, carvingMask);
-                this.addTunnel(random.nextLong(), chunkX, chunkZ, originalX, originalZ, chunk, startX, startY, startZ, random.nextFloat() * 0.5F + 0.5F, yaw + ((float) Math.PI / 2F), pitch / 3.0F, p_180702_15_, p_180702_16_, 1.0D, liquidBlocks, carvingMask);
+            pitchModifier = pitchModifier * 0.9F;
+            yawModifier = yawModifier * 0.75F;
+
+            pitchModifier = pitchModifier + (random.nextFloat() - random.nextFloat()) * random.nextFloat() * 2.0F;
+            yawModifier = yawModifier + (random.nextFloat() - random.nextFloat()) * random.nextFloat() * 4.0F;
+
+            if (!comesFromRoom && startCounter == randomCounterValue && width > 1.0F && endCounter > 0) {
+                this.addTunnel(worldIn, random.nextLong(), originChunkX, originChunkZ, chunk, caveStartX, caveStartY, caveStartZ, random.nextFloat() * 0.5F + 0.5F, yaw - ((float) Math.PI / 2F), pitch / 3.0F, startCounter, endCounter, 1.0D, liquidBlocks, carvingMask);
+                this.addTunnel(worldIn, random.nextLong(), originChunkX, originChunkZ, chunk, caveStartX, caveStartY, caveStartZ, random.nextFloat() * 0.5F + 0.5F, yaw + ((float) Math.PI / 2F), pitch / 3.0F, startCounter, endCounter, 1.0D, liquidBlocks, carvingMask);
                 return;
             }
 
-            if (flag2 || random.nextInt(4) != 0) {
-                double d4 = startX - d0;
-                double d5 = startZ - d1;
-                double d6 = p_180702_16_ - p_180702_15_;
+            if (comesFromRoom || random.nextInt(4) != 0) {
+                double caveStartXOffsetFromCenter = caveStartX - originBlockX; // Number of blocks from current caveStartX to center of origin chunk
+                double caveStartZOffsetFromCenter = caveStartZ - originBlockZ; // Number of blocks from current caveStartZ to center of origin chunk
+                double distanceToEnd = endCounter - startCounter;
                 double d7 = width + 2.0F + 16.0F;
 
-                if (d4 * d4 + d5 * d5 - d6 * d6 > d7 * d7) {
+                // I think this prevents caves from generating too far from the origin chunk
+                if (caveStartXOffsetFromCenter * caveStartXOffsetFromCenter + caveStartZOffsetFromCenter * caveStartZOffsetFromCenter - distanceToEnd * distanceToEnd > d7 * d7) {
                     return;
                 }
 
-                if (startX >= d0 - 16.0D - xzOffset * 2.0D && startZ >= d1 - 16.0D - xzOffset * 2.0D && startX <= d0 + 16.0D + xzOffset * 2.0D && startZ <= d1 + 16.0D + xzOffset * 2.0D) {
-                    int k2 = MathHelper.floor(startX - xzOffset) - originalX * 16 - 1;
-                    int k = MathHelper.floor(startX + xzOffset) - originalX * 16 + 1;
-                    int l2 = MathHelper.floor(startY - yOffset) - 1;
-                    int l = MathHelper.floor(startY + yOffset) + 1;
-                    int i3 = MathHelper.floor(startZ - xzOffset) - originalZ * 16 - 1;
-                    int i1 = MathHelper.floor(startZ + xzOffset) - originalZ * 16 + 1;
+                // Only continue if cave start is close enough to origin
+                if (caveStartX >= originBlockX - 16.0D - xzOffset * 2.0D && caveStartZ >= originBlockZ - 16.0D - xzOffset * 2.0D && caveStartX <= originBlockX + 16.0D + xzOffset * 2.0D && caveStartZ <= originBlockZ + 16.0D + xzOffset * 2.0D) {
+                    int minX = MathHelper.floor(caveStartX - xzOffset) - originChunkX * 16 - 1;
+                    int minY = MathHelper.floor(caveStartY - yOffset) - 1;
+                    int minZ = MathHelper.floor(caveStartZ - xzOffset) - originChunkZ * 16 - 1;
+                    int maxX = MathHelper.floor(caveStartX + xzOffset) - originChunkX * 16 + 1;
+                    int maxY = MathHelper.floor(caveStartY + yOffset) + 1;
+                    int maxZ = MathHelper.floor(caveStartZ + xzOffset) - originChunkZ * 16 + 1;
 
-                    if (k2 < 0) {
-                        k2 = 0;
+                    if (minX < 0) {
+                        minX = 0;
                     }
 
-                    if (k > 16) {
-                        k = 16;
+                    if (maxX > 16) {
+                        maxX = 16;
                     }
 
-                    if (l2 < 1) {
-                        l2 = 1;
+                    if (minY < 1) {
+                        minY = 1;
                     }
 
-                    if (l > 248) {
-                        l = 248;
+                    if (maxY > 248) {
+                        maxY = 248;
                     }
 
-                    if (i3 < 0) {
-                        i3 = 0;
+                    if (minZ < 0) {
+                        minZ = 0;
                     }
 
-                    if (i1 > 16) {
-                        i1 = 16;
+                    if (maxZ > 16) {
+                        maxZ = 16;
                     }
 
-                    boolean flag3 = false;
+                    for (int currX = minX; currX < maxX; ++currX) {
+                        // Distance along the x-axis from the center (caveStart) of this ellipsoid.
+                        // You can think of this value as (x/a), where a is the length of the ellipsoid's semi-axis in the x direction.
+                        double xAxisDist = ((double) (currX + originChunkX * 16) + 0.5D - caveStartX) / xzOffset;
 
-                    for (int j1 = k2; !flag3 && j1 < k; ++j1) {
-                        for (int k1 = i3; !flag3 && k1 < i1; ++k1) {
-                            for (int l1 = l + 1; !flag3 && l1 >= l2 - 1; --l1) {
-                                if (l1 >= 0 && l1 < 256) {
-                                    if (chunk.getBlockState(new BlockPos(j1, l1, k1)).getMaterial() == Material.WATER) {
-                                        flag3 = true;
-                                    }
+                        for (int currZ = minZ; currZ < maxZ; ++currZ) {
+                            // Distance along the z-axis from the center (caveStart) of this ellipsoid.
+                            // You can think of this value as (z/b), where b is the length of the ellipsoid's semi-axis in the z direction (same as a in this case).
+                            double zAxisDist = ((double) (currZ + originChunkZ * 16) + 0.5D - caveStartZ) / xzOffset;
 
-                                    if (l1 != l2 - 1 && j1 != k2 && j1 != k - 1 && k1 != i3 && k1 != i1 - 1) {
-                                        l1 = l2;
-                                    }
-                                }
-                            }
-                        }
-                    }
+                            // Skip column if carving mask not set
+                            if (!carvingMask[currX][currZ])
+                                continue;
 
-                    if (!flag3) {
-                        for (int currX = k2; currX < k; ++currX) {
-                            double d10 = ((double) (currX + originalX * 16) + 0.5D - startX) / xzOffset;
+                            // Only operate on points within ellipse on XZ axis. Avoids unnecessary computation along y axis
+                            if (xAxisDist * xAxisDist + zAxisDist * zAxisDist < 1.0D) {
+                                for (int currY = maxY; currY > minY; --currY) {
+                                    // Distance along the y-axis from the center (caveStart) of this ellipsoid.
+                                    // You can think of this value as (y/c), where c is the length of the ellipsoid's semi-axis in the y direction.
+                                    double yAxisDist = ((double) (currY - 1) + 0.5D - caveStartY) / yOffset;
 
-                            for (int currZ = i3; currZ < i1; ++currZ) {
-                                double d8 = ((double) (currZ + originalZ * 16) + 0.5D - startZ) / xzOffset;
-
-                                // Skip column if carving mask not set
-                                if (!carvingMask[BetterCavesUtil.getLocal(currX)][BetterCavesUtil.getLocal(currZ)])
-                                    continue;
-
-                                if (d10 * d10 + d8 * d8 < 1.0D) {
-                                    for (int currY = l; currY > l2; --currY) {
-                                        double d9 = ((double) (currY - 1) + 0.5D - startY) / yOffset;
-
-                                        if (d9 > -0.7D && d10 * d10 + d9 * d9 + d8 * d8 < 1.0D) {
-                                            liquidBlock = liquidBlocks[BetterCavesUtil.getLocal(currX)][BetterCavesUtil.getLocal(currZ)];
-                                            if (this.isDebugVisualizerEnabled)
-                                                CarverUtils.debugDigBlock(chunk, currX, currY, currZ, debugBlock, true);
-                                            else
-                                                digBlock(chunk, chunkX, chunkZ, currX, currY, currZ, liquidBlock, this.liquidAltitude, this.isReplaceGravel);
-                                        } else {
-                                            if (this.isDebugVisualizerEnabled)
-                                                CarverUtils.debugDigBlock(chunk, currX, currY, currZ, debugBlock, false);
-                                        }
+                                    // Only operate on points within the ellipsoid.
+                                    // This conditional is validating the current coordinate against the equation of the ellipsoid, that is,
+                                    // (x/a)^2 + (z/b)^2 + (y/c)^2 <= 1.
+                                    if (yAxisDist > -0.7D && xAxisDist * xAxisDist + yAxisDist * yAxisDist + zAxisDist * zAxisDist < 1.0D) {
+                                        liquidBlock = liquidBlocks[BetterCavesUtils.getLocal(currX)][BetterCavesUtils.getLocal(currZ)];
+                                        if (this.isDebugVisualizerEnabled)
+                                            CarverUtils.debugDigBlock(chunk, currX, currY, currZ, debugBlock, true);
+                                        else
+                                            digBlock(worldIn, chunk, originChunkX, originChunkZ, currX, currY, currZ, liquidBlock, this.liquidAltitude, this.isReplaceGravel);
+                                    } else {
+                                        if (this.isDebugVisualizerEnabled)
+                                            CarverUtils.debugDigBlock(chunk, currX, currY, currZ, debugBlock, false);
                                     }
                                 }
                             }
                         }
+                    }
 
-                        if (flag2) {
-                            break;
-                        }
+                    if (comesFromRoom) {
+                        break;
                     }
                 }
             }
+            startCounter++;
         }
     }
 
-    // TODO - support flooded vanilla caves
-    private void digBlock(IChunk chunk, int chunkX, int chunkZ, int x, int y, int z, BlockState liquidBlockState, int liquidAltitude, boolean replaceGravel) {
-        CarverUtils.digBlock(chunk, x, y, z, liquidBlockState, liquidAltitude, replaceGravel);
+    private void digBlock(IWorld worldIn, IChunk chunk, int chunkX, int chunkZ, int localX, int y, int localZ, BlockState liquidBlockState, int liquidAltitude, boolean replaceGravel) {
+        BlockPos pos = new BlockPos(chunkX * 16 + localX, y, chunkZ * 16 + localZ);
+
+        // Don't dig boundaries between flooded and unflooded openings.
+        boolean flooded = isFloodedUndergroundEnabled && !isDebugVisualizerEnabled && world.getBiome(pos).getCategory() == Biome.Category.OCEAN;
+
+        if (flooded) {
+            if (
+                (isPosInWorld(pos.east(), (WorldGenRegion) world) && chunk.getBiome(pos.east()).getCategory() != Biome.Category.OCEAN) ||
+                    (isPosInWorld(pos.west(), (WorldGenRegion) world) && chunk.getBiome(pos.west()).getCategory() != Biome.Category.OCEAN) ||
+                    (isPosInWorld(pos.north(), (WorldGenRegion) world) && chunk.getBiome(pos.north()).getCategory() != Biome.Category.OCEAN) ||
+                    (isPosInWorld(pos.south(), (WorldGenRegion) world) && chunk.getBiome(pos.south()).getCategory() != Biome.Category.OCEAN)
+            ) {
+                return;
+            }
+        }
+
+        BlockState airBlockState = flooded ? Blocks.WATER.getDefaultState() : Blocks.CAVE_AIR.getDefaultState();
+        CarverUtils.digBlock(chunk, pos, airBlockState, liquidBlockState, liquidAltitude, replaceGravel);
+    }
+
+    public void setWorld(IWorld worldIn) {
+        this.world = worldIn;
     }
 }

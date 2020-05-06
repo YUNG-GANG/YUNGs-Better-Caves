@@ -1,11 +1,14 @@
 package com.yungnickyoung.minecraft.bettercaves.util;
 
+import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.chunk.IChunk;
+import net.minecraft.world.gen.WorldGenRegion;
 
 /**
  * Utility functions for BetterCaves. These functions are mostly refactored versions of methods found in
@@ -13,7 +16,7 @@ import net.minecraft.world.chunk.IChunk;
  * This class may not be instantiated - all members are {@code public} and {@code static},
  * and as such may be accessed freely.
  */
-public class BetterCavesUtil {
+public class BetterCavesUtils {
     /**
      * Tests every block in a 2x2 "sub-chunk" to get the max surface altitude (y-coordinate) of the sub-chunk.
      * Note that water blocks also count as the surface.
@@ -84,5 +87,9 @@ public class BetterCavesUtil {
 
     public static int getLocal(int coordinate) {
         return coordinate & 0xF; // This is same as modulo 16, but quicker
+    }
+
+    public static boolean isPosInWorld(BlockPos pos, WorldGenRegion worldGenRegion) {
+         return worldGenRegion.chunkExists(pos.getX() >> 4, pos.getZ() >> 4);
     }
 }

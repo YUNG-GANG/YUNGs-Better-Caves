@@ -99,7 +99,7 @@ public class CavernCarverController {
         }
 
         boolean flooded = false;
-        float smoothAmpFactor = 1;
+        float smoothAmpFloodFactor = 1;
 
         for (int subX = 0; subX < 16 / BCSettings.SUB_CHUNK_SIZE; subX++) {
             for (int subZ = 0; subZ < 16 / BCSettings.SUB_CHUNK_SIZE; subZ++) {
@@ -134,10 +134,11 @@ public class CavernCarverController {
 
                         if (isFloodedUndergroundEnabled && !isDebugViewEnabled) {
                             flooded = chunk.getBiome(colPos).getCategory() == Biome.Category.OCEAN;
-                            smoothAmpFactor = WaterRegionController.getDistFactor(world, colPos, 2, flooded ? isNotOcean : isOcean);
-                            if (smoothAmpFactor <= 0) { // Wall between flooded and normal caves.
+                            smoothAmpFloodFactor = WaterRegionController.getDistFactor(world, colPos, 2, flooded ? isNotOcean : isOcean);
+                            if (smoothAmpFloodFactor <= 0) { // Wall between flooded and normal caves.
                                 continue; // Continue to prevent unnecessary noise calculation
-                            }                        }
+                            }
+                        }
 
                         int surfaceAltitude = surfaceAltitudes[localX][localZ];
                         BlockState liquidBlock = liquidBlocks[localX][localZ];
@@ -157,7 +158,7 @@ public class CavernCarverController {
                                 topY = carver.getTopY();
                                 maxHeight = carver.getTopY();
                             }
-                            float smoothAmp = range.getSmoothAmp(cavernRegionNoise) * smoothAmpFactor;
+                            float smoothAmp = range.getSmoothAmp(cavernRegionNoise) * smoothAmpFloodFactor;
                             if (range.getNoiseCube() == null) {
                                 range.setNoiseCube(carver.getNoiseGen().interpolateNoiseCube(startPos, endPos, bottomY, maxHeight));
                             }

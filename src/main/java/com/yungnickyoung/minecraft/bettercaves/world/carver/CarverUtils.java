@@ -2,6 +2,7 @@ package com.yungnickyoung.minecraft.bettercaves.world.carver;
 
 
 import com.google.common.collect.ImmutableSet;
+import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -170,10 +171,14 @@ public class CarverUtils {
     }
 
     private static boolean isWaterAdjacent(IChunk chunkIn, BlockPos blockPos) {
-        return chunkIn.getBlockState(blockPos.up()).getMaterial() == Material.WATER
-            || chunkIn.getBlockState(blockPos.north()).getMaterial() == Material.WATER
-            || chunkIn.getBlockState(blockPos.east()).getMaterial() == Material.WATER
-            || chunkIn.getBlockState(blockPos.south()).getMaterial() == Material.WATER
-            || chunkIn.getBlockState(blockPos.west()).getMaterial() == Material.WATER;
+        int localX = BetterCavesUtils.getLocal(blockPos.getX());
+        int localZ = BetterCavesUtils.getLocal(blockPos.getZ());
+        int y = blockPos.getY();
+
+        return (y < 255 && chunkIn.getBlockState(blockPos.up()).getMaterial() == Material.WATER)
+            || localZ > 0 && chunkIn.getBlockState(blockPos.north()).getMaterial() == Material.WATER
+            || localX < 15 && chunkIn.getBlockState(blockPos.east()).getMaterial() == Material.WATER
+            || localZ < 15 && chunkIn.getBlockState(blockPos.south()).getMaterial() == Material.WATER
+            || localX > 0 && chunkIn.getBlockState(blockPos.west()).getMaterial() == Material.WATER;
     }
 }

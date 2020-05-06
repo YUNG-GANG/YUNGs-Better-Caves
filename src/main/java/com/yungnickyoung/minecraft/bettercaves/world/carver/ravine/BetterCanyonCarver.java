@@ -1,14 +1,15 @@
 //package com.yungnickyoung.minecraft.bettercaves.world.carver.ravine;
 //
 //import com.mojang.datafixers.Dynamic;
-//import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
-//import com.yungnickyoung.minecraft.bettercaves.config.BetterCavesConfig;
+//import com.yungnickyoung.minecraft.bettercaves.config.io.ConfigLoader;
+//import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 //import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
-//import com.yungnickyoung.minecraft.bettercaves.world.carver.BetterCavesCarver;
 //import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverUtils;
+//import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.WaterRegionController;
 //import net.minecraft.block.BlockState;
 //import net.minecraft.block.Blocks;
 //import net.minecraft.util.math.BlockPos;
+//import net.minecraft.world.IWorld;
 //import net.minecraft.world.biome.Biome;
 //import net.minecraft.world.chunk.IChunk;
 //import net.minecraft.world.gen.carver.CanyonWorldCarver;
@@ -22,17 +23,21 @@
 ///**
 // * Overrides MapGenRavine, tweaking it to work with config options.
 // */
-//public class BetterRavineCarver extends CanyonWorldCarver {
-//    private BetterCavesCarver carver;
-//    private int liquidAltitude;
-//    private boolean isReplaceFloatingGravel;
-//    private boolean isFloodedRavinesEnabled;
+//public class BetterCanyonCarver extends CanyonWorldCarver {
+//    private IWorld world;
+//    private WaterRegionController waterRegionController;
+//    private ConfigHolder config;
 //
-//    BlockState[][] currChunkLiquidBlocks;
-//    int currChunkX, currChunkZ;
+//    private BlockState[][] currChunkLiquidBlocks;
+//    private int currChunkX, currChunkZ;
 //
-//    public BetterRavineCarver(Function<Dynamic<?>, ? extends ProbabilityConfig> p_i49930_1_) {
+//    public BetterCanyonCarver(Function<Dynamic<?>, ? extends ProbabilityConfig> p_i49930_1_) {
 //        super(p_i49930_1_);
+//    }
+//
+//    @Override
+//    public boolean carve(IChunk chunkIn, Random rand, int seaLevel, int chunkX, int chunkZ, int p_212867_6_, int p_212867_7_, BitSet carvingMask, ProbabilityConfig config) {
+//
 //    }
 //
 //    @Override
@@ -43,7 +48,7 @@
 //
 //        if (currChunkLiquidBlocks == null || chunkX != currChunkX || chunkZ != currChunkZ) {
 //            try {
-//                currChunkLiquidBlocks = carver.waterRegionController.getLiquidBlocksForChunk(chunkX , chunkZ);
+//                currChunkLiquidBlocks = waterRegionController.getLiquidBlocksForChunk(chunkX , chunkZ);
 //                liquidBlockState = currChunkLiquidBlocks[BetterCavesUtil.getLocal(pos.getX())][BetterCavesUtil.getLocal(pos.getZ())];
 //            } catch (Exception e) {
 //                liquidBlockState = Blocks.LAVA.getDefaultState();
@@ -58,28 +63,23 @@
 //        }
 //
 //        // Don't dig boundaries between flooded and unflooded openings.
-//        boolean flooded = isFloodedRavinesEnabled && chunkIn.getBiome(pos).getCategory() == Biome.Category.OCEAN;
-////        if (flooded) {
-////            float smoothAmpFactor = WaterRegionController.getDistFactor(world, pos, 2, b -> b != Biome.TempCategory.OCEAN);
-////            if (smoothAmpFactor <= .25f) { // Wall between flooded and normal caves.
-////                return;
-////            }
-////        }
+//        boolean flooded = config.enableFloodedRavines.get() && chunkIn.getBiome(pos).getCategory() == Biome.Category.OCEAN;
+//        if (flooded) {
+//            float smoothAmpFactor = WaterRegionController.getDistFactor(world, pos, 2, b -> b != Biome.Category.OCEAN);
+//            if (smoothAmpFactor <= .25f) { // Wall between flooded and normal caves.
+//                return true;
+//            }
+//        }
 //
 //        BlockState airBlockState = flooded ? Blocks.WATER.getDefaultState() : AIR;
-//        CarverUtils.digBlock(chunkIn, pos, airBlockState, liquidBlockState, liquidAltitude, isReplaceFloatingGravel);
+//        CarverUtils.digBlock(chunkIn, pos, airBlockState, liquidBlockState, config.liquidAltitude.get(), config.replaceFloatingGravel.get());
 //        return true;
 //    }
 //
-//    private void initialize(int dimensionId, int dimensionName) {
-//        this.carver = BetterCaves.activeCarversMap.get(dimensionId);
-//        // Check for error loading carver
-//        if (carver == null) {
-//            BetterCaves.LOGGER.error(String.format("Failed to find Better Caves carver in dimension %s during ravine generation!", dimensionName));
-//            BetterCaves.LOGGER.error("Is another cave mod installed?");
-//        }
-//        this.liquidAltitude = BetterCavesConfig.liquidAltitude;
-//        this.isReplaceFloatingGravel = BetterCavesConfig.replaceFloatingGravel;
-//        this.isFloodedRavinesEnabled = BetterCavesConfig.enableFloodedRavines;
+//    private void initialize(IWorld worldIn) {
+//        this.world = worldIn;
+//        int dimensionId = world.getDimension().getType().getId();
+//        this.config = ConfigLoader.loadConfigFromFileForDimension(dimensionId);
+//        this.waterRegionController = new WaterRegionController(world, config);
 //    }
 //}

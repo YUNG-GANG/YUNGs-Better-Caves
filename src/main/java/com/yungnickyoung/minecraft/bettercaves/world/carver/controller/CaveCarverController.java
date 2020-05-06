@@ -18,9 +18,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.IChunk;
+import net.minecraft.world.gen.WorldGenRegion;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils.isPosInWorld;
 
 public class CaveCarverController {
     private IWorld world;
@@ -46,6 +49,7 @@ public class CaveCarverController {
             .density(config.surfaceCaveDensity.get())
             .liquidAltitude(config.liquidAltitude.get())
             .replaceGravel(config.replaceFloatingGravel.get())
+            .floodedUnderground(config.enableFloodedUnderground.get())
             .debugVisualizerEnabled(config.debugVisualizer.get())
             .debugVisualizerBlock(Blocks.EMERALD_BLOCK.getDefaultState())
             .build();
@@ -74,17 +78,6 @@ public class CaveCarverController {
             .build()
         );
         // Vanilla caves
-        VanillaCaveCarver vanillaCarver = new VanillaCaveCarverBuilder()
-            .bottomY(config.vanillaCaveBottom.get())
-            .topY(config.vanillaCaveTop.get())
-            .density(config.vanillaCaveDensity.get())
-            .priority(config.vanillaCavePriority.get())
-            .liquidAltitude(config.liquidAltitude.get())
-            .replaceGravel(config.replaceFloatingGravel.get())
-            .debugVisualizerEnabled(config.debugVisualizer.get())
-            .debugVisualizerBlock(Blocks.BRICKS.getDefaultState())
-            .build();
-
         carvers.add(new VanillaCaveCarverBuilder()
             .bottomY(config.vanillaCaveBottom.get())
             .topY(config.vanillaCaveTop.get())
@@ -92,6 +85,7 @@ public class CaveCarverController {
             .priority(config.vanillaCavePriority.get())
             .liquidAltitude(config.liquidAltitude.get())
             .replaceGravel(config.replaceFloatingGravel.get())
+            .floodedUnderground(config.enableFloodedUnderground.get())
             .debugVisualizerEnabled(config.debugVisualizer.get())
             .debugVisualizerBlock(Blocks.BRICKS.getDefaultState())
             .build());
@@ -169,13 +163,14 @@ public class CaveCarverController {
                         int localX = startX + offsetX;
                         int localZ = startZ + offsetZ;
                         BlockPos colPos = new BlockPos(chunkX * 16 + localX, 1, chunkZ * 16 + localZ);
+                        
                         flooded = isFloodedUndergroundEnabled && !isDebugViewEnabled && chunk.getBiome(colPos).getCategory() == Biome.Category.OCEAN;
                         if (flooded) {
                             if (
-                                chunk.getBiome(colPos.east()).getCategory() != Biome.Category.OCEAN ||
-                                chunk.getBiome(colPos.north()).getCategory() != Biome.Category.OCEAN ||
-                                chunk.getBiome(colPos.west()).getCategory() != Biome.Category.OCEAN ||
-                                chunk.getBiome(colPos.south()).getCategory() != Biome.Category.OCEAN
+                                (isPosInWorld(colPos.east(), (WorldGenRegion) world) && chunk.getBiome(colPos.east()).getCategory() != Biome.Category.OCEAN) ||
+                                (isPosInWorld(colPos.west(), (WorldGenRegion) world) && chunk.getBiome(colPos.west()).getCategory() != Biome.Category.OCEAN) ||
+                                (isPosInWorld(colPos.north(), (WorldGenRegion) world) && chunk.getBiome(colPos.north()).getCategory() != Biome.Category.OCEAN) ||
+                                (isPosInWorld(colPos.south(), (WorldGenRegion) world) && chunk.getBiome(colPos.south()).getCategory() != Biome.Category.OCEAN)
                             ) {
                                 continue;
                             }
@@ -259,5 +254,12 @@ public class CaveCarverController {
 
     public void setWorld(IWorld worldIn) {
         this.world = worldIn;
+        this.surfaceCaveCarver.setWorld(worldIn);
+        for (CarverNoiseRange range : noiseRanges) {
+            if (range.getCarver() instanceof VanillaCaveCarver) {
+                ((VanillaCaveCarver)range.getCarver()).setWorld(worldIn);
+                break;
+            }
+        }
     }
 }

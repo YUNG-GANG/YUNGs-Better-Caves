@@ -4,7 +4,7 @@ import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtils;
-import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
+import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.ResourceLocation;
@@ -12,10 +12,13 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.gen.WorldGenRegion;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Random;
 import java.util.function.Function;
+
+import static com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils.isPosInWorld;
 
 public class WaterRegionController {
     private FastNoise waterRegionController;
@@ -85,7 +88,7 @@ public class WaterRegionController {
         try {
             lavaBlock = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(lavaString)).getDefaultState();
             BetterCaves.LOGGER.info("Using block '" + lavaString + "' as lava in cave generation for dimension " +
-                BetterCavesUtil.dimensionAsString(dimensionId, dimensionName) + " ...");
+                BetterCavesUtils.dimensionAsString(dimensionId, dimensionName) + " ...");
         } catch (Exception e) {
             BetterCaves.LOGGER.warn("Unable to use block '" + lavaString + "': " + e);
             BetterCaves.LOGGER.warn("Using vanilla lava instead...");
@@ -105,7 +108,7 @@ public class WaterRegionController {
         try {
             waterBlock = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(waterString)).getDefaultState();
             BetterCaves.LOGGER.info("Using block '" + waterString + "' as water in cave generation for dimension " +
-                BetterCavesUtil.dimensionAsString(dimensionId, dimensionName) + " ...");
+                BetterCavesUtils.dimensionAsString(dimensionId, dimensionName) + " ...");
         } catch (Exception e) {
             BetterCaves.LOGGER.warn("Unable to use block '" + waterString + "': " + e);
             BetterCaves.LOGGER.warn("Using vanilla water instead...");
@@ -125,23 +128,24 @@ public class WaterRegionController {
         this.world = worldIn;
     }
 
-    public static float getDistFactor(IWorld world, BlockPos pos, int distance, Function<Biome.Category, Boolean> isTargetBiome) {
+    public static float getDistFactor(IWorld worldIn, BlockPos pos, int distance, Function<Biome.Category, Boolean> isTargetBiome) {
+        WorldGenRegion worldGenRegion = (WorldGenRegion)worldIn;
         // First check unit circle
         // Cardinal directions
         if (
-            isTargetBiome.apply(world.getBiome(pos.north()).getCategory()) ||
-                isTargetBiome.apply(world.getBiome(pos.east()).getCategory()) ||
-                isTargetBiome.apply(world.getBiome(pos.south()).getCategory()) ||
-                isTargetBiome.apply(world.getBiome(pos.west()).getCategory())
+            (isPosInWorld(pos.north(), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.north()).getCategory())) ||
+                (isPosInWorld(pos.east(), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.east()).getCategory())) ||
+                (isPosInWorld(pos.south(), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.south()).getCategory())) ||
+                (isPosInWorld(pos.west(), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.west()).getCategory()))
         ) {
             return 0;
         }
         // Corners
         if (
-            isTargetBiome.apply(world.getBiome(pos.north().east()).getCategory()) ||
-                isTargetBiome.apply(world.getBiome(pos.east().south()).getCategory()) ||
-                isTargetBiome.apply(world.getBiome(pos.south().west()).getCategory()) ||
-                isTargetBiome.apply(world.getBiome(pos.west().north()).getCategory())
+            (isPosInWorld(pos.north().east(), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.north().east()).getCategory())) ||
+            (isPosInWorld(pos.east().south(), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.east().south()).getCategory())) ||
+            (isPosInWorld(pos.south().west(), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.south().west()).getCategory())) ||
+            (isPosInWorld(pos.west().north(), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.west().north()).getCategory()))
         ) {
             return 2f / (distance * 2);
         }
@@ -149,32 +153,32 @@ public class WaterRegionController {
         // 2-circle
         // Cardinal directions
         if (
-            isTargetBiome.apply(world.getBiome(pos.north(2)).getCategory()) ||
-                isTargetBiome.apply(world.getBiome(pos.east(2)).getCategory()) ||
-                isTargetBiome.apply(world.getBiome(pos.south(2)).getCategory()) ||
-                isTargetBiome.apply(world.getBiome(pos.west(2)).getCategory())
+            (isPosInWorld(pos.north(2), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.north(2)).getCategory())) ||
+            (isPosInWorld(pos.east(2), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.east(2)).getCategory())) ||
+            (isPosInWorld(pos.south(2), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.south(2)).getCategory())) ||
+            (isPosInWorld(pos.west(2), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.west(2)).getCategory()))
         ) {
             return 2f / (distance * 2);
         }
         // 3 away
         if (
-            isTargetBiome.apply(world.getBiome(pos.north(2).east(1)).getCategory()) ||
-                isTargetBiome.apply(world.getBiome(pos.north(2).west(1)).getCategory()) ||
-                isTargetBiome.apply(world.getBiome(pos.east(2).north(1)).getCategory()) ||
-                isTargetBiome.apply(world.getBiome(pos.east(2).south(1)).getCategory()) ||
-                isTargetBiome.apply(world.getBiome(pos.south(2).east(1)).getCategory()) ||
-                isTargetBiome.apply(world.getBiome(pos.south(2).west()).getCategory()) ||
-                isTargetBiome.apply(world.getBiome(pos.west(2).south(1)).getCategory()) ||
-                isTargetBiome.apply(world.getBiome(pos.west(2).north(1)).getCategory())
+            (isPosInWorld(pos.north(2).east(1), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.north(2).east(1)).getCategory())) ||
+            (isPosInWorld(pos.north(2).west(1), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.north(2).west(1)).getCategory())) ||
+            (isPosInWorld(pos.east(2).north(1), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.east(2).north(1)).getCategory())) ||
+            (isPosInWorld(pos.east(2).south(1), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.east(2).south(1)).getCategory())) ||
+            (isPosInWorld(pos.south(2).east(1), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.south(2).east(1)).getCategory())) ||
+            (isPosInWorld(pos.south(2).west(1), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.south(2).west(1)).getCategory())) ||
+            (isPosInWorld(pos.west(2).south(1), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.west(2).south(1)).getCategory())) ||
+            (isPosInWorld(pos.west(2).north(1), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.west(2).north(1)).getCategory()))
         ) {
             return 3f / (distance * 2);
         }
         // Corners
         if (
-            isTargetBiome.apply(world.getBiome(pos.north(2).east(2)).getCategory()) ||
-                isTargetBiome.apply(world.getBiome(pos.east(2).south(2)).getCategory()) ||
-                isTargetBiome.apply(world.getBiome(pos.south(2).west(2)).getCategory()) ||
-                isTargetBiome.apply(world.getBiome(pos.west(2).north(2)).getCategory())
+            (isPosInWorld(pos.north(2).east(2), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.north(2).east(2)).getCategory())) ||
+            (isPosInWorld(pos.east(2).south(2), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.east(2).south(2)).getCategory())) ||
+            (isPosInWorld(pos.south(2).west(2), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.south(2).west(2)).getCategory())) ||
+            (isPosInWorld(pos.west(2).north(2), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.west(2).north(2)).getCategory()))
         ) {
             return 1;
         }

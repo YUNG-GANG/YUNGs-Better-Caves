@@ -6,7 +6,7 @@ import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
 import com.yungnickyoung.minecraft.bettercaves.config.io.ConfigLoader;
 import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
-import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtil;
+import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.bedrock.FlattenBedrock;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.CaveCarverController;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.CavernCarverController;
@@ -85,7 +85,7 @@ public class BetterCavesCarver {
                             surfaceHeight = 1; // Don't waste time calculating surface height if it's going to be overridden anyway
                         }
                         else {
-                            surfaceHeight = BetterCavesUtil.getSurfaceAltitudeForColumn(chunkIn, startX + offsetX, startZ + offsetZ);
+                            surfaceHeight = BetterCavesUtils.getSurfaceAltitudeForColumn(chunkIn, startX + offsetX, startZ + offsetZ);
                         }
                         surfaceAltitudes[startX + offsetX][startZ + offsetZ] = surfaceHeight;
                     }

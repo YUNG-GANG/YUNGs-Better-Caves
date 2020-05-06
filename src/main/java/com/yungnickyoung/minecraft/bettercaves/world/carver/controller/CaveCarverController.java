@@ -163,7 +163,7 @@ public class CaveCarverController {
                         int localX = startX + offsetX;
                         int localZ = startZ + offsetZ;
                         BlockPos colPos = new BlockPos(chunkX * 16 + localX, 1, chunkZ * 16 + localZ);
-                        
+
                         flooded = isFloodedUndergroundEnabled && !isDebugViewEnabled && chunk.getBiome(colPos).getCategory() == Biome.Category.OCEAN;
                         if (flooded) {
                             if (

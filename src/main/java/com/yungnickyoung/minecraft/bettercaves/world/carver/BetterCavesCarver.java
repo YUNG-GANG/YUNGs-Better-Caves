@@ -11,61 +11,43 @@ import com.yungnickyoung.minecraft.bettercaves.world.carver.bedrock.FlattenBedro
 import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.CaveCarverController;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.CavernCarverController;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.WaterRegionController;
+import com.yungnickyoung.minecraft.bettercaves.world.carver.ravine.BetterCanyonCarver;
 import net.minecraft.block.BlockState;
+import net.minecraft.util.SharedSeedRandom;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.gen.carver.ConfiguredCarver;
+import net.minecraft.world.gen.feature.ProbabilityConfig;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class BetterCavesCarver {
     public ConfigHolder config;
+    private SharedSeedRandom random = new SharedSeedRandom();
+    private IWorld world;
+    public long seed = 0;
 
-    public int counter = 0;
-    private long oldSeed = 0;
-
+    // Controllers
     private CaveCarverController caveCarverController;
     private CavernCarverController cavernCarverController;
     public WaterRegionController waterRegionController;
 
-    // The minecraft world
-    public long seed = 0; // world seed
+    // Ravines
+    private ConfiguredCarver<ProbabilityConfig> ravineCarver;
 
-    // List used to avoid operating on a chunk more than once
-    public Set<Pair<Integer, Integer>> coordList = new HashSet<>();
+    // Map of chunk to carving masks
+    // TODO - make seagrass feature that works with my caves/caverns/ravines
+    public Map<Pair<Integer, Integer>, BitSet> chunkToCarvingMask = new HashMap<>();
 
     public BetterCavesCarver() {
     }
 
     // Override the default carver's method to use Better Caves carving instead.
     public void carve(IChunk chunkIn, int chunkX, int chunkZ) {
-        // Since the ChunkGenerator calls this method many times per chunk (~300), we must
-        // check for duplicates so we don't operate on the same chunk more than once.
-        Pair<Integer, Integer> pair = new Pair<>(chunkX, chunkZ);
-        if (coordList.contains(pair)) {
-            BetterCaves.LOGGER.warn("WARNING: DUPLICATE PAIR: " + pair);
-            return;
-        }
-
-        // Clear the list occasionally to prevent excessive memory usage.
-        // This is a hacky solution, and may introduce bugs due to chunks being over- or under-processed
-        if (coordList.size() > 10000) {
-            coordList.clear();
-            BetterCaves.LOGGER.warn("WARNING: BetterCaves chunk list reached max capacity!");
-            BetterCaves.LOGGER.info("Clearing chunk list...");
-        }
-
-        coordList.add(pair);
-
-        // Debug logging to see if any chunks may have been generated erroneously with the wrong seed
-        if (seed != oldSeed) {
-            BetterCaves.LOGGER.debug("CHUNKS LOADED SINCE SEED CHANGE: " + counter);
-            counter = 0;
-            oldSeed = seed;
-        }
-
-        counter++;
+        BitSet carvingMask = new BitSet(65536);
+        chunkToCarvingMask.put(Pair.of(chunkX, chunkX), carvingMask);
 
         // Flatten bedrock into single layer, if enabled in user config
         if (config.flattenBedrock.get()) {
@@ -99,33 +81,53 @@ public class BetterCavesCarver {
         // Carve chunk
         caveCarverController.carveChunk(chunkIn, chunkX, chunkZ, surfaceAltitudes, liquidBlocks);
         cavernCarverController.carveChunk(chunkIn, chunkX, chunkZ, surfaceAltitudes, liquidBlocks);
+
+        // Ravines
+        if (config.enableVanillaRavines.get()) {
+            for (int currChunkX = chunkX - 8; currChunkX <= chunkX + 8; currChunkX++) {
+                for (int currChunkZ = chunkZ - 8; currChunkZ <= chunkZ + 8; currChunkZ++) {
+                    random.setLargeFeatureSeed(seed, currChunkX, currChunkZ);
+                    if (ravineCarver.shouldCarve(random, chunkX, chunkZ)) {
+                        ravineCarver.carve(chunkIn, random, world.getSeaLevel(), currChunkX, currChunkZ, chunkX, chunkZ, carvingMask);
+                    }
+                }
+            }
+        }
     }
 
     /**
      * Initialize Better Caves generators and cave region controllers for this world.
      */
-    public void initialize(IWorld world) {
+    public void initialize(IWorld worldIn) {
         // Extract world information
-        this.seed = world.getSeed();
-        int dimensionId = world.getDimension().getType().getId();
-        String dimensionName = DimensionType.getKey(world.getDimension().getType()).toString();
+        this.seed = worldIn.getSeed();
+        this.world = worldIn;
+        int dimensionId = worldIn.getDimension().getType().getId();
+        String dimensionName = DimensionType.getKey(worldIn.getDimension().getType()).toString();
 
         // Load config from file for this dimension
         this.config = ConfigLoader.loadConfigFromFileForDimension(dimensionId);
 
         // Initialize controllers
-        this.waterRegionController = new WaterRegionController(world, config);
-        this.caveCarverController = new CaveCarverController(world, config);
-        this.cavernCarverController = new CavernCarverController(world, config);
+        this.waterRegionController = new WaterRegionController(worldIn, config);
+        this.caveCarverController = new CaveCarverController(worldIn, config);
+        this.cavernCarverController = new CavernCarverController(worldIn, config);
+
+        // Ravines
+        this.ravineCarver = new ConfiguredCarver<>(new BetterCanyonCarver(world, ProbabilityConfig::deserialize), new ProbabilityConfig(.02f));
 
         BetterCaves.LOGGER.debug("BETTER CAVES WORLD CARVER INITIALIZED WITH SEED " + this.seed);
         BetterCaves.LOGGER.debug(String.format("  > DIMENSION %d: %s", dimensionId, dimensionName));
-        BetterCaves.LOGGER.debug(String.format("  > COUNTER: %d", counter));
     }
 
     public void setWorld(IWorld worldIn) {
+        this.world = worldIn;
         this.waterRegionController.setWorld(worldIn);
         this.caveCarverController.setWorld(worldIn);
         this.cavernCarverController.setWorld(worldIn);
+    }
+
+    public long getSeed() {
+        return this.seed;
     }
 }

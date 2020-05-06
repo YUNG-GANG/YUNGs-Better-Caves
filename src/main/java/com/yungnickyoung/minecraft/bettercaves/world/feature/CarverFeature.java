@@ -75,7 +75,7 @@ public class CarverFeature extends Feature<NoFeatureConfig> {
 
         // Check if a carver hasn't been created for this dimension, or if
         // the seeds don't match (player probably changed worlds)
-        if (BetterCaves.activeCarversMap.get(dimId) == null || BetterCaves.activeCarversMap.get(dimId).seed != world.getSeed()) {
+        if (BetterCaves.activeCarversMap.get(dimId) == null || BetterCaves.activeCarversMap.get(dimId).getSeed() != world.getSeed()) {
             BetterCavesCarver newCarver = new BetterCavesCarver();
             BetterCaves.activeCarversMap.put(dimId, newCarver);
             BetterCaves.LOGGER.info(String.format("CREATING AND INIT'ING CARVER W DIMENSION %s...", dimId));

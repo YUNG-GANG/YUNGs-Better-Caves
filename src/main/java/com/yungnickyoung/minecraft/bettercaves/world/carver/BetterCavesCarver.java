@@ -1,7 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.world.carver;
 
 
-import com.mojang.datafixers.util.Pair;
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
 import com.yungnickyoung.minecraft.bettercaves.config.io.ConfigLoader;
@@ -10,11 +9,11 @@ import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.bedrock.FlattenBedrock;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.CaveCarverController;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.CavernCarverController;
+import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.RavineController;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.WaterRegionController;
-import com.yungnickyoung.minecraft.bettercaves.world.carver.ravine.BetterCanyonCarver;
+import com.yungnickyoung.minecraft.bettercaves.world.carver.ravine.RavineCarver;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.SharedSeedRandom;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.chunk.IChunk;
@@ -26,22 +25,14 @@ import net.minecraft.world.gen.feature.ProbabilityConfig;
 import java.util.*;
 
 public class BetterCavesCarver {
-    public ConfigHolder config;
-    private SharedSeedRandom random = new SharedSeedRandom();
-    private IWorld world;
     public long seed = 0;
+    public ConfigHolder config;
 
     // Controllers
-    private CaveCarverController caveCarverController;
+    private CaveCarverController   caveCarverController;
     private CavernCarverController cavernCarverController;
-    public WaterRegionController waterRegionController;
-
-    // Ravines
-    private ConfiguredCarver<ProbabilityConfig> ravineCarver;
-
-    // Map of chunk to carving masks
-    // TODO - make seagrass feature that works with my caves/caverns/ravines
-//    public Map<Pair<Integer, Integer>, BitSet> chunkToCarvingMask = new HashMap<>();
+    private WaterRegionController  waterRegionController;
+    private RavineController       ravineController;
 
     public BetterCavesCarver() {
     }
@@ -50,8 +41,6 @@ public class BetterCavesCarver {
     public void carve(IChunk chunkIn, int chunkX, int chunkZ) {
         BitSet airCarvingMask = chunkIn.getCarvingMask(GenerationStage.Carving.AIR);
         BitSet liquidCarvingMask = chunkIn.getCarvingMask(GenerationStage.Carving.LIQUID);
-
-//        chunkToCarvingMask.put(Pair.of(chunkX, chunkX), airCarvingMask);
 
         // Flatten bedrock into single layer, if enabled in user config
         if (config.flattenBedrock.get()) {
@@ -92,19 +81,7 @@ public class BetterCavesCarver {
         // Carve chunk
         caveCarverController.carveChunk(chunkIn, chunkX, chunkZ, surfaceAltitudes, liquidBlocks);
         cavernCarverController.carveChunk(chunkIn, chunkX, chunkZ, surfaceAltitudes, liquidBlocks);
-
-        // Ravines
-        // TODO - put into ravine controller?
-        if (config.enableVanillaRavines.get()) {
-            for (int currChunkX = chunkX - 8; currChunkX <= chunkX + 8; currChunkX++) {
-                for (int currChunkZ = chunkZ - 8; currChunkZ <= chunkZ + 8; currChunkZ++) {
-                    random.setLargeFeatureSeed(seed, currChunkX, currChunkZ);
-                    if (ravineCarver.shouldCarve(random, chunkX, chunkZ)) {
-                        ((BetterCanyonCarver)ravineCarver.carver).carve(chunkIn, random, world.getSeaLevel(), currChunkX, currChunkZ, chunkX, chunkZ, airCarvingMask, liquidCarvingMask);
-                    }
-                }
-            }
-        }
+        ravineController.carveChunk(chunkIn, chunkX, chunkZ, liquidBlocks, airCarvingMask, liquidCarvingMask);
 
         // Set carving masks for features to use
         ((ChunkPrimer)chunkIn).setCarvingMask(GenerationStage.Carving.AIR, airCarvingMask);
@@ -117,7 +94,6 @@ public class BetterCavesCarver {
     public void initialize(IWorld worldIn) {
         // Extract world information
         this.seed = worldIn.getSeed();
-        this.world = worldIn;
         int dimensionId = worldIn.getDimension().getType().getId();
         String dimensionName = DimensionType.getKey(worldIn.getDimension().getType()).toString();
 
@@ -125,23 +101,20 @@ public class BetterCavesCarver {
         this.config = ConfigLoader.loadConfigFromFileForDimension(dimensionId);
 
         // Initialize controllers
-        this.waterRegionController = new WaterRegionController(worldIn, config);
-        this.caveCarverController = new CaveCarverController(worldIn, config);
+        this.caveCarverController   = new CaveCarverController(worldIn, config);
         this.cavernCarverController = new CavernCarverController(worldIn, config);
-
-        // Ravines
-        this.ravineCarver = new ConfiguredCarver<>(new BetterCanyonCarver(world, ProbabilityConfig::deserialize), new ProbabilityConfig(.02f));
+        this.waterRegionController  = new WaterRegionController(worldIn, config);
+        this.ravineController       = new RavineController(worldIn, config);
 
         BetterCaves.LOGGER.debug("BETTER CAVES WORLD CARVER INITIALIZED WITH SEED " + this.seed);
         BetterCaves.LOGGER.debug(String.format("  > DIMENSION %d: %s", dimensionId, dimensionName));
     }
 
     public void setWorld(IWorld worldIn) {
-        this.world = worldIn;
-        this.waterRegionController.setWorld(worldIn);
         this.caveCarverController.setWorld(worldIn);
         this.cavernCarverController.setWorld(worldIn);
-        ((BetterCanyonCarver)this.ravineCarver.carver).setWorld(worldIn);
+        this.waterRegionController.setWorld(worldIn);
+        this.ravineController.setWorld(worldIn);
     }
 
     public long getSeed() {

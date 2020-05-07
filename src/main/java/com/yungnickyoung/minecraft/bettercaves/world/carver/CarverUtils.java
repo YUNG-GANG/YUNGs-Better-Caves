@@ -199,9 +199,7 @@ public class CarverUtils {
         if (liquidCarvableBlocks.contains(block))
             return true;
 
-        // Only accept gravel and sand if water is not directly above it
-        return (block == Blocks.SAND || block == Blocks.GRAVEL)
-            && blockStateAbove.getMaterial() != Material.WATER;
+        return false;
     }
 
     private static boolean isWaterAdjacent(IChunk chunkIn, BlockPos blockPos) {

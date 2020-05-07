@@ -130,7 +130,7 @@ public class CaveCarverController {
 
         // Since vanilla caves carve by chunk and not by column, we store an array
         // indicating which x-z coordinates are valid to be carved in
-        boolean[][] vanillaCarvingMask = new boolean[16][16];
+        boolean[][] validPositions = new boolean[16][16];
 
         // Break into subchunks for noise interpolation
         for (int subX = 0; subX < 16 / BCSettings.SUB_CHUNK_SIZE; subX++) {
@@ -207,7 +207,7 @@ public class CaveCarverController {
                                 break;
                             }
                             else if (range.getCarver() instanceof VanillaCaveCarver) {
-                                vanillaCarvingMask[localX][localZ] = true;
+                                validPositions[localX][localZ] = true;
                                 shouldCarveVanillaCaves = true;
                             }
                         }
@@ -224,7 +224,7 @@ public class CaveCarverController {
                 }
             }
             if (carver != null) {
-                carver.generate(world, chunkX, chunkZ, chunk, true, liquidBlocks, vanillaCarvingMask);
+                carver.generate(world, chunkX, chunkZ, chunk, true, liquidBlocks, validPositions);
             }
         }
         // Generate surface caves if enabled

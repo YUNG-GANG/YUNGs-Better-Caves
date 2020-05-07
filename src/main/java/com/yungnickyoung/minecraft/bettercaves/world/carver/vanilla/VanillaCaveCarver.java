@@ -19,6 +19,13 @@ import java.util.Random;
 
 import static com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils.isPosInWorld;
 
+/**
+ * Re-implements vanilla world carver, but with a few modifications for Better Caves config options.
+ * Variables have been renamed to be much more readable, making the algorithm a lot more understandable.
+ *
+ * Note that the method names and organization are based on code from 1.12.2, and thus won't be a 1:1 with
+ * CaveWorldCarver. However, the algorithm is still very similar, if not identical.
+ */
 public class VanillaCaveCarver implements ICarver {
     private int
         bottomY,

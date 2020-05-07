@@ -29,7 +29,10 @@ public class CarverUtils {
     private static final BlockState RED_SANDSTONE = Blocks.RED_SANDSTONE.getDefaultState();
     private static final BlockState GRAVEL = Blocks.GRAVEL.getDefaultState();
     private static final BlockState ANDESITE = Blocks.ANDESITE.getDefaultState();
+
     public static Set<Block> carvableBlocks = ImmutableSet.of(Blocks.STONE, Blocks.GRANITE, Blocks.DIORITE, Blocks.ANDESITE, Blocks.DIRT, Blocks.COARSE_DIRT, Blocks.PODZOL, Blocks.GRASS_BLOCK, Blocks.TERRACOTTA, Blocks.WHITE_TERRACOTTA, Blocks.ORANGE_TERRACOTTA, Blocks.MAGENTA_TERRACOTTA, Blocks.LIGHT_BLUE_TERRACOTTA, Blocks.YELLOW_TERRACOTTA, Blocks.LIME_TERRACOTTA, Blocks.PINK_TERRACOTTA, Blocks.GRAY_TERRACOTTA, Blocks.LIGHT_GRAY_TERRACOTTA, Blocks.CYAN_TERRACOTTA, Blocks.PURPLE_TERRACOTTA, Blocks.BLUE_TERRACOTTA, Blocks.BROWN_TERRACOTTA, Blocks.GREEN_TERRACOTTA, Blocks.RED_TERRACOTTA, Blocks.BLACK_TERRACOTTA, Blocks.SANDSTONE, Blocks.RED_SANDSTONE, Blocks.MYCELIUM, Blocks.SNOW, Blocks.PACKED_ICE);
+    public static Set<Block> liquidCarvableBlocks = ImmutableSet.of(Blocks.STONE, Blocks.GRANITE, Blocks.DIORITE, Blocks.ANDESITE, Blocks.DIRT, Blocks.COARSE_DIRT, Blocks.PODZOL, Blocks.GRASS_BLOCK, Blocks.TERRACOTTA, Blocks.WHITE_TERRACOTTA, Blocks.ORANGE_TERRACOTTA, Blocks.MAGENTA_TERRACOTTA, Blocks.LIGHT_BLUE_TERRACOTTA, Blocks.YELLOW_TERRACOTTA, Blocks.LIME_TERRACOTTA, Blocks.PINK_TERRACOTTA, Blocks.GRAY_TERRACOTTA, Blocks.LIGHT_GRAY_TERRACOTTA, Blocks.CYAN_TERRACOTTA, Blocks.PURPLE_TERRACOTTA, Blocks.BLUE_TERRACOTTA, Blocks.BROWN_TERRACOTTA, Blocks.GREEN_TERRACOTTA, Blocks.RED_TERRACOTTA, Blocks.BLACK_TERRACOTTA, Blocks.SANDSTONE, Blocks.RED_SANDSTONE, Blocks.MYCELIUM, Blocks.SNOW, Blocks.SAND, Blocks.GRAVEL, Blocks.WATER, Blocks.LAVA, Blocks.OBSIDIAN, Blocks.AIR, Blocks.CAVE_AIR, Blocks.PACKED_ICE);
+
     private static final ImmutableSet<BlockState> DEBUG_BLOCKS = ImmutableSet.of(Blocks.GOLD_BLOCK.getDefaultState(), Blocks.OAK_PLANKS.getDefaultState(), Blocks.COBBLESTONE.getDefaultState(), Blocks.REDSTONE_BLOCK.getDefaultState(), Blocks.EMERALD_BLOCK.getDefaultState(), Blocks.BRICKS.getDefaultState());
 
     /**
@@ -163,6 +166,37 @@ public class CarverUtils {
 
         // List of carvable blocks provided by vanilla
         if (carvableBlocks.contains(block))
+            return true;
+
+        // Only accept gravel and sand if water is not directly above it
+        return (block == Blocks.SAND || block == Blocks.GRAVEL)
+            && blockStateAbove.getMaterial() != Material.WATER;
+    }
+
+    public static boolean canReplaceLiquidBlock(BlockState blockState, BlockState blockStateAbove) {
+        Block block = blockState.getBlock();
+
+        // Avoid damaging trees
+        if (blockState.getMaterial() == Material.LEAVES
+            || blockState.getMaterial() == Material.WOOD)
+            return false;
+
+        // Avoid digging out under trees
+        if (blockStateAbove.getMaterial() == Material.WOOD)
+            return false;
+
+        // This should hopefully avoid damaging villages
+        if (block == Blocks.FARMLAND
+            || block == Blocks.GRASS_PATH) {
+            return false;
+        }
+
+        // Accept stone-like blocks added from other mods
+        if (blockState.getMaterial() == Material.ROCK)
+            return true;
+
+        // List of carvable blocks provided by vanilla
+        if (liquidCarvableBlocks.contains(block))
             return true;
 
         // Only accept gravel and sand if water is not directly above it

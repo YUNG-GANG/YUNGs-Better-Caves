@@ -44,7 +44,7 @@ public class BetterCanyonCarver extends CanyonWorldCarver {
         this.initialize(world);
     }
 
-    public void carve(IChunk chunkIn, Random rand, int seaLevel, int chunkX, int chunkZ, int originChunkX, int originChunkZ, BitSet airCarvingMask, BitSet waterCarvingMask) {
+    public void carve(IChunk chunkIn, Random rand, int seaLevel, int chunkX, int chunkZ, int originChunkX, int originChunkZ, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         int i = (this.func_222704_c() * 2 - 1) * 16;
         double startX = chunkX * 16 + rand.nextInt(16);
         double startY = rand.nextInt(rand.nextInt(40) + 8) + 20;
@@ -59,10 +59,10 @@ public class BetterCanyonCarver extends CanyonWorldCarver {
         int startCounter = 0;
         int endCounter = i - rand.nextInt(i / 4);
 
-        this.carveRavine(chunkIn, rand.nextLong(), seaLevel, originChunkX, originChunkZ, startX, startY, startZ, width, yaw, pitch, startCounter, endCounter, heightModifier, airCarvingMask, waterCarvingMask);
+        this.carveRavine(chunkIn, rand.nextLong(), seaLevel, originChunkX, originChunkZ, startX, startY, startZ, width, yaw, pitch, startCounter, endCounter, heightModifier, airCarvingMask, liquidCarvingMask);
     }
 
-    private void carveRavine(IChunk chunkIn, long seed, int seaLevel, int originChunkX, int originChunkZ, double ravineStartX, double ravineStartY, double ravineStartZ, float width, float yaw, float pitch, int startCounter, int endCounter, double heightModifier, BitSet airCarvingMask, BitSet waterCarvingMask) {
+    private void carveRavine(IChunk chunkIn, long seed, int seaLevel, int originChunkX, int originChunkZ, double ravineStartX, double ravineStartY, double ravineStartZ, float width, float yaw, float pitch, int startCounter, int endCounter, double heightModifier, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         Random random = new Random(seed);
         float f = 1.0F;
 
@@ -112,7 +112,7 @@ public class BetterCanyonCarver extends CanyonWorldCarver {
                     return;
                 }
 
-                this.carveRegion(chunkIn, seed, seaLevel, originChunkX, originChunkZ, ravineStartX, ravineStartY, ravineStartZ, xzOffset, yOffset, airCarvingMask, waterCarvingMask);
+                this.carveRegion(chunkIn, seed, seaLevel, originChunkX, originChunkZ, ravineStartX, ravineStartY, ravineStartZ, xzOffset, yOffset, airCarvingMask, liquidCarvingMask);
             }
             startCounter++;
         }
@@ -128,7 +128,7 @@ public class BetterCanyonCarver extends CanyonWorldCarver {
         return ravineStartXOffsetFromCenter * ravineStartXOffsetFromCenter + ravineStartZOffsetFromCenter * ravineStartZOffsetFromCenter - distanceToEnd * distanceToEnd <= d5 * d5;
     }
 
-    protected void carveRegion(IChunk chunkIn, long seed, int seaLevel, int originChunkX, int originChunkZ, double ravineStartX, double ravineStartY, double ravineStartZ, double xzOffset, double yOffset, BitSet airCarvingMask, BitSet waterCarvingMask) {
+    protected void carveRegion(IChunk chunkIn, long seed, int seaLevel, int originChunkX, int originChunkZ, double ravineStartX, double ravineStartY, double ravineStartZ, double xzOffset, double yOffset, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         Random rand = new Random(seed + (long)originChunkX + (long)originChunkZ);
         double originBlockX = originChunkX * 16 + 8;
         double originBlockZ = originChunkZ * 16 + 8;
@@ -171,7 +171,7 @@ public class BetterCanyonCarver extends CanyonWorldCarver {
                             // (x/a)^2 + (z/b)^2 + (y/c)^2 <= 1.
                             if (!this.isPositionExcluded(xAxisDist, yAxisDist, zAxisDist, currY)) {
                                 mutableBlockPos.setPos(realX, currY, realZ);
-                                this.carveBlock(chunkIn, rand, seaLevel, mutableBlockPos, airCarvingMask, waterCarvingMask);
+                                this.carveBlock(chunkIn, rand, seaLevel, mutableBlockPos, airCarvingMask, liquidCarvingMask);
                             }
                         }
                     }
@@ -184,7 +184,7 @@ public class BetterCanyonCarver extends CanyonWorldCarver {
         return (xAxisDist * xAxisDist + zAxisDist * zAxisDist) * (double)this.heightToHorizontalStretchFactor[currY - 1] + yAxisDist * yAxisDist / 6.0D >= 1.0D;
     }
 
-    private void carveBlock(IChunk chunkIn, Random rand, int seaLevel, BlockPos.MutableBlockPos blockPos, BitSet airCarvingMask, BitSet waterCarvingMask) {
+    private void carveBlock(IChunk chunkIn, Random rand, int seaLevel, BlockPos.MutableBlockPos blockPos, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         // Cannot go above sea level
         if (blockPos.getY() >= seaLevel) {
             return;
@@ -192,7 +192,7 @@ public class BetterCanyonCarver extends CanyonWorldCarver {
 
         // Check if already carved
         int bitIndex = (blockPos.getX() & 0xF) | ((blockPos.getZ() & 0xF) << 4) | (blockPos.getY() << 8);
-        if (airCarvingMask.get(bitIndex) || waterCarvingMask.get(bitIndex)) {
+        if (airCarvingMask.get(bitIndex) || liquidCarvingMask.get(bitIndex)) {
             return;
         }
 
@@ -228,7 +228,7 @@ public class BetterCanyonCarver extends CanyonWorldCarver {
             if (smoothAmpFactor <= .25f) { // Wall between flooded and normal caves.
                 return;
             }
-            waterCarvingMask.set(bitIndex);
+            liquidCarvingMask.set(bitIndex);
         }
         else {
             airCarvingMask.set(bitIndex);

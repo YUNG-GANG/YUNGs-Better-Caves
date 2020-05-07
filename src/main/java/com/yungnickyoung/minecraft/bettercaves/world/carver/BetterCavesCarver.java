@@ -48,8 +48,8 @@ public class BetterCavesCarver {
 
     // Override the default carver's method to use Better Caves carving instead.
     public void carve(IChunk chunkIn, int chunkX, int chunkZ) {
-        BitSet airCarvingMask = new BitSet(65536);
-        BitSet waterCarvingMask = new BitSet(65536);
+        BitSet airCarvingMask = chunkIn.getCarvingMask(GenerationStage.Carving.AIR);
+        BitSet liquidCarvingMask = chunkIn.getCarvingMask(GenerationStage.Carving.LIQUID);
 
 //        chunkToCarvingMask.put(Pair.of(chunkX, chunkX), airCarvingMask);
 
@@ -100,7 +100,7 @@ public class BetterCavesCarver {
                 for (int currChunkZ = chunkZ - 8; currChunkZ <= chunkZ + 8; currChunkZ++) {
                     random.setLargeFeatureSeed(seed, currChunkX, currChunkZ);
                     if (ravineCarver.shouldCarve(random, chunkX, chunkZ)) {
-                        ((BetterCanyonCarver)ravineCarver.carver).carve(chunkIn, random, world.getSeaLevel(), currChunkX, currChunkZ, chunkX, chunkZ, airCarvingMask, waterCarvingMask);
+                        ((BetterCanyonCarver)ravineCarver.carver).carve(chunkIn, random, world.getSeaLevel(), currChunkX, currChunkZ, chunkX, chunkZ, airCarvingMask, liquidCarvingMask);
                     }
                 }
             }
@@ -108,7 +108,7 @@ public class BetterCavesCarver {
 
         // Set carving masks for features to use
         ((ChunkPrimer)chunkIn).setCarvingMask(GenerationStage.Carving.AIR, airCarvingMask);
-        ((ChunkPrimer)chunkIn).setCarvingMask(GenerationStage.Carving.LIQUID, waterCarvingMask);
+        ((ChunkPrimer)chunkIn).setCarvingMask(GenerationStage.Carving.LIQUID, liquidCarvingMask);
     }
 
     /**

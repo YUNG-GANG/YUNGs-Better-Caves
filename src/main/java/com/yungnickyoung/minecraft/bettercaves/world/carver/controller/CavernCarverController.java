@@ -18,6 +18,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.IChunk;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 import java.util.function.Function;
 
@@ -92,7 +93,7 @@ public class CavernCarverController {
         }
     }
 
-    public void carveChunk(IChunk chunk, int chunkX, int chunkZ, int[][] surfaceAltitudes, BlockState[][] liquidBlocks) {
+    public void carveChunk(IChunk chunk, int chunkX, int chunkZ, int[][] surfaceAltitudes, BlockState[][] liquidBlocks, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         // Prevent unnecessary computation if caverns are disabled
         if (noiseRanges.size() == 0) {
             return;
@@ -163,7 +164,7 @@ public class CavernCarverController {
                                 range.setNoiseCube(carver.getNoiseGen().interpolateNoiseCube(startPos, endPos, bottomY, maxHeight));
                             }
                             NoiseColumn noiseColumn = range.getNoiseCube().get(offsetX).get(offsetZ);
-                            carver.carveColumn(chunk, colPos, topY, smoothAmp, noiseColumn, liquidBlock, flooded);
+                            carver.carveColumn(chunk, colPos, topY, smoothAmp, noiseColumn, liquidBlock, flooded, flooded ? liquidCarvingMask : airCarvingMask);
                             break;
                         }
                     }

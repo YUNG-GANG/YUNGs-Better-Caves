@@ -9,13 +9,10 @@ import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverSettings;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.ICarver;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.IChunk;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CaveCarver implements ICarver {
     private CarverSettings settings;
@@ -60,11 +57,9 @@ public class CaveCarver implements ICarver {
         }
     }
 
-    public void carveColumn(IChunk chunk, BlockPos colPos, int topY, NoiseColumn noises, BlockState liquidBlock, boolean flooded) {
+    public void carveColumn(IChunk chunk, BlockPos colPos, int topY, NoiseColumn noises, BlockState liquidBlock, boolean flooded, BitSet carvingMask) {
         int localX = BetterCavesUtils.getLocal(colPos.getX());
         int localZ = BetterCavesUtils.getLocal(colPos.getZ());
-
-        BlockState airBlockState = flooded ? Blocks.WATER.getDefaultState() : Blocks.CAVE_AIR.getDefaultState();
 
         // Validate vars
         if (localX < 0 || localX > 15)
@@ -111,25 +106,14 @@ public class CaveCarver implements ICarver {
 
             // Dig out the block if it passed the threshold check, using the debug visualizer if enabled
             if (settings.isEnableDebugVisualizer()) {
-                CarverUtils.debugDigBlock(chunk, blockPos, settings.getDebugBlock(), digBlock);
+                CarverUtils.debugCarveBlock(chunk, blockPos, settings.getDebugBlock(), digBlock);
             }
             else if (digBlock) {
-                CarverUtils.digBlock(chunk, blockPos, airBlockState, liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel());
-            }
-        }
-
-        /* ============ Post-Processing to remove any singular floating blocks in the ease-in range ============ */
-        for (int y = transitionBoundary + 1; y < topY; y++) {
-            if (y < 1)
-                break;
-            BlockPos blockPos = new BlockPos(localX, y, localZ);
-            BlockState currBlock = chunk.getBlockState(blockPos);
-
-            if (CarverUtils.canReplaceBlock(currBlock, Blocks.AIR.getDefaultState())
-                && chunk.getBlockState(blockPos.up()) == airBlockState
-                && chunk.getBlockState(blockPos.down()) == airBlockState
-            ) {
-                CarverUtils.digBlock(chunk, blockPos, liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel());
+                if (flooded) {
+                    CarverUtils.carveFloodedBlock(chunk, new Random(), new BlockPos.MutableBlockPos(blockPos), liquidBlock, settings.getLiquidAltitude(), carvingMask);
+                } else {
+                    CarverUtils.carveBlock(chunk, blockPos, liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel(), carvingMask);
+                }
             }
         }
     }

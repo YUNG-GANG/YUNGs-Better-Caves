@@ -7,10 +7,13 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.material.Material;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.IChunk;
 
+import java.util.BitSet;
+import java.util.Random;
 import java.util.Set;
 
 /**
@@ -23,6 +26,7 @@ public class CarverUtils {
 
     /* BlockStates used in this class */
     private static final BlockState CAVE_AIR = Blocks.CAVE_AIR.getDefaultState();
+    private static final BlockState WATER = Blocks.WATER.getDefaultState();
     private static final BlockState SAND = Blocks.SAND.getDefaultState();
     private static final BlockState RED_SAND = Blocks.RED_SAND.getDefaultState();
     private static final BlockState SANDSTONE = Blocks.SANDSTONE.getDefaultState();
@@ -47,8 +51,13 @@ public class CarverUtils {
      * @param liquidBlockState the BlockState to use for liquids. May be null if in buffer zone between liquid regions
      * @param liquidAltitude altitude at and below which air is replaced with liquidBlockState
      * @param replaceGravel if floating gravel should be replaced with andesite
+     * @param carvingMask BitSet that keeps track of which blocks have already been dug.
      */
-    public static void digBlock(IChunk chunkIn, BlockPos blockPos, BlockState airBlockState, BlockState liquidBlockState, int liquidAltitude, boolean replaceGravel) {
+    public static void carveBlock(IChunk chunkIn, BlockPos blockPos, BlockState airBlockState, BlockState liquidBlockState, int liquidAltitude, boolean replaceGravel, BitSet carvingMask) {
+        // Mark block as processed - for use by features
+        int bitIndex = (blockPos.getX() & 0xF) | ((blockPos.getZ() & 0xF) << 4) | (blockPos.getY() << 8);
+        carvingMask.set(bitIndex);
+
         BlockPos blockPosAbove = blockPos.up();
         BlockPos blockPosBelow = blockPos.down();
 
@@ -60,46 +69,107 @@ public class CarverUtils {
         BlockState blockStateBelow = chunkIn.getBlockState(blockPosBelow);
 
         // Only continue if the block is replaceable
-        if (canReplaceBlock(blockState, blockStateAbove) || blockState == biomeTopBlockState || blockState == biomeFillerBlockState) {
-            if (airBlockState == CAVE_AIR && blockPos.getY() <= liquidAltitude) { // Replace any block below the liquid altitude with the liquid block passed in
-                if (liquidBlockState != null) {
-                    chunkIn.setBlockState(blockPos, liquidBlockState, false);
-                }
+        if (!canReplaceBlock(blockState, blockStateAbove) && blockState != biomeTopBlockState && blockState != biomeFillerBlockState) {
+            return;
+        }
+
+        if (airBlockState == CAVE_AIR && blockPos.getY() <= liquidAltitude) { // Replace any block below the liquid altitude with the liquid block passed in
+            if (liquidBlockState != null) {
+                chunkIn.setBlockState(blockPos, liquidBlockState, false);
             }
-            else {
-                // Check for adjacent water blocks to avoid breaking into lakes or oceans
-                if (airBlockState == CAVE_AIR && isWaterAdjacent(chunkIn, blockPos)) return;
+        }
+        else {
+            // Check for adjacent water blocks to avoid breaking into lakes or oceans
+            if (airBlockState == CAVE_AIR && isWaterAdjacent(chunkIn, blockPos)) return;
 
-                // Adjust block below if block removed is biome top block
-                if (isTopBlock(chunkIn, blockPos) && canReplaceBlock(blockStateBelow, CAVE_AIR))
-                    chunkIn.setBlockState(blockPosBelow, biomeTopBlockState, false);
+            // Adjust block below if block removed is biome top block
+            if (isTopBlock(chunkIn, blockPos) && canReplaceBlock(blockStateBelow, CAVE_AIR))
+                chunkIn.setBlockState(blockPosBelow, biomeTopBlockState, false);
 
-                // If we caused floating sand to form, replace it with sandstone
-                if (blockStateAbove == SAND)
-                    chunkIn.setBlockState(blockPosAbove, SANDSTONE, false);
-                else if (blockStateAbove == RED_SAND)
-                    chunkIn.setBlockState(blockPosAbove, RED_SANDSTONE, false);
+            // If we caused floating sand to form, replace it with sandstone
+            if (blockStateAbove == SAND)
+                chunkIn.setBlockState(blockPosAbove, SANDSTONE, false);
+            else if (blockStateAbove == RED_SAND)
+                chunkIn.setBlockState(blockPosAbove, RED_SANDSTONE, false);
 
-                // Replace floating gravel with andesite, if enabled
-                if (replaceGravel && blockStateAbove == GRAVEL)
-                    chunkIn.setBlockState(blockPosAbove, ANDESITE, false);
+            // Replace floating gravel with andesite, if enabled
+            if (replaceGravel && blockStateAbove == GRAVEL)
+                chunkIn.setBlockState(blockPosAbove, ANDESITE, false);
 
-                // Replace this block with air, effectively "digging" it out
-                chunkIn.setBlockState(blockPos, airBlockState, false);
-            }
+            // Replace this block with air, effectively "digging" it out
+            chunkIn.setBlockState(blockPos, airBlockState, false);
         }
     }
 
-    public static void digBlock(IChunk chunkIn, BlockPos blockPos, BlockState liquidBlockState, int liquidAltitude, boolean replaceGravel) {
-        digBlock(chunkIn, blockPos, Blocks.CAVE_AIR.getDefaultState(), liquidBlockState, liquidAltitude, replaceGravel);
+    public static void carveBlock(IChunk chunkIn, BlockPos blockPos, BlockState liquidBlockState, int liquidAltitude, boolean replaceGravel, BitSet carvingMask) {
+        carveBlock(chunkIn, blockPos, Blocks.CAVE_AIR.getDefaultState(), liquidBlockState, liquidAltitude, replaceGravel, carvingMask);
     }
 
-    public static void digBlock(IChunk chunkIn, int x, int y, int z, BlockState liquidBlockState, int liquidAltitude, boolean replaceGravel) {
-        digBlock(chunkIn, new BlockPos(x, y, z), Blocks.CAVE_AIR.getDefaultState(), liquidBlockState, liquidAltitude, replaceGravel);
+    public static void carveBlock(IChunk chunkIn, int x, int y, int z, BlockState liquidBlockState, int liquidAltitude, boolean replaceGravel, BitSet carvingMask) {
+        carveBlock(chunkIn, new BlockPos(x, y, z), Blocks.CAVE_AIR.getDefaultState(), liquidBlockState, liquidAltitude, replaceGravel, carvingMask);
     }
 
-    public static void digBlock(IChunk chunkIn, int x, int y, int z, BlockState airBlockState, BlockState liquidBlockState, int liquidAltitude, boolean replaceGravel) {
-        digBlock(chunkIn, new BlockPos(x, y, z), airBlockState, liquidBlockState, liquidAltitude, replaceGravel);
+    public static void carveBlock(IChunk chunkIn, int x, int y, int z, BlockState airBlockState, BlockState liquidBlockState, int liquidAltitude, boolean replaceGravel, BitSet carvingMask) {
+        carveBlock(chunkIn, new BlockPos(x, y, z), airBlockState, liquidBlockState, liquidAltitude, replaceGravel, carvingMask);
+    }
+
+    public static void carveFloodedBlock(IChunk chunkIn, Random rand, BlockPos.MutableBlockPos blockPos, BlockState liquidBlockState, int liquidAltitude, BitSet carvingMask) {
+        // Mark block as processed - for use by features
+        int bitIndex = (blockPos.getX() & 0xF) | ((blockPos.getZ() & 0xF) << 4) | (blockPos.getY() << 8);
+        carvingMask.set(bitIndex);
+
+        int blockX = blockPos.getX();
+        int blockY = blockPos.getY();
+        int blockZ = blockPos.getZ();
+        int chunkX = blockPos.getX() >> 4;
+        int chunkZ = blockPos.getZ() >> 4;
+
+        // Dig flooded block
+        Biome biome = chunkIn.getBiome(blockPos);
+        BlockState biomeTopBlockState = biome.getSurfaceBuilderConfig().getTop();
+        BlockState biomeFillerBlockState = biome.getSurfaceBuilderConfig().getUnder();
+        BlockState blockState = chunkIn.getBlockState(blockPos);
+        BlockState blockStateAbove = chunkIn.getBlockState(blockPos.up());
+        if (!canReplaceLiquidBlock(blockState, blockStateAbove) && blockState != biomeTopBlockState && blockState != biomeFillerBlockState) {
+            return;
+        }
+
+        // Add magma and obsidian right above liquid altitude
+        if (blockPos.getY() == liquidAltitude + 1) {
+            float f = rand.nextFloat();
+            if (f < 0.25f) {
+                chunkIn.setBlockState(blockPos, Blocks.MAGMA_BLOCK.getDefaultState(), false);
+                chunkIn.getBlocksToBeTicked().scheduleTick(blockPos, Blocks.MAGMA_BLOCK, 0);
+            } else {
+                chunkIn.setBlockState(blockPos, Blocks.OBSIDIAN.getDefaultState(), false);
+            }
+        }
+        // Replace any block below the liquid altitude with the liquid block passed in
+        else if (blockPos.getY() <= liquidAltitude) {
+            if (liquidBlockState != null) {
+                chunkIn.setBlockState(blockPos, liquidBlockState, false);
+            }
+        }
+        // Else, normal carving
+        else {
+            // Schedule updates for water on chunk edges
+            boolean flag = false;
+            for(Direction direction : Direction.Plane.HORIZONTAL) {
+                int x = blockPos.getX() + direction.getXOffset();
+                int z = blockPos.getZ() + direction.getZOffset();
+                if (x >> 4 != chunkX || z >> 4 != chunkZ || chunkIn.getBlockState(blockPos.setPos(x, blockPos.getY(), z)).isAir()) {
+                    chunkIn.setBlockState(blockPos, WATER, false);
+                    chunkIn.getFluidsToBeTicked().scheduleTick(blockPos, WATER.getFluidState().getFluid(), 0);
+                    flag = true;
+                    break;
+                }
+            }
+
+            blockPos.setPos(blockX, blockY, blockZ);
+            if (!flag) {
+                chunkIn.setBlockState(blockPos, WATER.getBlockState(), false);
+            }
+        }
     }
 
     /**
@@ -110,7 +180,7 @@ public class CarverUtils {
      * @param blockState The blockState to set dug out blocks to
      * @param digBlock true if the block should be "dug"
      */
-    public static void debugDigBlock(IChunk chunkIn, BlockPos blockPos, BlockState blockState, boolean digBlock) {
+    public static void debugCarveBlock(IChunk chunkIn, BlockPos blockPos, BlockState blockState, boolean digBlock) {
         if (DEBUG_BLOCKS.contains(chunkIn.getBlockState(blockPos))) return;
 
         if (digBlock)
@@ -119,8 +189,8 @@ public class CarverUtils {
             chunkIn.setBlockState(blockPos, Blocks.AIR.getDefaultState(), false);
     }
 
-    public static void debugDigBlock(IChunk chunkIn, int x, int y, int z, BlockState blockState, boolean digBlock) {
-        debugDigBlock(chunkIn, new BlockPos(x, y, z), blockState, digBlock);
+    public static void debugCarveBlock(IChunk chunkIn, int x, int y, int z, BlockState blockState, boolean digBlock) {
+        debugCarveBlock(chunkIn, new BlockPos(x, y, z), blockState, digBlock);
     }
 
     /**

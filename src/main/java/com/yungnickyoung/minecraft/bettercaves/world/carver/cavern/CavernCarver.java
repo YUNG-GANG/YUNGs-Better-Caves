@@ -13,7 +13,9 @@ import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.IChunk;
 
+import java.util.BitSet;
 import java.util.List;
+import java.util.Random;
 
 /**
  * BetterCaves Cavern carver.
@@ -47,11 +49,9 @@ public class CavernCarver implements ICarver {
         }
     }
 
-    public void carveColumn(IChunk chunk, BlockPos colPos, int topY, float smoothAmp, NoiseColumn noises, BlockState liquidBlock, boolean flooded) {
+    public void carveColumn(IChunk chunk, BlockPos colPos, int topY, float smoothAmp, NoiseColumn noises, BlockState liquidBlock, boolean flooded, BitSet carvingMask) {
         int localX = BetterCavesUtils.getLocal(colPos.getX());
         int localZ = BetterCavesUtils.getLocal(colPos.getZ());
-
-        BlockState airBlockState = flooded ? Blocks.WATER.getDefaultState() : Blocks.CAVE_AIR.getDefaultState();
 
         // Validate vars
         if (localX < 0 || localX > 15)
@@ -112,10 +112,13 @@ public class CavernCarver implements ICarver {
 
             // Dig out the block if it passed the threshold check, using the debug visualizer if enabled
             if (settings.isEnableDebugVisualizer()) {
-                CarverUtils.debugDigBlock(chunk, blockPos, settings.getDebugBlock(), digBlock);
+                CarverUtils.debugCarveBlock(chunk, blockPos, settings.getDebugBlock(), digBlock);
             } else if (digBlock) {
-                CarverUtils.digBlock(chunk, blockPos, airBlockState, liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel());
-            }
+                if (flooded) {
+                    CarverUtils.carveFloodedBlock(chunk, new Random(), new BlockPos.MutableBlockPos(blockPos), liquidBlock, settings.getLiquidAltitude(), carvingMask);
+                } else {
+                    CarverUtils.carveBlock(chunk, blockPos, liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel(), carvingMask);
+                }            }
         }
     }
 

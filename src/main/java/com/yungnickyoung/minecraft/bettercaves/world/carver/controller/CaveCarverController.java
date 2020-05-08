@@ -21,6 +21,7 @@ import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.gen.WorldGenRegion;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 
 import static com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils.isPosInWorld;
@@ -116,7 +117,7 @@ public class CaveCarverController {
         }
     }
 
-    public void carveChunk(IChunk chunk, int chunkX, int chunkZ, int[][] surfaceAltitudes, BlockState[][] liquidBlocks) {
+    public void carveChunk(IChunk chunk, int chunkX, int chunkZ, int[][] surfaceAltitudes, BlockState[][] liquidBlocks, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         // Prevent unnecessary computation if caves are disabled
         if (noiseRanges.size() == 0 && !isSurfaceCavesEnabled) {
             return;
@@ -203,7 +204,7 @@ public class CaveCarverController {
                                     range.setNoiseCube(carver.getNoiseGen().interpolateNoiseCube(startPos, endPos, bottomY, maxHeight));
                                 }
                                 NoiseColumn noiseColumn = range.getNoiseCube().get(offsetX).get(offsetZ);
-                                carver.carveColumn(chunk, colPos, topY, noiseColumn, liquidBlock, flooded);
+                                carver.carveColumn(chunk, colPos, topY, noiseColumn, liquidBlock, flooded, flooded ? liquidCarvingMask : airCarvingMask);
                                 break;
                             }
                             else if (range.getCarver() instanceof VanillaCaveCarver) {
@@ -224,12 +225,12 @@ public class CaveCarverController {
                 }
             }
             if (carver != null) {
-                carver.generate(world, chunkX, chunkZ, chunk, true, liquidBlocks, validPositions);
+                carver.generate(world, chunkX, chunkZ, chunk, true, liquidBlocks, validPositions, airCarvingMask, liquidCarvingMask);
             }
         }
         // Generate surface caves if enabled
         if (isSurfaceCavesEnabled) {
-            surfaceCaveCarver.generate(world, chunkX, chunkZ, chunk, false, liquidBlocks);
+            surfaceCaveCarver.generate(world, chunkX, chunkZ, chunk, false, liquidBlocks, airCarvingMask, liquidCarvingMask);
         }
     }
 

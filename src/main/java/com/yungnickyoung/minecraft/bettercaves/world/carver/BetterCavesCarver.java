@@ -11,16 +11,12 @@ import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.CaveCarve
 import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.CavernCarverController;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.RavineController;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.WaterRegionController;
-import com.yungnickyoung.minecraft.bettercaves.world.carver.ravine.RavineCarver;
 import net.minecraft.block.BlockState;
-import net.minecraft.util.SharedSeedRandom;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.GenerationStage;
-import net.minecraft.world.gen.carver.ConfiguredCarver;
-import net.minecraft.world.gen.feature.ProbabilityConfig;
 
 import java.util.*;
 
@@ -79,8 +75,8 @@ public class BetterCavesCarver {
         // TODO - pass biome[][] into ravine carver
 
         // Carve chunk
-        caveCarverController.carveChunk(chunkIn, chunkX, chunkZ, surfaceAltitudes, liquidBlocks);
-        cavernCarverController.carveChunk(chunkIn, chunkX, chunkZ, surfaceAltitudes, liquidBlocks);
+        caveCarverController.carveChunk(chunkIn, chunkX, chunkZ, surfaceAltitudes, liquidBlocks, airCarvingMask, liquidCarvingMask);
+        cavernCarverController.carveChunk(chunkIn, chunkX, chunkZ, surfaceAltitudes, liquidBlocks, airCarvingMask, liquidCarvingMask);
         ravineController.carveChunk(chunkIn, chunkX, chunkZ, liquidBlocks, airCarvingMask, liquidCarvingMask);
 
         // Set carving masks for features to use

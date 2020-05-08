@@ -5,8 +5,6 @@ import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.WaterRegionController;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IWorld;
@@ -185,90 +183,33 @@ public class RavineCarver extends CanyonWorldCarver {
     }
 
     private void carveBlock(IChunk chunkIn, Random rand, int seaLevel, BlockPos.MutableBlockPos blockPos, BlockState liquidBlockState, BitSet airCarvingMask, BitSet liquidCarvingMask) {
-        // Cannot go above sea level
-        if (blockPos.getY() >= seaLevel) {
-            return;
-        }
-
         // Check if already carved
         int bitIndex = (blockPos.getX() & 0xF) | ((blockPos.getZ() & 0xF) << 4) | (blockPos.getY() << 8);
         if (airCarvingMask.get(bitIndex) || liquidCarvingMask.get(bitIndex)) {
             return;
         }
 
-        // Get liquid block
-        int blockX = blockPos.getX();
-        int blockY = blockPos.getY();
-        int blockZ = blockPos.getZ();
-        int chunkX = blockPos.getX() >> 4;
-        int chunkZ = blockPos.getZ() >> 4;
-
-        // Don't dig in boundaries between flooded and unflooded openings.
+        // Determine if ravine is flooded at this location
         boolean flooded = isFloodedRavinesEnabled && chunkIn.getBiome(blockPos).getCategory() == Biome.Category.OCEAN;
         if (flooded) {
+            // Cannot go above sea level
+            if (blockPos.getY() >= seaLevel) {
+                return;
+            }
+
+            // Don't dig in boundaries between flooded and unflooded openings.
             float smoothAmpFactor = WaterRegionController.getDistFactor(world, blockPos, 2, b -> b != Biome.Category.OCEAN);
             if (smoothAmpFactor <= .25f) { // Wall between flooded and normal caves.
                 return;
             }
-            liquidCarvingMask.set(bitIndex);
+        }
+
+        // Carve block
+        if (flooded) {
+            CarverUtils.carveFloodedBlock(chunkIn, rand, blockPos, liquidBlockState, liquidAltitude, liquidCarvingMask);
         }
         else {
-            airCarvingMask.set(bitIndex);
-        }
-
-        BlockState airBlockState = flooded ? Blocks.WATER.getDefaultState() : CAVE_AIR;
-
-        // Dig non-flooded block
-        if (!flooded) {
-            CarverUtils.digBlock(chunkIn, blockPos, airBlockState, liquidBlockState, this.liquidAltitude, this.isReplaceGravelEnabled);
-            return;
-        }
-
-        // Dig flooded block
-        Biome biome = chunkIn.getBiome(blockPos);
-        BlockState biomeTopBlockState = biome.getSurfaceBuilderConfig().getTop();
-        BlockState biomeFillerBlockState = biome.getSurfaceBuilderConfig().getUnder();
-        BlockState blockState = chunkIn.getBlockState(blockPos);
-        BlockState blockStateAbove = chunkIn.getBlockState(blockPos.up());
-        if (!CarverUtils.canReplaceLiquidBlock(blockState, blockStateAbove) && blockState != biomeTopBlockState && blockState != biomeFillerBlockState) {
-            return;
-        }
-
-        // Add magma and obsidian right above liquid altitude
-        if (blockPos.getY() == this.liquidAltitude + 1) {
-            float f = rand.nextFloat();
-            if (f < 0.25f) {
-                chunkIn.setBlockState(blockPos, Blocks.MAGMA_BLOCK.getDefaultState(), false);
-                chunkIn.getBlocksToBeTicked().scheduleTick(blockPos, Blocks.MAGMA_BLOCK, 0);
-            } else {
-                chunkIn.setBlockState(blockPos, Blocks.OBSIDIAN.getDefaultState(), false);
-            }
-        }
-        // Replace any block below the liquid altitude with the liquid block passed in
-        else if (blockPos.getY() <= this.liquidAltitude) {
-            if (liquidBlockState != null) {
-                chunkIn.setBlockState(blockPos, liquidBlockState, false);
-            }
-        }
-        // Else, normal carving
-        else {
-            // Schedule updates for water on chunk edges
-            boolean flag = false;
-            for(Direction direction : Direction.Plane.HORIZONTAL) {
-                int x = blockPos.getX() + direction.getXOffset();
-                int z = blockPos.getZ() + direction.getZOffset();
-                if (x >> 4 != chunkX || z >> 4 != chunkZ || chunkIn.getBlockState(blockPos.setPos(x, blockPos.getY(), z)).isAir()) {
-                    chunkIn.setBlockState(blockPos, WATER.getBlockState(), false);
-                    chunkIn.getFluidsToBeTicked().scheduleTick(blockPos, WATER.getFluid(), 0);
-                    flag = true;
-                    break;
-                }
-            }
-
-            blockPos.setPos(blockX, blockY, blockZ);
-            if (!flag) {
-                chunkIn.setBlockState(blockPos, WATER.getBlockState(), false);
-            }
+            CarverUtils.carveBlock(chunkIn, blockPos, liquidBlockState, this.liquidAltitude, this.isReplaceGravelEnabled, airCarvingMask);
         }
     }
 

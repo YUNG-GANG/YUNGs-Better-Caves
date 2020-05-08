@@ -320,12 +320,7 @@ public class VanillaCaveCarver implements ICarver {
         ColPos.MutableColPos mutableColPos = new ColPos.MutableColPos(blockPos);
 
         // Determine if cave is flooded at this location
-        boolean flooded = false;
-        try {
-            flooded = isFloodedUndergroundEnabled && !isDebugVisualizerEnabled && biomeMap.get(mutableColPos.toLong()).getCategory() == Biome.Category.OCEAN;
-        } catch (Exception e) {
-            BetterCaves.LOGGER.info("WEF");
-        }
+        boolean flooded = isFloodedUndergroundEnabled && !isDebugVisualizerEnabled && biomeMap.get(mutableColPos.toLong()).getCategory() == Biome.Category.OCEAN;
         if (flooded) {
             // Cannot go above sea level
             if (y >= worldIn.getSeaLevel()) {

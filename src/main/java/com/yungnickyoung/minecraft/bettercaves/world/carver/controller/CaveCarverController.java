@@ -6,6 +6,7 @@ import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseColumn;
+import com.yungnickyoung.minecraft.bettercaves.world.ColPos;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverNoiseRange;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.ICarver;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.cave.CaveCarver;
@@ -14,15 +15,16 @@ import com.yungnickyoung.minecraft.bettercaves.world.carver.vanilla.VanillaCaveC
 import com.yungnickyoung.minecraft.bettercaves.world.carver.vanilla.VanillaCaveCarverBuilder;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.IChunk;
-import net.minecraft.world.gen.WorldGenRegion;
 
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
+import java.util.Map;
 
 import static com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils.isPosInWorld;
 
@@ -117,12 +119,13 @@ public class CaveCarverController {
         }
     }
 
-    public void carveChunk(IChunk chunk, int chunkX, int chunkZ, int[][] surfaceAltitudes, BlockState[][] liquidBlocks, BitSet airCarvingMask, BitSet liquidCarvingMask) {
+    public void carveChunk(IChunk chunk, int chunkX, int chunkZ, int[][] surfaceAltitudes, BlockState[][] liquidBlocks, Map<Long, Biome> biomeMap, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         // Prevent unnecessary computation if caves are disabled
         if (noiseRanges.size() == 0 && !isSurfaceCavesEnabled) {
             return;
         }
 
+        ColPos.MutableColPos mutablePos = new ColPos.MutableColPos();
         boolean flooded;
 
         // Flag to keep track of whether or not we've already carved vanilla caves for this chunk, since
@@ -163,15 +166,15 @@ public class CaveCarverController {
                     for (int offsetZ = 0; offsetZ < BCSettings.SUB_CHUNK_SIZE; offsetZ++) {
                         int localX = startX + offsetX;
                         int localZ = startZ + offsetZ;
-                        BlockPos colPos = new BlockPos(chunkX * 16 + localX, 1, chunkZ * 16 + localZ);
+                        ColPos colPos = new ColPos(chunkX * 16 + localX, chunkZ * 16 + localZ);
 
-                        flooded = isFloodedUndergroundEnabled && !isDebugViewEnabled && chunk.getBiome(colPos).getCategory() == Biome.Category.OCEAN;
+                        flooded = isFloodedUndergroundEnabled && !isDebugViewEnabled && biomeMap.get(colPos.toLong()).getCategory() == Biome.Category.OCEAN;
                         if (flooded) {
                             if (
-                                (isPosInWorld(colPos.east(), (WorldGenRegion) world) && chunk.getBiome(colPos.east()).getCategory() != Biome.Category.OCEAN) ||
-                                (isPosInWorld(colPos.west(), (WorldGenRegion) world) && chunk.getBiome(colPos.west()).getCategory() != Biome.Category.OCEAN) ||
-                                (isPosInWorld(colPos.north(), (WorldGenRegion) world) && chunk.getBiome(colPos.north()).getCategory() != Biome.Category.OCEAN) ||
-                                (isPosInWorld(colPos.south(), (WorldGenRegion) world) && chunk.getBiome(colPos.south()).getCategory() != Biome.Category.OCEAN)
+                                (isPosInWorld(mutablePos.setPos(colPos).move(Direction.EAST), world) && biomeMap.get(mutablePos.setPos(colPos).move(Direction.EAST).toLong()).getCategory() != Biome.Category.OCEAN) ||
+                                (isPosInWorld(mutablePos.setPos(colPos).move(Direction.WEST), world) && biomeMap.get(mutablePos.setPos(colPos).move(Direction.WEST).toLong()).getCategory() != Biome.Category.OCEAN) ||
+                                (isPosInWorld(mutablePos.setPos(colPos).move(Direction.NORTH), world) && biomeMap.get(mutablePos.setPos(colPos).move(Direction.NORTH).toLong()).getCategory() != Biome.Category.OCEAN) ||
+                                (isPosInWorld(mutablePos.setPos(colPos).move(Direction.SOUTH), world) && biomeMap.get(mutablePos.setPos(colPos).move(Direction.SOUTH).toLong()).getCategory() != Biome.Category.OCEAN)
                             ) {
                                 continue;
                             }
@@ -225,12 +228,12 @@ public class CaveCarverController {
                 }
             }
             if (carver != null) {
-                carver.generate(world, chunkX, chunkZ, chunk, true, liquidBlocks, validPositions, airCarvingMask, liquidCarvingMask);
+                carver.generate(world, chunkX, chunkZ, chunk, true, liquidBlocks, biomeMap, validPositions, airCarvingMask, liquidCarvingMask);
             }
         }
         // Generate surface caves if enabled
         if (isSurfaceCavesEnabled) {
-            surfaceCaveCarver.generate(world, chunkX, chunkZ, chunk, false, liquidBlocks, airCarvingMask, liquidCarvingMask);
+            surfaceCaveCarver.generate(world, chunkX, chunkZ, chunk, false, liquidBlocks, biomeMap, airCarvingMask, liquidCarvingMask);
         }
     }
 

@@ -5,20 +5,15 @@ import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtils;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
+import com.yungnickyoung.minecraft.bettercaves.world.ColPos;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
-import net.minecraft.world.biome.Biome;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.gen.WorldGenRegion;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Random;
-import java.util.function.Function;
-
-import static com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils.isPosInWorld;
 
 public class WaterRegionController {
     private FastNoise waterRegionController;
@@ -61,17 +56,17 @@ public class WaterRegionController {
             for (int z = 0; z < 16; z++) {
                 int realX = chunkX * 16 + x;
                 int realZ = chunkZ * 16 + z;
-                BlockPos pos = new BlockPos(realX, 1, realZ);
+                ColPos pos = new ColPos(realX, realZ);
                 blocks[x][z] = getLiquidBlockAtPos(rand, pos);
             }
         }
         return blocks;
     }
 
-    private BlockState getLiquidBlockAtPos(Random rand, BlockPos blockPos) {
+    private BlockState getLiquidBlockAtPos(Random rand, ColPos colPos) {
         BlockState liquidBlock = lavaBlock;
         if (waterRegionThreshold > -1f) { // Don't bother calculating noise if water regions are disabled
-            float waterRegionNoise = waterRegionController.GetNoise(blockPos.getX(), blockPos.getZ());
+            float waterRegionNoise = waterRegionController.GetNoise(colPos.getX(), colPos.getZ());
 
             // If water region threshold check is passed, change liquid block to water
             float randOffset = rand.nextFloat() * SMOOTH_DELTA + SMOOTH_RANGE;
@@ -126,62 +121,5 @@ public class WaterRegionController {
 
     public void setWorld(IWorld worldIn) {
         this.world = worldIn;
-    }
-
-    public static float getDistFactor(IWorld worldIn, BlockPos pos, int distance, Function<Biome.Category, Boolean> isTargetBiome) {
-        WorldGenRegion worldGenRegion = (WorldGenRegion)worldIn;
-        // First check unit circle
-        // Cardinal directions
-        if (
-            (isPosInWorld(pos.north(), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.north()).getCategory())) ||
-                (isPosInWorld(pos.east(), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.east()).getCategory())) ||
-                (isPosInWorld(pos.south(), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.south()).getCategory())) ||
-                (isPosInWorld(pos.west(), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.west()).getCategory()))
-        ) {
-            return 0;
-        }
-        // Corners
-        if (
-            (isPosInWorld(pos.north().east(), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.north().east()).getCategory())) ||
-            (isPosInWorld(pos.east().south(), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.east().south()).getCategory())) ||
-            (isPosInWorld(pos.south().west(), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.south().west()).getCategory())) ||
-            (isPosInWorld(pos.west().north(), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.west().north()).getCategory()))
-        ) {
-            return 2f / (distance * 2);
-        }
-
-        // 2-circle
-        // Cardinal directions
-        if (
-            (isPosInWorld(pos.north(2), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.north(2)).getCategory())) ||
-            (isPosInWorld(pos.east(2), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.east(2)).getCategory())) ||
-            (isPosInWorld(pos.south(2), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.south(2)).getCategory())) ||
-            (isPosInWorld(pos.west(2), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.west(2)).getCategory()))
-        ) {
-            return 2f / (distance * 2);
-        }
-        // 3 away
-        if (
-            (isPosInWorld(pos.north(2).east(1), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.north(2).east(1)).getCategory())) ||
-            (isPosInWorld(pos.north(2).west(1), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.north(2).west(1)).getCategory())) ||
-            (isPosInWorld(pos.east(2).north(1), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.east(2).north(1)).getCategory())) ||
-            (isPosInWorld(pos.east(2).south(1), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.east(2).south(1)).getCategory())) ||
-            (isPosInWorld(pos.south(2).east(1), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.south(2).east(1)).getCategory())) ||
-            (isPosInWorld(pos.south(2).west(1), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.south(2).west(1)).getCategory())) ||
-            (isPosInWorld(pos.west(2).south(1), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.west(2).south(1)).getCategory())) ||
-            (isPosInWorld(pos.west(2).north(1), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.west(2).north(1)).getCategory()))
-        ) {
-            return 3f / (distance * 2);
-        }
-        // Corners
-        if (
-            (isPosInWorld(pos.north(2).east(2), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.north(2).east(2)).getCategory())) ||
-            (isPosInWorld(pos.east(2).south(2), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.east(2).south(2)).getCategory())) ||
-            (isPosInWorld(pos.south(2).west(2), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.south(2).west(2)).getCategory())) ||
-            (isPosInWorld(pos.west(2).north(2), worldGenRegion) && isTargetBiome.apply(worldIn.getBiome(pos.west(2).north(2)).getCategory()))
-        ) {
-            return 1;
-        }
-        return 1;
     }
 }

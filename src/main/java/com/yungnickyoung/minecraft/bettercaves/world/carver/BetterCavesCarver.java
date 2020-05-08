@@ -6,6 +6,7 @@ import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
 import com.yungnickyoung.minecraft.bettercaves.config.io.ConfigLoader;
 import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
+import com.yungnickyoung.minecraft.bettercaves.world.ColPos;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.bedrock.FlattenBedrock;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.CaveCarverController;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.CavernCarverController;
@@ -13,6 +14,7 @@ import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.RavineCon
 import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.WaterRegionController;
 import net.minecraft.block.BlockState;
 import net.minecraft.world.IWorld;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.dimension.DimensionType;
@@ -21,6 +23,7 @@ import net.minecraft.world.gen.GenerationStage;
 import java.util.*;
 
 public class BetterCavesCarver {
+    private IWorld world;
     public long seed = 0;
     public ConfigHolder config;
 
@@ -64,20 +67,23 @@ public class BetterCavesCarver {
             }
         }
 
+        Map<Long, Biome> biomeMap = new HashMap<>();
+
+        // Cache biomes at each block pos for use in carvers
+        for (int x = chunkX * 16 - 2; x <= chunkX * 16 + 17; x++) {
+            for (int z = chunkZ * 16 - 2; z <= chunkZ * 16 + 17; z++) {
+                ColPos pos = new ColPos(x, z);
+                biomeMap.put(pos.toLong(), world.getBiome(pos.toBlockPos()));
+            }
+        }
+
         // Determine liquid blocks for this chunk
         BlockState[][] liquidBlocks = waterRegionController.getLiquidBlocksForChunk(chunkX, chunkZ);
 
-        // TODO - pass in biome[][] to controllers?
-        // This would mean switching the cave controller to use world.getBiome instead of chunk.
-        // Might incur a bit of a performance cost? But would also theoretically fix potential problems where biomes change along chunk boundaries?
-        // Then:
-        // TODO - pass biome[][] into vanilla carver
-        // TODO - pass biome[][] into ravine carver
-
         // Carve chunk
-        caveCarverController.carveChunk(chunkIn, chunkX, chunkZ, surfaceAltitudes, liquidBlocks, airCarvingMask, liquidCarvingMask);
-        cavernCarverController.carveChunk(chunkIn, chunkX, chunkZ, surfaceAltitudes, liquidBlocks, airCarvingMask, liquidCarvingMask);
-        ravineController.carveChunk(chunkIn, chunkX, chunkZ, liquidBlocks, airCarvingMask, liquidCarvingMask);
+        caveCarverController.carveChunk(chunkIn, chunkX, chunkZ, surfaceAltitudes, liquidBlocks, biomeMap, airCarvingMask, liquidCarvingMask);
+        cavernCarverController.carveChunk(chunkIn, chunkX, chunkZ, surfaceAltitudes, liquidBlocks, biomeMap, airCarvingMask, liquidCarvingMask);
+        ravineController.carveChunk(chunkIn, chunkX, chunkZ, liquidBlocks, biomeMap, airCarvingMask, liquidCarvingMask);
 
         // Set carving masks for features to use
         ((ChunkPrimer)chunkIn).setCarvingMask(GenerationStage.Carving.AIR, airCarvingMask);
@@ -89,6 +95,7 @@ public class BetterCavesCarver {
      */
     public void initialize(IWorld worldIn) {
         // Extract world information
+        this.world = worldIn;
         this.seed = worldIn.getSeed();
         int dimensionId = worldIn.getDimension().getType().getId();
         String dimensionName = DimensionType.getKey(worldIn.getDimension().getType()).toString();
@@ -107,6 +114,7 @@ public class BetterCavesCarver {
     }
 
     public void setWorld(IWorld worldIn) {
+        this.world = worldIn;
         this.caveCarverController.setWorld(worldIn);
         this.cavernCarverController.setWorld(worldIn);
         this.waterRegionController.setWorld(worldIn);

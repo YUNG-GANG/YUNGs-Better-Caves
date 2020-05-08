@@ -5,11 +5,13 @@ import com.yungnickyoung.minecraft.bettercaves.world.carver.ravine.RavineCarver;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.SharedSeedRandom;
 import net.minecraft.world.IWorld;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraft.world.gen.feature.ProbabilityConfig;
 
 import java.util.BitSet;
+import java.util.Map;
 
 public class RavineController {
     private IWorld world;
@@ -31,7 +33,7 @@ public class RavineController {
         this.ravineCarver = new ConfiguredCarver<>(new RavineCarver(world, config, ProbabilityConfig::deserialize), new ProbabilityConfig(.02f));
     }
 
-    public void carveChunk(IChunk chunkIn, int chunkX, int chunkZ, BlockState[][] liquidBlocks, BitSet airCarvingMask, BitSet liquidCarvingMask) {
+    public void carveChunk(IChunk chunkIn, int chunkX, int chunkZ, BlockState[][] liquidBlocks, Map<Long, Biome> biomeMap, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         // Don't carve ravines if disabled or in debug view
         if (isDebugViewEnabled || !isRavinesEnabled) {
             return;
@@ -44,7 +46,7 @@ public class RavineController {
             for (int currChunkZ = chunkZ - 8; currChunkZ <= chunkZ + 8; currChunkZ++) {
                 random.setLargeFeatureSeed(seed, currChunkX, currChunkZ);
                 if (ravineCarver.shouldCarve(random, chunkX, chunkZ)) {
-                    ((RavineCarver) ravineCarver.carver).carve(chunkIn, random, world.getSeaLevel(), currChunkX, currChunkZ, chunkX, chunkZ, liquidBlocks, airCarvingMask, liquidCarvingMask);
+                    ((RavineCarver) ravineCarver.carver).carve(chunkIn, random, world.getSeaLevel(), currChunkX, currChunkZ, chunkX, chunkZ, liquidBlocks, biomeMap, airCarvingMask, liquidCarvingMask);
                 }
             }
         }

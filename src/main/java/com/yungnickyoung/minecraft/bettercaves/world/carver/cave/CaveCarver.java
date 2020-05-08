@@ -5,6 +5,7 @@ import com.yungnickyoung.minecraft.bettercaves.noise.NoiseColumn;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseTuple;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
+import com.yungnickyoung.minecraft.bettercaves.world.ColPos;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverSettings;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.ICarver;
@@ -57,7 +58,7 @@ public class CaveCarver implements ICarver {
         }
     }
 
-    public void carveColumn(IChunk chunk, BlockPos colPos, int topY, NoiseColumn noises, BlockState liquidBlock, boolean flooded, BitSet carvingMask) {
+    public void carveColumn(IChunk chunk, ColPos colPos, int topY, NoiseColumn noises, BlockState liquidBlock, boolean flooded, BitSet carvingMask) {
         int localX = BetterCavesUtils.getLocal(colPos.getX());
         int localZ = BetterCavesUtils.getLocal(colPos.getZ());
 

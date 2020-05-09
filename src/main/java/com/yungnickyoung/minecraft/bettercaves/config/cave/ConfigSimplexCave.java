@@ -63,98 +63,32 @@ public class ConfigSimplexCave {
             .worldRestart()
             .defineInRange("Type 2 Cave Priority", 5, 0, 10);
 
-        advancedSettings = new ConfigSimplexCave.Advanced(BUILDER);
+        advancedSettings = new ConfigSimplexCave.Advanced();
 
         BUILDER.pop();
     }
 
     public static class Advanced {
-        public final ForgeConfigSpec.ConfigValue<Double> noiseThreshold;
-        public final ForgeConfigSpec.ConfigValue<Integer> fractalOctaves;
-        public final ForgeConfigSpec.ConfigValue<Double> fractalGain;
-        public final ForgeConfigSpec.ConfigValue<Double> fractalFrequency;
-        public final ForgeConfigSpec.ConfigValue<Integer> numGenerators;
-        public final ForgeConfigSpec.ConfigValue<Boolean> yAdjust;
-        public final ForgeConfigSpec.ConfigValue<Double> yAdjustF1;
-        public final ForgeConfigSpec.ConfigValue<Double> yAdjustF2;
-        public final ForgeConfigSpec.ConfigValue<String> noiseType;
+        public final double noiseThreshold;
+        public final int fractalOctaves;
+        public final double fractalGain;
+        public final double fractalFrequency;
+        public final int numGenerators;
+        public final boolean yAdjust;
+        public final double yAdjustF1;
+        public final double yAdjustF2;
+        public final String noiseType;
 
-        public Advanced(final ForgeConfigSpec.Builder BUILDER) {
-            BUILDER
-                .comment(
-                    "##########################################################################################################\n" +
-                    "# Don't mess with these if you don't know what you're doing.\n" +
-                    "##########################################################################################################")
-                .push("Advanced Settings");
-
-            noiseThreshold = BUILDER
-                .comment(
-                    " Noise threshold for determining which blocks get mined out as part of cave generation\n" +
-                    "     Blocks with generated noise values greater than this threshold will be dug out.\n" +
-                    " Default: 0.82")
-                .worldRestart()
-                .defineInRange("Noise Threshold", .82, -1, 1);
-
-            fractalOctaves = BUILDER
-                .comment(
-                    " The number of octaves used for ridged multi-fractal noise generation.\n" +
-                    " Default: 1")
-                .worldRestart()
-                .define("Fractal Octaves", 1);
-
-            fractalGain = BUILDER
-                .comment(
-                    " The gain for successive octaves of ridged multi-fractal noise generation.\n" +
-                    " Default: 0.3")
-                .worldRestart()
-                .define("Fractal Gain", .3);
-
-            fractalFrequency = BUILDER
-                .comment(
-                    " The frequency for ridged multi-fractal noise generation.\n" +
-                    "     This determines how spread out or tightly knit cave systems are.\n" +
-                    " Default: 0.03")
-                .worldRestart()
-                .define("Fractal Frequency", .025);
-
-            numGenerators = BUILDER
-                .comment(
-                    " The number of noise generation functions used.\n" +
-                    "     The intersection of these functions is used to calculate a single noise value.\n" +
-                    "     Increasing this may decrease performance.\n" +
-                    " Default: 2")
-                .worldRestart()
-                .define("Number of Generators", 2);
-
-            yAdjust = BUILDER
-                .comment(
-                    " Enable y-adjustment, giving players more headroom in caves.\n" +
-                    " Default: true")
-                .worldRestart()
-                .define("Enable y-adjustment", true);
-
-            yAdjustF1 = BUILDER
-                .comment(
-                    " Adjustment factor affecting the block immediately above a given block.\n" +
-                    "     Higher value will tend to increase the headroom in caves.\n" +
-                    " Default: 0.95")
-                .worldRestart()
-                .defineInRange("y-adjustment Variable 1", .95, 0, 1);
-
-            yAdjustF2 = BUILDER
-                .comment(
-                    " Adjustment factor affecting the block two blocks above a given block.\n" +
-                    "     Higher value will tend to increase the headroom in caves.\n" +
-                    " Default: 0.5")
-                .worldRestart()
-                .defineInRange("y-adjustment Variable 2", .5, 0, 1);
-
-            noiseType = BUILDER
-                .comment(" This value is currently unused for Type 2 caves. ")
-                .worldRestart()
-                .define("Noise Type", "SimplexFractal");
-
-            BUILDER.pop();
+        public Advanced() {
+            noiseThreshold = .82;
+            fractalOctaves = 1;
+            fractalGain = .3;
+            fractalFrequency = .025;
+            numGenerators = 2;
+            yAdjust = true;
+            yAdjustF1 = .95;
+            yAdjustF2 = .5;
+            noiseType = "SimplexFractal";
         }
     }
 }

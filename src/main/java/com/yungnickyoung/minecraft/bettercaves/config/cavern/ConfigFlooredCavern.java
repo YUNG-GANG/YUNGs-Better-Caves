@@ -55,75 +55,26 @@ public class ConfigFlooredCavern {
             .worldRestart()
             .defineInRange("Floored Cavern Priority", 10, 0, 10);
 
-        advancedSettings = new ConfigFlooredCavern.Advanced(BUILDER);
+        advancedSettings = new ConfigFlooredCavern.Advanced();
 
         BUILDER.pop();
     }
 
     public static class Advanced {
-        public final ForgeConfigSpec.ConfigValue<Double> noiseThreshold;
-        public final ForgeConfigSpec.ConfigValue<Integer> fractalOctaves;
-        public final ForgeConfigSpec.ConfigValue<Double> fractalGain;
-        public final ForgeConfigSpec.ConfigValue<Double> fractalFrequency;
-        public final ForgeConfigSpec.ConfigValue<Integer> numGenerators;
-        public final ForgeConfigSpec.ConfigValue<String> noiseType;
+        public final double noiseThreshold;
+        public final int fractalOctaves;
+        public final double fractalGain;
+        public final double fractalFrequency;
+        public final int numGenerators;
+        public final String noiseType;
 
-        public Advanced(final ForgeConfigSpec.Builder BUILDER) {
-            BUILDER
-                .comment(
-                    "##########################################################################################################\n" +
-                    "# Don't mess with these if you don't know what you're doing.\n" +
-                    "##########################################################################################################")
-                .push("Advanced Settings");
-
-            noiseThreshold = BUILDER
-                .comment(
-                    " Noise threshold for determining which blocks get mined out as part of cavern generation\n" +
-                    "     Blocks with generated noise values lower than this threshold will be dug out.\n" +
-                    " Default: 0.6")
-                .worldRestart()
-                .defineInRange("Noise Threshold", .6, -1, 1);
-
-            fractalOctaves = BUILDER
-                .comment(
-                    " The number of octaves used for ridged multi-fractal noise generation.\n" +
-                    " Default: 1")
-                .worldRestart()
-                .define("Fractal Octaves", 1);
-
-            fractalGain = BUILDER
-                .comment(
-                    " The gain for successive octaves of ridged multi-fractal noise generation.\n" +
-                    " Default: 0.3")
-                .worldRestart()
-                .define("Fractal Gain", .3);
-
-            fractalFrequency = BUILDER
-                .comment(
-                    " The frequency for ridged multi-fractal noise generation.\n" +
-                    "     This determines how spread out or tightly knit the formations in caverns are.\n" +
-                    " Default: 0.03")
-                .worldRestart()
-                .define("Fractal Frequency", .028);
-
-            numGenerators = BUILDER
-                .comment(
-                    " The number of noise generation functions used.\n" +
-                    "     The intersection of these functions is used to calculate a single noise value.\n" +
-                    "     Increasing this may decrease performance.\n" +
-                    " Default: 2")
-                .worldRestart()
-                .define("Number of Generators", 2);
-
-            noiseType = BUILDER
-                .comment(
-                    " Type of noise to use for this cave. \n" +
-                    " Accepted Values: Value, ValueFractal, Perlin, PerlinFractal, Simplex, SimplexFractal, Cellular, WhiteNoise, Cubic, CubicFractal\n" +
-                    " Default: SimplexFractal")
-                .worldRestart()
-                .define("Noise Type", "SimplexFractal");
-
-            BUILDER.pop();
+        public Advanced() {
+            noiseThreshold = .6;
+            fractalOctaves = 1;
+            fractalGain = .3;
+            fractalFrequency = .028;
+            numGenerators = 2;
+            noiseType = "SimplexFractal";
         }
     }
 }

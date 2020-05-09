@@ -53,7 +53,9 @@ public class BetterCavesCarver {
             for (int z = 0; z < 16; z++) {
                 surfaceAltitudes[x][z] = config.overrideSurfaceDetection.get()
                     ? 1 // Don't bother doing unnecessary calculations
-                    : chunkIn.getTopBlockY(Heightmap.Type.WORLD_SURFACE_WG, x, z);
+                    : Math.min(
+                        chunkIn.getTopBlockY(Heightmap.Type.WORLD_SURFACE_WG, x, z),
+                        chunkIn.getTopBlockY(Heightmap.Type.OCEAN_FLOOR_WG, x, z));
             }
         }
 

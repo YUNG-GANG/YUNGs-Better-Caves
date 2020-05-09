@@ -21,7 +21,8 @@ import java.util.Set;
  * and as such may be accessed freely.
  */
 public class CarverUtils {
-    private CarverUtils() {} // Private constructor prevents instantiation
+    private CarverUtils() {
+    } // Private constructor prevents instantiation
 
     /* BlockStates used in this class */
     private static final BlockState CAVE_AIR = Blocks.CAVE_AIR.getDefaultState();
@@ -44,13 +45,13 @@ public class CarverUtils {
      * If setting to air, it also checks to see if we've broken the surface, and if so,
      * tries to make the floor the biome's top block.
      *
-     * @param chunkIn the chunk containing the block
-     * @param blockPos The block's position - can be with real (absolute) or chunk-local coordinates
-     * @param airBlockState the BlockState to use for air.
+     * @param chunkIn          the chunk containing the block
+     * @param blockPos         The block's position - can be with real (absolute) or chunk-local coordinates
+     * @param airBlockState    the BlockState to use for air.
      * @param liquidBlockState the BlockState to use for liquids. May be null if in buffer zone between liquid regions
-     * @param liquidAltitude altitude at and below which air is replaced with liquidBlockState
-     * @param replaceGravel if floating gravel should be replaced with andesite
-     * @param carvingMask BitSet that keeps track of which blocks have already been dug.
+     * @param liquidAltitude   altitude at and below which air is replaced with liquidBlockState
+     * @param replaceGravel    if floating gravel should be replaced with andesite
+     * @param carvingMask      BitSet that keeps track of which blocks have already been dug.
      */
     public static void carveBlock(IChunk chunkIn, BlockPos blockPos, BlockState airBlockState, BlockState liquidBlockState, int liquidAltitude, boolean replaceGravel, BitSet carvingMask) {
         // Mark block as processed - for use by features
@@ -76,8 +77,7 @@ public class CarverUtils {
             if (liquidBlockState != null) {
                 chunkIn.setBlockState(blockPos, liquidBlockState, false);
             }
-        }
-        else {
+        } else {
             // Check for adjacent water blocks to avoid breaking into lakes or oceans
             if (airBlockState == CAVE_AIR && isWaterAdjacent(chunkIn, blockPos)) return;
 
@@ -115,14 +115,15 @@ public class CarverUtils {
     /**
      * Counterpart to carveBlock() for flooded caves.
      * Places magma and obsidian randomly 1 block above liquidAltitude.
-     * @param chunkIn the chunk containing the block
-     * @param rand Random used to place magma and obsidian.
-     * @param blockPos The block's position - can be with real (absolute) or chunk-local coordinates
+     *
+     * @param chunkIn          the chunk containing the block
+     * @param rand             Random used to place magma and obsidian.
+     * @param blockPos         The block's position - can be with real (absolute) or chunk-local coordinates
      * @param liquidBlockState the BlockState to use for liquids. May be null if in buffer zone between liquid regions
-     * @param liquidAltitude altitude at and below which air is replaced with liquidBlockState
-     * @param carvingMask BitSet that keeps track of which blocks have already been dug.
+     * @param liquidAltitude   altitude at and below which air is replaced with liquidBlockState
+     * @param carvingMask      BitSet that keeps track of which blocks have already been dug.
      */
-    public static void carveFloodedBlock(IChunk chunkIn, Random rand, BlockPos.MutableBlockPos blockPos, BlockState liquidBlockState, int liquidAltitude, BitSet carvingMask) {
+    public static void carveFloodedBlock(IChunk chunkIn, Random rand, BlockPos.MutableBlockPos blockPos, BlockState liquidBlockState, int liquidAltitude, boolean replaceGravel, BitSet carvingMask) {
         // Mark block as processed - for use by features
         int bitIndex = (blockPos.getX() & 0xF) | ((blockPos.getZ() & 0xF) << 4) | (blockPos.getY() << 8);
         carvingMask.set(bitIndex);
@@ -156,7 +157,14 @@ public class CarverUtils {
         // Else, normal carving
         else {
             chunkIn.setBlockState(blockPos, WATER.getBlockState(), false);
+
+            // Replace floating gravel with andesite, if enabled
+            if (replaceGravel && blockStateAbove == GRAVEL)
+                chunkIn.setBlockState(blockPos.up(), ANDESITE, false);
         }
+    }
+    public static void carveFloodedBlock(IChunk chunkIn, Random rand, BlockPos.MutableBlockPos blockPos, BlockState liquidBlockState, int liquidAltitude, BitSet carvingMask) {
+        carveFloodedBlock(chunkIn, rand, blockPos, liquidBlockState, liquidAltitude, false, carvingMask);
     }
 
     /**

@@ -51,36 +51,14 @@ public class BetterCavesCarver {
         int[][] surfaceAltitudes = new int[16][16];
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
-                if (config.overrideSurfaceDetection.get()) {
-                    surfaceAltitudes[x][z] = 1; // Don't bother doing unnecessary data retrieval
-                }
-                else {
-                    surfaceAltitudes[x][z] = chunkIn.getTopBlockY(Heightmap.Type.WORLD_SURFACE_WG, x, z);
-                }
+                surfaceAltitudes[x][z] = config.overrideSurfaceDetection.get()
+                    ? 1 // Don't bother doing unnecessary calculations
+                    : chunkIn.getTopBlockY(Heightmap.Type.WORLD_SURFACE_WG, x, z);
             }
         }
-//        for (int subX = 0; subX < 16 / BCSettings.SUB_CHUNK_SIZE; subX++) {
-//            for (int subZ = 0; subZ < 16 / BCSettings.SUB_CHUNK_SIZE; subZ++) {
-//                int startX = subX * BCSettings.SUB_CHUNK_SIZE;
-//                int startZ = subZ * BCSettings.SUB_CHUNK_SIZE;
-//                for (int offsetX = 0; offsetX < BCSettings.SUB_CHUNK_SIZE; offsetX++) {
-//                    for (int offsetZ = 0; offsetZ < BCSettings.SUB_CHUNK_SIZE; offsetZ++) {
-//                        int surfaceHeight;
-//                        if (config.overrideSurfaceDetection.get()) {
-//                            surfaceHeight = 1; // Don't waste time calculating surface height if it's going to be overridden anyway
-//                        }
-//                        else {
-//                            surfaceHeight = BetterCavesUtils.getSurfaceAltitudeForColumn(chunkIn, startX + offsetX, startZ + offsetZ);
-//                        }
-//                        surfaceAltitudes[startX + offsetX][startZ + offsetZ] = surfaceHeight;
-//                    }
-//                }
-//            }
-//        }
 
+        // Determine biomes in this chunk - used for flooded cave checking
         Map<Long, Biome> biomeMap = new HashMap<>();
-
-        // Cache biomes at each block pos for use in carvers
         for (int x = chunkX * 16 - 2; x <= chunkX * 16 + 17; x++) {
             for (int z = chunkZ * 16 - 2; z <= chunkZ * 16 + 17; z++) {
                 ColPos pos = new ColPos(x, z);
@@ -96,17 +74,9 @@ public class BetterCavesCarver {
         cavernCarverController.carveChunk(chunkIn, chunkX, chunkZ, surfaceAltitudes, liquidBlocks, biomeMap, airCarvingMask, liquidCarvingMask);
         ravineController.carveChunk(chunkIn, chunkX, chunkZ, liquidBlocks, biomeMap, airCarvingMask, liquidCarvingMask);
 
-        // Update ocean floor heightmap so that seagrass doesn't spawn floating above open flooded ravines.
-        // This is necessary now that this class is accessed via a feature. Heightmaps are not updated between
-        // features; only before and after all of them are generated.
-        // Note that kelp does not suffer from this problem because (I think) it checks for a solid block.
-//        Heightmap.updateChunkHeightmaps(chunkIn, EnumSet.of(Heightmap.Type.OCEAN_FLOOR_WG, Heightmap.Type.OCEAN_FLOOR));
-
         // Set carving masks for features to use
-        ((ChunkPrimer)chunkIn).setCarvingMask(GenerationStage.Carving.AIR, airCarvingMask);
-        ((ChunkPrimer)chunkIn).setCarvingMask(GenerationStage.Carving.LIQUID, liquidCarvingMask);
-
-
+        ((ChunkPrimer) chunkIn).setCarvingMask(GenerationStage.Carving.AIR, airCarvingMask);
+        ((ChunkPrimer) chunkIn).setCarvingMask(GenerationStage.Carving.LIQUID, liquidCarvingMask);
     }
 
     /**

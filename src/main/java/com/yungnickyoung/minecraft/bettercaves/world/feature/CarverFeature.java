@@ -17,6 +17,7 @@ import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.NoFeatureConfig;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Random;
@@ -32,6 +33,7 @@ public class CarverFeature extends Feature<NoFeatureConfig> {
         super(configFactory);
     }
 
+    @ParametersAreNonnullByDefault
     @Override
     public boolean place(IWorld world, ChunkGenerator<? extends GenerationSettings> chunkSettings, Random random, BlockPos position, NoFeatureConfig config) {
         int dimId = world.getDimension().getType().getId();

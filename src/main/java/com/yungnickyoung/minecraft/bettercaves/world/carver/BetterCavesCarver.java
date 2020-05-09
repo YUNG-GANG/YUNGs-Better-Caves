@@ -19,6 +19,7 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.GenerationStage;
+import net.minecraft.world.gen.Heightmap;
 
 import java.util.*;
 
@@ -48,24 +49,34 @@ public class BetterCavesCarver {
 
         // Determine surface altitudes in this chunk
         int[][] surfaceAltitudes = new int[16][16];
-        for (int subX = 0; subX < 16 / BCSettings.SUB_CHUNK_SIZE; subX++) {
-            for (int subZ = 0; subZ < 16 / BCSettings.SUB_CHUNK_SIZE; subZ++) {
-                int startX = subX * BCSettings.SUB_CHUNK_SIZE;
-                int startZ = subZ * BCSettings.SUB_CHUNK_SIZE;
-                for (int offsetX = 0; offsetX < BCSettings.SUB_CHUNK_SIZE; offsetX++) {
-                    for (int offsetZ = 0; offsetZ < BCSettings.SUB_CHUNK_SIZE; offsetZ++) {
-                        int surfaceHeight;
-                        if (config.overrideSurfaceDetection.get()) {
-                            surfaceHeight = 1; // Don't waste time calculating surface height if it's going to be overridden anyway
-                        }
-                        else {
-                            surfaceHeight = BetterCavesUtils.getSurfaceAltitudeForColumn(chunkIn, startX + offsetX, startZ + offsetZ);
-                        }
-                        surfaceAltitudes[startX + offsetX][startZ + offsetZ] = surfaceHeight;
-                    }
+        for (int x = 0; x < 16; x++) {
+            for (int z = 0; z < 16; z++) {
+                if (config.overrideSurfaceDetection.get()) {
+                    surfaceAltitudes[x][z] = 1; // Don't bother doing unnecessary data retrieval
+                }
+                else {
+                    surfaceAltitudes[x][z] = chunkIn.getTopBlockY(Heightmap.Type.WORLD_SURFACE_WG, x, z);
                 }
             }
         }
+//        for (int subX = 0; subX < 16 / BCSettings.SUB_CHUNK_SIZE; subX++) {
+//            for (int subZ = 0; subZ < 16 / BCSettings.SUB_CHUNK_SIZE; subZ++) {
+//                int startX = subX * BCSettings.SUB_CHUNK_SIZE;
+//                int startZ = subZ * BCSettings.SUB_CHUNK_SIZE;
+//                for (int offsetX = 0; offsetX < BCSettings.SUB_CHUNK_SIZE; offsetX++) {
+//                    for (int offsetZ = 0; offsetZ < BCSettings.SUB_CHUNK_SIZE; offsetZ++) {
+//                        int surfaceHeight;
+//                        if (config.overrideSurfaceDetection.get()) {
+//                            surfaceHeight = 1; // Don't waste time calculating surface height if it's going to be overridden anyway
+//                        }
+//                        else {
+//                            surfaceHeight = BetterCavesUtils.getSurfaceAltitudeForColumn(chunkIn, startX + offsetX, startZ + offsetZ);
+//                        }
+//                        surfaceAltitudes[startX + offsetX][startZ + offsetZ] = surfaceHeight;
+//                    }
+//                }
+//            }
+//        }
 
         Map<Long, Biome> biomeMap = new HashMap<>();
 
@@ -85,9 +96,17 @@ public class BetterCavesCarver {
         cavernCarverController.carveChunk(chunkIn, chunkX, chunkZ, surfaceAltitudes, liquidBlocks, biomeMap, airCarvingMask, liquidCarvingMask);
         ravineController.carveChunk(chunkIn, chunkX, chunkZ, liquidBlocks, biomeMap, airCarvingMask, liquidCarvingMask);
 
+        // Update ocean floor heightmap so that seagrass doesn't spawn floating above open flooded ravines.
+        // This is necessary now that this class is accessed via a feature. Heightmaps are not updated between
+        // features; only before and after all of them are generated.
+        // Note that kelp does not suffer from this problem because (I think) it checks for a solid block.
+//        Heightmap.updateChunkHeightmaps(chunkIn, EnumSet.of(Heightmap.Type.OCEAN_FLOOR_WG, Heightmap.Type.OCEAN_FLOOR));
+
         // Set carving masks for features to use
         ((ChunkPrimer)chunkIn).setCarvingMask(GenerationStage.Carving.AIR, airCarvingMask);
         ((ChunkPrimer)chunkIn).setCarvingMask(GenerationStage.Carving.LIQUID, liquidCarvingMask);
+
+
     }
 
     /**
@@ -98,7 +117,13 @@ public class BetterCavesCarver {
         this.world = worldIn;
         this.seed = worldIn.getSeed();
         int dimensionId = worldIn.getDimension().getType().getId();
-        String dimensionName = DimensionType.getKey(worldIn.getDimension().getType()).toString();
+        String dimensionName;
+
+        try {
+            dimensionName = Objects.requireNonNull(DimensionType.getKey(worldIn.getDimension().getType())).toString();
+        } catch (NullPointerException e) {
+            dimensionName = "";
+        }
 
         // Load config from file for this dimension
         this.config = ConfigLoader.loadConfigFromFileForDimension(dimensionId);

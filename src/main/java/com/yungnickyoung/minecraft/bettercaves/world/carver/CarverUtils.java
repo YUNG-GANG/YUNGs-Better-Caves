@@ -46,7 +46,7 @@ public class CarverUtils {
      * tries to make the floor the biome's top block.
      *
      * @param chunkIn the chunk containing the block
-     * @param blockPos The block's position
+     * @param blockPos The block's position - can be with real (absolute) or chunk-local coordinates
      * @param airBlockState the BlockState to use for air.
      * @param liquidBlockState the BlockState to use for liquids. May be null if in buffer zone between liquid regions
      * @param liquidAltitude altitude at and below which air is replaced with liquidBlockState
@@ -113,16 +113,20 @@ public class CarverUtils {
         carveBlock(chunkIn, new BlockPos(x, y, z), airBlockState, liquidBlockState, liquidAltitude, replaceGravel, carvingMask);
     }
 
+    /**
+     * Counterpart to carveBlock() for flooded caves.
+     * Places magma and obsidian randomly 1 block above liquidAltitude.
+     * @param chunkIn the chunk containing the block
+     * @param rand Random used to place magma and obsidian.
+     * @param blockPos The block's position - can be with real (absolute) or chunk-local coordinates
+     * @param liquidBlockState the BlockState to use for liquids. May be null if in buffer zone between liquid regions
+     * @param liquidAltitude altitude at and below which air is replaced with liquidBlockState
+     * @param carvingMask BitSet that keeps track of which blocks have already been dug.
+     */
     public static void carveFloodedBlock(IChunk chunkIn, Random rand, BlockPos.MutableBlockPos blockPos, BlockState liquidBlockState, int liquidAltitude, BitSet carvingMask) {
         // Mark block as processed - for use by features
         int bitIndex = (blockPos.getX() & 0xF) | ((blockPos.getZ() & 0xF) << 4) | (blockPos.getY() << 8);
         carvingMask.set(bitIndex);
-
-        int blockX = blockPos.getX();
-        int blockY = blockPos.getY();
-        int blockZ = blockPos.getZ();
-        int chunkX = blockPos.getX() >> 4;
-        int chunkZ = blockPos.getZ() >> 4;
 
         // Dig flooded block
         Biome biome = chunkIn.getBiome(blockPos);
@@ -152,23 +156,7 @@ public class CarverUtils {
         }
         // Else, normal carving
         else {
-            // Schedule updates for water on chunk edges
-            boolean flag = false;
-            for(Direction direction : Direction.Plane.HORIZONTAL) {
-                int x = blockPos.getX() + direction.getXOffset();
-                int z = blockPos.getZ() + direction.getZOffset();
-                if (x >> 4 != chunkX || z >> 4 != chunkZ || chunkIn.getBlockState(blockPos.setPos(x, blockPos.getY(), z)).isAir()) {
-                    chunkIn.setBlockState(blockPos, WATER, false);
-                    chunkIn.getFluidsToBeTicked().scheduleTick(blockPos, WATER.getFluidState().getFluid(), 0);
-                    flag = true;
-                    break;
-                }
-            }
-
-            blockPos.setPos(blockX, blockY, blockZ);
-            if (!flag) {
-                chunkIn.setBlockState(blockPos, WATER.getBlockState(), false);
-            }
+            chunkIn.setBlockState(blockPos, WATER.getBlockState(), false);
         }
     }
 

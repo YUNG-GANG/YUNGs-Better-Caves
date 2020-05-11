@@ -1,0 +1,24 @@
+# DIM_minecraft-the_nether.toml
+["Better Caves"."Underground Generation".Miscellaneous]
+    "Override Surface Detection" = true
+    "Liquid Altitude" = 31
+
+["Better Caves"."Underground Generation"."Water Regions"]
+    "Water Region Spawn Chance" = 0
+
+    ["Better Caves"."Underground Generation".Caves."Surface Caves"]
+        "Enable Surface Caves" = false
+
+    ["Better Caves"."Underground Generation".Caves."Type 1 Caves"]
+        "Type 1 Cave Maximum Altitude" = 128
+
+    ["Better Caves"."Underground Generation".Caves."Type 2 Caves"]
+        "Type 2 Cave Maximum Altitude" = 128
+
+    ["Better Caves"."Underground Generation".Caverns."Floored Caverns"]
+        "Floored Cavern Minimum Altitude" = 21
+        "Floored Cavern Maximum Altitude" = 55
+
+    ["Better Caves"."Underground Generation".Caverns."Liquid Caverns"]
+        "Liquid Cavern Minimum Altitude" = 21
+        "Liquid Cavern Maximum Altitude" = 55

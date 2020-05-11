@@ -15,6 +15,7 @@ import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraft.world.gen.feature.*;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.DeferredWorkQueue;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -46,6 +47,13 @@ public class BCFeature {
      * (which wraps all the pre-existing carvers) to the front of their feature lists
      */
     public static void commonSetup(FMLCommonSetupEvent event) {
+        DeferredWorkQueue.runLater(BCFeature::lateSetup);
+    }
+
+    /**
+     * Delayed setup to ensure we collect any carvers added by other mods.
+     */
+    private static void lateSetup() {
         BetterCaves.LOGGER.info("Replacing biome carvers with Better Caves carvers...");
 
         // Get all registered biomes

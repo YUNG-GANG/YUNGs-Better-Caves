@@ -87,16 +87,16 @@ public class BetterCavesCarver {
         this.world = worldIn;
         this.seed = worldIn.getSeed();
         int dimensionId = worldIn.getDimension().getType().getId();
-        String dimensionName;
+        String dimensionName = "";
 
         try {
             dimensionName = Objects.requireNonNull(DimensionType.getKey(worldIn.getDimension().getType())).toString();
         } catch (NullPointerException e) {
-            dimensionName = "";
+            BetterCaves.LOGGER.error(String.format("ERROR: Failed to find name of dimension with ID %d! Using default settings...", dimensionId));
         }
 
         // Load config from file for this dimension
-        this.config = ConfigLoader.loadConfigFromFileForDimension(dimensionId);
+        this.config = dimensionName.equals("") ? new ConfigHolder() : ConfigLoader.loadConfigFromFileForDimension(dimensionName);
 
         // Initialize controllers
         this.caveCarverController   = new CaveCarverController(worldIn, config);

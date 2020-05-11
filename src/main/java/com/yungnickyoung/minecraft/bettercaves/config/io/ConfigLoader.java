@@ -14,24 +14,24 @@ public class ConfigLoader {
     /**
      * Loads a config from file for a given dimension.
      * The file must be located at {@code <configdirectory>/bettercaves-1_12_2/DIM<id>_config.cfg}
-     * @param dimensionID Unique dimension ID
+     * @param dimensionName Unique dimension resource location name (e.g. minecraft:overworld)
      * @return ConfigHolder loaded from file for given dimension
      */
-    public static ConfigHolder loadConfigFromFileForDimension(int dimensionID) {
-        String fileName = "DIM" + dimensionID + "_config.toml";
+    public static ConfigHolder loadConfigFromFileForDimension(String dimensionName) {
+        String fileName = "DIM_" + dimensionName.replace(':', '-') + ".toml";
         File configFile = new File(BetterCaves.customConfigDir, fileName);
 
         if (!configFile.exists() || configFile.isDirectory()) {
-            BetterCaves.LOGGER.info(String.format("Better Caves config file for dimension %d not found. Using global config...", dimensionID));
+            BetterCaves.LOGGER.info(String.format("Better Caves config file for dimension %s not found. Using global config...", dimensionName));
             return new ConfigHolder();
         }
 
         if (!configFile.canRead()) {
-            BetterCaves.LOGGER.warn(String.format("Better Caves config file for dimension %d not readable. Using global config...", dimensionID));
+            BetterCaves.LOGGER.warn(String.format("Better Caves config file for dimension %s not readable. Using global config...", dimensionName));
             return new ConfigHolder();
         }
 
-        BetterCaves.LOGGER.info(String.format("Reading Better Caves config from file for dimension %d...", dimensionID));
+        BetterCaves.LOGGER.info(String.format("Reading Better Caves config from file for dimension %s...", dimensionName));
         return parseConfigFromFile(configFile);
     }
 
@@ -78,7 +78,7 @@ public class ConfigLoader {
             String fullName = entry.getKey();
             Object value = entry.getValue();
 
-            ConfigHolder.ConfigOption configOption = config.properties.get(fullName);
+            ConfigHolder.ConfigOption<?> configOption = config.properties.get(fullName);
 
             // Verify that fullName (category path + property name) is correct
             if (configOption == null) {

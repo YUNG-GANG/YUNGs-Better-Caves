@@ -17,7 +17,7 @@ public final class Configuration {
     public static final ConfigUndergroundGen caveSettings;
     public static final ConfigBedrockGen bedrockSettings;
     public static final ConfigDebug debugSettings;
-    public static final ForgeConfigSpec.ConfigValue<String> whitelistedDimensionIDs;
+    public static final ForgeConfigSpec.ConfigValue<String> whitelistedDimensions;
     public static final ForgeConfigSpec.ConfigValue<Boolean> enableGlobalWhitelist;
 
     static {
@@ -27,14 +27,15 @@ public final class Configuration {
         bedrockSettings = new ConfigBedrockGen(BUILDER);
         debugSettings = new ConfigDebug(BUILDER);
 
-        whitelistedDimensionIDs = BUILDER
+        whitelistedDimensions = BUILDER
             .comment(
                 " List of dimensions that will have Better Caves. Ignored if Global Whitelisting is enabled.\n" +
                 " List must be comma-separated values enclosed in square brackets.\n" +
                 " Entries must have the mod namespace included.\n" +
-                " For example: [minecraft:overworld, minecraft:the_nether, rats:ratlantis]")
+                " For example: \"[minecraft:overworld, minecraft:the_nether, rats:ratlantis]\"\n" +
+                " Default: \"[minecraft:overworld]\"")
             .worldRestart()
-            .define("Whitelisted Dimension IDs", "[minecraft:overworld, minecraft:the_nether]");
+            .define("Whitelisted Dimensions", "[minecraft:overworld]");
 
         enableGlobalWhitelist = BUILDER
             .comment(

@@ -91,7 +91,7 @@ public class BCFeature {
         ModConfig config = event.getConfig();
 
         if (config.getSpec() == Configuration.SPEC) {
-            String rawStringofList = Configuration.whitelistedDimensionIDs.get();
+            String rawStringofList = Configuration.whitelistedDimensions.get();
             int strLen = rawStringofList.length();
 
             // Validate the string's format

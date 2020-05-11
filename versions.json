@@ -1,13 +1,10 @@
 {
   "homepage": "https://www.curseforge.com/minecraft/mc-mods/yungs-better-caves",
   "1.14.4": {
-    "1.0.0":"Public 1.14.4 release",
-    "1.0.1":"Fix NoClassDefFoundError crash for servers running using OpenJDK",
-    "1.1.0":"Add config options for custom frequency values. Bugfixes.",
-    "1.1.1":"Fix crash on dedicated server startup."
+    "2.0": "Big boi release"
   },
   "promos": {
-    "1.14.4-latest": "1.1.1",
-    "1.14.4-recommended": "1.1.1"
+    "1.14.4-latest": "2.0",
+    "1.14.4-recommended": "2.0"
   }
 }

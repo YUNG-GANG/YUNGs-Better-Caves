@@ -10,6 +10,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.IChunk;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.ChunkGenerator;
 import net.minecraft.world.gen.GenerationSettings;
 import net.minecraft.world.gen.GenerationStage;
@@ -20,6 +21,7 @@ import net.minecraft.world.gen.feature.NoFeatureConfig;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.BitSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import java.util.function.Function;
 
@@ -36,16 +38,21 @@ public class CarverFeature extends Feature<NoFeatureConfig> {
     @ParametersAreNonnullByDefault
     @Override
     public boolean place(IWorld world, ChunkGenerator<? extends GenerationSettings> chunkSettings, Random random, BlockPos position, NoFeatureConfig config) {
-        int dimId = world.getDimension().getType().getId();
-        Biome biome = world.getBiome(position);
+        String dimensionName = null;
+        try {
+            dimensionName = Objects.requireNonNull(DimensionType.getKey(world.getDimension().getType())).toString();
+        } catch (NullPointerException ignored) {
+            BetterCaves.LOGGER.error("ERROR: Unable to get dimension name! Using default cave gen...");
+        }
 
+        Biome biome = world.getBiome(position);
         IChunk chunk = world.getChunk(position);
         ChunkPos chunkPos = chunk.getPos();
         int xChunkPos = chunkPos.x;
         int zChunkPos = chunkPos.z;
 
         // If dimension isn't whitelisted, use normal carvers instead of BC carver
-        if (!isDimensionWhitelisted(dimId)) {
+        if (dimensionName == null || !isDimensionWhitelisted(dimensionName)) {
             SharedSeedRandom sharedSeedRandom = new SharedSeedRandom();
             BitSet airBitset = chunk.getCarvingMask(GenerationStage.Carving.AIR);
             BitSet liquidBitset = chunk.getCarvingMask(GenerationStage.Carving.LIQUID);
@@ -77,14 +84,14 @@ public class CarverFeature extends Feature<NoFeatureConfig> {
 
         // Check if a carver hasn't been created for this dimension, or if
         // the seeds don't match (player probably changed worlds)
-        if (BetterCaves.activeCarversMap.get(dimId) == null || BetterCaves.activeCarversMap.get(dimId).getSeed() != world.getSeed()) {
+        if (BetterCaves.activeCarversMap.get(dimensionName) == null || BetterCaves.activeCarversMap.get(dimensionName).getSeed() != world.getSeed()) {
             BetterCavesCarver newCarver = new BetterCavesCarver();
-            BetterCaves.activeCarversMap.put(dimId, newCarver);
-            BetterCaves.LOGGER.info(String.format("CREATING AND INIT'ING CARVER W DIMENSION %s...", dimId));
+            BetterCaves.activeCarversMap.put(dimensionName, newCarver);
+            BetterCaves.LOGGER.info(String.format("CREATING AND INIT'ING CARVER W DIMENSION %s...", dimensionName));
             newCarver.initialize(world);
         }
 
-        BetterCavesCarver carver = BetterCaves.activeCarversMap.get(dimId);
+        BetterCavesCarver carver = BetterCaves.activeCarversMap.get(dimensionName);
         carver.setWorld(world);
         carver.carve(chunk, xChunkPos, zChunkPos);
 
@@ -94,7 +101,7 @@ public class CarverFeature extends Feature<NoFeatureConfig> {
     /**
      * @return true if the provided dimension ID is whitelisted in the config
      */
-    private boolean isDimensionWhitelisted(int dimID) {
-        return Configuration.enableGlobalWhitelist.get() || BetterCaves.whitelistedDimensions.contains(dimID);
+    private boolean isDimensionWhitelisted(String dimensionName) {
+        return Configuration.enableGlobalWhitelist.get() || BetterCaves.whitelistedDimensions.contains(dimensionName);
     }
 }

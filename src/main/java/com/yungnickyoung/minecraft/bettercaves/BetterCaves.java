@@ -5,6 +5,7 @@ import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
 import com.yungnickyoung.minecraft.bettercaves.init.BCModConfig;
 import com.yungnickyoung.minecraft.bettercaves.init.BCFeature;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.BetterCavesCarver;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraftforge.fml.common.Mod;
@@ -22,16 +23,16 @@ import java.util.Map;
 @Mod(BCSettings.MOD_ID)
 public class BetterCaves {
     /**
-     * Table of active Better Caves carvers. Maps dimension ID to its carver.
+     * Table of active Better Caves carvers. Maps dimension name to its carver.
      * We create separate carvers per dimension to allow for dimension-specific configuration.
      */
-    public static Map<Integer, BetterCavesCarver> activeCarversMap = new HashMap<>();
+    public static Map<String, BetterCavesCarver> activeCarversMap = new HashMap<>();
 
     /**
      * List of whitelisted dimensions.
      * Will be ignored if global whitelisting is enabled.
      */
-    public static List<Integer> whitelistedDimensions = Lists.newArrayList();
+    public static List<String> whitelistedDimensions = Lists.newArrayList();
 
     /**
      * Map of all biomes to their default carvers.

@@ -29,11 +29,12 @@ public final class Configuration {
 
         whitelistedDimensionIDs = BUILDER
             .comment(
-                " List of ID's of dimensions that will have Better Caves. Ignored if Global Whitelisting is enabled.\n" +
+                " List of dimensions that will have Better Caves. Ignored if Global Whitelisting is enabled.\n" +
                 " List must be comma-separated values enclosed in square brackets.\n" +
-                " For example: [0, -1]")
+                " Entries must have the mod namespace included.\n" +
+                " For example: [minecraft:overworld, minecraft:the_nether, rats:ratlantis]")
             .worldRestart()
-            .define("Whitelisted Dimension IDs", "[0]");
+            .define("Whitelisted Dimension IDs", "[minecraft:overworld, minecraft:the_nether]");
 
         enableGlobalWhitelist = BUILDER
             .comment(

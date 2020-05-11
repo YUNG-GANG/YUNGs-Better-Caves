@@ -1,7 +1,9 @@
 package com.yungnickyoung.minecraft.bettercaves.init;
 
+import com.google.common.collect.Lists;
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
+import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.world.feature.CarverFeature;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.Biome;
@@ -11,6 +13,7 @@ import net.minecraft.world.gen.feature.*;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
@@ -31,6 +34,7 @@ public class BCFeature {
     public static void init() {
         FEATURES.register(FMLJavaModLoadingContext.get().getModEventBus());
         FMLJavaModLoadingContext.get().getModEventBus().addListener(BCFeature::commonSetup);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(BCFeature::configChanged);
         MinecraftForge.EVENT_BUS.addListener(BCFeature::worldUnload);
     }
 
@@ -45,8 +49,8 @@ public class BCFeature {
         Set<Map.Entry<ResourceLocation, Biome>> biomesList = ForgeRegistries.BIOMES.getEntries();
 
         // Replace biome carvers with Better Caves carvers
-        for (Map.Entry e : biomesList) {
-            Biome biome = (Biome)e.getValue();
+        for (Map.Entry<ResourceLocation, Biome> e : biomesList) {
+            Biome biome = e.getValue();
 
             // Save all pre-existing carvers for biome.
             // These will be used in dimensions where Better Caves is not whitelisted.
@@ -71,5 +75,32 @@ public class BCFeature {
     public static void worldUnload(WorldEvent.Unload event) {
         BetterCaves.LOGGER.debug(String.format("Unloading world: %s | %s", event.getWorld().getSeed(), event.getWorld().getDimension().getType().getId()));
         BetterCaves.activeCarversMap.remove(event.getWorld().getDimension().getType().getId());
+    }
+
+    public static void configChanged(ModConfig.ModConfigEvent event) {
+        ModConfig config = event.getConfig();
+        // Bake global values when they change
+        if (config.getSpec() == Configuration.SPEC) {
+            String whitelistedIDsString = Configuration.whitelistedDimensionIDs.get();
+            int strLen = whitelistedIDsString.length();
+            if (strLen < 2 || whitelistedIDsString.charAt(0) != '[' || whitelistedIDsString.charAt(strLen - 1) != ']') {
+                BetterCaves.LOGGER.error("INVALID VALUE FOR SETTING 'Whitelisted Dimension IDs'. Using empty list instead...");
+                BetterCaves.whitelistedDimensions = Lists.newArrayList();
+                return;
+            }
+
+            String[] idStringArray = whitelistedIDsString.substring(1, strLen - 1).split(",\\s*");
+            List<Integer> whitelistedIDs = Lists.newArrayList();
+            for (String s : idStringArray) {
+                try {
+                    int dimensionId = Integer.parseInt(s);
+                    whitelistedIDs.add(dimensionId);
+
+                } catch (NumberFormatException e) {
+                    BetterCaves.LOGGER.error(String.format("INVALID DIMENSION ID: %s - Skipping...", s));
+                }
+            }
+            BetterCaves.whitelistedDimensions = whitelistedIDs;
+        }
     }
 }

@@ -2,9 +2,6 @@ package com.yungnickyoung.minecraft.bettercaves.config;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * Configuration options for Better Caves.
  * <p>
@@ -20,7 +17,7 @@ public final class Configuration {
     public static final ConfigUndergroundGen caveSettings;
     public static final ConfigBedrockGen bedrockSettings;
     public static final ConfigDebug debugSettings;
-    public static final ForgeConfigSpec.ConfigValue<List<Integer>> whitelistedDimensionIDs;
+    public static final ForgeConfigSpec.ConfigValue<String> whitelistedDimensionIDs;
     public static final ForgeConfigSpec.ConfigValue<Boolean> enableGlobalWhitelist;
 
     static {
@@ -31,9 +28,12 @@ public final class Configuration {
         debugSettings = new ConfigDebug(BUILDER);
 
         whitelistedDimensionIDs = BUILDER
-            .comment(" List of ID's of dimensions that will have Better Caves. Ignored if Global Whitelisting is enabled.")
+            .comment(
+                " List of ID's of dimensions that will have Better Caves. Ignored if Global Whitelisting is enabled.\n" +
+                " List must be comma-separated values enclosed in square brackets.\n" +
+                " For example: [0, -1]")
             .worldRestart()
-            .define("Whitelisted Dimension IDs", Arrays.asList(0));
+            .define("Whitelisted Dimension IDs", "[0]");
 
         enableGlobalWhitelist = BUILDER
             .comment(

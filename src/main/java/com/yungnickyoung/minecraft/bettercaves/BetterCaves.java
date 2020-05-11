@@ -1,11 +1,10 @@
 package com.yungnickyoung.minecraft.bettercaves;
 
+import com.google.common.collect.Lists;
 import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
 import com.yungnickyoung.minecraft.bettercaves.init.BCModConfig;
 import com.yungnickyoung.minecraft.bettercaves.init.BCFeature;
-import com.yungnickyoung.minecraft.bettercaves.world.ColPos;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.BetterCavesCarver;
-import net.minecraft.util.Direction;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraftforge.fml.common.Mod;
@@ -27,6 +26,12 @@ public class BetterCaves {
      * We create separate carvers per dimension to allow for dimension-specific configuration.
      */
     public static Map<Integer, BetterCavesCarver> activeCarversMap = new HashMap<>();
+
+    /**
+     * List of whitelisted dimensions.
+     * Will be ignored if global whitelisting is enabled.
+     */
+    public static List<Integer> whitelistedDimensions = Lists.newArrayList();
 
     /**
      * Map of all biomes to their default carvers.

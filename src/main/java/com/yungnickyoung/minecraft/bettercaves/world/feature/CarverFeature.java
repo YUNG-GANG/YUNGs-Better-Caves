@@ -95,13 +95,6 @@ public class CarverFeature extends Feature<NoFeatureConfig> {
      * @return true if the provided dimension ID is whitelisted in the config
      */
     private boolean isDimensionWhitelisted(int dimID) {
-        // Ignore the dimension ID list if global whitelisting is enabled
-        if (Configuration.enableGlobalWhitelist.get())
-            return true;
-
-        for (int dim : Configuration.whitelistedDimensionIDs.get())
-            if (dimID == dim) return true;
-
-        return false;
+        return Configuration.enableGlobalWhitelist.get() || BetterCaves.whitelistedDimensions.contains(dimID);
     }
 }

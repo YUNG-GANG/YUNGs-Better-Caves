@@ -17,7 +17,7 @@ public class FlattenBedrock {
      */
     public static void flattenBedrock(IChunk chunk, int bedrockLayerWidth) {
         BlockState replacementBlock = Blocks.STONE.getDefaultState();
-        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+        BlockPos.Mutable pos = new BlockPos.Mutable();
 
         // Replace normal bedrock at bottom of map with stone
         for (int x = 0; x < 16; x++) {

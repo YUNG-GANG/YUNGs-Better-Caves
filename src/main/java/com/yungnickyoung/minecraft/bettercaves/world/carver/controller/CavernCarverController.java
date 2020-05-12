@@ -8,7 +8,7 @@ import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseColumn;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtils;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
-import com.yungnickyoung.minecraft.bettercaves.world.ColPos;
+import com.yungnickyoung.minecraft.bettercaves.util.ColPos;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverNoiseRange;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.cavern.CavernCarver;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.cavern.CavernCarverBuilder;
@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 public class CavernCarverController {
     private IWorld world;

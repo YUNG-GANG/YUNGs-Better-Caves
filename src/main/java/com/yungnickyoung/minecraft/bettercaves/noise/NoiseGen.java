@@ -1,10 +1,10 @@
 package com.yungnickyoung.minecraft.bettercaves.noise;
 
 import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
+import com.yungnickyoung.minecraft.bettercaves.util.Vector3f;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import javax.vecmath.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 

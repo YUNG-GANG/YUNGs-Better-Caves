@@ -9,6 +9,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeManager;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.ChunkGenerator;
@@ -31,13 +32,14 @@ import java.util.function.Function;
  * retrieve the seed, and fallback to pre-existing carvers for non-whitelisted dimensions.
  */
 public class CarverFeature extends Feature<NoFeatureConfig> {
+
     public CarverFeature(Function<Dynamic<?>, ? extends NoFeatureConfig> configFactory) {
         super(configFactory);
     }
 
     @ParametersAreNonnullByDefault
     @Override
-    public boolean place(IWorld world, ChunkGenerator<? extends GenerationSettings> chunkSettings, Random random, BlockPos position, NoFeatureConfig config) {
+    public boolean place(IWorld world, ChunkGenerator<? extends GenerationSettings> generator, Random random, BlockPos position, NoFeatureConfig config) {
         String dimensionName = null;
         try {
             dimensionName = Objects.requireNonNull(DimensionType.getKey(world.getDimension().getType())).toString();
@@ -45,11 +47,14 @@ public class CarverFeature extends Feature<NoFeatureConfig> {
             BetterCaves.LOGGER.error("ERROR: Unable to get dimension name! Using default cave gen...");
         }
 
-        Biome biome = world.getBiome(position);
         IChunk chunk = world.getChunk(position);
         ChunkPos chunkPos = chunk.getPos();
         int xChunkPos = chunkPos.x;
         int zChunkPos = chunkPos.z;
+        Biome biome = chunk.getBiomes().getNoiseBiome(position.getX(), 1, position.getZ());
+
+        BiomeManager biomeManager = world.getBiomeManager().copyWithProvider(generator.getBiomeProvider());
+        Function<BlockPos, Biome> gb = blockPos -> generator.getBiome(biomeManager, blockPos);
 
         // If dimension isn't whitelisted, use normal carvers instead of BC carver
         if (dimensionName == null || !isDimensionWhitelisted(dimensionName)) {
@@ -66,7 +71,7 @@ public class CarverFeature extends Feature<NoFeatureConfig> {
                         sharedSeedRandom.setLargeFeatureSeed(world.getSeed() + (long)i, currChunkX, currChunkZ);
                         ConfiguredCarver<?> carver = defaultAirCarvers.get(i);
                         if (carver.shouldCarve(sharedSeedRandom, currChunkX, currChunkZ)) {
-                            carver.carve(chunk, sharedSeedRandom, world.getSeaLevel(), currChunkX, currChunkZ, xChunkPos, zChunkPos, airBitset);
+                            carver.func_227207_a_(chunk, gb, sharedSeedRandom, world.getSeaLevel(), currChunkX, currChunkZ, xChunkPos, zChunkPos, airBitset);
                         }
                     }
                     // Liquid carvers
@@ -74,7 +79,7 @@ public class CarverFeature extends Feature<NoFeatureConfig> {
                         sharedSeedRandom.setLargeFeatureSeed(world.getSeed() + (long)i, currChunkX, currChunkZ);
                         ConfiguredCarver<?> carver = defaultLiquidCarvers.get(i);
                         if (carver.shouldCarve(sharedSeedRandom, currChunkX, currChunkZ)) {
-                            carver.carve(chunk, sharedSeedRandom, world.getSeaLevel(), currChunkX, currChunkZ, xChunkPos, zChunkPos, liquidBitset);
+                            carver.func_227207_a_(chunk, gb, sharedSeedRandom, world.getSeaLevel(), currChunkX, currChunkZ, xChunkPos, zChunkPos, liquidBitset);
                         }
                     }
                 }

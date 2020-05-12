@@ -4,7 +4,7 @@ package com.yungnickyoung.minecraft.bettercaves.world.carver;
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.io.ConfigLoader;
 import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
-import com.yungnickyoung.minecraft.bettercaves.world.ColPos;
+import com.yungnickyoung.minecraft.bettercaves.util.ColPos;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.bedrock.FlattenBedrock;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.CaveCarverController;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.CavernCarverController;

@@ -6,7 +6,7 @@ import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseColumn;
-import com.yungnickyoung.minecraft.bettercaves.world.ColPos;
+import com.yungnickyoung.minecraft.bettercaves.util.ColPos;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverNoiseRange;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.ICarver;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.cave.CaveCarver;
@@ -125,7 +125,7 @@ public class CaveCarverController {
             return;
         }
 
-        ColPos.MutableColPos mutablePos = new ColPos.MutableColPos();
+        ColPos.Mutable mutablePos = new ColPos.Mutable();
         boolean flooded;
 
         // Flag to keep track of whether or not we've already carved vanilla caves for this chunk, since

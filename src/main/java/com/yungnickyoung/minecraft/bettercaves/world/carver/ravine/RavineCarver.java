@@ -3,7 +3,7 @@ package com.yungnickyoung.minecraft.bettercaves.world.carver.ravine;
 import com.mojang.datafixers.Dynamic;
 import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
-import com.yungnickyoung.minecraft.bettercaves.world.ColPos;
+import com.yungnickyoung.minecraft.bettercaves.util.ColPos;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverUtils;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
@@ -142,7 +142,7 @@ public class RavineCarver extends CanyonWorldCarver {
             int minLocalZ = Math.max(MathHelper.floor(ravineStartZ - xzOffset) - originChunkZ * 16 - 1, 0);
             int maxLocalZ = Math.min(MathHelper.floor(ravineStartZ + xzOffset) - originChunkZ * 16 + 1, 16);
 
-            BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
+            BlockPos.Mutable mutableBlockPos = new BlockPos.Mutable();
 
             for (int currLocalX = minLocalX; currLocalX < maxLocalX; ++currLocalX) {
                 int realX = currLocalX + originChunkX * 16;
@@ -184,7 +184,7 @@ public class RavineCarver extends CanyonWorldCarver {
         return (xAxisDist * xAxisDist + zAxisDist * zAxisDist) * (double)this.heightToHorizontalStretchFactor[currY - 1] + yAxisDist * yAxisDist / 6.0D >= 1.0D;
     }
 
-    private void carveBlock(IChunk chunkIn, Random rand, int seaLevel, BlockPos.MutableBlockPos blockPos, BlockState liquidBlockState, Map<Long, Biome> biomeMap, BitSet airCarvingMask, BitSet liquidCarvingMask) {
+    private void carveBlock(IChunk chunkIn, Random rand, int seaLevel, BlockPos.Mutable blockPos, BlockState liquidBlockState, Map<Long, Biome> biomeMap, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         // Check if already carved
         int bitIndex = (blockPos.getX() & 0xF) | ((blockPos.getZ() & 0xF) << 4) | (blockPos.getY() << 8);
         if (airCarvingMask.get(bitIndex) || liquidCarvingMask.get(bitIndex)) {

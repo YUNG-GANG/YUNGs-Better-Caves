@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component>
+  <configuration default="false" factoryName="Application" name="runServer" singleton="false" type="Application">
+    <option name="MAIN_CLASS_NAME" value="net.minecraftforge.userdev.LaunchTesting"/>
+    <option name="VM_PARAMETERS" value="-Dforge.logging.console.level=debug -Dforge.logging.markers=SCAN,REGISTRIES,REGISTRYDUMP"/>
+    <option name="PROGRAM_PARAMETERS" value=""/>
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$\run"/>
+    <module name="BetterCaves-1.15.2.main"/>
+    <envs>
+      <env name="MOD_CLASSES" value="bettercaves%%$PROJECT_DIR$\build\resources\main;bettercaves%%$PROJECT_DIR$\build\classes\java\main"/>
+      <env name="MCP_MAPPINGS" value="stable_60-1.15"/>
+      <env name="MCP_VERSION" value="20200122.131323"/>
+      <env name="FORGE_VERSION" value="31.1.0"/>
+      <env name="FORGE_GROUP" value="net.minecraftforge"/>
+      <env name="target" value="fmluserdevserver"/>
+      <env name="MC_VERSION" value="1.15.2"/>
+    </envs>
+    <method v="2">
+      <option enabled="true" name="Make"/>
+      <option enabled="true" externalProjectPath="$PROJECT_DIR$" name="Gradle.BeforeRunTask" tasks=":prepareRunServer"/>
+    </method>
+  </configuration>
+</component>

@@ -5,7 +5,7 @@ import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtils;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
-import com.yungnickyoung.minecraft.bettercaves.world.ColPos;
+import com.yungnickyoung.minecraft.bettercaves.util.ColPos;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.ResourceLocation;

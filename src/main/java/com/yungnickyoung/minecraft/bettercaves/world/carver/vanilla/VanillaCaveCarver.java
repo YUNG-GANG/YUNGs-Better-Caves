@@ -2,7 +2,7 @@ package com.yungnickyoung.minecraft.bettercaves.world.carver.vanilla;
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
-import com.yungnickyoung.minecraft.bettercaves.world.ColPos;
+import com.yungnickyoung.minecraft.bettercaves.util.ColPos;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.ICarver;
 import net.minecraft.block.BlockState;
@@ -317,7 +317,7 @@ public class VanillaCaveCarver implements ICarver {
         }
 
         BlockPos blockPos = new BlockPos(chunkX * 16 + localX, y, chunkZ * 16 + localZ);
-        ColPos.MutableColPos mutableColPos = new ColPos.MutableColPos(blockPos);
+        ColPos.Mutable mutableColPos = new ColPos.Mutable(blockPos);
 
         // Determine if cave is flooded at this location
         boolean flooded = isFloodedUndergroundEnabled && !isDebugVisualizerEnabled && biomeMap.get(mutableColPos.toLong()).getCategory() == Biome.Category.OCEAN;
@@ -340,7 +340,7 @@ public class VanillaCaveCarver implements ICarver {
 
         // Carve block
         if (flooded) {
-            CarverUtils.carveFloodedBlock(chunkIn, rand, new BlockPos.MutableBlockPos(blockPos), liquidBlockState, liquidAltitude, liquidCarvingMask);
+            CarverUtils.carveFloodedBlock(chunkIn, rand, new BlockPos.Mutable(blockPos), liquidBlockState, liquidAltitude, liquidCarvingMask);
         }
         else {
             CarverUtils.carveBlock(chunkIn, blockPos, liquidBlockState, this.liquidAltitude, this.isReplaceGravelEnabled, airCarvingMask);

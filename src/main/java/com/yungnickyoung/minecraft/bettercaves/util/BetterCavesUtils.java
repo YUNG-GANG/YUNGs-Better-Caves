@@ -1,6 +1,5 @@
 package com.yungnickyoung.minecraft.bettercaves.util;
 
-import com.yungnickyoung.minecraft.bettercaves.world.ColPos;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.Blocks;
@@ -11,7 +10,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.IChunk;
 
 import java.util.Map;
-import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * Miscellaneous utility functions and fields for Better Caves.
@@ -22,8 +21,8 @@ public class BetterCavesUtils {
     private BetterCavesUtils() {}
 
     // Equality checking functions used for closing off flooded caves
-    public static Function<Biome.Category, Boolean> isOcean = b -> b == Biome.Category.OCEAN;
-    public static Function<Biome.Category, Boolean> isNotOcean = b -> b != Biome.Category.OCEAN;
+    public static Predicate<Biome.Category> isOcean = b -> b == Biome.Category.OCEAN;
+    public static Predicate<Biome.Category> isNotOcean = b -> b != Biome.Category.OCEAN;
 
     /**
      * Tests every block in a 2x2 "sub-chunk" to get the max surface altitude (y-coordinate) of the sub-chunk.
@@ -70,7 +69,7 @@ public class BetterCavesUtils {
      * @return The y-coordinate of the surface block
      */
     public static int searchSurfaceAltitudeInRangeForColumn(IChunk chunkIn, int localX, int localZ, int topY, int bottomY) {
-        BlockPos.MutableBlockPos blockPos = new BlockPos.MutableBlockPos(localX, bottomY, localZ);
+        BlockPos.Mutable blockPos = new BlockPos.Mutable(localX, bottomY, localZ);
 
         // Edge case: blocks go all the way up to build height
         if (topY == 255) {
@@ -126,18 +125,18 @@ public class BetterCavesUtils {
      * @param radius Radius of search circle
      * @param isTargetBiome Function to use when testing if a given block's biome is the biome we are lookin for
      */
-    public static float getDistFactor(IWorld worldIn, Map<Long, Biome> biomeMap, ColPos pos, int radius, Function<Biome.Category, Boolean> isTargetBiome) {
-        ColPos.MutableColPos checkpos = new ColPos.MutableColPos();
+    public static float getDistFactor(IWorld worldIn, Map<Long, Biome> biomeMap, ColPos pos, int radius, Predicate<Biome.Category> isTargetBiome) {
+        ColPos.Mutable checkpos = new ColPos.Mutable();
         for (int i = 1; i <= radius; i++) {
             for (int j = 0; j <= i; j++) {
                 for (Direction direction : Direction.Plane.HORIZONTAL) {
                     checkpos.setPos(pos).move(direction, i).move(direction.rotateY(), j);
-                    if (isPosInWorld(checkpos, worldIn) && isTargetBiome.apply(biomeMap.get(checkpos.toLong()).getCategory())) {
+                    if (isPosInWorld(checkpos, worldIn) && isTargetBiome.test(biomeMap.get(checkpos.toLong()).getCategory())) {
                         return (float)(i + j) / (2 * radius);
                     }
                     if (j != 0 && i != j) {
                         checkpos.setPos(pos).move(direction, i).move(direction.rotateYCCW(), j);
-                        if (isPosInWorld(checkpos, worldIn) && isTargetBiome.apply(biomeMap.get(checkpos.toLong()).getCategory())) {
+                        if (isPosInWorld(checkpos, worldIn) && isTargetBiome.test(biomeMap.get(checkpos.toLong()).getCategory())) {
                             return (float)(i + j) / (2 * radius);
                         }
                     }

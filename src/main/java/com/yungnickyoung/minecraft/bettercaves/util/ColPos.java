@@ -1,4 +1,4 @@
-package com.yungnickyoung.minecraft.bettercaves.world;
+package com.yungnickyoung.minecraft.bettercaves.util;
 
 import net.minecraft.util.Direction;
 import net.minecraft.util.Rotation;
@@ -129,44 +129,44 @@ public class ColPos {
         return new ColPos(blockPos);
     }
 
-    public static class MutableColPos extends ColPos {
-        public MutableColPos() {
+    public static class Mutable extends ColPos {
+        public Mutable() {
             super();
         }
 
-        public MutableColPos(BlockPos source) {
+        public Mutable(BlockPos source) {
             this(source.getX(), source.getZ());
         }
 
-        public MutableColPos(ColPos pos) {
+        public Mutable(ColPos pos) {
             this(pos.getX(), pos.getZ());
         }
 
-        public MutableColPos(int x, int z) {
+        public Mutable(int x, int z) {
             super(x, z);
         }
 
-        public MutableColPos setPos(int x, int z) {
+        public Mutable setPos(int x, int z) {
             this.x = x;
             this.z = z;
             return this;
         }
 
-        public MutableColPos setPos(ColPos source) {
+        public Mutable setPos(ColPos source) {
             setPos(source.getX(), source.getZ());
             return this;
         }
 
-        public MutableColPos setPos(BlockPos source) {
+        public Mutable setPos(BlockPos source) {
             setPos(source.getX(), source.getZ());
             return this;
         }
 
-        public MutableColPos move(Direction facing, int n) {
+        public Mutable move(Direction facing, int n) {
             return this.setPos(this.x + facing.getXOffset() * n, this.z + facing.getZOffset() * n);
         }
 
-        public MutableColPos move(Direction facing) {
+        public Mutable move(Direction facing) {
             return this.move(facing, 1);
         }
 

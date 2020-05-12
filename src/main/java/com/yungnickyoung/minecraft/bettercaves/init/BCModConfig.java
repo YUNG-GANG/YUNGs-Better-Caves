@@ -23,6 +23,6 @@ public class BCModConfig {
         }
 
         // Register config with Forge
-        ModLoadingContext.get().registerConfig(net.minecraftforge.fml.config.ModConfig.Type.COMMON, Configuration.SPEC, "bettercaves-1_14_4.toml");
+        ModLoadingContext.get().registerConfig(net.minecraftforge.fml.config.ModConfig.Type.COMMON, Configuration.SPEC, "bettercaves-1_15_2.toml");
     }
 }

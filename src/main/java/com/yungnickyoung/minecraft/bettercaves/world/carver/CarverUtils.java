@@ -61,7 +61,7 @@ public class CarverUtils {
         BlockPos blockPosAbove = blockPos.up();
         BlockPos blockPosBelow = blockPos.down();
 
-        Biome biome = chunkIn.getBiome(blockPos);
+        Biome biome = chunkIn.getBiomes().getNoiseBiome(blockPos.getX(), blockPos.getY(), blockPos.getZ());
         BlockState biomeTopBlockState = biome.getSurfaceBuilderConfig().getTop();
         BlockState biomeFillerBlockState = biome.getSurfaceBuilderConfig().getUnder();
         BlockState blockState = chunkIn.getBlockState(blockPos);
@@ -123,13 +123,13 @@ public class CarverUtils {
      * @param liquidAltitude   altitude at and below which air is replaced with liquidBlockState
      * @param carvingMask      BitSet that keeps track of which blocks have already been dug.
      */
-    public static void carveFloodedBlock(IChunk chunkIn, Random rand, BlockPos.MutableBlockPos blockPos, BlockState liquidBlockState, int liquidAltitude, boolean replaceGravel, BitSet carvingMask) {
+    public static void carveFloodedBlock(IChunk chunkIn, Random rand, BlockPos.Mutable blockPos, BlockState liquidBlockState, int liquidAltitude, boolean replaceGravel, BitSet carvingMask) {
         // Mark block as processed - for use by features
         int bitIndex = (blockPos.getX() & 0xF) | ((blockPos.getZ() & 0xF) << 4) | (blockPos.getY() << 8);
         carvingMask.set(bitIndex);
 
         // Dig flooded block
-        Biome biome = chunkIn.getBiome(blockPos);
+        Biome biome = chunkIn.getBiomes().getNoiseBiome(blockPos.getX(), blockPos.getY(), blockPos.getZ());
         BlockState biomeTopBlockState = biome.getSurfaceBuilderConfig().getTop();
         BlockState biomeFillerBlockState = biome.getSurfaceBuilderConfig().getUnder();
         BlockState blockState = chunkIn.getBlockState(blockPos);
@@ -163,7 +163,7 @@ public class CarverUtils {
                 chunkIn.setBlockState(blockPos.up(), ANDESITE, false);
         }
     }
-    public static void carveFloodedBlock(IChunk chunkIn, Random rand, BlockPos.MutableBlockPos blockPos, BlockState liquidBlockState, int liquidAltitude, BitSet carvingMask) {
+    public static void carveFloodedBlock(IChunk chunkIn, Random rand, BlockPos.Mutable blockPos, BlockState liquidBlockState, int liquidAltitude, BitSet carvingMask) {
         carveFloodedBlock(chunkIn, rand, blockPos, liquidBlockState, liquidAltitude, false, carvingMask);
     }
 
@@ -195,7 +195,7 @@ public class CarverUtils {
      * @return true if this block is the same type as the biome's designated top block
      */
     public static boolean isTopBlock(IChunk chunkIn, BlockPos blockPos) {
-        Biome biome = chunkIn.getBiome(blockPos);
+        Biome biome = chunkIn.getBiomes().getNoiseBiome(blockPos.getX(), blockPos.getY(), blockPos.getZ());
         BlockState blockState = chunkIn.getBlockState(blockPos);
         return blockState == biome.getSurfaceBuilderConfig().getTop();
     }

@@ -50,8 +50,6 @@ public class BetterCaves {
     public BetterCaves() {
         LOGGER.debug("Better Caves entry point");
         init();
-//        proxy = DistExecutor.runForDist(() -> ClientProxy::new, () -> CommonProxy::new);
-//        proxy.start();
     }
 
     private void init() {

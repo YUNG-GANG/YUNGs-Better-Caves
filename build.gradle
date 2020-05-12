@@ -137,8 +137,6 @@ task signJar(type: SignJar, dependsOn: jar) {
 // Runs the signJar task automatically when build is run.
 build.dependsOn signJar
 
-
-
 processResources {
     // this will ensure that this task is redone when any variables change
     inputs.property "modId", modId

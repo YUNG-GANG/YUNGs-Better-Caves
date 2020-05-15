@@ -11,6 +11,7 @@ import com.yungnickyoung.minecraft.bettercaves.world.carver.ICarver;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 
 import java.util.HashMap;
@@ -23,6 +24,7 @@ import java.util.Map;
 public class CaveCarver implements ICarver {
     private CarverSettings settings;
     private NoiseGen noiseGen;
+    private World world;
 
     /** Surface cutoff depth */
     private int surfaceCutoff;
@@ -55,6 +57,7 @@ public class CaveCarver implements ICarver {
                 settings.getyCompression(),
                 settings.getXzCompression()
         );
+        world = builder.getSettings().getWorld();
         surfaceCutoff = builder.getSurfaceCutoff();
         bottomY = builder.getBottomY();
         topY = builder.getTopY();
@@ -73,7 +76,7 @@ public class CaveCarver implements ICarver {
         int localX = BetterCavesUtils.getLocal(colPos.getX());
         int localZ = BetterCavesUtils.getLocal(colPos.getZ());
 
-        IBlockState airBlockState = flooded ? Blocks.WATER.getDefaultState() : Blocks.AIR.getDefaultState();
+        IBlockState airBlockState;
 
         // Validate vars
         if (localX < 0 || localX > 15)
@@ -116,6 +119,7 @@ public class CaveCarver implements ICarver {
                 }
             }
 
+            airBlockState = flooded && y < world.getSeaLevel() ? Blocks.WATER.getDefaultState() : Blocks.AIR.getDefaultState();
             BlockPos blockPos = new BlockPos(localX, y, localZ);
 
             // Dig out the block if it passed the threshold check, using the debug visualizer if enabled
@@ -124,21 +128,6 @@ public class CaveCarver implements ICarver {
             }
             else if (digBlock) {
                 CarverUtils.digBlock(settings.getWorld(), primer, blockPos, airBlockState, liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel());
-            }
-        }
-
-        /* ============ Post-Processing to remove any singular floating blocks in the ease-in range ============ */
-        for (int y = transitionBoundary + 1; y < topY; y++) {
-            if (y < 1)
-                break;
-
-            IBlockState currBlock = primer.getBlockState(localX, y, localZ);
-
-            if (CarverUtils.canReplaceBlock(currBlock, Blocks.AIR.getDefaultState())
-                    && primer.getBlockState(localX, y + 1, localZ) == airBlockState
-                    && primer.getBlockState(localX, y - 1, localZ) == airBlockState
-            ) {
-                CarverUtils.digBlock(settings.getWorld(), primer, localX, y, localZ, liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel());
             }
         }
     }

@@ -73,7 +73,7 @@ public class MapGenBetterRavine extends MapGenRavine {
         }
 
         // Don't dig boundaries between flooded and unflooded openings.
-        boolean flooded = config.enableFloodedRavines.get() && world.getBiome(pos).getTempCategory() == Biome.TempCategory.OCEAN;
+        boolean flooded = config.enableFloodedRavines.get() && world.getBiome(pos).getTempCategory() == Biome.TempCategory.OCEAN && y < world.getSeaLevel();
         if (flooded) {
             float smoothAmpFactor = WaterRegionController.getDistFactor(world, pos, 2, b -> b != Biome.TempCategory.OCEAN);
             if (smoothAmpFactor <= .25f) { // Wall between flooded and normal caves.

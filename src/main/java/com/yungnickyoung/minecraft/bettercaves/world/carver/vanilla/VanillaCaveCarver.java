@@ -302,7 +302,7 @@ public class VanillaCaveCarver extends MapGenCaves implements ICarver {
         BlockPos pos = new BlockPos(chunkX * 16 + localX, y, chunkZ * 16 + localZ);
 
         // Don't dig boundaries between flooded and unflooded openings.
-        boolean flooded = isFloodedUndergroundEnabled && !isDebugVisualizerEnabled && world.getBiome(pos).getTempCategory() == Biome.TempCategory.OCEAN;
+        boolean flooded = isFloodedUndergroundEnabled && !isDebugVisualizerEnabled && world.getBiome(pos).getTempCategory() == Biome.TempCategory.OCEAN && y < world.getSeaLevel();
 
         if (flooded) {
             if (

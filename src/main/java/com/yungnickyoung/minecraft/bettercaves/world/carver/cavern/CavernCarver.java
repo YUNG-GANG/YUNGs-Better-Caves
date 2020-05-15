@@ -11,6 +11,7 @@ import com.yungnickyoung.minecraft.bettercaves.world.carver.ICarver;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 
 import java.util.List;
@@ -22,6 +23,8 @@ import java.util.List;
 public class CavernCarver implements ICarver {
     private CarverSettings settings;
     private NoiseGen noiseGen;
+    private World world;
+
     private CavernType cavernType;
     private int bottomY;
     private int topY;
@@ -36,6 +39,7 @@ public class CavernCarver implements ICarver {
                 settings.getyCompression(),
                 settings.getXzCompression()
         );
+        world = builder.getSettings().getWorld();
         cavernType = builder.getCavernType();
         bottomY = builder.getBottomY();
         topY = builder.getTopY();
@@ -51,7 +55,7 @@ public class CavernCarver implements ICarver {
         int localX = BetterCavesUtils.getLocal(colPos.getX());
         int localZ = BetterCavesUtils.getLocal(colPos.getZ());
 
-        IBlockState airBlockState = flooded ? Blocks.WATER.getDefaultState() : Blocks.AIR.getDefaultState();
+        IBlockState airBlockState;
 
         // Validate vars
         if (localX < 0 || localX > 15)
@@ -109,6 +113,7 @@ public class CavernCarver implements ICarver {
                 digBlock = true;
 
             BlockPos blockPos = new BlockPos(localX, y, localZ);
+            airBlockState = flooded && y < world.getSeaLevel() ? Blocks.WATER.getDefaultState() : Blocks.AIR.getDefaultState();
 
             // Dig out the block if it passed the threshold check, using the debug visualizer if enabled
             if (settings.isEnableDebugVisualizer()) {

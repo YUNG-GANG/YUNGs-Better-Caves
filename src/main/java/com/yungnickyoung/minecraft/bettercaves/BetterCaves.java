@@ -12,9 +12,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -43,7 +41,7 @@ public class BetterCaves {
      */
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
-        proxy.preInit(event);
+        proxy.preInit();
 
         // Create custom dimension config directory if doesn't already exist
         customConfigDir = new File(Loader.instance().getConfigDir(), BCSettings.CUSTOM_CONFIG_PATH);
@@ -69,29 +67,5 @@ public class BetterCaves {
     public void init(FMLInitializationEvent event) {
         // Register world generation events
         MinecraftForge.TERRAIN_GEN_BUS.register(new EventBetterCaveGen()); // Replace vanilla cave generation
-        proxy.init(event);
-    }
-
-    /**
-     * Post-Initialization FML Life Cycle event handling method which is automatically
-     * called by Forge. Handle interaction with other mods; complete setup based on this.
-     *
-     * @param event the event
-     */
-    @EventHandler
-    public void postInit(FMLPostInitializationEvent event) {
-        proxy.postInit(event);
-    }
-
-
-    /**
-     * Server Starting FML Life Cycle event handling method which is automatically
-     * called by Forge.
-     *
-     * @param event the event
-     */
-    @EventHandler
-    public void serverStarting(FMLServerStartingEvent event) {
-        proxy.serverStarting(event);
     }
 }

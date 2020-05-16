@@ -1,6 +1,5 @@
 package com.yungnickyoung.minecraft.bettercaves.event;
 
-import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.world.MapGenBetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.world.mineshaft.MapGenBetterMineshaft;
 import com.yungnickyoung.minecraft.bettercaves.world.ravine.MapGenBetterRavine;

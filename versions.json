@@ -1,10 +1,13 @@
 {
   "homepage": "https://www.curseforge.com/minecraft/mc-mods/yungs-better-caves",
   "1.12.2": {
-    "2.0": "Big boi update."
+    "2.0": "Big boi update.",
+    "2.0.1": "Bugfixes and improved logging.",
+    "2.0.2": "Vanilla and surface caves now flood properly.",
+    "2.0.3": "Fix caves flooding above sea level. Potential minor performance improvements."
   },
   "promos": {
-    "1.12.2-latest": "2.0",
-    "1.12.2-recommended": "2.0"
+    "1.12.2-latest": "2.0.3",
+    "1.12.2-recommended": "2.0.3"
   }
 }

@@ -82,7 +82,7 @@ public class CarverUtils {
             if (airBlockState == CAVE_AIR && isWaterAdjacent(chunkIn, blockPos)) return;
 
             // Adjust block below if block removed is biome top block
-            if (isTopBlock(chunkIn, blockPos) && canReplaceBlock(blockStateBelow, CAVE_AIR))
+            if (blockState == biomeTopBlockState && canReplaceBlock(blockStateBelow, CAVE_AIR))
                 chunkIn.setBlockState(blockPosBelow, biomeTopBlockState, false);
 
             // If we caused floating sand to form, replace it with sandstone
@@ -189,18 +189,6 @@ public class CarverUtils {
     }
 
     /**
-     * Determine if the block at the specified location is the designated top block for the biome.
-     * @param chunkIn the chunk containing the block
-     * @param blockPos The block's position
-     * @return true if this block is the same type as the biome's designated top block
-     */
-    public static boolean isTopBlock(IChunk chunkIn, BlockPos blockPos) {
-        Biome biome = chunkIn.getBiomes().getNoiseBiome(blockPos.getX(), blockPos.getY(), blockPos.getZ());
-        BlockState blockState = chunkIn.getBlockState(blockPos);
-        return blockState == biome.getSurfaceBuilderConfig().getTop();
-    }
-
-    /**
      * Determines if the Block of a given BlockState is suitable to be replaced during cave generation.
      * Basically returns true for most common worldgen blocks (e.g. stone, dirt, sand), false if the block is air.
      * @param blockState the block's IBlockState
@@ -211,8 +199,10 @@ public class CarverUtils {
         Block block = blockState.getBlock();
 
         // Avoid damaging trees
-        if (blockState.getMaterial() == Material.LEAVES
-            || blockState.getMaterial() == Material.WOOD)
+        if (
+            blockState.getMaterial() == Material.LEAVES ||
+            blockState.getMaterial() == Material.WOOD
+        )
             return false;
 
         // Avoid digging out under trees
@@ -220,13 +210,19 @@ public class CarverUtils {
             return false;
 
         // This should hopefully avoid damaging villages
-        if (block == Blocks.FARMLAND
-            || block == Blocks.GRASS_PATH) {
+        if (
+            block == Blocks.FARMLAND ||
+            block == Blocks.GRASS_PATH
+        ) {
             return false;
         }
 
         // Accept stone-like blocks added from other mods
-        if (blockState.getMaterial() == Material.ROCK)
+        if (
+            blockState.getMaterial() == Material.ROCK ||
+            blockState.getMaterial() == Material.CLAY ||
+            blockState.getMaterial() == Material.EARTH
+        )
             return true;
 
         // List of carvable blocks provided by vanilla

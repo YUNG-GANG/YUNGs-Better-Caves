@@ -54,7 +54,6 @@ public class CarverFeature extends Feature<NoFeatureConfig> {
         Biome biome = chunk.getBiomes().getNoiseBiome(position.getX(), 1, position.getZ());
 
         BiomeManager biomeManager = world.getBiomeManager().copyWithProvider(generator.getBiomeProvider());
-        Function<BlockPos, Biome> gb = blockPos -> generator.getBiome(biomeManager, blockPos);
 
         // If dimension isn't whitelisted, use normal carvers instead of BC carver
         if (dimensionName == null || !isDimensionWhitelisted(dimensionName)) {
@@ -71,7 +70,7 @@ public class CarverFeature extends Feature<NoFeatureConfig> {
                         sharedSeedRandom.setLargeFeatureSeed(world.getSeed() + (long)i, currChunkX, currChunkZ);
                         ConfiguredCarver<?> carver = defaultAirCarvers.get(i);
                         if (carver.shouldCarve(sharedSeedRandom, currChunkX, currChunkZ)) {
-                            carver.func_227207_a_(chunk, gb, sharedSeedRandom, world.getSeaLevel(), currChunkX, currChunkZ, xChunkPos, zChunkPos, airBitset);
+                            carver.func_227207_a_(chunk, biomeManager::getBiome, sharedSeedRandom, world.getSeaLevel(), currChunkX, currChunkZ, xChunkPos, zChunkPos, airBitset);
                         }
                     }
                     // Liquid carvers
@@ -79,7 +78,7 @@ public class CarverFeature extends Feature<NoFeatureConfig> {
                         sharedSeedRandom.setLargeFeatureSeed(world.getSeed() + (long)i, currChunkX, currChunkZ);
                         ConfiguredCarver<?> carver = defaultLiquidCarvers.get(i);
                         if (carver.shouldCarve(sharedSeedRandom, currChunkX, currChunkZ)) {
-                            carver.func_227207_a_(chunk, gb, sharedSeedRandom, world.getSeaLevel(), currChunkX, currChunkZ, xChunkPos, zChunkPos, liquidBitset);
+                            carver.func_227207_a_(chunk, biomeManager::getBiome, sharedSeedRandom, world.getSeaLevel(), currChunkX, currChunkZ, xChunkPos, zChunkPos, liquidBitset);
                         }
                     }
                 }

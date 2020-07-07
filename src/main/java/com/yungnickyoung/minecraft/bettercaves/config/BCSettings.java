@@ -7,7 +7,9 @@ package com.yungnickyoung.minecraft.bettercaves.config;
 public class BCSettings {
     public static final String MOD_ID = "bettercaves";
 
-    public static final String CUSTOM_CONFIG_PATH = "bettercaves-1_16_1";
+    public static final String CUSTOM_CONFIG_PATH = "bettercaves";
+    public static final String VERSION_PATH = "1_16";
+    public static final String BASE_CONFIG_NAME = "bettercaves-1_16.toml";
 
     public static final int SUB_CHUNK_SIZE = 4;
     public static final float[] START_COEFFS = new float[SUB_CHUNK_SIZE];

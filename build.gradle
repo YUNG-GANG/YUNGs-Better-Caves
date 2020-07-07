@@ -20,6 +20,8 @@ archivesBaseName = modFileName
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
+def versionstr = modMinecraftVersion.replaceAll('\\.', '_')
+
 repositories {
     // Put remote maven repositories here
 }
@@ -33,7 +35,7 @@ minecraft {
     mappings channel: modMcpMappingsChannel, version: modMcpMappingsVersion
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 
-     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
     // Default run configurations.
     // These can be tweaked, removed, or duplicated as needed.

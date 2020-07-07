@@ -5,7 +5,6 @@ import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
 import com.yungnickyoung.minecraft.bettercaves.init.BCModConfig;
 import com.yungnickyoung.minecraft.bettercaves.init.BCFeature;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.BetterCavesCarver;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraftforge.fml.common.Mod;

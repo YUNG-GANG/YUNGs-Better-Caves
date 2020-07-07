@@ -8,9 +8,11 @@ import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.world.feature.CarverFeature;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.DimensionType;
+import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.GenerationStage;
+import net.minecraft.world.gen.WorldGenRegion;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraft.world.gen.feature.*;
 import net.minecraftforge.common.MinecraftForge;
@@ -28,8 +30,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class BCFeature {
-    private static final DeferredRegister<Feature<?>> FEATURES = new DeferredRegister<>(ForgeRegistries.FEATURES, BCSettings.MOD_ID);
-    public static final CarverFeature BETTERCAVES_CARVER = new CarverFeature(NoFeatureConfig::deserialize);
+    private static final DeferredRegister<Feature<?>> FEATURES = DeferredRegister.create(ForgeRegistries.FEATURES, BCSettings.MOD_ID);
+    public static final CarverFeature BETTERCAVES_CARVER = new CarverFeature(NoFeatureConfig.field_236558_a_);
     public static final RegistryObject<Feature<?>> BETTERCAVES_CARVER_FEATURE = FEATURES.register("bettercave", () -> BETTERCAVES_CARVER);
 
     /**
@@ -75,7 +77,7 @@ public class BCFeature {
 
             // Use Access Transformer to make features field public so we can put our carver
             // at the front of the list to give it guaranteed priority.
-            biome.features.get(GenerationStage.Decoration.RAW_GENERATION).add(0, new ConfiguredFeature<>(new CarverFeature(NoFeatureConfig::deserialize), new NoFeatureConfig()));
+            biome.features.get(GenerationStage.Decoration.RAW_GENERATION).add(0, new ConfiguredFeature<>(new CarverFeature(NoFeatureConfig.field_236558_a_), new NoFeatureConfig()));
         }
     }
 
@@ -83,9 +85,10 @@ public class BCFeature {
      * Removes the unloaded dimension's carver from the active carvers map.
      */
     public static void worldUnload(WorldEvent.Unload event) {
-        BetterCaves.LOGGER.debug(String.format("Unloading world: %s (ID %s)", event.getWorld().getSeed(), event.getWorld().getDimension().getType().getId()));
+        BetterCaves.LOGGER.debug("UNLOADING WORLD");
         try {
-            String key = Objects.requireNonNull(DimensionType.getKey(event.getWorld().getDimension().getType())).toString();
+            String key = Objects.requireNonNull(((World) event.getWorld()).func_234923_W_()).toString();
+            BetterCaves.LOGGER.info("DIMENSION ATTEMPT: " + ((World) event.getWorld()).func_234923_W_().toString());
             BetterCaves.activeCarversMap.remove(key);
         } catch (NullPointerException e) {
             BetterCaves.LOGGER.error("ERROR: Unable to unload carver for dimension!");
@@ -113,23 +116,26 @@ public class BCFeature {
             List<String> inputListOfDimensionStrings = Lists.newArrayList(rawStringofList.substring(1, strLen - 1).split(",\\s*"));
 
             // Get set of all vanilla and registered modded dimensions' names
-            Set<String> existingDimensionNames = Stream.concat(
-                Registry.DIMENSION_TYPE.keySet().stream(),
-                ForgeRegistries.MOD_DIMENSIONS.getKeys().stream()
-            )
-                .map(ResourceLocation::toString)
-                .collect(Collectors.toSet());
+//            Set<String> existingDimensionNames = Stream.concat(
+//                Registry.DIMENSION_TYPE.keySet().stream(),
+//                ForgeRegistries.MOD_DIMENSIONS.getKeys().stream()
+//            )
+//                .map(ResourceLocation::toString)
+//                .collect(Collectors.toSet());
+
+            BetterCaves.LOGGER.info("CONFIGCHANGED");
+            BetterCaves.LOGGER.info(Registry.REGISTRY.getValue(new ResourceLocation("dimension")).isPresent() ? Registry.REGISTRY.getValue(new ResourceLocation("dimension")).get() : "");
 
             // Parse list of strings, removing any entries that don't match existing dimension names
-            List<String> whitelistedDimensions = Lists.newArrayList();
-            for (String dimensionName : inputListOfDimensionStrings) {
-                if (existingDimensionNames.contains(dimensionName))
-                    whitelistedDimensions.add(dimensionName);
-                else
-                    BetterCaves.LOGGER.error(String.format("INVALID DIMENSION ENTRY: %s - Skipping...", dimensionName));
-            }
-
-            BetterCaves.whitelistedDimensions = whitelistedDimensions;
+//            List<String> whitelistedDimensions = Lists.newArrayList();
+//            for (String dimensionName : inputListOfDimensionStrings) {
+//                if (existingDimensionNames.contains(dimensionName))
+//                    whitelistedDimensions.add(dimensionName);
+//                else
+//                    BetterCaves.LOGGER.error(String.format("INVALID DIMENSION ENTRY: %s - Skipping...", dimensionName));
+//            }
+//
+//            BetterCaves.whitelistedDimensions = whitelistedDimensions;
         }
     }
 }

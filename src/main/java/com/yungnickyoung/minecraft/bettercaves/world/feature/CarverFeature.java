@@ -7,7 +7,6 @@ import com.yungnickyoung.minecraft.bettercaves.world.carver.BetterCavesCarver;
 import net.minecraft.util.SharedSeedRandom;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.DimensionType;
 import net.minecraft.world.ISeedReader;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeManager;
@@ -15,6 +14,7 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.gen.ChunkGenerator;
 import net.minecraft.world.gen.GenerationStage;
+import net.minecraft.world.gen.WorldGenRegion;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.NoFeatureConfig;
@@ -39,66 +39,88 @@ public class CarverFeature extends Feature<NoFeatureConfig> {
 
     @ParametersAreNonnullByDefault
     @Override
-    public boolean func_230362_a_(ISeedReader world, StructureManager p_230362_2_, ChunkGenerator generator, Random random, BlockPos pos, NoFeatureConfig config) {
-//        String dimensionName = null;
-//        try {
-//            dimensionName = Objects.requireNonNull(DimensionType.getKey(world.getDimension().getType())).toString();
-//        } catch (NullPointerException ignored) {
-//            BetterCaves.LOGGER.error("ERROR: Unable to get dimension name! Using default cave gen...");
-//        }
-//
-//        IChunk chunk = world.getChunk(pos);
-//        ChunkPos chunkPos = chunk.getPos();
-//        int xChunkPos = chunkPos.x;
-//        int zChunkPos = chunkPos.z;
-//        Biome biome = chunk.getBiomes().getNoiseBiome(pos.getX(), 1, pos.getZ());
-//
-//        BiomeManager biomeManager = world.getBiomeManager().copyWithProvider(generator.getBiomeProvider());
-//
-//        // If dimension isn't whitelisted, use normal carvers instead of BC carver
-//        if (dimensionName == null || !isDimensionWhitelisted(dimensionName)) {
-//            SharedSeedRandom sharedSeedRandom = new SharedSeedRandom();
-//            BitSet airBitset = ((ChunkPrimer) chunk).func_230345_b_(GenerationStage.Carving.AIR);
-//            BitSet liquidBitset = ((ChunkPrimer) chunk).func_230345_b_(GenerationStage.Carving.LIQUID);
-//            List<ConfiguredCarver<?>> defaultAirCarvers = BetterCaves.defaultBiomeAirCarvers.get(biome.getClass());
-//            List<ConfiguredCarver<?>> defaultLiquidCarvers = BetterCaves.defaultBiomeLiquidCarvers.get(biome.getClass());
-//
-//            for(int currChunkX = xChunkPos - 8; currChunkX <= xChunkPos + 8; ++currChunkX) {
-//                for (int currChunkZ = zChunkPos - 8; currChunkZ <= zChunkPos + 8; ++currChunkZ) {
-//                    // Air carvers
-//                    for (int i = 0; i < defaultAirCarvers.size(); i++) {
-//                        sharedSeedRandom.setLargeFeatureSeed(world.getSeed() + (long)i, currChunkX, currChunkZ);
-//                        ConfiguredCarver<?> carver = defaultAirCarvers.get(i);
-//                        if (carver.shouldCarve(sharedSeedRandom, currChunkX, currChunkZ)) {
-//                            carver.func_227207_a_(chunk, biomeManager::getBiome, sharedSeedRandom, world.getSeaLevel(), currChunkX, currChunkZ, xChunkPos, zChunkPos, airBitset);
-//                        }
-//                    }
-//                    // Liquid carvers
-//                    for (int i = 0; i < defaultLiquidCarvers.size(); i++) {
-//                        sharedSeedRandom.setLargeFeatureSeed(world.getSeed() + (long)i, currChunkX, currChunkZ);
-//                        ConfiguredCarver<?> carver = defaultLiquidCarvers.get(i);
-//                        if (carver.shouldCarve(sharedSeedRandom, currChunkX, currChunkZ)) {
-//                            carver.func_227207_a_(chunk, biomeManager::getBiome, sharedSeedRandom, world.getSeaLevel(), currChunkX, currChunkZ, xChunkPos, zChunkPos, liquidBitset);
-//                        }
-//                    }
-//                }
-//            }
-//            return true;
-//        }
-//
-//        // Check if a carver hasn't been created for this dimension, or if
-//        // the seeds don't match (player probably changed worlds)
-//        if (BetterCaves.activeCarversMap.get(dimensionName) == null || BetterCaves.activeCarversMap.get(dimensionName).getSeed() != world.getSeed()) {
-//            BetterCavesCarver newCarver = new BetterCavesCarver();
-//            BetterCaves.activeCarversMap.put(dimensionName, newCarver);
-//            BetterCaves.LOGGER.info(String.format("CREATING AND INIT'ING CARVER W DIMENSION %s...", dimensionName));
-//            newCarver.initialize(world);
-//        }
-//
-//        BetterCavesCarver carver = BetterCaves.activeCarversMap.get(dimensionName);
-//        carver.setWorld(world);
-//        carver.carve(chunk, xChunkPos, zChunkPos);
+    public boolean func_230362_a_(ISeedReader world, StructureManager structureManager, ChunkGenerator generator, Random random, BlockPos pos, NoFeatureConfig config) {
+        WorldGenRegion worldGenRegion = (WorldGenRegion) world;
 
+        // Attempt to get dimension name, e.g. "minecraft:the_nether"
+        String dimensionName = null;
+        try {
+            dimensionName = Objects.requireNonNull(worldGenRegion.getWorld().func_234923_W_().func_240901_a_()).toString();
+        } catch (NullPointerException e) {
+            BetterCaves.LOGGER.error("ERROR: Unable to get dimension name! Using default cave gen...");
+        }
+
+        // Extract chunk info from position
+        IChunk chunk = world.getChunk(pos);
+        ChunkPos chunkPos = chunk.getPos();
+        int xChunkPos = chunkPos.x;
+        int zChunkPos = chunkPos.z;
+
+        // If dimension isn't whitelisted, use other carvers instead of BC carver
+        if (dimensionName == null || !isDimensionWhitelisted(dimensionName)) {
+            return useOtherCarver(world, generator, pos);
+        }
+
+        // Check if a carver hasn't been created for this dimension, or if
+        // the seeds don't match (player probably changed worlds)
+        if (BetterCaves.activeCarversMap.get(dimensionName) == null || BetterCaves.activeCarversMap.get(dimensionName).getSeed() != world.getSeed()) {
+            // Replace map entry with fresh carver
+            BetterCavesCarver newCarver = new BetterCavesCarver();
+            BetterCaves.activeCarversMap.put(dimensionName, newCarver);
+            BetterCaves.LOGGER.info(String.format("CREATING AND INIT'ING CARVER W DIMENSION %s...", dimensionName));
+            newCarver.initialize(world);
+        }
+
+        BetterCavesCarver carver = BetterCaves.activeCarversMap.get(dimensionName);
+        carver.setWorld(world); // Ensure carver's world is up to date
+        carver.carve(chunk, xChunkPos, zChunkPos); // Let's carve, baby
+
+        return true;
+    }
+
+    private boolean useOtherCarver(ISeedReader world, ChunkGenerator generator, BlockPos pos) {
+        // New shared seed random for large features
+        SharedSeedRandom sharedSeedRandom = new SharedSeedRandom();
+
+        // Extract chunk info from position
+        IChunk chunk = world.getChunk(pos);
+        ChunkPos chunkPos = chunk.getPos();
+        int xChunkPos = chunkPos.x;
+        int zChunkPos = chunkPos.z;
+
+        // Carving masks
+        BitSet airCarvingMask = ((ChunkPrimer) chunk).func_230345_b_(GenerationStage.Carving.AIR);
+        BitSet liquidCarvingMask = ((ChunkPrimer) chunk).func_230345_b_(GenerationStage.Carving.LIQUID);
+
+        // Get biome info
+        Biome biome = chunk.getBiomes().getNoiseBiome(pos.getX(), 1, pos.getZ());
+        BiomeManager biomeManager = world.getBiomeManager().copyWithProvider(generator.getBiomeProvider());
+
+        // Grab the carvers we saved earlier for this biome
+        List<ConfiguredCarver<?>> defaultAirCarvers = BetterCaves.defaultBiomeAirCarvers.get(biome.getClass());
+        List<ConfiguredCarver<?>> defaultLiquidCarvers = BetterCaves.defaultBiomeLiquidCarvers.get(biome.getClass());
+
+        // Simulate ordinary vanilla (or other cave mod, if installed) carving
+        for(int currChunkX = xChunkPos - 8; currChunkX <= xChunkPos + 8; ++currChunkX) {
+            for (int currChunkZ = zChunkPos - 8; currChunkZ <= zChunkPos + 8; ++currChunkZ) {
+                // Air carvers
+                for (int i = 0; i < defaultAirCarvers.size(); i++) {
+                    sharedSeedRandom.setLargeFeatureSeed(world.getSeed() + (long)i, currChunkX, currChunkZ);
+                    ConfiguredCarver<?> carver = defaultAirCarvers.get(i);
+                    if (carver.shouldCarve(sharedSeedRandom, currChunkX, currChunkZ)) {
+                        carver.func_227207_a_(chunk, biomeManager::getBiome, sharedSeedRandom, world.getSeaLevel(), currChunkX, currChunkZ, xChunkPos, zChunkPos, airCarvingMask);
+                    }
+                }
+                // Liquid carvers
+                for (int i = 0; i < defaultLiquidCarvers.size(); i++) {
+                    sharedSeedRandom.setLargeFeatureSeed(world.getSeed() + (long)i, currChunkX, currChunkZ);
+                    ConfiguredCarver<?> carver = defaultLiquidCarvers.get(i);
+                    if (carver.shouldCarve(sharedSeedRandom, currChunkX, currChunkZ)) {
+                        carver.func_227207_a_(chunk, biomeManager::getBiome, sharedSeedRandom, world.getSeaLevel(), currChunkX, currChunkZ, xChunkPos, zChunkPos, liquidCarvingMask);
+                    }
+                }
+            }
+        }
         return true;
     }
 

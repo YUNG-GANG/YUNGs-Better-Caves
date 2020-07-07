@@ -8,7 +8,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.IChunk;
+import net.minecraft.world.gen.WorldGenRegion;
 
+import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -86,14 +88,6 @@ public class BetterCavesUtils {
         }
 
         return 1; // Surface somehow not found
-    }
-
-    /**
-     * Returns a string representation of a dimension.
-     * Useful for logging.
-     */
-    public static String dimensionAsString(int dimensionID, String dimensionName) {
-        return String.format("%d (%s)", dimensionID, dimensionName);
     }
 
     /**

@@ -7,12 +7,9 @@ import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.world.feature.CarverFeature;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.GenerationStage;
-import net.minecraft.world.gen.WorldGenRegion;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraft.world.gen.feature.*;
 import net.minecraftforge.common.MinecraftForge;
@@ -26,8 +23,6 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class BCFeature {
     private static final DeferredRegister<Feature<?>> FEATURES = DeferredRegister.create(ForgeRegistries.FEATURES, BCSettings.MOD_ID);
@@ -87,8 +82,7 @@ public class BCFeature {
     public static void worldUnload(WorldEvent.Unload event) {
         BetterCaves.LOGGER.debug("UNLOADING WORLD");
         try {
-            String key = Objects.requireNonNull(((World) event.getWorld()).func_234923_W_()).toString();
-            BetterCaves.LOGGER.info("DIMENSION ATTEMPT: " + ((World) event.getWorld()).func_234923_W_().toString());
+            String key = Objects.requireNonNull(((World) event.getWorld()).func_234923_W_().func_240901_a_()).toString();
             BetterCaves.activeCarversMap.remove(key);
         } catch (NullPointerException e) {
             BetterCaves.LOGGER.error("ERROR: Unable to unload carver for dimension!");
@@ -115,27 +109,11 @@ public class BCFeature {
             // Parse string to list
             List<String> inputListOfDimensionStrings = Lists.newArrayList(rawStringofList.substring(1, strLen - 1).split(",\\s*"));
 
-            // Get set of all vanilla and registered modded dimensions' names
-//            Set<String> existingDimensionNames = Stream.concat(
-//                Registry.DIMENSION_TYPE.keySet().stream(),
-//                ForgeRegistries.MOD_DIMENSIONS.getKeys().stream()
-//            )
-//                .map(ResourceLocation::toString)
-//                .collect(Collectors.toSet());
-
-            BetterCaves.LOGGER.info("CONFIGCHANGED");
-            BetterCaves.LOGGER.info(Registry.REGISTRY.getValue(new ResourceLocation("dimension")).isPresent() ? Registry.REGISTRY.getValue(new ResourceLocation("dimension")).get() : "");
-
             // Parse list of strings, removing any entries that don't match existing dimension names
-//            List<String> whitelistedDimensions = Lists.newArrayList();
-//            for (String dimensionName : inputListOfDimensionStrings) {
-//                if (existingDimensionNames.contains(dimensionName))
-//                    whitelistedDimensions.add(dimensionName);
-//                else
-//                    BetterCaves.LOGGER.error(String.format("INVALID DIMENSION ENTRY: %s - Skipping...", dimensionName));
-//            }
-//
-//            BetterCaves.whitelistedDimensions = whitelistedDimensions;
+            List<String> whitelistedDimensions = Lists.newArrayList();
+            whitelistedDimensions.addAll(inputListOfDimensionStrings);
+
+            BetterCaves.whitelistedDimensions = whitelistedDimensions;
         }
     }
 }

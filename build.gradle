@@ -20,8 +20,6 @@ archivesBaseName = modFileName
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
-def versionstr = modMinecraftVersion.replaceAll('\\.', '_')
-
 repositories {
     // Put remote maven repositories here
 }

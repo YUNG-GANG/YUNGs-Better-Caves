@@ -19,6 +19,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkPrimer;
+import net.minecraftforge.common.BiomeDictionary;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -161,13 +162,13 @@ public class CaveCarverController {
                         int localX = startX + offsetX;
                         int localZ = startZ + offsetZ;
                         BlockPos colPos = new BlockPos(chunkX * 16 + localX, 1, chunkZ * 16 + localZ);
-                        flooded = isFloodedUndergroundEnabled && !isDebugViewEnabled && world.getBiome(colPos).getTempCategory() == Biome.TempCategory.OCEAN;
+                        flooded = isFloodedUndergroundEnabled && !isDebugViewEnabled && BiomeDictionary.hasType(world.getBiome(colPos), BiomeDictionary.Type.OCEAN);
                         if (flooded) {
                             if (
-                                world.getBiome(colPos.east()).getTempCategory()  != Biome.TempCategory.OCEAN ||
-                                world.getBiome(colPos.north()).getTempCategory() != Biome.TempCategory.OCEAN ||
-                                world.getBiome(colPos.west()).getTempCategory()  != Biome.TempCategory.OCEAN ||
-                                world.getBiome(colPos.south()).getTempCategory() != Biome.TempCategory.OCEAN
+                                !BiomeDictionary.hasType(world.getBiome(colPos.east()), BiomeDictionary.Type.OCEAN) ||
+                                !BiomeDictionary.hasType(world.getBiome(colPos.north()), BiomeDictionary.Type.OCEAN) ||
+                                !BiomeDictionary.hasType(world.getBiome(colPos.west()), BiomeDictionary.Type.OCEAN) ||
+                                !BiomeDictionary.hasType(world.getBiome(colPos.south()), BiomeDictionary.Type.OCEAN)
                             ) {
                                 continue;
                             }

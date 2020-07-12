@@ -8,6 +8,7 @@ import com.yungnickyoung.minecraft.bettercaves.enums.RegionSize;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseColumn;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtils;
+import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverNoiseRange;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.cavern.CavernCarver;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.cavern.CavernCarverBuilder;
@@ -17,10 +18,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkPrimer;
+import net.minecraftforge.common.BiomeDictionary;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class CavernCarverController {
     private World world;
@@ -33,8 +35,8 @@ public class CavernCarverController {
     private boolean isFloodedUndergroundEnabled;
 
     // Equality checking functions used for closing off flooded caves
-    private static Function<Biome.TempCategory, Boolean> isOcean = b -> b == Biome.TempCategory.OCEAN;
-    private static Function<Biome.TempCategory, Boolean> isNotOcean = b -> b != Biome.TempCategory.OCEAN;
+    private static Predicate<Biome> isOcean = b -> BiomeDictionary.hasType(b, BiomeDictionary.Type.OCEAN);
+    private static Predicate<Biome> isNotOcean = b -> !isOcean.test(b);
 
     public CavernCarverController(World worldIn, ConfigHolder config) {
         this.world = worldIn;
@@ -134,8 +136,8 @@ public class CavernCarverController {
                         BlockPos colPos = new BlockPos(chunkX * 16 + localX, 1, chunkZ * 16 + localZ);
 
                         if (isFloodedUndergroundEnabled && !isDebugViewEnabled) {
-                            flooded = world.getBiome(colPos).getTempCategory() == Biome.TempCategory.OCEAN;
-                            smoothAmpFactor = WaterRegionController.getDistFactor(world, colPos, 2, flooded ? isNotOcean : isOcean);
+                            flooded = BiomeDictionary.hasType(world.getBiome(colPos), BiomeDictionary.Type.OCEAN);
+                            smoothAmpFactor = BetterCavesUtils.biomeDistanceFactor(world, colPos, 2, flooded ? isNotOcean : isOcean);
                             if (smoothAmpFactor <= 0) { // Wall between flooded and normal caves.
                                 continue; // Continue to prevent unnecessary noise calculation
                             }

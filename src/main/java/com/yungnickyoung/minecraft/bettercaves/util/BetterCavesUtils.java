@@ -4,8 +4,13 @@ import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkPrimer;
+
+import java.util.function.Predicate;
 
 /**
  * Utility functions for Better Caves.
@@ -14,96 +19,6 @@ import net.minecraft.world.chunk.ChunkPrimer;
  */
 public class BetterCavesUtils {
     private BetterCavesUtils() {} // Private constructor prevents instantiation
-
-    /**
-     * Tests 8 edge points and center of chunk to approximate max surface altitude (y-coordinate) of the chunk.
-     * Note that water blocks also count as the surface.
-     * @param primer primer for chunk
-     * @return y-coordinate of the approximate highest surface altitude in the chunk
-     */
-    public static int getMaxSurfaceAltitudeChunk(ChunkPrimer primer) {
-        int maxHeight = 0;
-        int[] testCoords = {0, 7, 15}; // chunk-local x/z coordinates to test for max height
-
-        for (int x : testCoords)
-            for (int z : testCoords)
-                maxHeight = Math.max(maxHeight, getSurfaceAltitudeForColumn(primer, x, z));
-
-        return maxHeight;
-    }
-
-    /**
-     * Tests 8 edge points and center of chunk to approximate min surface altitude (y-coordinate) of the chunk.
-     * Note that water blocks also count as the surface.
-     * @param primer primer for chunk
-     * @return y-coordinate of the approximate lowest surface altitude in the chunk
-     */
-    public static int getMinSurfaceAltitudeChunk(ChunkPrimer primer) {
-        int minHeight = 256;
-        int[] testCoords = {0, 7, 15}; // chunk-local x/z coordinates to test for max height
-
-        for (int x : testCoords)
-            for (int z : testCoords)
-                minHeight = Math.min(minHeight, getSurfaceAltitudeForColumn(primer, x, z));
-
-        return minHeight;
-    }
-
-    public static int estimateMaxSurfaceAltitudeSubChunk(ChunkPrimer primer, BlockPos startPos, int subChunkSize) {
-        int maxHeight = 0;
-        int startX = getLocal(startPos.getX());
-        int startZ = getLocal(startPos.getZ());
-        int endX = startX + subChunkSize - 1;
-        int endZ = startZ + subChunkSize - 1;
-
-        if (subChunkSize == 1)
-            return Math.max(maxHeight, getSurfaceAltitudeForColumn(primer, startX, startZ));
-
-        maxHeight = Math.max(maxHeight, getSurfaceAltitudeForColumn(primer, startX, startZ));
-        maxHeight = Math.max(maxHeight, getSurfaceAltitudeForColumn(primer, startX, endZ));
-        maxHeight = Math.max(maxHeight, getSurfaceAltitudeForColumn(primer, endX, startZ));
-        maxHeight = Math.max(maxHeight, getSurfaceAltitudeForColumn(primer, endX, endZ));
-
-        return maxHeight;
-    }
-
-    public static int estimateMinSurfaceAltitudeSubChunk(ChunkPrimer primer, BlockPos startPos, int subChunkSize) {
-        int minHeight = 255;
-        int startX = getLocal(startPos.getX());
-        int startZ = getLocal(startPos.getZ());
-        int endX = startX + subChunkSize - 1;
-        int endZ = startZ + subChunkSize - 1;
-
-        if (subChunkSize == 1)
-            return Math.min(minHeight, getSurfaceAltitudeForColumn(primer, startX, startZ));
-
-        minHeight = Math.min(minHeight, getSurfaceAltitudeForColumn(primer, startX, startZ));
-        minHeight = Math.min(minHeight, getSurfaceAltitudeForColumn(primer, startX, endZ));
-        minHeight = Math.min(minHeight, getSurfaceAltitudeForColumn(primer, endX, startZ));
-        minHeight = Math.min(minHeight, getSurfaceAltitudeForColumn(primer, endX, endZ));
-
-        return minHeight;
-    }
-
-
-    public static int estimateAvgSurfaceAltitudeSubChunk(ChunkPrimer primer, BlockPos startPos, int subChunkSize) {
-        int avgHeight = 0;
-        int startX = getLocal(startPos.getX());
-        int startZ = getLocal(startPos.getZ());
-        int endX = startX + subChunkSize - 1;
-        int endZ = startZ + subChunkSize - 1;
-
-        if (subChunkSize == 1)
-            return getSurfaceAltitudeForColumn(primer, startX, startZ);
-
-        avgHeight += getSurfaceAltitudeForColumn(primer, startX, startZ);
-        avgHeight += getSurfaceAltitudeForColumn(primer, startX, endZ);
-        avgHeight += getSurfaceAltitudeForColumn(primer, endX, startZ);
-        avgHeight += getSurfaceAltitudeForColumn(primer, endX, endZ);
-        avgHeight /= 4;
-
-        return avgHeight;
-    }
 
     /**
      * Returns the y-coordinate of the surface block for a given local block coordinate for a given chunk.
@@ -167,5 +82,41 @@ public class BetterCavesUtils {
             if (dimID == dim) return true;
 
         return false;
+    }
+
+
+    /**
+     * Returns a linear measure (from 0 to 1, inclusive) indicating how far away a target biome is.
+     * The target biome is searched for in a circle with a given radius centered around the starting block.
+     * The circle is searched radially outward from the starting position, so as not to perform unnecessary computation.
+     *
+     * This function is primarily used to search for nearby ocean/non-ocean biomes to close off flooded caves
+     * from non-flooded caves, preventing weird water walls.
+     *
+     * @param world World
+     * @param pos Center position to search around
+     * @param radius Radius of search circle
+     * @param isTargetBiome Function to use when testing if a given block's biome is the biome we are lookin for
+     */
+    public static float biomeDistanceFactor(World world, BlockPos pos, int radius, Predicate<Biome> isTargetBiome) {
+        BlockPos.MutableBlockPos checkpos = new BlockPos.MutableBlockPos();
+        for (int i = 1; i <= radius; i++) {
+            for (int j = 0; j <= i; j++) {
+                for (EnumFacing direction : EnumFacing.Plane.HORIZONTAL) {
+                    checkpos.setPos(pos).move(direction, i).move(direction.rotateY(), j);
+                    if (isTargetBiome.test(world.getBiome(checkpos))) {
+                        return (float)(i + j) / (2 * radius);
+                    }
+                    if (j != 0 && i != j) {
+                        checkpos.setPos(pos).move(direction, i).move(direction.rotateYCCW(), j);
+                        if (isTargetBiome.test(world.getBiome(checkpos))) {
+                            return (float)(i + j) / (2 * radius);
+                        }
+                    }
+                }
+            }
+        }
+
+        return 1;
     }
 }

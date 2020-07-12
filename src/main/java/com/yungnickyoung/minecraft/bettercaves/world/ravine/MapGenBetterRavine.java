@@ -9,10 +9,10 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.MapGenBase;
 import net.minecraft.world.gen.MapGenRavine;
+import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.event.terraingen.InitMapGenEvent;
 
 import javax.annotation.Nonnull;
@@ -73,9 +73,9 @@ public class MapGenBetterRavine extends MapGenRavine {
         }
 
         // Don't dig boundaries between flooded and unflooded openings.
-        boolean flooded = config.enableFloodedRavines.get() && world.getBiome(pos).getTempCategory() == Biome.TempCategory.OCEAN && y < world.getSeaLevel();
+        boolean flooded = config.enableFloodedRavines.get() && BiomeDictionary.hasType(world.getBiome(pos), BiomeDictionary.Type.OCEAN) && y < world.getSeaLevel();
         if (flooded) {
-            float smoothAmpFactor = WaterRegionController.getDistFactor(world, pos, 2, b -> b != Biome.TempCategory.OCEAN);
+            float smoothAmpFactor = BetterCavesUtils.biomeDistanceFactor(world, pos, 2, b -> !BiomeDictionary.hasType(b, BiomeDictionary.Type.OCEAN));
             if (smoothAmpFactor <= .25f) { // Wall between flooded and normal caves.
                 return;
             }

@@ -12,6 +12,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.MapGenCaves;
+import net.minecraftforge.common.BiomeDictionary;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -302,14 +303,14 @@ public class VanillaCaveCarver extends MapGenCaves implements ICarver {
         BlockPos pos = new BlockPos(chunkX * 16 + localX, y, chunkZ * 16 + localZ);
 
         // Don't dig boundaries between flooded and unflooded openings.
-        boolean flooded = isFloodedUndergroundEnabled && !isDebugVisualizerEnabled && world.getBiome(pos).getTempCategory() == Biome.TempCategory.OCEAN && y < world.getSeaLevel();
+        boolean flooded = isFloodedUndergroundEnabled && !isDebugVisualizerEnabled && BiomeDictionary.hasType(world.getBiome(pos), BiomeDictionary.Type.OCEAN) && y < world.getSeaLevel();
 
         if (flooded) {
             if (
-                world.getBiome(pos.east()).getTempCategory()  != Biome.TempCategory.OCEAN ||
-                    world.getBiome(pos.north()).getTempCategory() != Biome.TempCategory.OCEAN ||
-                    world.getBiome(pos.west()).getTempCategory()  != Biome.TempCategory.OCEAN ||
-                    world.getBiome(pos.south()).getTempCategory() != Biome.TempCategory.OCEAN
+                !BiomeDictionary.hasType(world.getBiome(pos.east()), BiomeDictionary.Type.OCEAN) ||
+                !BiomeDictionary.hasType(world.getBiome(pos.north()), BiomeDictionary.Type.OCEAN) ||
+                !BiomeDictionary.hasType(world.getBiome(pos.west()), BiomeDictionary.Type.OCEAN) ||
+                !BiomeDictionary.hasType(world.getBiome(pos.south()), BiomeDictionary.Type.OCEAN)
             ) {
                 return;
             }

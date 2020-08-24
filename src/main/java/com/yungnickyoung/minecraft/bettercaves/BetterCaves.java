@@ -5,8 +5,13 @@ import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
 import com.yungnickyoung.minecraft.bettercaves.init.BCModConfig;
 import com.yungnickyoung.minecraft.bettercaves.init.BCFeature;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.BetterCavesCarver;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
+import net.minecraft.world.gen.feature.Feature;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,6 +20,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * Entry point for Better Caves
@@ -38,8 +44,8 @@ public class BetterCaves {
      * Better Caves deletes these and wraps them in its feature so that they can be
      * used for dimensions in which Better Caves is disabled.
      */
-    public static Map<Class<? extends Biome>, List<ConfiguredCarver<?>>> defaultBiomeAirCarvers = new HashMap<>();
-    public static Map<Class<? extends Biome>, List<ConfiguredCarver<?>>> defaultBiomeLiquidCarvers = new HashMap<>();
+    public static Map<String, List<Supplier<ConfiguredCarver<?>>>> defaultBiomeAirCarvers = new HashMap<>();
+    public static Map<String, List<Supplier<ConfiguredCarver<?>>>> defaultBiomeLiquidCarvers = new HashMap<>();
 
     /** File referring to the overarching directory for custom dimension configs **/
     public static File customConfigDir;

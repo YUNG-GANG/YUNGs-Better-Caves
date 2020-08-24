@@ -1,15 +1,15 @@
 modLoader="javafml"
-loaderVersion="[32,)"
+loaderVersion="[33,)"
+license="GPLv3"
 issueTrackerURL="https://github.com/yungnickyoung/YUNGs-Better-Caves/issues"
 displayURL="https://www.curseforge.com/minecraft/mc-mods/yungs-better-caves"
-logoFile="BetterCavesLogo.png"
+logoFile="BCLogo.png"
 
 [[mods]]
 	modId="${modId}"
 	version="${version}"
 	displayName="${modName}"
 	updateJSONURL="https://raw.githubusercontent.com/yungnickyoung/YUNGs-Better-Caves/1.16/versions.json"
-	logoFile="BetterCavesBanner.png"
 	credits="${modCredits}"
 	authors="${modAuthor}"
 	description="${modDescription}"
@@ -17,13 +17,13 @@ logoFile="BetterCavesLogo.png"
 [[dependencies.bettercaves]]
     modId="forge"
     mandatory=true
-    versionRange="[32,)"
+    versionRange="[33,)"
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.bettercaves]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.16.1]"
+    versionRange="[1.16.2]"
     ordering="NONE"
     side="BOTH"

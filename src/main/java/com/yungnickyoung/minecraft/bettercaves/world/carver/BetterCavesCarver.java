@@ -17,7 +17,6 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.Heightmap;
-import net.minecraft.world.gen.WorldGenRegion;
 
 import java.util.*;
 
@@ -89,7 +88,7 @@ public class BetterCavesCarver {
         String dimensionName = "";
 
         try {
-            dimensionName = Objects.requireNonNull(((WorldGenRegion) world).getWorld().func_234923_W_().func_240901_a_()).toString();
+            dimensionName = Objects.requireNonNull(world.getWorld().getDimensionKey().func_240901_a_()).toString();
         } catch (NullPointerException e) {
             BetterCaves.LOGGER.error("ERROR: Unable to get dimension name! This could be a problem...");
         }

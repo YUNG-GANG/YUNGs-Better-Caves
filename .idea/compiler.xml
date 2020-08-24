@@ -11,6 +11,8 @@
       <module name="BetterCaves-1.15.2_test" target="1.8" />
       <module name="BetterCaves-1.16.1_main" target="1.8" />
       <module name="BetterCaves-1.16.1_test" target="1.8" />
+      <module name="BetterCaves-1.16.2_main" target="1.8" />
+      <module name="BetterCaves-1.16.2_test" target="1.8" />
       <module name="Yung's_Better_Caves_api" target="1.8" />
       <module name="Yung's_Better_Caves_main" target="1.8" />
       <module name="Yung's_Better_Caves_test" target="1.8" />

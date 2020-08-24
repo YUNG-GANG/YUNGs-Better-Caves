@@ -115,7 +115,7 @@ public class CavernCarver implements ICarver {
                 CarverUtils.debugCarveBlock(chunk, blockPos, settings.getDebugBlock(), digBlock);
             } else if (digBlock) {
                 if (flooded) {
-                    CarverUtils.carveFloodedBlock(chunk, new Random(), blockPos.func_239590_i_(), liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel(), carvingMask);
+                    CarverUtils.carveFloodedBlock(chunk, new Random(), blockPos.toMutable(), liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel(), carvingMask);
                 } else {
                     CarverUtils.carveBlock(chunk, blockPos, liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel(), carvingMask);
                 }            }

@@ -21,14 +21,16 @@ public class RavineController {
     private boolean isRavinesEnabled;
     private boolean isDebugViewEnabled;
 
-    private ConfiguredCarver<ProbabilityConfig> ravineCarver;
+    private ConfiguredCarver<ProbabilityConfig> configuredCarver;
+    private RavineCarver ravineCarver;
 
     public RavineController(ISeedReader worldIn, ConfigHolder config) {
         this.world = worldIn;
         this.isRavinesEnabled = config.enableVanillaRavines.get();
         this.isDebugViewEnabled = config.debugVisualizer.get();
 
-        this.ravineCarver = new ConfiguredCarver<>(new RavineCarver(world, config, ProbabilityConfig.field_236576_b_), new ProbabilityConfig(.02f));
+        this.ravineCarver = new RavineCarver(world, config, ProbabilityConfig.field_236576_b_);
+        this.configuredCarver = new ConfiguredCarver<>(ravineCarver, new ProbabilityConfig(.02f));
     }
 
     public void carveChunk(IChunk chunkIn, int chunkX, int chunkZ, BlockState[][] liquidBlocks, Map<Long, Biome> biomeMap, BitSet airCarvingMask, BitSet liquidCarvingMask) {
@@ -43,8 +45,8 @@ public class RavineController {
         for (int currChunkX = chunkX - 8; currChunkX <= chunkX + 8; currChunkX++) {
             for (int currChunkZ = chunkZ - 8; currChunkZ <= chunkZ + 8; currChunkZ++) {
                 random.setLargeFeatureSeed(this.world.getSeed(), currChunkX, currChunkZ);
-                if (ravineCarver.shouldCarve(random, chunkX, chunkZ)) {
-                    ((RavineCarver) ravineCarver.carver).carve(chunkIn, random, world.getSeaLevel(), currChunkX, currChunkZ, chunkX, chunkZ, liquidBlocks, biomeMap, airCarvingMask, liquidCarvingMask);
+                if (configuredCarver.shouldCarve(random, chunkX, chunkZ)) {
+                    ravineCarver.carve(chunkIn, random, world.getSeaLevel(), currChunkX, currChunkZ, chunkX, chunkZ, liquidBlocks, biomeMap, airCarvingMask, liquidCarvingMask);
                 }
             }
         }
@@ -52,6 +54,6 @@ public class RavineController {
 
     public void setWorld(ISeedReader worldIn) {
         this.world = worldIn;
-        ((RavineCarver)this.ravineCarver.carver).setWorld(worldIn);
+        this.ravineCarver.setWorld(worldIn);
     }
 }

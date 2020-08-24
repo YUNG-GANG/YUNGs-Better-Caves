@@ -341,7 +341,7 @@ public class VanillaCaveCarver implements ICarver {
 
         // Carve block
         if (flooded) {
-            CarverUtils.carveFloodedBlock(chunkIn, rand, blockPos.func_239590_i_(), liquidBlockState, liquidAltitude, liquidCarvingMask);
+            CarverUtils.carveFloodedBlock(chunkIn, rand, blockPos.toMutable(), liquidBlockState, liquidAltitude, liquidCarvingMask);
         }
         else {
             CarverUtils.carveBlock(chunkIn, blockPos, liquidBlockState, this.liquidAltitude, this.isReplaceGravelEnabled, airCarvingMask);

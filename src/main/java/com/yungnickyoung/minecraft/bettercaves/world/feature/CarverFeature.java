@@ -18,13 +18,13 @@ import net.minecraft.world.gen.WorldGenRegion;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.NoFeatureConfig;
-import net.minecraft.world.gen.feature.structure.StructureManager;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+import java.util.function.Supplier;
 
 /**
  * Feature to wrap the Better Caves carver so that we have access to the world instance.
@@ -39,13 +39,13 @@ public class CarverFeature extends Feature<NoFeatureConfig> {
 
     @ParametersAreNonnullByDefault
     @Override
-    public boolean func_230362_a_(ISeedReader world, StructureManager structureManager, ChunkGenerator generator, Random random, BlockPos pos, NoFeatureConfig config) {
+    public boolean func_241855_a(ISeedReader world, ChunkGenerator generator, Random random, BlockPos pos, NoFeatureConfig config) {
         WorldGenRegion worldGenRegion = (WorldGenRegion) world;
 
         // Attempt to get dimension name, e.g. "minecraft:the_nether"
         String dimensionName = null;
         try {
-            dimensionName = Objects.requireNonNull(worldGenRegion.getWorld().func_234923_W_().func_240901_a_()).toString();
+            dimensionName = Objects.requireNonNull(worldGenRegion.getWorld().getDimensionKey().func_240901_a_()).toString();
         } catch (NullPointerException e) {
             BetterCaves.LOGGER.error("ERROR: Unable to get dimension name! Using default cave gen...");
         }
@@ -97,8 +97,13 @@ public class CarverFeature extends Feature<NoFeatureConfig> {
         BiomeManager biomeManager = world.getBiomeManager().copyWithProvider(generator.getBiomeProvider());
 
         // Grab the carvers we saved earlier for this biome
-        List<ConfiguredCarver<?>> defaultAirCarvers = BetterCaves.defaultBiomeAirCarvers.get(biome.getClass());
-        List<ConfiguredCarver<?>> defaultLiquidCarvers = BetterCaves.defaultBiomeLiquidCarvers.get(biome.getClass());
+        List<Supplier<ConfiguredCarver<?>>> defaultAirCarvers = BetterCaves.defaultBiomeAirCarvers.get(biome.toString());
+        List<Supplier<ConfiguredCarver<?>>> defaultLiquidCarvers = BetterCaves.defaultBiomeLiquidCarvers.get(biome.toString());
+
+        // Verify lists are non-null to avoid NPE-related crashes.
+        if (defaultAirCarvers == null || defaultLiquidCarvers == null) {
+            return false;
+        }
 
         // Simulate ordinary vanilla (or other cave mod, if installed) carving
         for(int currChunkX = xChunkPos - 8; currChunkX <= xChunkPos + 8; ++currChunkX) {
@@ -106,17 +111,17 @@ public class CarverFeature extends Feature<NoFeatureConfig> {
                 // Air carvers
                 for (int i = 0; i < defaultAirCarvers.size(); i++) {
                     sharedSeedRandom.setLargeFeatureSeed(world.getSeed() + (long)i, currChunkX, currChunkZ);
-                    ConfiguredCarver<?> carver = defaultAirCarvers.get(i);
+                    ConfiguredCarver<?> carver = defaultAirCarvers.get(i).get();
                     if (carver.shouldCarve(sharedSeedRandom, currChunkX, currChunkZ)) {
-                        carver.func_227207_a_(chunk, biomeManager::getBiome, sharedSeedRandom, world.getSeaLevel(), currChunkX, currChunkZ, xChunkPos, zChunkPos, airCarvingMask);
+                        carver.carveRegion(chunk, biomeManager::getBiome, sharedSeedRandom, world.getSeaLevel(), currChunkX, currChunkZ, xChunkPos, zChunkPos, airCarvingMask);
                     }
                 }
                 // Liquid carvers
                 for (int i = 0; i < defaultLiquidCarvers.size(); i++) {
                     sharedSeedRandom.setLargeFeatureSeed(world.getSeed() + (long)i, currChunkX, currChunkZ);
-                    ConfiguredCarver<?> carver = defaultLiquidCarvers.get(i);
+                    ConfiguredCarver<?> carver = defaultLiquidCarvers.get(i).get();
                     if (carver.shouldCarve(sharedSeedRandom, currChunkX, currChunkZ)) {
-                        carver.func_227207_a_(chunk, biomeManager::getBiome, sharedSeedRandom, world.getSeaLevel(), currChunkX, currChunkZ, xChunkPos, zChunkPos, liquidCarvingMask);
+                        carver.carveRegion(chunk, biomeManager::getBiome, sharedSeedRandom, world.getSeaLevel(), currChunkX, currChunkZ, xChunkPos, zChunkPos, liquidCarvingMask);
                     }
                 }
             }

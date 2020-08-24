@@ -9,7 +9,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.ISeedReader;
-import net.minecraft.world.gen.WorldGenRegion;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Objects;
@@ -32,7 +31,7 @@ public class WaterRegionController {
 
     public WaterRegionController(ISeedReader worldIn, ConfigHolder config) {
         this.world = worldIn;
-        this.dimensionName = Objects.requireNonNull(((WorldGenRegion) world).getWorld().func_234923_W_().func_240901_a_()).toString();
+        this.dimensionName = Objects.requireNonNull(world.getWorld().getDimensionKey().func_240901_a_()).toString();
         this.rand = new Random();
 
         // Vars from config

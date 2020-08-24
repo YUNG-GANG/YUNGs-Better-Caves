@@ -62,8 +62,8 @@ public class CarverUtils {
         BlockPos blockPosBelow = blockPos.down();
 
         Biome biome = chunkIn.getBiomes().getNoiseBiome(blockPos.getX(), blockPos.getY(), blockPos.getZ());
-        BlockState biomeTopBlockState = biome.getSurfaceBuilderConfig().getTop();
-        BlockState biomeFillerBlockState = biome.getSurfaceBuilderConfig().getUnder();
+        BlockState biomeTopBlockState = biome.func_242440_e().func_242502_e().getTop();
+        BlockState biomeFillerBlockState = biome.func_242440_e().func_242502_e().getUnder();
         BlockState blockState = chunkIn.getBlockState(blockPos);
         BlockState blockStateAbove = chunkIn.getBlockState(blockPosAbove);
         BlockState blockStateBelow = chunkIn.getBlockState(blockPosBelow);
@@ -130,8 +130,8 @@ public class CarverUtils {
 
         // Dig flooded block
         Biome biome = chunkIn.getBiomes().getNoiseBiome(blockPos.getX(), blockPos.getY(), blockPos.getZ());
-        BlockState biomeTopBlockState = biome.getSurfaceBuilderConfig().getTop();
-        BlockState biomeFillerBlockState = biome.getSurfaceBuilderConfig().getUnder();
+        BlockState biomeTopBlockState = biome.func_242440_e().func_242502_e().getTop();
+        BlockState biomeFillerBlockState = biome.func_242440_e().func_242502_e().getUnder();
         BlockState blockState = chunkIn.getBlockState(blockPos);
         BlockState blockStateAbove = chunkIn.getBlockState(blockPos.up());
         if (!canReplaceLiquidBlock(blockState, blockStateAbove) && blockState != biomeTopBlockState && blockState != biomeFillerBlockState) {

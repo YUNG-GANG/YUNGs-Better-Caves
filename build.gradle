@@ -21,7 +21,9 @@ archivesBaseName = modFileName
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
 repositories {
-    // Put remote maven repositories here
+    maven {
+        url 'https://www.dogforce-games.com/maven/'
+    }
 }
 
 minecraft {

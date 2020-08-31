@@ -67,8 +67,8 @@ public class BCFeature {
             // These will be used in dimensions where Better Caves is not whitelisted.
             List<Supplier<ConfiguredCarver<?>>> defaultAirCarvers = biome.func_242440_e().func_242489_a(GenerationStage.Carving.AIR);
             List<Supplier<ConfiguredCarver<?>>> defaultLiquidCarvers = biome.func_242440_e().func_242489_a(GenerationStage.Carving.LIQUID);
-            BetterCaves.defaultBiomeAirCarvers.put(biome.toString(), defaultAirCarvers);
-            BetterCaves.defaultBiomeLiquidCarvers.put(biome.toString(), defaultLiquidCarvers);
+            BetterCaves.defaultBiomeAirCarvers.put(biome.toString(), convertImmutableList(defaultAirCarvers));
+            BetterCaves.defaultBiomeLiquidCarvers.put(biome.toString(), convertImmutableList(defaultLiquidCarvers));
 
             // Use Access Transformer to make carvers field public so we can replace with empty list
             biome.func_242440_e().field_242483_e = Maps.newHashMap();
@@ -79,9 +79,9 @@ public class BCFeature {
             while (biomeFeatures.size() <= GenerationStage.Decoration.RAW_GENERATION.ordinal()) {
                 biomeFeatures.add(Lists.newArrayList());
             }
-            biomeFeatures.get(GenerationStage.Decoration.RAW_GENERATION.ordinal()).add(0,
-                () -> CONFIGURED_BETTERCAVES_FEATURE
-            );
+            List<Supplier<ConfiguredFeature<?, ?>>> rawGenSuppliers = convertImmutableList(biomeFeatures.get(GenerationStage.Decoration.RAW_GENERATION.ordinal()));
+            rawGenSuppliers.add(0, () -> CONFIGURED_BETTERCAVES_FEATURE);
+            biomeFeatures.set(GenerationStage.Decoration.RAW_GENERATION.ordinal(), rawGenSuppliers);
         }
     }
 
@@ -126,9 +126,23 @@ public class BCFeature {
         }
     }
 
+    /**
+     * In 1.16.2, many lists were made immutable. Other modders seemingly have confused themselves and made
+     * mutable lists immutable after processing them. This method serves to help avoid problems arising from
+     * attempting to modify immutable collections.
+     */
     private static void convertImmutableFeatures(Biome biome) {
         if (biome.func_242440_e().field_242484_f instanceof ImmutableList) {
             biome.func_242440_e().field_242484_f = biome.func_242440_e().field_242484_f.stream().map(Lists::newArrayList).collect(Collectors.toList());
         }
+    }
+
+    /**
+     * In 1.16.2, many lists were made immutable. Other modders seemingly have confused themselves and made
+     * mutable lists immutable after processing them. This method serves to help avoid problems arising from
+     * attempting to modify immutable collections.
+     */
+    private static <T> List<T> convertImmutableList(List<T> list) {
+        return new ArrayList<>(list);
     }
 }

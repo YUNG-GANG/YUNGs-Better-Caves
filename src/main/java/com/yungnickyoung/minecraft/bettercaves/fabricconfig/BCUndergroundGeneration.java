@@ -110,12 +110,12 @@ public class BCUndergroundGeneration {
         public Type1Caves type1Caves = new Type1Caves();
 
         @ConfigEntry.Category("Type2_Caves")
-        @Comment("Settings used in the generation of type 2 caves, which are more worm-like.")
+        @Comment("Settings used in the generation of type 2 caves, which tend to be more open and spacious.")
         @ConfigEntry.Gui.TransitiveObject
         public Type2Caves type2Caves = new Type2Caves();
 
         @ConfigEntry.Category("Vanilla_Caves")
-        @Comment("Settings used in the generation of vanilla caves, which are more worm-like.")
+        @Comment("Settings controlling vanilla Minecraft cave generation.")
         @ConfigEntry.Gui.TransitiveObject
         public VanillaCaves vanilla = new VanillaCaves();
 
@@ -245,13 +245,13 @@ public class BCUndergroundGeneration {
 
             @ConfigEntry.Gui.Tooltip()
             @Comment("Stretches caves horizontally. Lower value = wider caves.\n" +
-                    "Default: 1.6 (recommended)\n" +
+                    "Default: 0.9 (recommended)\n" +
                     "Range: 0.0 ~ 100.0")
             public double compressionHorizontal = 0.9;
 
             @ConfigEntry.Gui.Tooltip()
             @Comment("Stretches caves vertically. Lower value = taller caves with steeper drops.\n" +
-                    "Default: 5.0 (recommended)\n" +
+                    "Default: 2.2 (recommended)\n" +
                     "Range: 0.0 ~ 100.0")
             public double compressionVertical = 2.2;
 
@@ -266,7 +266,7 @@ public class BCUndergroundGeneration {
 
             @ConfigEntry.Gui.Tooltip()
             @Comment("Determines how frequently Type 2 Caves spawn. 0 = will not spawn at all.\n" +
-                    "Default: 10\n" +
+                    "Default: 5\n" +
                     "Range: 0 ~ 10")
             public int type2CavePriority = 5;
         }
@@ -296,7 +296,7 @@ public class BCUndergroundGeneration {
 
             @ConfigEntry.Gui.Tooltip()
             @Comment("Determines how frequently Vanilla Caves spawn. 0 = will not spawn at all.\n" +
-                    "Default: 10\n" +
+                    "Default: 0\n" +
                     "Range: 0 ~ 10")
             public int vanillaCavePriority = 0;
         }

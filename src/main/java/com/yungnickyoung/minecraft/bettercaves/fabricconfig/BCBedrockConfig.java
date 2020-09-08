@@ -18,8 +18,4 @@ public class BCBedrockConfig {
     @Comment("The width of the bedrock layer. Only works if Flatten Bedrock is true." +
             "\nRange: 0 ~ 256")
     public int bedrockLayerWidth = 1;
-
-
-
-
 }

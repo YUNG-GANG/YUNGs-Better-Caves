@@ -3,14 +3,13 @@
   "id": "bettercaves",
   "version": "${version}",
 
-  "name": "Better Caves",
-  "description": "",
+  "name": "YUNG's Better Caves",
+  "description": "YUNG's Better Caves overhauls Vanilla Minecraft's cave generation, making caves much more structurally diverse and exciting!",
   "authors": [
     "YUNGNICKYOUNG"
   ],
   "contact": {
-    "homepage": "https://biomesyougo.weebly.com/",
-    "sources": "https://github.com/CorgiTaco/BYG"
+    "sources": "https://github.com/yungnickyoung/YUNGs-Better-Caves/tree/fabric-1.16"
   },
 
   "license": "LGPLv3",

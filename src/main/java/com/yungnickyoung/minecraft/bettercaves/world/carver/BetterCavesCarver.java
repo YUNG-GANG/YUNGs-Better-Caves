@@ -2,7 +2,6 @@ package com.yungnickyoung.minecraft.bettercaves.world.carver;
 
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
-import com.yungnickyoung.minecraft.bettercaves.config.io.ConfigLoader;
 import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.util.ColPos;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.bedrock.FlattenBedrock;
@@ -94,7 +93,7 @@ public class BetterCavesCarver {
         }
 
         // Load config from file for this dimension
-        this.config = dimensionName.equals("") ? new ConfigHolder() : ConfigLoader.loadConfigFromFileForDimension(dimensionName);
+        this.config = new ConfigHolder();
 
         // Initialize controllers
         this.caveCarverController   = new CaveCarverController(worldIn, config);

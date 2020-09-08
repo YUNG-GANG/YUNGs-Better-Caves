@@ -1,6 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+
+import com.yungnickyoung.minecraft.bettercaves.config.cavern.ConfigCaverns;
 
 /**
  * Configuration options for Better Caves.
@@ -11,42 +12,12 @@ import net.minecraftforge.common.ForgeConfigSpec;
  * config values to be overridden differently for each dimension.
  */
 public final class Configuration {
-    public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
-    public static final ForgeConfigSpec SPEC;
 
     public static final ConfigUndergroundGen caveSettings;
-    public static final ConfigBedrockGen bedrockSettings;
-    public static final ConfigDebug debugSettings;
-    public static final ForgeConfigSpec.ConfigValue<String> whitelistedDimensions;
-    public static final ForgeConfigSpec.ConfigValue<Boolean> enableGlobalWhitelist;
+    public static final ConfigCaverns caverns;
 
     static {
-        BUILDER.push("Better Caves");
-
-        caveSettings = new ConfigUndergroundGen(BUILDER);
-        bedrockSettings = new ConfigBedrockGen(BUILDER);
-        debugSettings = new ConfigDebug(BUILDER);
-
-        whitelistedDimensions = BUILDER
-            .comment(
-                " List of dimensions that will have Better Caves. Ignored if Global Whitelisting is enabled.\n" +
-                " List must be comma-separated values enclosed in square brackets.\n" +
-                " Entries must have the mod namespace included.\n" +
-                " For example: \"[minecraft:overworld, minecraft:the_nether, rats:ratlantis]\"\n" +
-                " Default: \"[minecraft:overworld]\"")
-            .worldRestart()
-            .define("Whitelisted Dimensions", "[minecraft:overworld]");
-
-        enableGlobalWhitelist = BUILDER
-            .comment(
-                " Automatically enables Better Caves in every possible dimension.\n" +
-                "     If this is enabled, the Whitelisted Dimension IDs option is ignored.\n" +
-                " Default: false")
-            .worldRestart()
-            .define("Enable Global Whitelist", false);
-
-        BUILDER.pop();
-
-        SPEC = BUILDER.build();
+        caveSettings = new ConfigUndergroundGen();
+        caverns = new ConfigCaverns();
     }
 }

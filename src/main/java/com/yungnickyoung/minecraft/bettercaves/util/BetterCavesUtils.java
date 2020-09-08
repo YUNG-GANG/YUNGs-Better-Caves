@@ -3,8 +3,8 @@ package com.yungnickyoung.minecraft.bettercaves.util;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Material;
 import net.minecraft.block.Blocks;
-import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
@@ -101,7 +101,7 @@ public class BetterCavesUtils {
      * we are testing if the ChunkRegion contains the provided BlockPos.
      */
     public static boolean isPosInWorld(ColPos pos, StructureWorldAccess world) {
-         return world.chunkExists(pos.getX() >> 4, pos.getZ() >> 4);
+         return world.isChunkLoaded(pos.getX() >> 4, pos.getZ() >> 4);
     }
 
     /**
@@ -121,13 +121,13 @@ public class BetterCavesUtils {
         ColPos.Mutable checkpos = new ColPos.Mutable();
         for (int i = 1; i <= radius; i++) {
             for (int j = 0; j <= i; j++) {
-                for (Direction direction : Direction.Plane.HORIZONTAL) {
-                    checkpos.set(pos).move(direction, i).move(direction.rotateY(), j);
+                for (Direction direction : Direction.Type.HORIZONTAL) {
+                    checkpos.set(pos).move(direction, i).move(direction.rotateYClockwise(), j);
                     if (isPosInWorld(checkpos, worldIn) && isTargetBiome.test(biomeMap.get(checkpos.toLong()).getCategory())) {
                         return (float)(i + j) / (2 * radius);
                     }
                     if (j != 0 && i != j) {
-                        checkpos.set(pos).move(direction, i).move(direction.rotateYCCW(), j);
+                        checkpos.set(pos).move(direction, i).move(direction.rotateYCounterclockwise(), j);
                         if (isPosInWorld(checkpos, worldIn) && isTargetBiome.test(biomeMap.get(checkpos.toLong()).getCategory())) {
                             return (float)(i + j) / (2 * radius);
                         }

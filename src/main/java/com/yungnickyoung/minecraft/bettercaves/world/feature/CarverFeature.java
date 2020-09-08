@@ -134,6 +134,6 @@ public class CarverFeature extends Feature<DefaultFeatureConfig> {
      * @return true if the provided dimension ID is whitelisted in the config
      */
     private boolean isDimensionWhitelisted(String dimensionName) {
-        return Configuration.enableGlobalWhitelist.get() || BetterCaves.whitelistedDimensions.contains(dimensionName);
+        return BetterCaves.BC_CONFIG.globalWhiteList || BetterCaves.whitelistedDimensions.contains(dimensionName);
     }
 }

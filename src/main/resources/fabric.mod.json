@@ -19,7 +19,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.youngnickyoung.minecraft.bettercaves.BetterCaves"
+      "com.yungnickyoung.minecraft.bettercaves.BetterCaves"
     ]
   },
   "mixins": [

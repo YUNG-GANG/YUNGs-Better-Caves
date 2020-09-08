@@ -39,15 +39,6 @@ public class BCUndergroundGeneration {
     @ConfigEntry.Gui.TransitiveObject
     public Debug debug = new Debug();
 
-    @ConfigEntry.Gui.Tooltip()
-    @Comment("Settings used for ravine generation.")
-    public Boolean flattenBedrock = true;
-
-    @ConfigEntry.Gui.Tooltip()
-    @Comment("The width of the bedrock layer. Only works if Flatten Bedrock is true." +
-            "\nRange: 0 ~ 256")
-    public int bedrockLayerWidth = 1;
-
     public static class Miscellaneous {
 
         @ConfigEntry.Gui.Tooltip()

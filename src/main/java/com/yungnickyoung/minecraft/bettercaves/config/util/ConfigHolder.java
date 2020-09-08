@@ -193,10 +193,10 @@ public class ConfigHolder {
             .addToMap(properties);
 
         // Bedrock settings
-        flattenBedrock = new ConfigOption<>("Flatten Bedrock", BetterCaves.BC_CONFIG.underGroundGeneration.flattenBedrock)
+        flattenBedrock = new ConfigOption<>("Flatten Bedrock", BetterCaves.BC_CONFIG.bedrockConfig.flattenBedrock)
             .setCategory("Better Caves.Bedrock Generation")
             .addToMap(properties);
-        bedrockWidth = new ConfigOption<>("Bedrock Layer Width", BetterCaves.BC_CONFIG.underGroundGeneration.bedrockLayerWidth)
+        bedrockWidth = new ConfigOption<>("Bedrock Layer Width", BetterCaves.BC_CONFIG.bedrockConfig.bedrockLayerWidth)
             .setCategory("Better Caves.Bedrock Generation")
             .addToMap(properties);
 

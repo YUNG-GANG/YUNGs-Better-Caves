@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
+import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.world.feature.CarverFeature;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.minecraft.server.world.ServerWorld;
@@ -35,7 +36,26 @@ public class BCFeature {
         Registry.register(Registry.FEATURE, new Identifier(BCSettings.MOD_ID, "bettercaves"), BETTERCAVES_FEATURE);
     }
 
+    public static void configChanged() {
+        String rawStringofList = BetterCaves.BC_CONFIG.whiteListedDimensions;
+        int strLen = rawStringofList.length();
 
+        // Validate the string's format
+        if (strLen < 2 || rawStringofList.charAt(0) != '[' || rawStringofList.charAt(strLen - 1) != ']') {
+            BetterCaves.LOGGER.error("INVALID VALUE FOR SETTING 'Whitelisted Dimension IDs'. Using empty list instead...");
+            BetterCaves.whitelistedDimensions = Lists.newArrayList();
+            return;
+        }
+
+        // Parse string to list
+        List<String> inputListOfDimensionStrings = Lists.newArrayList(rawStringofList.substring(1, strLen - 1).split(",\\s*"));
+
+        // Parse list of strings, removing any entries that don't match existing dimension names
+        List<String> whitelistedDimensions = Lists.newArrayList();
+        whitelistedDimensions.addAll(inputListOfDimensionStrings);
+
+        BetterCaves.whitelistedDimensions = whitelistedDimensions;
+        }
 
     /**
      * Delayed setup to ensure we collect any carvers added by other mods.

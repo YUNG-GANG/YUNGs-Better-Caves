@@ -57,9 +57,9 @@ public class BetterCaves implements ModInitializer {
         AutoConfig.register(BCConfig.class, JanksonConfigSerializer::new);
         BC_CONFIG = AutoConfig.getConfigHolder(BCConfig.class).getConfig();
 //        BCModConfig.init();
+        BCFeature.configChanged();
         BCFeature.init();
         BCFeature.registerFeature();
         BCFeature.lateSetup();
-
     }
 }

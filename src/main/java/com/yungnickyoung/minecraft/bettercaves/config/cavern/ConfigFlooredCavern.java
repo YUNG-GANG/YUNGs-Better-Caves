@@ -8,7 +8,7 @@ public class ConfigFlooredCavern {
     public final ForgeConfigSpec.ConfigValue<Double> yCompression;
     public final ForgeConfigSpec.ConfigValue<Double> xzCompression;
     public final ForgeConfigSpec.ConfigValue<Integer> cavernPriority;
-    public final ConfigFlooredCavern.Advanced advancedSettings;
+    public final Advanced advancedSettings;
 
     public ConfigFlooredCavern(final ForgeConfigSpec.Builder BUILDER) {
         BUILDER
@@ -55,7 +55,7 @@ public class ConfigFlooredCavern {
             .worldRestart()
             .defineInRange("Floored Cavern Priority", 10, 0, 10);
 
-        advancedSettings = new ConfigFlooredCavern.Advanced();
+        advancedSettings = new Advanced();
 
         BUILDER.pop();
     }

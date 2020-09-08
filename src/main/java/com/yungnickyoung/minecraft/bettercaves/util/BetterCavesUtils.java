@@ -1,16 +1,14 @@
 package com.yungnickyoung.minecraft.bettercaves.util;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.block.material.Material;
+import net.minecraft.block.Material;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorld;
+import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.IChunk;
-import net.minecraft.world.gen.WorldGenRegion;
+import net.minecraft.world.chunk.Chunk;
 
-import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -36,7 +34,7 @@ public class BetterCavesUtils {
      *             by 2. E.g. If you want the last 2 blocks on the z-axis in the chunk (blocks 14 and 15), use subZ = 7.
      * @return Max surface height of the sub-chunk
      */
-    public static int getMaxSurfaceAltitudeSubChunk(IChunk chunkIn, int subX, int subZ)  {
+    public static int getMaxSurfaceAltitudeSubChunk(Chunk chunkIn, int subX, int subZ)  {
         int maxHeight = 0;
         int[] testCoords = {0, 1}; // chunk-local x/z coordinates to test for max height
 
@@ -55,7 +53,7 @@ public class BetterCavesUtils {
      * @param localZ The block's chunk-local z-coordinate
      * @return The y-coordinate of the surface block
      */
-    public static int getSurfaceAltitudeForColumn(IChunk chunkIn, int localX, int localZ) {
+    public static int getSurfaceAltitudeForColumn(Chunk chunkIn, int localX, int localZ) {
         return searchSurfaceAltitudeInRangeForColumn(chunkIn, localX, localZ, 255, 0);
     }
 
@@ -70,7 +68,7 @@ public class BetterCavesUtils {
      * @param bottomY The bottom y-coordinate to start searching at
      * @return The y-coordinate of the surface block
      */
-    public static int searchSurfaceAltitudeInRangeForColumn(IChunk chunkIn, int localX, int localZ, int topY, int bottomY) {
+    public static int searchSurfaceAltitudeInRangeForColumn(Chunk chunkIn, int localX, int localZ, int topY, int bottomY) {
         BlockPos.Mutable blockPos = new BlockPos.Mutable(localX, bottomY, localZ);
 
         // Edge case: blocks go all the way up to build height
@@ -98,11 +96,11 @@ public class BetterCavesUtils {
     }
 
     /**
-     * Checks if an IWorld contains a block based on its position.
-     * Typically, the world provided will be an instance of WorldGenRegion, and so
-     * we are testing if the WorldGenRegion contains the provided BlockPos.
+     * Checks if an StructureWorldAccess contains a block based on its position.
+     * Typically, the world provided will be an instance of ChunkRegion, and so
+     * we are testing if the ChunkRegion contains the provided BlockPos.
      */
-    public static boolean isPosInWorld(ColPos pos, IWorld world) {
+    public static boolean isPosInWorld(ColPos pos, StructureWorldAccess world) {
          return world.chunkExists(pos.getX() >> 4, pos.getZ() >> 4);
     }
 
@@ -119,17 +117,17 @@ public class BetterCavesUtils {
      * @param radius Radius of search circle
      * @param isTargetBiome Function to use when testing if a given block's biome is the biome we are lookin for
      */
-    public static float getDistFactor(IWorld worldIn, Map<Long, Biome> biomeMap, ColPos pos, int radius, Predicate<Biome.Category> isTargetBiome) {
+    public static float getDistFactor(StructureWorldAccess worldIn, Map<Long, Biome> biomeMap, ColPos pos, int radius, Predicate<Biome.Category> isTargetBiome) {
         ColPos.Mutable checkpos = new ColPos.Mutable();
         for (int i = 1; i <= radius; i++) {
             for (int j = 0; j <= i; j++) {
                 for (Direction direction : Direction.Plane.HORIZONTAL) {
-                    checkpos.setPos(pos).move(direction, i).move(direction.rotateY(), j);
+                    checkpos.set(pos).move(direction, i).move(direction.rotateY(), j);
                     if (isPosInWorld(checkpos, worldIn) && isTargetBiome.test(biomeMap.get(checkpos.toLong()).getCategory())) {
                         return (float)(i + j) / (2 * radius);
                     }
                     if (j != 0 && i != j) {
-                        checkpos.setPos(pos).move(direction, i).move(direction.rotateYCCW(), j);
+                        checkpos.set(pos).move(direction, i).move(direction.rotateYCCW(), j);
                         if (isPosInWorld(checkpos, worldIn) && isTargetBiome.test(biomeMap.get(checkpos.toLong()).getCategory())) {
                             return (float)(i + j) / (2 * radius);
                         }

@@ -8,7 +8,7 @@ public class ConfigLiquidCavern {
     public final ForgeConfigSpec.ConfigValue<Double> yCompression;
     public final ForgeConfigSpec.ConfigValue<Double> xzCompression;
     public final ForgeConfigSpec.ConfigValue<Integer> cavernPriority;
-    public final ConfigLiquidCavern.Advanced advancedSettings;
+    public final Advanced advancedSettings;
 
     public ConfigLiquidCavern(final ForgeConfigSpec.Builder BUILDER) {
         BUILDER
@@ -55,7 +55,7 @@ public class ConfigLiquidCavern {
             .worldRestart()
             .defineInRange("Liquid Cavern Priority", 10, 0, 10);
 
-        advancedSettings = new ConfigLiquidCavern.Advanced();
+        advancedSettings = new Advanced();
 
         BUILDER.pop();
     }

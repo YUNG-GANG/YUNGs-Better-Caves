@@ -146,24 +146,24 @@ public class ColPos {
             super(x, z);
         }
 
-        public Mutable setPos(int x, int z) {
+        public Mutable set(int x, int z) {
             this.x = x;
             this.z = z;
             return this;
         }
 
-        public Mutable setPos(ColPos source) {
-            setPos(source.getX(), source.getZ());
+        public Mutable set(ColPos source) {
+            set(source.getX(), source.getZ());
             return this;
         }
 
-        public Mutable setPos(BlockPos source) {
-            setPos(source.getX(), source.getZ());
+        public Mutable set(BlockPos source) {
+            set(source.getX(), source.getZ());
             return this;
         }
 
         public Mutable move(Direction facing, int n) {
-            return this.setPos(this.x + facing.getXOffset() * n, this.z + facing.getZOffset() * n);
+            return this.set(this.x + facing.getXOffset() * n, this.z + facing.getZOffset() * n);
         }
 
         public Mutable move(Direction facing) {

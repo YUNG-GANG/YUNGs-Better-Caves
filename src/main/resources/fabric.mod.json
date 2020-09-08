@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "bettercaves",
+  "version": "${version}",
+
+  "name": "Better Caves",
+  "description": "",
+  "authors": [
+    "YUNGNICKYOUNG"
+  ],
+  "contact": {
+    "homepage": "https://biomesyougo.weebly.com/",
+    "sources": "https://github.com/CorgiTaco/BYG"
+  },
+
+  "license": "LGPLv3",
+  "icon": "BetterCavesLogo.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.youngnickyoung.minecraft.bettercaves.BetterCaves"
+    ]
+  },
+  "mixins": [
+    "bettercaves.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.7.4",
+    "fabric": "*",
+    "minecraft": "1.16.2"
+  },
+  "suggests": {
+    "flamingo": "*"
+  },
+  "accessWidener" : "bettercaves.aw"
+}

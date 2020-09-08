@@ -3,7 +3,7 @@ package com.yungnickyoung.minecraft.bettercaves.world.carver.bedrock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.chunk.IChunk;
+import net.minecraft.world.chunk.Chunk;
 
 /**
  * Class containing static method for flattening bedrock.
@@ -15,7 +15,7 @@ public class FlattenBedrock {
      * Flattens bedrock in a given chunk
      * @param bedrockLayerWidth Width of the bedrock layer, in blocks
      */
-    public static void flattenBedrock(IChunk chunk, int bedrockLayerWidth) {
+    public static void flattenBedrock(Chunk chunk, int bedrockLayerWidth) {
         BlockState replacementBlock = Blocks.STONE.getDefaultState();
         BlockPos.Mutable pos = new BlockPos.Mutable();
 
@@ -23,7 +23,7 @@ public class FlattenBedrock {
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
                 for (int y = 1; y < 5; y++) {
-                    pos.setPos(x, y, z);
+                    pos.set(x, y, z);
                     if (chunk.getBlockState(pos) == BEDROCK)
                         chunk.setBlockState(pos, replacementBlock, false);
                 }
@@ -34,7 +34,7 @@ public class FlattenBedrock {
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
                 for (int y = 1; y < bedrockLayerWidth; y++) {
-                    pos.setPos(x, y, z);
+                    pos.set(x, y, z);
                     chunk.setBlockState(pos, BEDROCK, false);
                 }
             }

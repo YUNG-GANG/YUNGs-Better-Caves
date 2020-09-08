@@ -11,18 +11,17 @@ import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.CavernCar
 import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.RavineController;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.WaterRegionController;
 import net.minecraft.block.BlockState;
-import net.minecraft.world.ISeedReader;
+import net.minecraft.world.Heightmap;
+import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.ChunkPrimer;
-import net.minecraft.world.chunk.IChunk;
-import net.minecraft.world.gen.GenerationStage;
-import net.minecraft.world.gen.Heightmap;
-import net.minecraft.world.gen.WorldGenRegion;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ProtoChunk;
+import net.minecraft.world.gen.GenerationStep;
 
 import java.util.*;
 
 public class BetterCavesCarver {
-    private ISeedReader world;
+    private StructureWorldAccess world;
     public long seed = 0;
     public ConfigHolder config;
 
@@ -36,9 +35,9 @@ public class BetterCavesCarver {
     }
 
     // Override the default carver's method to use Better Caves carving instead.
-    public void carve(IChunk chunkIn, int chunkX, int chunkZ) {
-        BitSet airCarvingMask = ((ChunkPrimer) chunkIn).func_230345_b_(GenerationStage.Carving.AIR);
-        BitSet liquidCarvingMask = ((ChunkPrimer) chunkIn).func_230345_b_(GenerationStage.Carving.LIQUID);
+    public void carve(Chunk chunkIn, int chunkX, int chunkZ) {
+        BitSet airCarvingMask = ((ProtoChunk) chunkIn).getOrCreateCarvingMask(GenerationStep.Carver.AIR);
+        BitSet liquidCarvingMask = ((ProtoChunk) chunkIn).getOrCreateCarvingMask(GenerationStep.Carver.LIQUID);
 
         // Flatten bedrock into single layer, if enabled in user config
         if (config.flattenBedrock.get()) {
@@ -52,8 +51,8 @@ public class BetterCavesCarver {
                 surfaceAltitudes[x][z] = config.overrideSurfaceDetection.get()
                     ? 1 // Don't bother doing unnecessary calculations
                     : Math.min(
-                        chunkIn.getTopBlockY(Heightmap.Type.WORLD_SURFACE_WG, x, z),
-                        chunkIn.getTopBlockY(Heightmap.Type.OCEAN_FLOOR_WG, x, z));
+                        chunkIn.getHeightmap(Heightmap.Type.WORLD_SURFACE_WG).get(x, z),
+                        chunkIn.getHeightmap(Heightmap.Type.OCEAN_FLOOR_WG).get(x, z));
             }
         }
 
@@ -75,21 +74,21 @@ public class BetterCavesCarver {
         cavernCarverController.carveChunk(chunkIn, chunkX, chunkZ, surfaceAltitudes, liquidBlocks, biomeMap, airCarvingMask, liquidCarvingMask);
 
         // Set carving masks for features to use
-        ((ChunkPrimer) chunkIn).setCarvingMask(GenerationStage.Carving.AIR, airCarvingMask);
-        ((ChunkPrimer) chunkIn).setCarvingMask(GenerationStage.Carving.LIQUID, liquidCarvingMask);
+        ((ProtoChunk) chunkIn).setCarvingMask(GenerationStep.Carver.AIR, airCarvingMask);
+        ((ProtoChunk) chunkIn).setCarvingMask(GenerationStep.Carver.LIQUID, liquidCarvingMask);
     }
 
     /**
      * Initialize Better Caves generators and cave region controllers for this world.
      */
-    public void initialize(ISeedReader worldIn) {
+    public void initialize(StructureWorldAccess worldIn) {
         // Extract world information
         this.world = worldIn;
         this.seed = worldIn.getSeed();
         String dimensionName = "";
 
         try {
-            dimensionName = Objects.requireNonNull(((WorldGenRegion) world).getWorld().func_234923_W_().func_240901_a_()).toString();
+            dimensionName = Objects.requireNonNull(world.toServerWorld().getRegistryKey().getValue()).toString();
         } catch (NullPointerException e) {
             BetterCaves.LOGGER.error("ERROR: Unable to get dimension name! This could be a problem...");
         }
@@ -106,7 +105,7 @@ public class BetterCavesCarver {
         BetterCaves.LOGGER.debug(String.format("BETTER CAVES WORLD CARVER INITIALIZED WITH SEED %d IN %s", seed, dimensionName));
     }
 
-    public void setWorld(ISeedReader worldIn) {
+    public void setWorld(StructureWorldAccess worldIn) {
         this.world = worldIn;
         this.caveCarverController.setWorld(worldIn);
         this.cavernCarverController.setWorld(worldIn);

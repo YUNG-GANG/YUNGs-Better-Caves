@@ -9,7 +9,7 @@ public class ConfigSimplexCave {
     public final ForgeConfigSpec.ConfigValue<Double> yCompression;
     public final ForgeConfigSpec.ConfigValue<Double> xzCompression;
     public final ForgeConfigSpec.ConfigValue<Integer> cavePriority;
-    public final ConfigSimplexCave.Advanced advancedSettings;
+    public final Advanced advancedSettings;
 
     public ConfigSimplexCave(final ForgeConfigSpec.Builder BUILDER) {
         BUILDER
@@ -63,7 +63,7 @@ public class ConfigSimplexCave {
             .worldRestart()
             .defineInRange("Type 2 Cave Priority", 5, 0, 10);
 
-        advancedSettings = new ConfigSimplexCave.Advanced();
+        advancedSettings = new Advanced();
 
         BUILDER.pop();
     }

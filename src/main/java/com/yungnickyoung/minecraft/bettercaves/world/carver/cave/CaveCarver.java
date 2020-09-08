@@ -11,7 +11,7 @@ import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.ICarver;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.chunk.IChunk;
+import net.minecraft.world.chunk.Chunk;
 
 import java.util.*;
 
@@ -58,7 +58,7 @@ public class CaveCarver implements ICarver {
         }
     }
 
-    public void carveColumn(IChunk chunk, ColPos colPos, int topY, NoiseColumn noises, BlockState liquidBlock, boolean flooded, BitSet carvingMask) {
+    public void carveColumn(Chunk chunk, ColPos colPos, int topY, NoiseColumn noises, BlockState liquidBlock, boolean flooded, BitSet carvingMask) {
         int localX = BetterCavesUtils.getLocal(colPos.getX());
         int localZ = BetterCavesUtils.getLocal(colPos.getZ());
 
@@ -111,7 +111,7 @@ public class CaveCarver implements ICarver {
             }
             else if (digBlock) {
                 if (flooded) {
-                    CarverUtils.carveFloodedBlock(chunk, new Random(), blockPos.func_239590_i_(), liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel(), carvingMask);
+                    CarverUtils.carveFloodedBlock(chunk, new Random(), blockPos.mutableCopy(), liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel(), carvingMask);
                 } else {
                     CarverUtils.carveBlock(chunk, blockPos, liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel(), carvingMask);
                 }

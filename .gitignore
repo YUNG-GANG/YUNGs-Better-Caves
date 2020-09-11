@@ -25,5 +25,5 @@ bin/
 .project
 
 # fabric
-
+logs/
 run/

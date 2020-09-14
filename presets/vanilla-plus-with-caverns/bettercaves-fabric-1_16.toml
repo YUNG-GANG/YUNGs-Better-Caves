@@ -1,0 +1,117 @@
+[betterCaves]
+whitelistedDimensions = "[minecraft:overworld]"
+enableGlobalWhitelist = false
+
+[betterCaves.bedrockSettings]
+flattenBedrock = true
+bedrockWidth = 1
+
+[betterCaves.undergroundSettings.caves]
+caveSpawnChance = 100.0
+caveRegionSize = "Small"
+caveRegionSizeCustomValue = 0.008
+
+[betterCaves.undergroundSettings.caves.type1Caves]
+caveBottom = 1
+caveTop = 80
+caveSurfaceCutoff = 15
+yCompression = 5.0
+xzCompression = 1.6
+cavePriority = 0
+
+[betterCaves.undergroundSettings.caves.type1Caves.advancedSettings]
+noiseThreshold = 0.95
+fractalOctaves = 1
+fractalGain = 0.3
+fractalFrequency = 0.03
+numGenerators = 2
+yAdjust = true
+yAdjustF1 = 0.9
+yAdjustF2 = 0.9
+noiseType = "CubicFractal"
+
+[betterCaves.undergroundSettings.caves.type2Caves]
+caveBottom = 1
+caveTop = 80
+caveSurfaceCutoff = 15
+yCompression = 2.2
+xzCompression = 0.9
+cavePriority = 0
+
+[betterCaves.undergroundSettings.caves.type2Caves.advancedSettings]
+noiseThreshold = 0.82
+fractalOctaves = 1
+fractalGain = 0.3
+fractalFrequency = 0.025
+numGenerators = 2
+yAdjust = true
+yAdjustF1 = 0.95
+yAdjustF2 = 0.5
+noiseType = "SimplexFractal"
+
+[betterCaves.undergroundSettings.caves.surfaceCaves]
+enableSurfaceCaves = true
+caveBottom = 40
+caveTop = 128
+caveDensity = 17
+
+[betterCaves.undergroundSettings.caves.vanillaCaves]
+caveBottom = 8
+caveTop = 60
+caveDensity = 25
+cavePriority = 1
+
+[betterCaves.undergroundSettings.caverns]
+cavernSpawnChance = 15.0
+cavernRegionSize = "Small"
+cavernRegionSizeCustomValue = 0.01
+
+[betterCaves.undergroundSettings.caverns.liquidCaverns]
+cavernBottom = 1
+cavernTop = 35
+yCompression = 1.3
+xzCompression = 0.7
+cavernPriority = 10
+
+[betterCaves.undergroundSettings.caverns.liquidCaverns.advancedSettings]
+noiseThreshold = 0.6
+fractalOctaves = 1
+fractalGain = 0.3
+fractalFrequency = 0.03
+numGenerators = 2
+noiseType = "SimplexFractal"
+
+[betterCaves.undergroundSettings.caverns.flooredCaverns]
+cavernBottom = 1
+cavernTop = 35
+yCompression = 1.3
+xzCompression = 0.7
+cavernPriority = 10
+
+[betterCaves.undergroundSettings.caverns.flooredCaverns.advancedSettings]
+noiseThreshold = 0.6
+fractalOctaves = 1
+fractalGain = 0.3
+fractalFrequency = 0.028
+numGenerators = 2
+noiseType = "SimplexFractal"
+
+[betterCaves.undergroundSettings.waterRegions]
+waterRegionSpawnChance = 40.0
+waterRegionSize = "Medium"
+waterRegionSizeCustomValue = 0.004
+
+[betterCaves.undergroundSettings.ravines]
+enableRavines = true
+enableFloodedRavines = true
+
+[betterCaves.undergroundSettings.miscellaneous]
+liquidAltitude = 10
+lavaBlock = "minecraft:lava"
+waterBlock = "minecraft:water"
+preventCascadingGravel = true
+enableFloodedUnderground = true
+overrideSurfaceDetection = false
+
+[betterCaves.debugSettings]
+enableDebugVisualizer = false

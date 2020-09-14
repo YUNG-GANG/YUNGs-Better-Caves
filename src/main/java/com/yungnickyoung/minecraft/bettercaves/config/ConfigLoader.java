@@ -1,12 +1,12 @@
-package com.yungnickyoung.minecraft.bettercaves.config.io;
+package com.yungnickyoung.minecraft.bettercaves.config;
 
 import com.electronwill.nightconfig.core.AbstractConfig;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,16 +22,16 @@ public class ConfigLoader {
         File configFile = new File(BetterCaves.customConfigDir, fileName);
 
         if (!configFile.exists() || configFile.isDirectory()) {
-            BetterCaves.LOGGER.info(String.format("Better Caves config file for dimension %s not found. Using global config...", dimensionName));
+            BetterCaves.LOGGER.info("Better Caves config file for dimension {} not found. Using global config...", dimensionName);
             return new ConfigHolder();
         }
 
         if (!configFile.canRead()) {
-            BetterCaves.LOGGER.warn(String.format("Better Caves config file for dimension %s not readable. Using global config...", dimensionName));
+            BetterCaves.LOGGER.warn("Better Caves config file for dimension {} not readable. Using global config...", dimensionName);
             return new ConfigHolder();
         }
 
-        BetterCaves.LOGGER.info(String.format("Reading Better Caves config from file for dimension %s...", dimensionName));
+        BetterCaves.LOGGER.info("Reading Better Caves config from file for dimension {}...", dimensionName);
         return parseConfigFromFile(configFile);
     }
 
@@ -47,8 +47,8 @@ public class ConfigLoader {
         try {
             configData.load();
         } catch (Exception e) {
-            BetterCaves.LOGGER.error(String.format("ERROR - Failed to parse Better Caves config for file %s", file.getName()));
-            BetterCaves.LOGGER.error(String.format("RECEIVED ERROR %s", e));
+            BetterCaves.LOGGER.error("ERROR - Failed to parse Better Caves config for file {}", file.getName());
+            BetterCaves.LOGGER.error("ENCOUNTERED ERROR {}", e.toString());
             BetterCaves.LOGGER.info("USING GLOBAL CONFIG FILE INSTEAD...");
             return new ConfigHolder();
         }
@@ -59,15 +59,15 @@ public class ConfigLoader {
         }
 
         // Check that config has only one topmost level, called "Better Caves"
-        if (configData.valueMap().size() != 1 || configData.valueMap().get("Better Caves") == null) {
-            BetterCaves.LOGGER.error(String.format("ERROR - Invalid Better Caves config file %s", file.getName()));
+        if (configData.valueMap().size() != 1 || configData.valueMap().get("betterCaves") == null) {
+            BetterCaves.LOGGER.error("ERROR - Invalid Better Caves config file {}", file.getName());
             BetterCaves.LOGGER.error("Is there only one topmost category level, called \"Better Caves\"?");
             BetterCaves.LOGGER.info("USING GLOBAL CONFIG FILE INSTEAD...");
             return new ConfigHolder();
         }
 
         // Populate path map with the config file's contents
-        Map<String, Object> pathMap = configToMap((AbstractConfig)configData.valueMap().get("Better Caves"));
+        Map<String, Object> pathMap = configToMap((AbstractConfig)configData.valueMap().get("betterCaves"));
 
         // Clean up I/O
         configData.close();
@@ -82,7 +82,7 @@ public class ConfigLoader {
 
             // Verify that fullName (category path + property name) is correct
             if (configOption == null) {
-                BetterCaves.LOGGER.error(String.format("ERROR: INVALID PROPERTY %s in config %s. Skipping...", fullName, file.getName()));
+                BetterCaves.LOGGER.error("ERROR: INVALID PROPERTY {} in config {}. Skipping...", fullName, file.getName());
                 continue;
             }
 
@@ -90,12 +90,12 @@ public class ConfigLoader {
 
             if ((type == Double.TYPE || type == Double.class) && value.getClass() == Integer.class) {
                 configOption.set(((Integer) value).doubleValue());
-                BetterCaves.LOGGER.debug(String.format("%s: overriding config option: %s", file.getName(), fullName));
+                BetterCaves.LOGGER.debug("{}: overriding config option: {}", file.getName(), fullName);
             } else if (type != value.getClass()) {
-                BetterCaves.LOGGER.error(String.format("ERROR: WRONG TYPE for %s in config %s. Skipping...", fullName, file.getName()));
+                BetterCaves.LOGGER.error("ERROR: WRONG TYPE for {} in config {}. Skipping...", fullName, file.getName());
             } else {
                 configOption.set(value);
-                BetterCaves.LOGGER.debug(String.format("%s: overriding config option: %s", file.getName(), fullName));
+                BetterCaves.LOGGER.debug("{}: overriding config option: {}", file.getName(), fullName);
             }
         }
 
@@ -107,7 +107,7 @@ public class ConfigLoader {
      */
     private static Map<String, Object> configToMap(AbstractConfig config) {
         Map<String, Object> pathMap = new HashMap<>();
-        fillPathMap(config, pathMap, "Better Caves");
+        fillPathMap(config, pathMap, "betterCaves");
         return pathMap;
     }
 
@@ -116,12 +116,21 @@ public class ConfigLoader {
      * Iterates a Config's map, recursing each entry (depth-first) until the value is not a Config.
      * The value is then added to the provided pathMap.
      */
+    @SuppressWarnings("unchecked")
     private static void fillPathMap(AbstractConfig config, Map<String, Object> pathMap, String currPath) {
         if (config == null) {
             return;
         }
 
-        Map<String, Object> configMap = ObfuscationReflectionHelper.getPrivateValue(AbstractConfig.class, config, "map");
+        Map<String, Object> configMap = new HashMap<>();
+
+        try {
+            Field mapField = AbstractConfig.class.getDeclaredField("map");
+            mapField.setAccessible(true);
+            configMap = (Map<String, Object>) mapField.get(config);
+        } catch (Exception e) {
+            BetterCaves.LOGGER.error("Encountered error trying to parse config: {}", e.toString());
+        }
 
         if (configMap.size() == 0) {
             return;

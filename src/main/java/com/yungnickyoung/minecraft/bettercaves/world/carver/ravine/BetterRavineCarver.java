@@ -8,11 +8,10 @@ import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverUtils;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.ISeedReader;
+import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.IChunk;
-import net.minecraft.world.gen.carver.CanyonWorldCarver;
-import net.minecraft.world.gen.feature.ProbabilityConfig;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.gen.ProbabilityConfig;
 
 import java.util.BitSet;
 import java.util.Map;
@@ -22,8 +21,8 @@ import java.util.Random;
  * Re-implements vanilla ravine carver, but with a few modifications for Better Caves config options.
  * Variables have been renamed to be much more readable, making the algorithm a lot more understandable.
  */
-public class RavineCarver extends CanyonWorldCarver {
-    private ISeedReader world;
+public class BetterRavineCarver extends net.minecraft.world.gen.carver.RavineCarver {
+    private StructureWorldAccess world;
 
     // Vars from config
     private boolean isFloodedRavinesEnabled;
@@ -33,7 +32,7 @@ public class RavineCarver extends CanyonWorldCarver {
     // Vanilla logic
     private final float[] heightToHorizontalStretchFactor = new float[1024];
 
-    public RavineCarver(ISeedReader worldIn, ConfigHolder config, Codec<ProbabilityConfig> codec) {
+    public BetterRavineCarver(StructureWorldAccess worldIn, ConfigHolder config, Codec<ProbabilityConfig> codec) {
         super(codec);
         this.world = worldIn;
         this.isFloodedRavinesEnabled = config.enableFloodedRavines.get();
@@ -41,8 +40,8 @@ public class RavineCarver extends CanyonWorldCarver {
         this.liquidAltitude = config.liquidAltitude.get();
     }
 
-    public void carve(IChunk chunkIn, Random rand, int seaLevel, int chunkX, int chunkZ, int originChunkX, int originChunkZ, BlockState[][] liquidBlocks, Map<Long, Biome> biomeMap, BitSet airCarvingMask, BitSet liquidCarvingMask) {
-        int i = (this.func_222704_c() * 2 - 1) * 16;
+    public void carve(Chunk chunkIn, Random rand, int seaLevel, int chunkX, int chunkZ, int originChunkX, int originChunkZ, BlockState[][] liquidBlocks, Map<Long, Biome> biomeMap, BitSet airCarvingMask, BitSet liquidCarvingMask) {
+        int i = (this.getBranchFactor() * 2 - 1) * 16;
         double startX = chunkX * 16 + rand.nextInt(16);
         double startY = rand.nextInt(rand.nextInt(40) + 8) + 20;
         double startZ = chunkZ * 16 + rand.nextInt(16);
@@ -59,7 +58,7 @@ public class RavineCarver extends CanyonWorldCarver {
         this.carveRavine(chunkIn, rand.nextLong(), seaLevel, originChunkX, originChunkZ, startX, startY, startZ, width, yaw, pitch, startCounter, endCounter, heightModifier, liquidBlocks, biomeMap, airCarvingMask, liquidCarvingMask);
     }
 
-    private void carveRavine(IChunk chunkIn, long seed, int seaLevel, int originChunkX, int originChunkZ, double ravineStartX, double ravineStartY, double ravineStartZ, float width, float yaw, float pitch, int startCounter, int endCounter, double heightModifier, BlockState[][] liquidBlocks, Map<Long, Biome> biomeMap, BitSet airCarvingMask, BitSet liquidCarvingMask) {
+    private void carveRavine(Chunk chunkIn, long seed, int seaLevel, int originChunkX, int originChunkZ, double ravineStartX, double ravineStartY, double ravineStartZ, float width, float yaw, float pitch, int startCounter, int endCounter, double heightModifier, BlockState[][] liquidBlocks, Map<Long, Biome> biomeMap, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         Random random = new Random(seed);
         float f = 1.0F;
 
@@ -115,6 +114,7 @@ public class RavineCarver extends CanyonWorldCarver {
         }
     }
 
+    @Override
     protected boolean canCarveBranch(int originChunkX, int originChunkZ, double ravineStartX, double ravineStartZ, int startCounter, int endCounter, float width) {
         double originBlockX = originChunkX * 16 + 8;
         double originBlockZ = originChunkZ * 16 + 8;
@@ -125,7 +125,7 @@ public class RavineCarver extends CanyonWorldCarver {
         return ravineStartXOffsetFromCenter * ravineStartXOffsetFromCenter + ravineStartZOffsetFromCenter * ravineStartZOffsetFromCenter - distanceToEnd * distanceToEnd <= d5 * d5;
     }
 
-    protected void carveRegion(IChunk chunkIn, long seed, int seaLevel, int originChunkX, int originChunkZ, double ravineStartX, double ravineStartY, double ravineStartZ, double xzOffset, double yOffset, BlockState[][] liquidBlocks, Map<Long, Biome> biomeMap, BitSet airCarvingMask, BitSet liquidCarvingMask) {
+    protected void carveRegion(Chunk chunkIn, long seed, int seaLevel, int originChunkX, int originChunkZ, double ravineStartX, double ravineStartY, double ravineStartZ, double xzOffset, double yOffset, BlockState[][] liquidBlocks, Map<Long, Biome> biomeMap, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         BlockState liquidBlock;
         Random rand = new Random(seed + (long)originChunkX + (long)originChunkZ);
         double originBlockX = originChunkX * 16 + 8;
@@ -137,7 +137,7 @@ public class RavineCarver extends CanyonWorldCarver {
             int minLocalX = Math.max(MathHelper.floor(ravineStartX - xzOffset) - originChunkX * 16 - 1, 0);
             int maxLocalX = Math.min(MathHelper.floor(ravineStartX + xzOffset) - originChunkX * 16 + 1, 16);
             int minY = Math.max(MathHelper.floor(ravineStartY - yOffset) - 1, 1);
-            int maxY = Math.min(MathHelper.floor(ravineStartY + yOffset) + 1, this.maxHeight - 8);
+            int maxY = Math.min(MathHelper.floor(ravineStartY + yOffset) + 1, this.heightLimit - 8);
             int minLocalZ = Math.max(MathHelper.floor(ravineStartZ - xzOffset) - originChunkZ * 16 - 1, 0);
             int maxLocalZ = Math.min(MathHelper.floor(ravineStartZ + xzOffset) - originChunkZ * 16 + 1, 16);
 
@@ -168,7 +168,7 @@ public class RavineCarver extends CanyonWorldCarver {
                             // This conditional is validating the current coordinate against the equation of the ellipsoid, that is,
                             // (x/a)^2 + (z/b)^2 + (y/c)^2 <= 1.
                             if (!this.isPositionExcluded(xAxisDist, yAxisDist, zAxisDist, currY)) {
-                                mutableBlockPos.setPos(realX, currY, realZ);
+                                mutableBlockPos.set(realX, currY, realZ);
                                 liquidBlock = liquidBlocks[currLocalX][currLocalZ];
                                 this.carveBlock(chunkIn, rand, seaLevel, mutableBlockPos, liquidBlock, biomeMap, airCarvingMask, liquidCarvingMask);
                             }
@@ -179,11 +179,12 @@ public class RavineCarver extends CanyonWorldCarver {
         }
     }
 
-    private boolean isPositionExcluded(double xAxisDist, double yAxisDist, double zAxisDist, int currY) {
+    @Override
+    public boolean isPositionExcluded(double xAxisDist, double yAxisDist, double zAxisDist, int currY) {
         return (xAxisDist * xAxisDist + zAxisDist * zAxisDist) * (double)this.heightToHorizontalStretchFactor[currY - 1] + yAxisDist * yAxisDist / 6.0D >= 1.0D;
     }
 
-    private void carveBlock(IChunk chunkIn, Random rand, int seaLevel, BlockPos.Mutable blockPos, BlockState liquidBlockState, Map<Long, Biome> biomeMap, BitSet airCarvingMask, BitSet liquidCarvingMask) {
+    private void carveBlock(Chunk chunkIn, Random rand, int seaLevel, BlockPos.Mutable blockPos, BlockState liquidBlockState, Map<Long, Biome> biomeMap, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         // Check if already carved
         int bitIndex = (blockPos.getX() & 0xF) | ((blockPos.getZ() & 0xF) << 4) | (blockPos.getY() << 8);
         if (airCarvingMask.get(bitIndex) || liquidCarvingMask.get(bitIndex)) {
@@ -216,7 +217,7 @@ public class RavineCarver extends CanyonWorldCarver {
         }
     }
 
-    public void setWorld(ISeedReader worldIn) {
+    public void setWorld(StructureWorldAccess worldIn) {
         this.world = worldIn;
     }
 }

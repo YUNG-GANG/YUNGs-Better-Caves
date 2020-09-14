@@ -1,0 +1,23 @@
+[betterCaves.undergroundSettings.caves.type1Caves]
+caveTop = 128
+
+[betterCaves.undergroundSettings.caves.type2Caves]
+caveTop = 128
+
+[betterCaves.undergroundSettings.caves.surfaceCaves]
+enableSurfaceCaves = false
+
+[betterCaves.undergroundSettings.caverns.liquidCaverns]
+cavernBottom = 21
+cavernTop = 55
+
+[betterCaves.undergroundSettings.caverns.flooredCaverns]
+cavernBottom = 21
+cavernTop = 55
+
+[betterCaves.undergroundSettings.waterRegions]
+waterRegionSpawnChance = 0
+
+[betterCaves.undergroundSettings.miscellaneous]
+liquidAltitude = 31
+overrideSurfaceDetection = false

@@ -1,53 +1,24 @@
 package com.yungnickyoung.minecraft.bettercaves.config.cavern;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import me.sargunvohra.mcmods.autoconfig1u.annotation.ConfigEntry;
 
 public class ConfigCaverns {
-    public final ConfigLiquidCavern liquidCavern;
-    public final ConfigFlooredCavern flooredCavern;
-    public final ForgeConfigSpec.ConfigValue<Double> cavernSpawnChance;
-    public final ForgeConfigSpec.ConfigValue<String> cavernRegionSize;
-    public final ForgeConfigSpec.ConfigValue<Double> customRegionSize;
+    @ConfigEntry.Category("Liquid Caverns")
+    @ConfigEntry.Gui.CollapsibleObject
+    @ConfigEntry.Gui.Tooltip(count = 2)
+    public ConfigLiquidCavern liquidCaverns = new ConfigLiquidCavern();
 
-    public ConfigCaverns(final ForgeConfigSpec.Builder BUILDER) {
-        BUILDER
-            .comment(
-                "##########################################################################################################\n" +
-                "# Settings used in the generation of caverns. Caverns are spacious caves at low altitudes.\n" +
-                "##########################################################################################################")
-            .push("Caverns");
+    @ConfigEntry.Category("Floored Caverns")
+    @ConfigEntry.Gui.CollapsibleObject
+    @ConfigEntry.Gui.Tooltip(count = 2)
+    public ConfigFlooredCavern flooredCaverns = new ConfigFlooredCavern();
 
-        liquidCavern = new ConfigLiquidCavern(BUILDER);
-        flooredCavern = new ConfigFlooredCavern(BUILDER);
+    @ConfigEntry.Gui.Tooltip(count = 2)
+    public double cavernSpawnChance = 25.0;
 
-        cavernSpawnChance = BUILDER
-            .comment(
-                " Percent chance of caverns spawning in a given region.\n" +
-                " Default: caverns spawn in 25% of regions.")
-            .worldRestart()
-            .defineInRange("Cavern Spawn Chance", 25d, 0, 100);
+    @ConfigEntry.Gui.Tooltip(count = 3)
+    public String cavernRegionSize = "Small";
 
-        cavernRegionSize = BUILDER
-            .comment(
-                " Determines how large cavern regions are. This controls the average size of caverns.\n" +
-                " Accepted values: Small, Medium, Large, ExtraLarge, Custom\n" +
-                " Default: Small (recommended).")
-            .worldRestart()
-            .define("Cavern Region Size", "Small");
-
-        customRegionSize = BUILDER
-            .comment(
-                " Custom value for cavern region size. Only works if Cavern Region Size is set to Custom. " +
-                "     Smaller value = larger regions. This value is very sensitive to change.\n" +
-                "     Provided values:\n" +
-                "         Small: 0.01\n" +
-                "         Medium: 0.007\n" +
-                "         Large: 0.005\n" +
-                "         ExtraLarge: 0.001\n" +
-                " Default: 0.01")
-            .worldRestart()
-            .defineInRange("Cavern Region Size Custom Value", .01, 0, .05);
-
-        BUILDER.pop();
-    }
+    @ConfigEntry.Gui.Tooltip(count = 8)
+    public double cavernRegionSizeCustomValue = 0.01;
 }

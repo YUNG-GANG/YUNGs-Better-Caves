@@ -1,8 +1,9 @@
 package com.yungnickyoung.minecraft.bettercaves.util;
 
-import net.minecraft.util.Direction;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.math.*;
+
+import net.minecraft.util.BlockRotation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 
 /**
  * Similar to the BlockPos class, but only provides two axes (x and z).
@@ -104,10 +105,10 @@ public class ColPos {
     }
 
     public ColPos offset(Direction facing, int n) {
-        return n == 0 ? this : new ColPos(this.getX() + facing.getXOffset() * n, this.getZ() + facing.getZOffset() * n);
+        return n == 0 ? this : new ColPos(this.getX() + facing.getOffsetX() * n, this.getZ() + facing.getOffsetZ() * n);
     }
 
-    public ColPos rotate(Rotation rotationIn) {
+    public ColPos rotate(BlockRotation rotationIn) {
         switch(rotationIn) {
             case NONE:
             default:
@@ -146,24 +147,24 @@ public class ColPos {
             super(x, z);
         }
 
-        public Mutable setPos(int x, int z) {
+        public Mutable set(int x, int z) {
             this.x = x;
             this.z = z;
             return this;
         }
 
-        public Mutable setPos(ColPos source) {
-            setPos(source.getX(), source.getZ());
+        public Mutable set(ColPos source) {
+            set(source.getX(), source.getZ());
             return this;
         }
 
-        public Mutable setPos(BlockPos source) {
-            setPos(source.getX(), source.getZ());
+        public Mutable set(BlockPos source) {
+            set(source.getX(), source.getZ());
             return this;
         }
 
         public Mutable move(Direction facing, int n) {
-            return this.setPos(this.x + facing.getXOffset() * n, this.z + facing.getZOffset() * n);
+            return this.set(this.x + facing.getOffsetX() * n, this.z + facing.getOffsetZ() * n);
         }
 
         public Mutable move(Direction facing) {

@@ -1,6 +1,12 @@
 package com.yungnickyoung.minecraft.bettercaves.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import com.google.common.collect.Lists;
+import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
+import me.sargunvohra.mcmods.autoconfig1u.ConfigData;
+import me.sargunvohra.mcmods.autoconfig1u.annotation.Config;
+import me.sargunvohra.mcmods.autoconfig1u.annotation.ConfigEntry;
+
+import java.util.List;
 
 /**
  * Configuration options for Better Caves.
@@ -10,43 +16,34 @@ import net.minecraftforge.common.ForgeConfigSpec;
  * ConfigHolder is created. Separate ConfigHolders are created for each dimension. This allows any or all
  * config values to be overridden differently for each dimension.
  */
-public final class Configuration {
-    public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
-    public static final ForgeConfigSpec SPEC;
+@Config(name = BCSettings.BASE_CONFIG_NAME)
+public class Configuration implements ConfigData {
+    @ConfigEntry.Category("Better Caves")
+    @ConfigEntry.Gui.TransitiveObject
+    public ConfigBetterCaves betterCaves = new ConfigBetterCaves();
 
-    public static final ConfigUndergroundGen caveSettings;
-    public static final ConfigBedrockGen bedrockSettings;
-    public static final ConfigDebug debugSettings;
-    public static final ForgeConfigSpec.ConfigValue<String> whitelistedDimensions;
-    public static final ForgeConfigSpec.ConfigValue<Boolean> enableGlobalWhitelist;
+    /**
+     * Validate whitelisted dimensions on config load.
+     */
+    @Override
+    public void validatePostLoad() throws ValidationException {
+        String rawStringofList = betterCaves.whitelistedDimensions;
+        int strLen = rawStringofList.length();
 
-    static {
-        BUILDER.push("Better Caves");
+        // Validate the string's format
+        if (strLen < 2 || rawStringofList.charAt(0) != '[' || rawStringofList.charAt(strLen - 1) != ']') {
+            BetterCaves.LOGGER.error("INVALID VALUE FOR SETTING 'Whitelisted Dimension IDs'. Using empty list instead...");
+            BetterCaves.whitelistedDimensions = Lists.newArrayList();
+            return;
+        }
 
-        caveSettings = new ConfigUndergroundGen(BUILDER);
-        bedrockSettings = new ConfigBedrockGen(BUILDER);
-        debugSettings = new ConfigDebug(BUILDER);
+        // Parse string to list
+        List<String> inputListOfDimensionStrings = Lists.newArrayList(rawStringofList.substring(1, strLen - 1).split(",\\s*"));
 
-        whitelistedDimensions = BUILDER
-            .comment(
-                " List of dimensions that will have Better Caves. Ignored if Global Whitelisting is enabled.\n" +
-                " List must be comma-separated values enclosed in square brackets.\n" +
-                " Entries must have the mod namespace included.\n" +
-                " For example: \"[minecraft:overworld, minecraft:the_nether, rats:ratlantis]\"\n" +
-                " Default: \"[minecraft:overworld]\"")
-            .worldRestart()
-            .define("Whitelisted Dimensions", "[minecraft:overworld]");
+        // Parse list of strings, removing any entries that don't match existing dimension names
+        List<String> whitelistedDimensions = Lists.newArrayList();
+        whitelistedDimensions.addAll(inputListOfDimensionStrings);
 
-        enableGlobalWhitelist = BUILDER
-            .comment(
-                " Automatically enables Better Caves in every possible dimension.\n" +
-                "     If this is enabled, the Whitelisted Dimension IDs option is ignored.\n" +
-                " Default: false")
-            .worldRestart()
-            .define("Enable Global Whitelist", false);
-
-        BUILDER.pop();
-
-        SPEC = BUILDER.build();
+        BetterCaves.whitelistedDimensions = whitelistedDimensions;
     }
 }

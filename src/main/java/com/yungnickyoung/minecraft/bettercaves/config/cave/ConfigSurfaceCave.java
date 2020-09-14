@@ -1,49 +1,20 @@
 package com.yungnickyoung.minecraft.bettercaves.config.cave;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import me.sargunvohra.mcmods.autoconfig1u.annotation.ConfigEntry;
 
 public class ConfigSurfaceCave {
-    public final ForgeConfigSpec.ConfigValue<Boolean> enableSurfaceCaves;
-    public final ForgeConfigSpec.ConfigValue<Integer> caveBottom;
-    public final ForgeConfigSpec.ConfigValue<Integer> caveTop;
-    public final ForgeConfigSpec.ConfigValue<Integer> caveDensity;
+    @ConfigEntry.Gui.Tooltip
+    public boolean enableSurfaceCaves = true;
 
-    public ConfigSurfaceCave(final ForgeConfigSpec.Builder BUILDER) {
-        BUILDER
-            .comment(
-                "##########################################################################################################\n" +
-                "# Settings used in the generation of vanilla-like caves near the surface.\n" +
-                "##########################################################################################################")
-            .push("Surface Caves");
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 255)
+    public int caveBottom = 40;
 
-        enableSurfaceCaves = BUILDER
-            .comment(
-                " Set to true to enable vanilla-like caves which provide nice, natural-looking openings at the surface.\n" +
-                " Default: true")
-            .worldRestart()
-            .define("Enable Surface Caves", true);
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 255)
+    public int caveTop = 128;
 
-        caveBottom = BUILDER
-            .comment(
-                " The minimum y-coordinate at which surface caves can generate.\n" +
-                " Default: 40")
-            .worldRestart()
-            .defineInRange("Surface Cave Minimum Altitude", 40, 0, 255);
-
-        caveTop = BUILDER
-            .comment(
-                " The maximum y-coordinate at which surface caves can generate.\n" +
-                " Default: 128")
-            .worldRestart()
-            .defineInRange("Surface Cave Maximum Altitude", 128, 0, 255);
-
-        caveDensity = BUILDER
-            .comment(
-                " The density of surface caves. Higher = more caves, closer together. \n" +
-                " Default: 17")
-            .worldRestart()
-            .defineInRange("Surface Cave Density", 17, 0, 100);
-
-        BUILDER.pop();
-    }
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 100)
+    public int caveDensity = 17;
 }

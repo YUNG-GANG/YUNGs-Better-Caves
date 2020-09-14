@@ -1,37 +1,39 @@
 package com.yungnickyoung.minecraft.bettercaves.world.carver.controller;
 
 import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
-import com.yungnickyoung.minecraft.bettercaves.world.carver.ravine.RavineCarver;
+import com.yungnickyoung.minecraft.bettercaves.world.carver.ravine.BetterRavineCarver;
 import net.minecraft.block.BlockState;
-import net.minecraft.util.SharedSeedRandom;
-import net.minecraft.world.ISeedReader;
+import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.IChunk;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.gen.ChunkRandom;
+import net.minecraft.world.gen.ProbabilityConfig;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
-import net.minecraft.world.gen.feature.ProbabilityConfig;
 
 import java.util.BitSet;
 import java.util.Map;
 
 public class RavineController {
-    private ISeedReader world;
-    private SharedSeedRandom random = new SharedSeedRandom();
+    private StructureWorldAccess world;
+    private ChunkRandom random = new ChunkRandom();
 
     // Vars from config
     private boolean isRavinesEnabled;
     private boolean isDebugViewEnabled;
 
-    private ConfiguredCarver<ProbabilityConfig> ravineCarver;
+    private ConfiguredCarver<ProbabilityConfig> configuredCarver;
+    private BetterRavineCarver betterRavineCarver;
 
-    public RavineController(ISeedReader worldIn, ConfigHolder config) {
+    public RavineController(StructureWorldAccess worldIn, ConfigHolder config) {
         this.world = worldIn;
         this.isRavinesEnabled = config.enableVanillaRavines.get();
         this.isDebugViewEnabled = config.debugVisualizer.get();
 
-        this.ravineCarver = new ConfiguredCarver<>(new RavineCarver(world, config, ProbabilityConfig.field_236576_b_), new ProbabilityConfig(.02f));
+        this.betterRavineCarver = new BetterRavineCarver(world, config, ProbabilityConfig.CODEC);
+        this.configuredCarver = new ConfiguredCarver<>(betterRavineCarver, new ProbabilityConfig(.02f));
     }
 
-    public void carveChunk(IChunk chunkIn, int chunkX, int chunkZ, BlockState[][] liquidBlocks, Map<Long, Biome> biomeMap, BitSet airCarvingMask, BitSet liquidCarvingMask) {
+    public void carveChunk(Chunk chunkIn, int chunkX, int chunkZ, BlockState[][] liquidBlocks, Map<Long, Biome> biomeMap, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         // Don't carve ravines if disabled or in debug view
         if (isDebugViewEnabled || !isRavinesEnabled) {
             return;
@@ -42,16 +44,16 @@ public class RavineController {
         // be cut short along chunk boundaries.
         for (int currChunkX = chunkX - 8; currChunkX <= chunkX + 8; currChunkX++) {
             for (int currChunkZ = chunkZ - 8; currChunkZ <= chunkZ + 8; currChunkZ++) {
-                random.setLargeFeatureSeed(this.world.getSeed(), currChunkX, currChunkZ);
-                if (ravineCarver.shouldCarve(random, chunkX, chunkZ)) {
-                    ((RavineCarver) ravineCarver.carver).carve(chunkIn, random, world.getSeaLevel(), currChunkX, currChunkZ, chunkX, chunkZ, liquidBlocks, biomeMap, airCarvingMask, liquidCarvingMask);
+                random.setCarverSeed(this.world.getSeed(), currChunkX, currChunkZ);
+                if (configuredCarver.shouldCarve(random, chunkX, chunkZ)) {
+                    betterRavineCarver.carve(chunkIn, random, world.getSeaLevel(), currChunkX, currChunkZ, chunkX, chunkZ, liquidBlocks, biomeMap, airCarvingMask, liquidCarvingMask);
                 }
             }
         }
     }
 
-    public void setWorld(ISeedReader worldIn) {
+    public void setWorld(StructureWorldAccess worldIn) {
         this.world = worldIn;
-        ((RavineCarver)this.ravineCarver.carver).setWorld(worldIn);
+        this.betterRavineCarver.setWorld(worldIn);
     }
 }

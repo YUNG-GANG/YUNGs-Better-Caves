@@ -3,8 +3,9 @@ package com.yungnickyoung.minecraft.bettercaves.init;
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.loading.FMLPaths;
+import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
+import me.sargunvohra.mcmods.autoconfig1u.serializer.Toml4jConfigSerializer;
+import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,13 +17,13 @@ public class BCModConfig {
     public static void init() {
         createDirectory();
         createReadMe();
-        // Register config with Forge
-        ModLoadingContext.get().registerConfig(net.minecraftforge.fml.config.ModConfig.Type.COMMON, Configuration.SPEC, BCSettings.BASE_CONFIG_NAME);
+        AutoConfig.register(Configuration.class, Toml4jConfigSerializer::new);
     }
 
     private static void createDirectory() {
-        File parentDir = new File(FMLPaths.CONFIGDIR.get().toString(), BCSettings.CUSTOM_CONFIG_PATH);
+        File parentDir = new File(FabricLoader.getInstance().getConfigDir().toString(), BCSettings.CUSTOM_CONFIG_PATH);
         BetterCaves.customConfigDir = new File(parentDir, BCSettings.VERSION_PATH);
+
         try {
             String filePath = BetterCaves.customConfigDir.getCanonicalPath();
             if (BetterCaves.customConfigDir.mkdirs()) {
@@ -34,7 +35,7 @@ public class BCModConfig {
     }
 
     private static void createReadMe() {
-        Path path = Paths.get(FMLPaths.CONFIGDIR.get().toString(), BCSettings.CUSTOM_CONFIG_PATH, "README.txt");
+        Path path = Paths.get(FabricLoader.getInstance().getConfigDir().toString(), BCSettings.CUSTOM_CONFIG_PATH, "README.txt");
         File readme = new File(path.toString());
         if (!readme.exists()) {
             String readmeText =

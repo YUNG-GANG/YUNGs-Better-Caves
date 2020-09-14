@@ -1,31 +1,33 @@
 package com.yungnickyoung.minecraft.bettercaves.config;
 
-import com.yungnickyoung.minecraft.bettercaves.config.cave.*;
+import com.yungnickyoung.minecraft.bettercaves.config.cave.ConfigCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.cavern.ConfigCaverns;
 import com.yungnickyoung.minecraft.bettercaves.config.ravine.ConfigRavine;
-import net.minecraftforge.common.ForgeConfigSpec;
+import me.sargunvohra.mcmods.autoconfig1u.annotation.ConfigEntry;
 
 public class ConfigUndergroundGen {
-    public final ConfigCaves caves;
-    public final ConfigCaverns caverns;
-    public final ConfigWaterRegions waterRegions;
-    public final ConfigRavine ravines;
-    public final ConfigMisc miscellaneous;
+    @ConfigEntry.Category("Caves")
+    @ConfigEntry.Gui.CollapsibleObject
+    @ConfigEntry.Gui.Tooltip
+    public ConfigCaves caves = new ConfigCaves();
 
-    public ConfigUndergroundGen(final ForgeConfigSpec.Builder BUILDER) {
-        BUILDER
-            .comment(
-                "##########################################################################################################\n" +
-                "# Configure settings related to caves, caverns, ravines and more.\n" +
-                "##########################################################################################################")
-            .push("Underground Generation");
+    @ConfigEntry.Category("Caverns")
+    @ConfigEntry.Gui.CollapsibleObject
+    @ConfigEntry.Gui.Tooltip(count = 2)
+    public ConfigCaverns caverns = new ConfigCaverns();
 
-        caves = new ConfigCaves(BUILDER);
-        caverns = new ConfigCaverns(BUILDER);
-        waterRegions = new ConfigWaterRegions(BUILDER);
-        ravines = new ConfigRavine(BUILDER);
-        miscellaneous = new ConfigMisc(BUILDER);
+    @ConfigEntry.Category("Water Regions")
+    @ConfigEntry.Gui.CollapsibleObject
+    @ConfigEntry.Gui.Tooltip
+    public ConfigWaterRegions waterRegions = new ConfigWaterRegions();
 
-        BUILDER.pop();
-    }
+    @ConfigEntry.Category("Ravines")
+    @ConfigEntry.Gui.CollapsibleObject
+    @ConfigEntry.Gui.Tooltip
+    public ConfigRavine ravines = new ConfigRavine();
+
+    @ConfigEntry.Category("Miscellaneous")
+    @ConfigEntry.Gui.CollapsibleObject
+    @ConfigEntry.Gui.Tooltip
+    public ConfigMisc miscellaneous = new ConfigMisc();
 }

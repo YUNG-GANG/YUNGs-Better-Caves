@@ -15,9 +15,9 @@ import com.yungnickyoung.minecraft.bettercaves.world.carver.cavern.CavernCarverB
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.ISeedReader;
+import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.IChunk;
+import net.minecraft.world.chunk.Chunk;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 public class CavernCarverController {
-    private ISeedReader world;
+    private StructureWorldAccess world;
     private FastNoise cavernRegionController;
     private List<CarverNoiseRange> noiseRanges = new ArrayList<>();
 
@@ -34,7 +34,7 @@ public class CavernCarverController {
     private boolean isOverrideSurfaceDetectionEnabled;
     private boolean isFloodedUndergroundEnabled;
 
-    public CavernCarverController(ISeedReader worldIn, ConfigHolder config) {
+    public CavernCarverController(StructureWorldAccess worldIn, ConfigHolder config) {
         this.world = worldIn;
         this.isDebugViewEnabled = config.debugVisualizer.get();
         this.isOverrideSurfaceDetectionEnabled = config.overrideSurfaceDetection.get();
@@ -91,7 +91,7 @@ public class CavernCarverController {
         }
     }
 
-    public void carveChunk(IChunk chunk, int chunkX, int chunkZ, int[][] surfaceAltitudes, BlockState[][] liquidBlocks, Map<Long, Biome> biomeMap, BitSet airCarvingMask, BitSet liquidCarvingMask) {
+    public void carveChunk(Chunk chunk, int chunkX, int chunkZ, int[][] surfaceAltitudes, BlockState[][] liquidBlocks, Map<Long, Biome> biomeMap, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         // Prevent unnecessary computation if caverns are disabled
         if (noiseRanges.size() == 0) {
             return;
@@ -175,22 +175,22 @@ public class CavernCarverController {
      * @return frequency value for cavern region controller
      */
     private float calcCavernRegionSize(String cavernRegionSize, float cavernRegionCustomSize) {
-        switch (cavernRegionSize) {
-            case "Small":
+        switch (cavernRegionSize.toLowerCase()) {
+            case "small":
                 return .01f;
-            case "Large":
+            case "large":
                 return .005f;
-            case "ExtraLarge":
+            case "extralarge":
                 return .001f;
-            case "Custom":
+            case "custom":
                 return cavernRegionCustomSize;
-            case "Medium":
+            case "medium":
             default:
                 return .007f;
         }
     }
 
-    public void setWorld(ISeedReader worldIn) {
+    public void setWorld(StructureWorldAccess worldIn) {
         this.world = worldIn;
     }
 }

@@ -1,59 +1,34 @@
 package com.yungnickyoung.minecraft.bettercaves.config.cave;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import me.sargunvohra.mcmods.autoconfig1u.annotation.ConfigEntry;
 
 public class ConfigCaves {
-    public final ConfigCubicCave cubicCave;
-    public final ConfigSimplexCave simplexCave;
-    public final ConfigSurfaceCave surfaceCave;
-    public final ConfigVanillaCave vanillaCave;
-    public final ForgeConfigSpec.ConfigValue<Double> caveSpawnChance;
-    public final ForgeConfigSpec.ConfigValue<String> caveRegionSize;
-    public final ForgeConfigSpec.ConfigValue<Double> customRegionSize;
+    @ConfigEntry.Category("Type 1 Caves")
+    @ConfigEntry.Gui.CollapsibleObject
+    @ConfigEntry.Gui.Tooltip
+    public ConfigCubicCave type1Caves = new ConfigCubicCave();
 
-    public ConfigCaves(final ForgeConfigSpec.Builder BUILDER) {
-        BUILDER
-            .comment(
-                "##########################################################################################################\n" +
-                "# Settings used in the generation of caves.\n" +
-                "##########################################################################################################")
-            .push("Caves");
+    @ConfigEntry.Category("Type 2 Caves")
+    @ConfigEntry.Gui.CollapsibleObject
+    @ConfigEntry.Gui.Tooltip
+    public ConfigSimplexCave type2Caves = new ConfigSimplexCave();
 
-        cubicCave = new ConfigCubicCave(BUILDER);
-        simplexCave = new ConfigSimplexCave(BUILDER);
-        surfaceCave = new ConfigSurfaceCave(BUILDER);
-        vanillaCave = new ConfigVanillaCave(BUILDER);
+    @ConfigEntry.Category("Surface Caves")
+    @ConfigEntry.Gui.CollapsibleObject
+    @ConfigEntry.Gui.Tooltip
+    public ConfigSurfaceCave surfaceCaves = new ConfigSurfaceCave();
 
-        caveSpawnChance = BUILDER
-            .comment(
-                " Percent chance of caves spawning in a given region.\n" +
-                " Default: caves spawn in 100% of regions.")
-            .worldRestart()
-            .defineInRange("Cave Spawn Chance", 100f, 0, 100f);
+    @ConfigEntry.Category("Vanilla Caves")
+    @ConfigEntry.Gui.CollapsibleObject
+    @ConfigEntry.Gui.Tooltip
+    public ConfigVanillaCave vanillaCaves = new ConfigVanillaCave();
 
-        caveRegionSize = BUILDER
-            .comment(
-                " Determines how large cave regions are.\n" +
-                    "     Controls how long a cave system of a certain cave type extends before intersecting with a cave system of another type.\n" +
-                    "     Larger = more cave interconnectivity for a given area, but less variation.\n" +
-                    " Accepted values: Small, Medium, Large, ExtraLarge, Custom\n" +
-                    " Default: Small (recommended).")
-            .worldRestart()
-            .define("Cave Region Size", "Small");
+    @ConfigEntry.Gui.Tooltip(count = 2)
+    public double caveSpawnChance = 100.0;
 
-        customRegionSize = BUILDER
-            .comment(
-                " Custom value for cave region size. Smaller value = larger regions. This value is very sensitive to change.\n" +
-                    "     ONLY WORKS IF Cave Region Size IS Custom.\n" +
-                    "     Provided values:\n" +
-                    "         Small: 0.008\n" +
-                    "         Medium: 0.005\n" +
-                    "         Large: 0.0032\n" +
-                    "         ExtraLarge: 0.001\n" +
-                    " Default: 0.008")
-            .worldRestart()
-            .defineInRange("Cave Region Size Custom Value", .008f, 0, .05f);
+    @ConfigEntry.Gui.Tooltip(count = 5)
+    public String caveRegionSize = "Small";
 
-        BUILDER.pop();
-    }
+    @ConfigEntry.Gui.Tooltip(count = 8)
+    public double caveRegionSizeCustomValue = 0.008;
 }

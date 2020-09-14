@@ -7,17 +7,16 @@ import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtils;
 import com.yungnickyoung.minecraft.bettercaves.util.ColPos;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.ISeedReader;
-import net.minecraft.world.gen.WorldGenRegion;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.StructureWorldAccess;
 
 import java.util.Objects;
 import java.util.Random;
 
 public class WaterRegionController {
     private FastNoise waterRegionController;
-    private ISeedReader world;
+    private StructureWorldAccess world;
     private String dimensionName;
     private Random rand;
 
@@ -30,9 +29,9 @@ public class WaterRegionController {
     private static final float SMOOTH_RANGE = .04f;
     private static final float SMOOTH_DELTA = .01f;
 
-    public WaterRegionController(ISeedReader worldIn, ConfigHolder config) {
+    public WaterRegionController(StructureWorldAccess worldIn, ConfigHolder config) {
         this.world = worldIn;
-        this.dimensionName = Objects.requireNonNull(((WorldGenRegion) world).getWorld().func_234923_W_().func_240901_a_()).toString();
+        this.dimensionName = Objects.requireNonNull(world.toServerWorld().getRegistryKey().getValue()).toString();
         this.rand = new Random();
 
         // Vars from config
@@ -41,7 +40,7 @@ public class WaterRegionController {
         waterRegionThreshold = NoiseUtils.simplexNoiseOffsetByPercent(-1f, config.waterRegionSpawnChance.get().floatValue() / 100f);
 
         // Water region controller
-        float waterRegionSize = config.cavernRegionSize.get().equals("ExtraLarge") ? .001f : .004f;
+        float waterRegionSize = config.cavernRegionSize.get().equalsIgnoreCase("extralarge") ? .001f : .004f;
         waterRegionController = new FastNoise();
         waterRegionController.SetSeed((int) world.getSeed() + 444);
         waterRegionController.SetFrequency(waterRegionSize);
@@ -79,8 +78,8 @@ public class WaterRegionController {
     private BlockState getLavaBlockFromString(String lavaString) {
         BlockState lavaBlock;
         try {
-            lavaBlock = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(lavaString)).getDefaultState();
-            BetterCaves.LOGGER.info(String.format("Using block '%s' as lava in cave generation for dimension %s", lavaString, dimensionName));
+            lavaBlock = Registry.BLOCK.get(new Identifier(lavaString)).getDefaultState();
+            BetterCaves.LOGGER.info(String.format("Using block '%s' as lava in cave generation for dimension %s", lavaBlock, dimensionName));
         } catch (Exception e) {
             BetterCaves.LOGGER.warn(String.format("Unable to use block '%s': %s", lavaString, e));
             BetterCaves.LOGGER.warn("Using vanilla lava instead...");
@@ -98,7 +97,7 @@ public class WaterRegionController {
     private BlockState getWaterBlockFromString(String waterString) {
         BlockState waterBlock;
         try {
-            waterBlock = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(waterString)).getDefaultState();
+            waterBlock = Registry.BLOCK.get(new Identifier(waterString)).getDefaultState();
             BetterCaves.LOGGER.info(String.format("Using block '%s' as water in cave generation for dimension %s", waterBlock, dimensionName));
 
         } catch (Exception e) {
@@ -116,7 +115,7 @@ public class WaterRegionController {
         return waterBlock;
     }
 
-    public void setWorld(ISeedReader worldIn) {
+    public void setWorld(StructureWorldAccess worldIn) {
         this.world = worldIn;
     }
 }

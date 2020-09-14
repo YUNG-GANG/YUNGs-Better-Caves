@@ -1,64 +1,28 @@
 package com.yungnickyoung.minecraft.bettercaves.config.cavern;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import me.sargunvohra.mcmods.autoconfig1u.annotation.ConfigEntry;
 
 public class ConfigFlooredCavern {
-    public final ForgeConfigSpec.ConfigValue<Integer> cavernBottom;
-    public final ForgeConfigSpec.ConfigValue<Integer> cavernTop;
-    public final ForgeConfigSpec.ConfigValue<Double> yCompression;
-    public final ForgeConfigSpec.ConfigValue<Double> xzCompression;
-    public final ForgeConfigSpec.ConfigValue<Integer> cavernPriority;
-    public final ConfigFlooredCavern.Advanced advancedSettings;
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 255)
+    public int cavernBottom = 1;
 
-    public ConfigFlooredCavern(final ForgeConfigSpec.Builder BUILDER) {
-        BUILDER
-            .comment(
-                "##########################################################################################################\n" +
-                "# Settings used in the generation of Floored Caverns found at low altitudes.\n" +
-                "# These have much more ground to walk on than Liquid Caverns.\n" +
-                "##########################################################################################################")
-            .push("Floored Caverns");
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 255)
+    public int cavernTop = 35;
 
-        cavernBottom = BUILDER
-            .comment(
-                " The minimum y-coordinate at which Floored Caverns can generate.\n" +
-                " Default: 1")
-            .worldRestart()
-            .defineInRange("Floored Cavern Minimum Altitude", 1, 0, 255);
+    @ConfigEntry.Gui.Tooltip
+    public double yCompression = 1.3;
 
-        cavernTop = BUILDER
-            .comment(
-                " The maximum y-coordinate at which Floored Caverns can generate.\n" +
-                "     Caverns will attempt to close off anyway if this value is greater than the surface's altitude.\n" +
-                " Default: 35")
-            .worldRestart()
-            .defineInRange("Floored Cavern Maximum Altitude", 35, 0, 255);
+    @ConfigEntry.Gui.Tooltip
+    public double xzCompression = 0.7;
 
-        yCompression = BUILDER
-            .comment(
-                " Stretches caverns vertically. Lower value = more open caverns with larger features.\n" +
-                " Default: 1.3")
-            .worldRestart()
-            .defineInRange("Compression - Vertical", 1.3, 0, 100);
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 10)
+    public int cavernPriority = 10;
 
-        xzCompression = BUILDER
-            .comment(
-                " Stretches caverns horizontally. Lower value = more open caverns with larger features.\n" +
-                " Default: 0.7")
-            .worldRestart()
-            .defineInRange("Compression - Horizontal", 0.7, 0, 100);
-
-        cavernPriority = BUILDER
-            .comment(
-                " Determines how frequently Floored Caverns spawn. 0 = will not spawn at all.\n" +
-                " Default: 10")
-            .worldRestart()
-            .defineInRange("Floored Cavern Priority", 10, 0, 10);
-
-        advancedSettings = new ConfigFlooredCavern.Advanced();
-
-        BUILDER.pop();
-    }
+    @ConfigEntry.Gui.Excluded
+    public Advanced advancedSettings = new Advanced();
 
     public static class Advanced {
         public final double noiseThreshold;

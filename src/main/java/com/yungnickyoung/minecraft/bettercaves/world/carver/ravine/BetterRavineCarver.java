@@ -12,8 +12,6 @@ import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.ProbabilityConfig;
-import net.minecraft.world.gen.carver.RavineCarver;
-
 
 import java.util.BitSet;
 import java.util.Map;
@@ -23,7 +21,7 @@ import java.util.Random;
  * Re-implements vanilla ravine carver, but with a few modifications for Better Caves config options.
  * Variables have been renamed to be much more readable, making the algorithm a lot more understandable.
  */
-public class BCRavineCarver extends RavineCarver {
+public class BetterRavineCarver extends net.minecraft.world.gen.carver.RavineCarver {
     private StructureWorldAccess world;
 
     // Vars from config
@@ -34,7 +32,7 @@ public class BCRavineCarver extends RavineCarver {
     // Vanilla logic
     private final float[] heightToHorizontalStretchFactor = new float[1024];
 
-    public BCRavineCarver(StructureWorldAccess worldIn, ConfigHolder config, Codec<ProbabilityConfig> codec) {
+    public BetterRavineCarver(StructureWorldAccess worldIn, ConfigHolder config, Codec<ProbabilityConfig> codec) {
         super(codec);
         this.world = worldIn;
         this.isFloodedRavinesEnabled = config.enableFloodedRavines.get();

@@ -40,7 +40,7 @@ public class WaterRegionController {
         waterRegionThreshold = NoiseUtils.simplexNoiseOffsetByPercent(-1f, config.waterRegionSpawnChance.get().floatValue() / 100f);
 
         // Water region controller
-        float waterRegionSize = config.cavernRegionSize.get().equals("ExtraLarge") ? .001f : .004f;
+        float waterRegionSize = config.cavernRegionSize.get().equalsIgnoreCase("extralarge") ? .001f : .004f;
         waterRegionController = new FastNoise();
         waterRegionController.SetSeed((int) world.getSeed() + 444);
         waterRegionController.SetFrequency(waterRegionSize);
@@ -79,7 +79,7 @@ public class WaterRegionController {
         BlockState lavaBlock;
         try {
             lavaBlock = Registry.BLOCK.get(new Identifier(lavaString)).getDefaultState();
-            BetterCaves.LOGGER.info(String.format("Using block '%s' as lava in cave generation for dimension %s", lavaString, dimensionName));
+            BetterCaves.LOGGER.info(String.format("Using block '%s' as lava in cave generation for dimension %s", lavaBlock, dimensionName));
         } catch (Exception e) {
             BetterCaves.LOGGER.warn(String.format("Unable to use block '%s': %s", lavaString, e));
             BetterCaves.LOGGER.warn("Using vanilla lava instead...");

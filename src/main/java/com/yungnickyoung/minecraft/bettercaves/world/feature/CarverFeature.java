@@ -2,7 +2,6 @@ package com.yungnickyoung.minecraft.bettercaves.world.feature;
 
 import com.mojang.serialization.Codec;
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
-import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.BetterCavesCarver;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -134,6 +133,6 @@ public class CarverFeature extends Feature<DefaultFeatureConfig> {
      * @return true if the provided dimension ID is whitelisted in the config
      */
     private boolean isDimensionWhitelisted(String dimensionName) {
-        return BetterCaves.BC_CONFIG.globalWhiteList || BetterCaves.whitelistedDimensions.contains(dimensionName);
+        return BetterCaves.CONFIG.betterCaves.enableGlobalWhitelist || BetterCaves.whitelistedDimensions.contains(dimensionName);
     }
 }

@@ -10,7 +10,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 
@@ -19,8 +18,6 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Map;
 import java.util.Random;
-
-import static com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils.isPosInWorld;
 
 /**
  * Re-implements vanilla world carver, but with a few modifications for Better Caves config options.
@@ -330,10 +327,10 @@ public class VanillaCaveCarver implements ICarver {
 
             // Don't dig boundaries between flooded and unflooded openings.
             if (
-                (isPosInWorld(mutableColPos.set(blockPos).move(Direction.EAST), world) && biomeMap.get(mutableColPos.set(blockPos).move(Direction.EAST).toLong()).getCategory() != Biome.Category.OCEAN) ||
-                (isPosInWorld(mutableColPos.set(blockPos).move(Direction.WEST), world) && biomeMap.get(mutableColPos.set(blockPos).move(Direction.WEST).toLong()).getCategory() != Biome.Category.OCEAN) ||
-                (isPosInWorld(mutableColPos.set(blockPos).move(Direction.NORTH), world) && biomeMap.get(mutableColPos.set(blockPos).move(Direction.NORTH).toLong()).getCategory() != Biome.Category.OCEAN) ||
-                (isPosInWorld(mutableColPos.set(blockPos).move(Direction.SOUTH), world) && biomeMap.get(mutableColPos.set(blockPos).move(Direction.SOUTH).toLong()).getCategory() != Biome.Category.OCEAN)
+                (BetterCavesUtils.isPosInWorld(mutableColPos.set(blockPos).move(Direction.EAST), world) && biomeMap.get(mutableColPos.set(blockPos).move(Direction.EAST).toLong()).getCategory() != Biome.Category.OCEAN) ||
+                (BetterCavesUtils.isPosInWorld(mutableColPos.set(blockPos).move(Direction.WEST), world) && biomeMap.get(mutableColPos.set(blockPos).move(Direction.WEST).toLong()).getCategory() != Biome.Category.OCEAN) ||
+                (BetterCavesUtils.isPosInWorld(mutableColPos.set(blockPos).move(Direction.NORTH), world) && biomeMap.get(mutableColPos.set(blockPos).move(Direction.NORTH).toLong()).getCategory() != Biome.Category.OCEAN) ||
+                (BetterCavesUtils.isPosInWorld(mutableColPos.set(blockPos).move(Direction.SOUTH), world) && biomeMap.get(mutableColPos.set(blockPos).move(Direction.SOUTH).toLong()).getCategory() != Biome.Category.OCEAN)
             ) {
                 return;
             }

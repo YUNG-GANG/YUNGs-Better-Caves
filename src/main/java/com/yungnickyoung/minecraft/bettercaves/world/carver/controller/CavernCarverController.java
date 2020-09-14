@@ -175,16 +175,16 @@ public class CavernCarverController {
      * @return frequency value for cavern region controller
      */
     private float calcCavernRegionSize(String cavernRegionSize, float cavernRegionCustomSize) {
-        switch (cavernRegionSize) {
-            case "Small":
+        switch (cavernRegionSize.toLowerCase()) {
+            case "small":
                 return .01f;
-            case "Large":
+            case "large":
                 return .005f;
-            case "ExtraLarge":
+            case "extralarge":
                 return .001f;
-            case "Custom":
+            case "custom":
                 return cavernRegionCustomSize;
-            case "Medium":
+            case "medium":
             default:
                 return .007f;
         }

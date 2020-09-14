@@ -1,7 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.config.util;
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
-import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,8 +15,6 @@ public class ConfigHolder {
     /** Map of full names to ConfigOptions. Holds all config options.  */
     public CaseInsensitiveMap properties = new CaseInsensitiveMap();
 
-
-
     /**
      * Constructor loads in default global values for all vars.
      * If a config file for a specific dimension is present, its values will override the ones loaded
@@ -25,183 +22,179 @@ public class ConfigHolder {
      */
      public ConfigHolder() {
         /* ============================== Settings Visible to User ============================== */
-
-
-
-
         // Dimension-wide cave settings
-        caveRegionSize = new ConfigOption<>("Cave Region Size", BetterCaves.BC_CONFIG.underGroundGeneration.caves.caveRegionSize)
+        caveRegionSize = new ConfigOption<>("Cave Region Size", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.caveRegionSize)
             .setCategory("Better Caves.Underground Generation.Caves")
             .addToMap(properties);
-        caveRegionCustomSize = new ConfigOption<>("Cave Region Size Custom Value", BetterCaves.BC_CONFIG.underGroundGeneration.caves.caveRegionSizeCustomValue)
+        caveRegionCustomSize = new ConfigOption<>("Cave Region Size Custom Value", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.caveRegionSizeCustomValue)
             .setCategory("Better Caves.Underground Generation.Caves")
             .addToMap(properties);
-        caveSpawnChance = new ConfigOption<>("Cave Spawn Chance", BetterCaves.BC_CONFIG.underGroundGeneration.caves.caveSpawnChance)
+        caveSpawnChance = new ConfigOption<>("Cave Spawn Chance", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.caveSpawnChance)
             .setCategory("Better Caves.Underground Generation.Caves")
             .addToMap(properties);
 
         // Cubic (Type 1) cave settings
-        cubicCaveBottom = new ConfigOption<>("Type 1 Cave Minimum Altitude", BetterCaves.BC_CONFIG.underGroundGeneration.caves.type1Caves.type1CaveMinimumAltitude)
+        cubicCaveBottom = new ConfigOption<>("Type 1 Cave Minimum Altitude", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type1Caves.caveBottom)
             .setCategory("Better Caves.Underground Generation.Caves.Type 1 Caves")
             .addToMap(properties);
-        cubicCaveTop = new ConfigOption<>("Type 1 Cave Maximum Altitude", BetterCaves.BC_CONFIG.underGroundGeneration.caves.type1Caves.type1CaveMaximumAltitude)
+        cubicCaveTop = new ConfigOption<>("Type 1 Cave Maximum Altitude", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type1Caves.caveTop)
             .setCategory("Better Caves.Underground Generation.Caves.Type 1 Caves")
             .addToMap(properties);
-        cubicCaveSurfaceCutoffDepth = new ConfigOption<>("Type 1 Cave Surface Cutoff Depth", BetterCaves.BC_CONFIG.underGroundGeneration.caves.type1Caves.type1CaveSurfaceCutoffDepth)
+        cubicCaveSurfaceCutoffDepth = new ConfigOption<>("Type 1 Cave Surface Cutoff Depth", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type1Caves.caveSurfaceCutoff)
             .setCategory("Better Caves.Underground Generation.Caves.Type 1 Caves")
             .addToMap(properties);
-        cubicCaveYCompression = new ConfigOption<>("Compression - Vertical", BetterCaves.BC_CONFIG.underGroundGeneration.caves.type1Caves.compressionVertical)
+        cubicCaveYCompression = new ConfigOption<>("Compression - Vertical", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type1Caves.yCompression)
             .setCategory("Better Caves.Underground Generation.Caves.Type 1 Caves")
             .addToMap(properties);
-        cubicCaveXZCompression = new ConfigOption<>("Compression - Horizontal", BetterCaves.BC_CONFIG.underGroundGeneration.caves.type1Caves.compressionHorizontal)
+        cubicCaveXZCompression = new ConfigOption<>("Compression - Horizontal", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type1Caves.xzCompression)
             .setCategory("Better Caves.Underground Generation.Caves.Type 1 Caves")
             .addToMap(properties);
-        cubicCavePriority = new ConfigOption<>("Type 1 Cave Priority", BetterCaves.BC_CONFIG.underGroundGeneration.caves.type1Caves.type1CavePriority)
+        cubicCavePriority = new ConfigOption<>("Type 1 Cave Priority", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type1Caves.cavePriority)
             .setCategory("Better Caves.Underground Generation.Caves.Type 1 Caves")
             .addToMap(properties);
 
         // Simplex (Type 2) cave settings
-        simplexCaveBottom = new ConfigOption<>("Type 2 Cave Minimum Altitude", BetterCaves.BC_CONFIG.underGroundGeneration.caves.type2Caves.type2CaveMinimumAltitude)
+        simplexCaveBottom = new ConfigOption<>("Type 2 Cave Minimum Altitude", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type2Caves.caveBottom)
             .setCategory("Better Caves.Underground Generation.Caves.Type 2 Caves")
             .addToMap(properties);
-        simplexCaveTop = new ConfigOption<>("Type 2 Cave Maximum Altitude", BetterCaves.BC_CONFIG.underGroundGeneration.caves.type2Caves.type2CaveMaximumAltitude)
+        simplexCaveTop = new ConfigOption<>("Type 2 Cave Maximum Altitude", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type2Caves.caveTop)
             .setCategory("Better Caves.Underground Generation.Caves.Type 2 Caves")
             .addToMap(properties);
-        simplexCaveSurfaceCutoffDepth = new ConfigOption<>("Type 2 Cave Surface Cutoff Depth", BetterCaves.BC_CONFIG.underGroundGeneration.caves.type2Caves.type2CaveSurfaceCutoffDepth)
+        simplexCaveSurfaceCutoffDepth = new ConfigOption<>("Type 2 Cave Surface Cutoff Depth", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type2Caves.caveSurfaceCutoff)
             .setCategory("Better Caves.Underground Generation.Caves.Type 2 Caves")
             .addToMap(properties);
-        simplexCaveYCompression = new ConfigOption<>("Compression - Vertical", BetterCaves.BC_CONFIG.underGroundGeneration.caves.type2Caves.compressionVertical)
+        simplexCaveYCompression = new ConfigOption<>("Compression - Vertical", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type2Caves.yCompression)
             .setCategory("Better Caves.Underground Generation.Caves.Type 2 Caves")
             .addToMap(properties);
-        simplexCaveXZCompression = new ConfigOption<>("Compression - Horizontal", BetterCaves.BC_CONFIG.underGroundGeneration.caves.type2Caves.compressionHorizontal)
+        simplexCaveXZCompression = new ConfigOption<>("Compression - Horizontal", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type2Caves.xzCompression)
             .setCategory("Better Caves.Underground Generation.Caves.Type 2 Caves")
             .addToMap(properties);
-        simplexCavePriority = new ConfigOption<>("Type 2 Cave Priority", BetterCaves.BC_CONFIG.underGroundGeneration.caves.type2Caves.type2CavePriority)
+        simplexCavePriority = new ConfigOption<>("Type 2 Cave Priority", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type2Caves.cavePriority)
             .setCategory("Better Caves.Underground Generation.Caves.Type 2 Caves")
             .addToMap(properties);
 
         // Surface cave settings
-        isSurfaceCavesEnabled = new ConfigOption<>("Enable Surface Caves", BetterCaves.BC_CONFIG.underGroundGeneration.caves.surfaceCaves.enableSurfaceCaves)
-            .setCategory("Better Caves.Underground Generation.Caves.surface caves")
+        isSurfaceCavesEnabled = new ConfigOption<>("Enable Surface Caves", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.surfaceCaves.enableSurfaceCaves)
+            .setCategory("Better Caves.Underground Generation.Caves.Surface Caves")
             .addToMap(properties);
-        surfaceCaveBottom = new ConfigOption<>("Surface Cave Minimum Altitude", BetterCaves.BC_CONFIG.underGroundGeneration.caves.surfaceCaves.surfaceCaveMinimumAltitude)
-            .setCategory("Better Caves.Underground Generation.Caves.surface caves")
+        surfaceCaveBottom = new ConfigOption<>("Surface Cave Minimum Altitude", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.surfaceCaves.caveBottom)
+            .setCategory("Better Caves.Underground Generation.Caves.Surface Caves")
             .addToMap(properties);
-        surfaceCaveTop = new ConfigOption<>("Surface Cave Maximum Altitude", BetterCaves.BC_CONFIG.underGroundGeneration.caves.surfaceCaves.surfaceCaveMaximumAltitude)
-            .setCategory("Better Caves.Underground Generation.Caves.surface caves")
+        surfaceCaveTop = new ConfigOption<>("Surface Cave Maximum Altitude", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.surfaceCaves.caveTop)
+            .setCategory("Better Caves.Underground Generation.Caves.Surface Caves")
             .addToMap(properties);
-        surfaceCaveDensity = new ConfigOption<>("Surface Cave Density", BetterCaves.BC_CONFIG.underGroundGeneration.caves.surfaceCaves.surfaceCaveDensity)
-            .setCategory("Better Caves.Underground Generation.Caves.surface caves")
+        surfaceCaveDensity = new ConfigOption<>("Surface Cave Density", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.surfaceCaves.caveDensity)
+            .setCategory("Better Caves.Underground Generation.Caves.Surface Caves")
             .addToMap(properties);
 
         // Vanilla cave settings
-        vanillaCaveBottom = new ConfigOption<>("Vanilla Cave Minimum Altitude", BetterCaves.BC_CONFIG.underGroundGeneration.caves.vanilla.vanillaCaveMinimumAltitude)
-            .setCategory("Better Caves.Underground Generation.Caves.vanilla Caves")
+        vanillaCaveBottom = new ConfigOption<>("Vanilla Cave Minimum Altitude", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.vanillaCaves.caveBottom)
+            .setCategory("Better Caves.Underground Generation.Caves.Vanilla Caves")
             .addToMap(properties);
-        vanillaCaveTop = new ConfigOption<>("Vanilla Cave Maximum Altitude", BetterCaves.BC_CONFIG.underGroundGeneration.caves.vanilla.vanillaCaveMaximumAltitude)
-            .setCategory("Better Caves.Underground Generation.Caves.vanilla Caves")
+        vanillaCaveTop = new ConfigOption<>("Vanilla Cave Maximum Altitude", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.vanillaCaves.caveTop)
+            .setCategory("Better Caves.Underground Generation.Caves.Vanilla Caves")
             .addToMap(properties);
-        vanillaCaveDensity = new ConfigOption<>("Vanilla Cave Density", BetterCaves.BC_CONFIG.underGroundGeneration.caves.vanilla.vanillaCaveDensity)
-            .setCategory("Better Caves.Underground Generation.Caves.vanilla Caves")
+        vanillaCaveDensity = new ConfigOption<>("Vanilla Cave Density", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.vanillaCaves.caveDensity)
+            .setCategory("Better Caves.Underground Generation.Caves.Vanilla Caves")
             .addToMap(properties);
-        vanillaCavePriority = new ConfigOption<>("Vanilla Cave Priority", BetterCaves.BC_CONFIG.underGroundGeneration.caves.vanilla.vanillaCavePriority)
-            .setCategory("Better Caves.Underground Generation.Caves.vanilla Caves")
+        vanillaCavePriority = new ConfigOption<>("Vanilla Cave Priority", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.vanillaCaves.cavePriority)
+            .setCategory("Better Caves.Underground Generation.Caves.Vanilla Caves")
             .addToMap(properties);
 
         // Dimension-wide cavern settings
-        cavernRegionSize = new ConfigOption<>("Cavern Region Size", BetterCaves.BC_CONFIG.underGroundGeneration.caverns.cavernRegionSize)
+        cavernRegionSize = new ConfigOption<>("Cavern Region Size", BetterCaves.CONFIG.betterCaves.undergroundSettings.caverns.cavernRegionSize)
             .setCategory("Better Caves.Underground Generation.Caverns")
             .addToMap(properties);
-        cavernRegionCustomSize = new ConfigOption<>("Cavern Region Size Custom Value", BetterCaves.BC_CONFIG.underGroundGeneration.caverns.cavernRegionSizeCustomValue)
+        cavernRegionCustomSize = new ConfigOption<>("Cavern Region Size Custom Value", BetterCaves.CONFIG.betterCaves.undergroundSettings.caverns.cavernRegionSizeCustomValue)
             .setCategory("Better Caves.Underground Generation.Caverns")
             .addToMap(properties);
-        cavernSpawnChance = new ConfigOption<>("Cavern Spawn Chance", BetterCaves.BC_CONFIG.underGroundGeneration.caverns.cavernSpawnChance)
+        cavernSpawnChance = new ConfigOption<>("Cavern Spawn Chance", BetterCaves.CONFIG.betterCaves.undergroundSettings.caverns.cavernSpawnChance)
             .setCategory("Better Caves.Underground Generation.Caverns")
             .addToMap(properties);
 
         // Liquid cavern settings
-        liquidCavernBottom = new ConfigOption<>("Liquid Cavern Minimum Altitude", BetterCaves.BC_CONFIG.underGroundGeneration.caverns.liquidCaverns.liquidCavernCaveMinimumAltitude)
+        liquidCavernBottom = new ConfigOption<>("Liquid Cavern Minimum Altitude", BetterCaves.CONFIG.betterCaves.undergroundSettings.caverns.liquidCaverns.cavernBottom)
             .setCategory("Better Caves.Underground Generation.Caverns.Liquid Caverns")
             .addToMap(properties);
-        liquidCavernTop = new ConfigOption<>("Liquid Cavern Maximum Altitude", BetterCaves.BC_CONFIG.underGroundGeneration.caverns.liquidCaverns.liquidCavernCaveMaximumAltitude)
+        liquidCavernTop = new ConfigOption<>("Liquid Cavern Maximum Altitude", BetterCaves.CONFIG.betterCaves.undergroundSettings.caverns.liquidCaverns.cavernTop)
             .setCategory("Better Caves.Underground Generation.Caverns.Liquid Caverns")
             .addToMap(properties);
-        liquidCavernYCompression = new ConfigOption<>("Compression - Vertical", BetterCaves.BC_CONFIG.underGroundGeneration.caverns.liquidCaverns.compressionVertical)
+        liquidCavernYCompression = new ConfigOption<>("Compression - Vertical", BetterCaves.CONFIG.betterCaves.undergroundSettings.caverns.liquidCaverns.yCompression)
             .setCategory("Better Caves.Underground Generation.Caverns.Liquid Caverns")
             .addToMap(properties);
-        liquidCavernXZCompression = new ConfigOption<>("Compression - Horizontal", BetterCaves.BC_CONFIG.underGroundGeneration.caverns.liquidCaverns.compressionHorizontal)
+        liquidCavernXZCompression = new ConfigOption<>("Compression - Horizontal", BetterCaves.CONFIG.betterCaves.undergroundSettings.caverns.liquidCaverns.xzCompression)
             .setCategory("Better Caves.Underground Generation.Caverns.Liquid Caverns")
             .addToMap(properties);
-        liquidCavernPriority = new ConfigOption<>("Liquid Cavern Priority", BetterCaves.BC_CONFIG.underGroundGeneration.caverns.liquidCaverns.liquidCavernCavePriority)
+        liquidCavernPriority = new ConfigOption<>("Liquid Cavern Priority", BetterCaves.CONFIG.betterCaves.undergroundSettings.caverns.liquidCaverns.cavernPriority)
             .setCategory("Better Caves.Underground Generation.Caverns.Liquid Caverns")
             .addToMap(properties);
 
         // Floored cavern settings
-        flooredCavernBottom = new ConfigOption<>("Floored Cavern Minimum Altitude", BetterCaves.BC_CONFIG.underGroundGeneration.caverns.flooredCaverns.flooredCavernCaveMinimumAltitude)
+        flooredCavernBottom = new ConfigOption<>("Floored Cavern Minimum Altitude", BetterCaves.CONFIG.betterCaves.undergroundSettings.caverns.flooredCaverns.cavernBottom)
             .setCategory("Better Caves.Underground Generation.Caverns.Floored Caverns")
             .addToMap(properties);
-        flooredCavernTop = new ConfigOption<>("Floored Cavern Maximum Altitude", BetterCaves.BC_CONFIG.underGroundGeneration.caverns.flooredCaverns.flooredCavernCaveMaximumAltitude)
+        flooredCavernTop = new ConfigOption<>("Floored Cavern Maximum Altitude", BetterCaves.CONFIG.betterCaves.undergroundSettings.caverns.flooredCaverns.cavernTop)
             .setCategory("Better Caves.Underground Generation.Caverns.Floored Caverns")
             .addToMap(properties);
-        flooredCavernYCompression = new ConfigOption<>("Compression - Vertical", BetterCaves.BC_CONFIG.underGroundGeneration.caverns.flooredCaverns.compressionVertical)
+        flooredCavernYCompression = new ConfigOption<>("Compression - Vertical", BetterCaves.CONFIG.betterCaves.undergroundSettings.caverns.flooredCaverns.yCompression)
             .setCategory("Better Caves.Underground Generation.Caverns.Floored Caverns")
             .addToMap(properties);
-        flooredCavernXZCompression = new ConfigOption<>("Compression - Horizontal", BetterCaves.BC_CONFIG.underGroundGeneration.caverns.flooredCaverns.compressionHorizontal)
+        flooredCavernXZCompression = new ConfigOption<>("Compression - Horizontal", BetterCaves.CONFIG.betterCaves.undergroundSettings.caverns.flooredCaverns.xzCompression)
             .setCategory("Better Caves.Underground Generation.Caverns.Floored Caverns")
             .addToMap(properties);
-        flooredCavernPriority = new ConfigOption<>("Floored Cavern Priority", BetterCaves.BC_CONFIG.underGroundGeneration.caverns.flooredCaverns.flooredCavernCavePriority)
+        flooredCavernPriority = new ConfigOption<>("Floored Cavern Priority", BetterCaves.CONFIG.betterCaves.undergroundSettings.caverns.flooredCaverns.cavernPriority)
             .setCategory("Better Caves.Underground Generation.Caverns.Floored Caverns")
             .addToMap(properties);
 
         // Water region settings
-        waterRegionSpawnChance = new ConfigOption<>("Water Region Spawn Chance", BetterCaves.BC_CONFIG.underGroundGeneration.waterRegions.waterRegionSpawnChance)
-            .setCategory("Better Caves.Underground Generation.water regions")
+        waterRegionSpawnChance = new ConfigOption<>("Water Region Spawn Chance", BetterCaves.CONFIG.betterCaves.undergroundSettings.waterRegions.waterRegionSpawnChance)
+            .setCategory("Better Caves.Underground Generation.Water Regions")
             .addToMap(properties);
-        waterRegionSize = new ConfigOption<>("Water Region Size", BetterCaves.BC_CONFIG.underGroundGeneration.waterRegions.waterRegionSize)
-            .setCategory("Better Caves.Underground Generation.water regions")
+        waterRegionSize = new ConfigOption<>("Water Region Size", BetterCaves.CONFIG.betterCaves.undergroundSettings.waterRegions.waterRegionSize)
+            .setCategory("Better Caves.Underground Generation.Water Regions")
             .addToMap(properties);
-        waterRegionCustomSize = new ConfigOption<>("Water Region Size Custom Value", BetterCaves.BC_CONFIG.underGroundGeneration.waterRegions.waterRegionSizeCustomValue)
-            .setCategory("Better Caves.Underground Generation.water regions")
+        waterRegionCustomSize = new ConfigOption<>("Water Region Size Custom Value", BetterCaves.CONFIG.betterCaves.undergroundSettings.waterRegions.waterRegionSizeCustomValue)
+            .setCategory("Better Caves.Underground Generation.Water Regions")
             .addToMap(properties);
 
         // Ravines
-        enableVanillaRavines = new ConfigOption<>("Enable Ravines", BetterCaves.BC_CONFIG.underGroundGeneration.ravines.enableRavines)
-            .setCategory("Better Caves.Underground Generation.ravines")
+        enableVanillaRavines = new ConfigOption<>("Enable Ravines", BetterCaves.CONFIG.betterCaves.undergroundSettings.ravines.enableRavines)
+            .setCategory("Better Caves.Underground Generation.Ravines")
             .addToMap(properties);
-        enableFloodedRavines = new ConfigOption<>("Enable Flooded Ravines", BetterCaves.BC_CONFIG.underGroundGeneration.ravines.enableFloodedRavines)
-            .setCategory("Better Caves.Underground Generation.ravines")
+        enableFloodedRavines = new ConfigOption<>("Enable Flooded Ravines", BetterCaves.CONFIG.betterCaves.undergroundSettings.ravines.enableFloodedRavines)
+            .setCategory("Better Caves.Underground Generation.Ravines")
             .addToMap(properties);
 
         // Miscellaneous cave & cavern settings
-        lavaBlock = new ConfigOption<>("Lava Block", BetterCaves.BC_CONFIG.underGroundGeneration.miscellaneous.lavaBlock)
-            .setCategory("Better Caves.Underground Generation.miscellaneous")
+        lavaBlock = new ConfigOption<>("Lava Block", BetterCaves.CONFIG.betterCaves.undergroundSettings.miscellaneous.lavaBlock)
+            .setCategory("Better Caves.Underground Generation.Miscellaneous")
             .addToMap(properties);
-        waterBlock = new ConfigOption<>("Water Block", BetterCaves.BC_CONFIG.underGroundGeneration.miscellaneous.waterBlock)
-            .setCategory("Better Caves.Underground Generation.miscellaneous")
+        waterBlock = new ConfigOption<>("Water Block", BetterCaves.CONFIG.betterCaves.undergroundSettings.miscellaneous.waterBlock)
+            .setCategory("Better Caves.Underground Generation.Miscellaneous")
             .addToMap(properties);
-        liquidAltitude = new ConfigOption<>("Liquid Altitude", BetterCaves.BC_CONFIG.underGroundGeneration.miscellaneous.liquidAltitude)
-            .setCategory("Better Caves.Underground Generation.miscellaneous")
+        liquidAltitude = new ConfigOption<>("Liquid Altitude", BetterCaves.CONFIG.betterCaves.undergroundSettings.miscellaneous.liquidAltitude)
+            .setCategory("Better Caves.Underground Generation.Miscellaneous")
             .addToMap(properties);
-        replaceFloatingGravel = new ConfigOption<>("Prevent Cascading Gravel", BetterCaves.BC_CONFIG.underGroundGeneration.miscellaneous.preventCascadingGravel)
-            .setCategory("Better Caves.Underground Generation.miscellaneous")
+        replaceFloatingGravel = new ConfigOption<>("Prevent Cascading Gravel", BetterCaves.CONFIG.betterCaves.undergroundSettings.miscellaneous.preventCascadingGravel)
+            .setCategory("Better Caves.Underground Generation.Miscellaneous")
             .addToMap(properties);
-        overrideSurfaceDetection = new ConfigOption<>("Override Surface Detection", BetterCaves.BC_CONFIG.underGroundGeneration.miscellaneous.overrideSurfaceDetection)
-            .setCategory("Better Caves.Underground Generation.miscellaneous")
+        overrideSurfaceDetection = new ConfigOption<>("Override Surface Detection", BetterCaves.CONFIG.betterCaves.undergroundSettings.miscellaneous.overrideSurfaceDetection)
+            .setCategory("Better Caves.Underground Generation.Miscellaneous")
             .addToMap(properties);
-        enableFloodedUnderground = new ConfigOption<>("Enable Flooded Underground", BetterCaves.BC_CONFIG.underGroundGeneration.miscellaneous.enableFloodedUnderGround)
-            .setCategory("Better Caves.Underground Generation.miscellaneous")
+        enableFloodedUnderground = new ConfigOption<>("Enable Flooded Underground", BetterCaves.CONFIG.betterCaves.undergroundSettings.miscellaneous.enableFloodedUnderground)
+            .setCategory("Better Caves.Underground Generation.Miscellaneous")
             .addToMap(properties);
 
         // Bedrock settings
-        flattenBedrock = new ConfigOption<>("Flatten Bedrock", BetterCaves.BC_CONFIG.bedrockConfig.flattenBedrock)
+        flattenBedrock = new ConfigOption<>("Flatten Bedrock", BetterCaves.CONFIG.betterCaves.bedrockSettings.flattenBedrock)
             .setCategory("Better Caves.Bedrock Generation")
             .addToMap(properties);
-        bedrockWidth = new ConfigOption<>("Bedrock Layer Width", BetterCaves.BC_CONFIG.bedrockConfig.bedrockLayerWidth)
+        bedrockWidth = new ConfigOption<>("Bedrock Layer Width", BetterCaves.CONFIG.betterCaves.bedrockSettings.bedrockWidth)
             .setCategory("Better Caves.Bedrock Generation")
             .addToMap(properties);
 
         // Debug settings
-        debugVisualizer = new ConfigOption<>("Enable DEBUG Visualizer", BetterCaves.BC_CONFIG.underGroundGeneration.debug.enableDebugVisualizer)
+        debugVisualizer = new ConfigOption<>("Enable DEBUG Visualizer", BetterCaves.CONFIG.betterCaves.debugSettings.enableDebugVisualizer)
             .setCategory("Better Caves.Debug Settings")
             .addToMap(properties);
 
@@ -210,129 +203,129 @@ public class ConfigHolder {
         // ... because they are very important to cave gen and sensitive to change.
 
         // Cubic (Type 1) cave settings
-        cubicCaveNoiseThreshold = new ConfigOption<>("Noise Threshold", Configuration.caveSettings.caves.cubicCave.advancedSettings.noiseThreshold)
+        cubicCaveNoiseThreshold = new ConfigOption<>("Noise Threshold", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type1Caves.advancedSettings.noiseThreshold)
             .setCategory("Better Caves.Underground Generation.Caves.Type 1 Caves.Advanced Settings")
             .addToMap(properties)
             .hidden();
-        cubicCaveFractalOctaves = new ConfigOption<>("Fractal Octaves", Configuration.caveSettings.caves.cubicCave.advancedSettings.fractalOctaves)
+        cubicCaveFractalOctaves = new ConfigOption<>("Fractal Octaves", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type1Caves.advancedSettings.fractalOctaves)
             .setCategory("Better Caves.Underground Generation.Caves.Type 1 Caves.Advanced Settings")
             .addToMap(properties)
             .hidden();
-        cubicCaveFractalGain = new ConfigOption<>("Fractal Gain", Configuration.caveSettings.caves.cubicCave.advancedSettings.fractalGain)
+        cubicCaveFractalGain = new ConfigOption<>("Fractal Gain", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type1Caves.advancedSettings.fractalGain)
             .setCategory("Better Caves.Underground Generation.Caves.Type 1 Caves.Advanced Settings")
             .addToMap(properties)
             .hidden();
-        cubicCaveFractalFrequency = new ConfigOption<>("Fractal Frequency", Configuration.caveSettings.caves.cubicCave.advancedSettings.fractalFrequency)
+        cubicCaveFractalFrequency = new ConfigOption<>("Fractal Frequency", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type1Caves.advancedSettings.fractalFrequency)
             .setCategory("Better Caves.Underground Generation.Caves.Type 1 Caves.Advanced Settings")
             .addToMap(properties)
             .hidden();
-        cubicCaveNumGenerators = new ConfigOption<>("Number of Generators", Configuration.caveSettings.caves.cubicCave.advancedSettings.numGenerators)
+        cubicCaveNumGenerators = new ConfigOption<>("Number of Generators", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type1Caves.advancedSettings.numGenerators)
             .setCategory("Better Caves.Underground Generation.Caves.Type 1 Caves.Advanced Settings")
             .addToMap(properties)
             .hidden();
-        cubicCaveEnableVerticalAdjustment = new ConfigOption<>("Enable y-adjustment", Configuration.caveSettings.caves.cubicCave.advancedSettings.yAdjust)
+        cubicCaveEnableVerticalAdjustment = new ConfigOption<>("Enable y-adjustment", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type1Caves.advancedSettings.yAdjust)
             .setCategory("Better Caves.Underground Generation.Caves.Type 1 Caves.Advanced Settings")
             .addToMap(properties)
             .hidden();
-        cubicCaveYAdjustF1 = new ConfigOption<>("y-adjustment Variable 1", Configuration.caveSettings.caves.cubicCave.advancedSettings.yAdjustF1)
+        cubicCaveYAdjustF1 = new ConfigOption<>("y-adjustment Variable 1", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type1Caves.advancedSettings.yAdjustF1)
             .setCategory("Better Caves.Underground Generation.Caves.Type 1 Caves.Advanced Settings")
             .addToMap(properties)
             .hidden();
-        cubicCaveYAdjustF2 = new ConfigOption<>("y-adjustment Variable 2", Configuration.caveSettings.caves.cubicCave.advancedSettings.yAdjustF2)
+        cubicCaveYAdjustF2 = new ConfigOption<>("y-adjustment Variable 2", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type1Caves.advancedSettings.yAdjustF2)
             .setCategory("Better Caves.Underground Generation.Caves.Type 1 Caves.Advanced Settings")
             .addToMap(properties)
             .hidden();
-        cubicCaveNoiseType = new ConfigOption<>("Noise Type", Configuration.caveSettings.caves.cubicCave.advancedSettings.noiseType)
+        cubicCaveNoiseType = new ConfigOption<>("Noise Type", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type1Caves.advancedSettings.noiseType)
             .setCategory("Better Caves.Underground Generation.Caves.Type 1 Caves.Advanced Settings")
             .addToMap(properties)
             .hidden();
 
         // Simplex (Type 2) cave settings
-        simplexCaveNoiseThreshold = new ConfigOption<>("Noise Threshold", Configuration.caveSettings.caves.simplexCave.advancedSettings.noiseThreshold)
+        simplexCaveNoiseThreshold = new ConfigOption<>("Noise Threshold", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type2Caves.advancedSettings.noiseThreshold)
             .setCategory("Better Caves.Underground Generation.Caves.Type 2 Caves.Advanced Settings")
             .addToMap(properties)
             .hidden();
-        simplexCaveFractalOctaves = new ConfigOption<>("Fractal Octaves", Configuration.caveSettings.caves.simplexCave.advancedSettings.fractalOctaves)
+        simplexCaveFractalOctaves = new ConfigOption<>("Fractal Octaves", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type2Caves.advancedSettings.fractalOctaves)
             .setCategory("Better Caves.Underground Generation.Caves.Type 2 Caves.Advanced Settings")
             .addToMap(properties)
             .hidden();
-        simplexCaveFractalGain = new ConfigOption<>("Fractal Gain", Configuration.caveSettings.caves.simplexCave.advancedSettings.fractalGain)
+        simplexCaveFractalGain = new ConfigOption<>("Fractal Gain", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type2Caves.advancedSettings.fractalGain)
             .setCategory("Better Caves.Underground Generation.Caves.Type 2 Caves.Advanced Settings")
             .addToMap(properties)
             .hidden();
-        simplexCaveFractalFrequency = new ConfigOption<>("Fractal Frequency", Configuration.caveSettings.caves.simplexCave.advancedSettings.fractalFrequency)
+        simplexCaveFractalFrequency = new ConfigOption<>("Fractal Frequency", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type2Caves.advancedSettings.fractalFrequency)
             .setCategory("Better Caves.Underground Generation.Caves.Type 2 Caves.Advanced Settings")
             .addToMap(properties)
             .hidden();
-        simplexCaveNumGenerators = new ConfigOption<>("Number of Generators", Configuration.caveSettings.caves.simplexCave.advancedSettings.numGenerators)
+        simplexCaveNumGenerators = new ConfigOption<>("Number of Generators", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type2Caves.advancedSettings.numGenerators)
             .setCategory("Better Caves.Underground Generation.Caves.Type 2 Caves.Advanced Settings")
             .addToMap(properties)
             .hidden();
-        simplexCaveEnableVerticalAdjustment = new ConfigOption<>("Enable y-adjustment", Configuration.caveSettings.caves.simplexCave.advancedSettings.yAdjust)
+        simplexCaveEnableVerticalAdjustment = new ConfigOption<>("Enable y-adjustment", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type2Caves.advancedSettings.yAdjust)
             .setCategory("Better Caves.Underground Generation.Caves.Type 2 Caves.Advanced Settings")
             .addToMap(properties)
             .hidden();
-        simplexCaveYAdjustF1 = new ConfigOption<>("y-adjustment Variable 1", Configuration.caveSettings.caves.simplexCave.advancedSettings.yAdjustF1)
+        simplexCaveYAdjustF1 = new ConfigOption<>("y-adjustment Variable 1", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type2Caves.advancedSettings.yAdjustF1)
             .setCategory("Better Caves.Underground Generation.Caves.Type 2 Caves.Advanced Settings")
             .addToMap(properties)
             .hidden();
-        simplexCaveYAdjustF2 = new ConfigOption<>("y-adjustment Variable 2", Configuration.caveSettings.caves.simplexCave.advancedSettings.yAdjustF2)
+        simplexCaveYAdjustF2 = new ConfigOption<>("y-adjustment Variable 2", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type2Caves.advancedSettings.yAdjustF2)
             .setCategory("Better Caves.Underground Generation.Caves.Type 2 Caves.Advanced Settings")
             .addToMap(properties)
             .hidden();
-        simplexCaveNoiseType = new ConfigOption<>("Noise Type", Configuration.caveSettings.caves.simplexCave.advancedSettings.noiseType)
+        simplexCaveNoiseType = new ConfigOption<>("Noise Type", BetterCaves.CONFIG.betterCaves.undergroundSettings.caves.type2Caves.advancedSettings.noiseType)
             .setCategory("Better Caves.Underground Generation.Caves.Type 2 Caves.Advanced Settings")
             .addToMap(properties)
             .hidden();
 
         //  Liquid cavern settings
-        liquidCavernNoiseThreshold = new ConfigOption<>("Noise Threshold", Configuration.caveSettings.caverns.liquidCavern.advancedSettings.noiseThreshold)
+        liquidCavernNoiseThreshold = new ConfigOption<>("Noise Threshold", BetterCaves.CONFIG.betterCaves.undergroundSettings.caverns.liquidCaverns.advancedSettings.noiseThreshold)
             .setCategory("Better Caves.Underground Generation.Caverns.Liquid Caverns.Advanced Settings")
             .addToMap(properties)
             .hidden();
-        liquidCavernFractalOctaves = new ConfigOption<>("Fractal Octaves", Configuration.caveSettings.caverns.liquidCavern.advancedSettings.fractalOctaves)
+        liquidCavernFractalOctaves = new ConfigOption<>("Fractal Octaves", BetterCaves.CONFIG.betterCaves.undergroundSettings.caverns.liquidCaverns.advancedSettings.fractalOctaves)
             .setCategory("Better Caves.Underground Generation.Caverns.Liquid Caverns.Advanced Settings")
             .addToMap(properties)
             .hidden();
-        liquidCavernFractalGain = new ConfigOption<>("Fractal Gain", Configuration.caveSettings.caverns.liquidCavern.advancedSettings.fractalGain)
+        liquidCavernFractalGain = new ConfigOption<>("Fractal Gain", BetterCaves.CONFIG.betterCaves.undergroundSettings.caverns.liquidCaverns.advancedSettings.fractalGain)
             .setCategory("Better Caves.Underground Generation.Caverns.Liquid Caverns.Advanced Settings")
             .addToMap(properties)
             .hidden();
-        liquidCavernFractalFrequency = new ConfigOption<>("Fractal Frequency", Configuration.caveSettings.caverns.liquidCavern.advancedSettings.fractalFrequency)
+        liquidCavernFractalFrequency = new ConfigOption<>("Fractal Frequency", BetterCaves.CONFIG.betterCaves.undergroundSettings.caverns.liquidCaverns.advancedSettings.fractalFrequency)
             .setCategory("Better Caves.Underground Generation.Caverns.Liquid Caverns.Advanced Settings")
             .addToMap(properties)
             .hidden();
-        liquidCavernNumGenerators = new ConfigOption<>("Number of Generators", Configuration.caveSettings.caverns.liquidCavern.advancedSettings.numGenerators)
+        liquidCavernNumGenerators = new ConfigOption<>("Number of Generators", BetterCaves.CONFIG.betterCaves.undergroundSettings.caverns.liquidCaverns.advancedSettings.numGenerators)
             .setCategory("Better Caves.Underground Generation.Caverns.Liquid Caverns.Advanced Settings")
             .addToMap(properties)
             .hidden();
-        liquidCavernNoiseType = new ConfigOption<>("Noise Type", Configuration.caveSettings.caverns.liquidCavern.advancedSettings.noiseType)
+        liquidCavernNoiseType = new ConfigOption<>("Noise Type", BetterCaves.CONFIG.betterCaves.undergroundSettings.caverns.liquidCaverns.advancedSettings.noiseType)
             .setCategory("Better Caves.Underground Generation.Caverns.Liquid Caverns.Advanced Settings")
             .addToMap(properties)
             .hidden();
 
         // Floored cavern settings
-        flooredCavernNoiseThreshold = new ConfigOption<>("Noise Threshold", Configuration.caveSettings.caverns.flooredCavern.advancedSettings.noiseThreshold)
+        flooredCavernNoiseThreshold = new ConfigOption<>("Noise Threshold", BetterCaves.CONFIG.betterCaves.undergroundSettings.caverns.flooredCaverns.advancedSettings.noiseThreshold)
             .setCategory("Better Caves.Underground Generation.Caverns.Floored Caverns.Advanced Settings")
             .addToMap(properties)
             .hidden();
-        flooredCavernFractalOctaves = new ConfigOption<>("Fractal Octaves", Configuration.caveSettings.caverns.flooredCavern.advancedSettings.fractalOctaves)
+        flooredCavernFractalOctaves = new ConfigOption<>("Fractal Octaves", BetterCaves.CONFIG.betterCaves.undergroundSettings.caverns.flooredCaverns.advancedSettings.fractalOctaves)
             .setCategory("Better Caves.Underground Generation.Caverns.Floored Caverns.Advanced Settings")
             .addToMap(properties)
             .hidden();
-        flooredCavernFractalGain = new ConfigOption<>("Fractal Gain", Configuration.caveSettings.caverns.flooredCavern.advancedSettings.fractalGain)
+        flooredCavernFractalGain = new ConfigOption<>("Fractal Gain", BetterCaves.CONFIG.betterCaves.undergroundSettings.caverns.flooredCaverns.advancedSettings.fractalGain)
             .setCategory("Better Caves.Underground Generation.Caverns.Floored Caverns.Advanced Settings")
             .addToMap(properties)
             .hidden();
-        flooredCavernFractalFrequency = new ConfigOption<>("Fractal Frequency", Configuration.caveSettings.caverns.flooredCavern.advancedSettings.fractalFrequency)
+        flooredCavernFractalFrequency = new ConfigOption<>("Fractal Frequency", BetterCaves.CONFIG.betterCaves.undergroundSettings.caverns.flooredCaverns.advancedSettings.fractalFrequency)
             .setCategory("Better Caves.Underground Generation.Caverns.Floored Caverns.Advanced Settings")
             .addToMap(properties)
             .hidden();
-        flooredCavernNumGenerators = new ConfigOption<>("Number of Generators", Configuration.caveSettings.caverns.flooredCavern.advancedSettings.numGenerators)
+        flooredCavernNumGenerators = new ConfigOption<>("Number of Generators", BetterCaves.CONFIG.betterCaves.undergroundSettings.caverns.flooredCaverns.advancedSettings.numGenerators)
             .setCategory("Better Caves.Underground Generation.Caverns.Floored Caverns.Advanced Settings")
             .addToMap(properties)
             .hidden();
-        flooredCavernNoiseType = new ConfigOption<>("Noise Type", Configuration.caveSettings.caverns.flooredCavern.advancedSettings.noiseType)
+        flooredCavernNoiseType = new ConfigOption<>("Noise Type", BetterCaves.CONFIG.betterCaves.undergroundSettings.caverns.flooredCaverns.advancedSettings.noiseType)
             .setCategory("Better Caves.Underground Generation.Caverns.Floored Caverns.Advanced Settings")
             .addToMap(properties)
             .hidden();

@@ -2,33 +2,38 @@
   "schemaVersion": 1,
   "id": "bettercaves",
   "version": "${version}",
-
   "name": "YUNG's Better Caves",
   "description": "YUNG's Better Caves overhauls Vanilla Minecraft's cave generation, making caves much more structurally diverse and exciting!",
   "authors": [
     "YUNGNICKYOUNG"
   ],
+  "contributors": [
+    "Corgi Taco"
+  ],
   "contact": {
-    "sources": "https://github.com/yungnickyoung/YUNGs-Better-Caves/tree/fabric-1.16"
+    "sources": "https://github.com/yungnickyoung/YUNGs-Better-Caves/tree/fabric-1.16",
+    "discord": "discord.gg/rns3beq",
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/yungs-better-caves-fabric",
+    "issues": "https://github.com/yungnickyoung/Yungs-Better-Caves/issues"
   },
-
   "license": "LGPLv3",
   "icon": "BetterCavesLogo.png",
-
   "environment": "*",
   "entrypoints": {
     "main": [
       "com.yungnickyoung.minecraft.bettercaves.BetterCaves"
+    ],
+    "modmenu": [
+      "com.yungnickyoung.minecraft.bettercaves.config.gui.BCModMenu"
     ]
   },
   "mixins": [
     "bettercaves.mixins.json"
   ],
-
   "depends": {
     "fabricloader": ">=0.7.4",
     "fabric": "*",
-    "minecraft": "1.16.2"
+    "minecraft": ">=1.16.2"
   },
   "suggests": {
     "flamingo": "*"

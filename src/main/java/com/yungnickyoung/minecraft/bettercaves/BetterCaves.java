@@ -2,11 +2,10 @@ package com.yungnickyoung.minecraft.bettercaves;
 
 import com.google.common.collect.Lists;
 import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
-import com.yungnickyoung.minecraft.bettercaves.fabricconfig.BCConfig;
-import com.yungnickyoung.minecraft.bettercaves.init.BCFeature;
+import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
+import com.yungnickyoung.minecraft.bettercaves.init.BCModConfig;
+import com.yungnickyoung.minecraft.bettercaves.init.BCModFeature;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.BetterCavesCarver;
-import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
-import me.sargunvohra.mcmods.autoconfig1u.serializer.JanksonConfigSerializer;
 import net.fabricmc.api.ModInitializer;
 
 import net.minecraft.world.gen.carver.ConfiguredCarver;
@@ -44,22 +43,18 @@ public class BetterCaves implements ModInitializer {
     public static Map<String, List<Supplier<ConfiguredCarver<?>>>> defaultBiomeAirCarvers = new HashMap<>();
     public static Map<String, List<Supplier<ConfiguredCarver<?>>>> defaultBiomeLiquidCarvers = new HashMap<>();
 
+    /** Better Caves config. Uses AutoConfig. **/
+    public static Configuration CONFIG;
+
     /** File referring to the overarching directory for custom dimension configs **/
     public static File customConfigDir;
 
     public static final Logger LOGGER = LogManager.getLogger(BCSettings.MOD_ID);
 
-    public static BCConfig BC_CONFIG;
-
     @Override
     public void onInitialize() {
         LOGGER.debug("Better Caves entry point");
-        AutoConfig.register(BCConfig.class, JanksonConfigSerializer::new);
-        BC_CONFIG = AutoConfig.getConfigHolder(BCConfig.class).getConfig();
-//        BCModConfig.init();
-        BCFeature.configChanged();
-        BCFeature.init();
-        BCFeature.registerFeature();
-        BCFeature.lateSetup();
+        BCModConfig.init();
+        BCModFeature.init();
     }
 }

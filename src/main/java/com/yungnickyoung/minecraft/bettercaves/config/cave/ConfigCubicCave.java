@@ -1,12 +1,32 @@
 package com.yungnickyoung.minecraft.bettercaves.config.cave;
 
+import me.sargunvohra.mcmods.autoconfig1u.annotation.ConfigEntry;
 
 public class ConfigCubicCave {
-    public final Advanced advancedSettings;
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 255)
+    @ConfigEntry.Gui.Tooltip
+    public int caveBottom = 1;
 
-    public ConfigCubicCave() {
-        advancedSettings = new Advanced();
-    }
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 255)
+    @ConfigEntry.Gui.Tooltip
+    public int caveTop = 80;
+
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 255)
+    @ConfigEntry.Gui.Tooltip(count = 4)
+    public int caveSurfaceCutoff = 15;
+
+    @ConfigEntry.Gui.Tooltip
+    public double yCompression = 5.0;
+
+    @ConfigEntry.Gui.Tooltip
+    public double xzCompression = 1.6;
+
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 10)
+    @ConfigEntry.Gui.Tooltip
+    public int cavePriority = 10;
+
+    @ConfigEntry.Gui.Excluded
+    public Advanced advancedSettings = new Advanced();
 
     public static class Advanced {
         public final double noiseThreshold;

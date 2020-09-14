@@ -1,14 +1,28 @@
 package com.yungnickyoung.minecraft.bettercaves.config.cavern;
 
+import me.sargunvohra.mcmods.autoconfig1u.annotation.ConfigEntry;
 
 public class ConfigFlooredCavern {
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 255)
+    public int cavernBottom = 1;
 
-    public final Advanced advancedSettings;
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 255)
+    public int cavernTop = 35;
 
-    public ConfigFlooredCavern() {
-        advancedSettings = new Advanced();
+    @ConfigEntry.Gui.Tooltip
+    public double yCompression = 1.3;
 
-    }
+    @ConfigEntry.Gui.Tooltip
+    public double xzCompression = 0.7;
+
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 10)
+    public int cavernPriority = 10;
+
+    @ConfigEntry.Gui.Excluded
+    public Advanced advancedSettings = new Advanced();
 
     public static class Advanced {
         public final double noiseThreshold;

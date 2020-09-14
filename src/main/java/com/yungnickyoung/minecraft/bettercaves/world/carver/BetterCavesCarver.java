@@ -2,6 +2,7 @@ package com.yungnickyoung.minecraft.bettercaves.world.carver;
 
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
+import com.yungnickyoung.minecraft.bettercaves.config.ConfigLoader;
 import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.util.ColPos;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.bedrock.FlattenBedrock;
@@ -93,7 +94,7 @@ public class BetterCavesCarver {
         }
 
         // Load config from file for this dimension
-        this.config = new ConfigHolder();
+        this.config = dimensionName.equals("") ? new ConfigHolder() : ConfigLoader.loadConfigFromFileForDimension(dimensionName);
 
         // Initialize controllers
         this.caveCarverController   = new CaveCarverController(worldIn, config);
@@ -101,7 +102,7 @@ public class BetterCavesCarver {
         this.waterRegionController  = new WaterRegionController(worldIn, config);
         this.ravineController       = new RavineController(worldIn, config);
 
-        BetterCaves.LOGGER.debug(String.format("BETTER CAVES WORLD CARVER INITIALIZED WITH SEED %d IN %s", seed, dimensionName));
+        BetterCaves.LOGGER.debug("BETTER CAVES WORLD CARVER INITIALIZED WITH SEED {} IN {}", seed, dimensionName);
     }
 
     public void setWorld(StructureWorldAccess worldIn) {

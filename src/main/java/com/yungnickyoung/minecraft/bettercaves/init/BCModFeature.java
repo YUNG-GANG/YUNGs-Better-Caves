@@ -7,6 +7,7 @@ import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.world.feature.CarverFeature;
+import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
@@ -22,48 +23,27 @@ import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class BCFeature {
+public class BCModFeature {
     public static final CarverFeature BETTERCAVES_FEATURE = new CarverFeature(DefaultFeatureConfig.CODEC);
     public static final ConfiguredFeature<?, ?> CONFIGURED_BETTERCAVES_FEATURE = new ConfiguredFeature<>(BETTERCAVES_FEATURE, new DefaultFeatureConfig());
 
-    /**
-     * Register
-     */
     public static void init() {
+        registerFeature();
+        addFeatureToBiomes();
+        BetterCaves.CONFIG = AutoConfig.getConfigHolder(Configuration.class).getConfig();
     }
 
-    public static void registerFeature() {
+    private static void registerFeature() {
         Registry.register(Registry.FEATURE, new Identifier(BCSettings.MOD_ID, "bettercaves"), BETTERCAVES_FEATURE);
     }
 
-    public static void configChanged() {
-        String rawStringofList = BetterCaves.BC_CONFIG.whiteListedDimensions;
-        int strLen = rawStringofList.length();
-
-        // Validate the string's format
-        if (strLen < 2 || rawStringofList.charAt(0) != '[' || rawStringofList.charAt(strLen - 1) != ']') {
-            BetterCaves.LOGGER.error("INVALID VALUE FOR SETTING 'Whitelisted Dimension IDs'. Using empty list instead...");
-            BetterCaves.whitelistedDimensions = Lists.newArrayList();
-            return;
-        }
-
-        // Parse string to list
-        List<String> inputListOfDimensionStrings = Lists.newArrayList(rawStringofList.substring(1, strLen - 1).split(",\\s*"));
-
-        // Parse list of strings, removing any entries that don't match existing dimension names
-        List<String> whitelistedDimensions = Lists.newArrayList();
-        whitelistedDimensions.addAll(inputListOfDimensionStrings);
-
-        BetterCaves.whitelistedDimensions = whitelistedDimensions;
-        }
-
     /**
-     * Delayed setup to ensure we collect any carvers added by other mods.
+     * Better Caves removes all current carvers and saves them to be used in dimensions where Better Caves is disabled.
+     * Better Caves is actually implemented as a featue (despite only having carver behavior) because it needs access
+     * to an instance of the World, which is not available to carvers.
      */
-    public static void lateSetup() {
+    private static void addFeatureToBiomes() {
         ServerWorldEvents.UNLOAD.register((unload, serverWorld) -> worldUnload(serverWorld));
-
-
         BetterCaves.LOGGER.info("Replacing biome carvers with Better Caves carvers...");
 
         // Replace biome carvers with Better Caves carvers
@@ -95,10 +75,7 @@ public class BCFeature {
     /**
      * Removes the unloaded dimension's carver from the active carvers map.
      */
-
-
-    public static void worldUnload(ServerWorld event) {
-        BetterCaves.LOGGER.debug("UNLOADING WORLD");
+    private static void worldUnload(ServerWorld event) {
         try {
             String key = Objects.requireNonNull((World)event).getRegistryKey().getValue().toString();
             BetterCaves.activeCarversMap.remove(key);

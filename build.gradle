@@ -24,6 +24,7 @@ dependencies {
 	compileOnly "com.google.code.findbugs:jsr305:3.0.2"
 
 	implementation "com.electronwill.night-config:core:${project.nightconfig_core_version}"
+	implementation "com.electronwill.night-config:toml:${project.nightconfig_toml_version}"
 }
 
 minecraft {

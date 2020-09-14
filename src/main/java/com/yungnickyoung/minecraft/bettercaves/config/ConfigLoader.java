@@ -59,7 +59,7 @@ public class ConfigLoader {
         }
 
         // Check that config has only one topmost level, called "Better Caves"
-        if (configData.valueMap().size() != 1 || configData.valueMap().get("Better Caves") == null) {
+        if (configData.valueMap().size() != 1 || configData.valueMap().get("betterCaves") == null) {
             BetterCaves.LOGGER.error("ERROR - Invalid Better Caves config file {}", file.getName());
             BetterCaves.LOGGER.error("Is there only one topmost category level, called \"Better Caves\"?");
             BetterCaves.LOGGER.info("USING GLOBAL CONFIG FILE INSTEAD...");
@@ -67,7 +67,7 @@ public class ConfigLoader {
         }
 
         // Populate path map with the config file's contents
-        Map<String, Object> pathMap = configToMap((AbstractConfig)configData.valueMap().get("Better Caves"));
+        Map<String, Object> pathMap = configToMap((AbstractConfig)configData.valueMap().get("betterCaves"));
 
         // Clean up I/O
         configData.close();
@@ -107,7 +107,7 @@ public class ConfigLoader {
      */
     private static Map<String, Object> configToMap(AbstractConfig config) {
         Map<String, Object> pathMap = new HashMap<>();
-        fillPathMap(config, pathMap, "Better Caves");
+        fillPathMap(config, pathMap, "betterCaves");
         return pathMap;
     }
 

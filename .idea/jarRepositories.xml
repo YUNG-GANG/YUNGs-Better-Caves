@@ -46,5 +46,15 @@
       <option name="name" value="cotton-config" />
       <option name="url" value="http://server.bbkr.space:8081/artifactory/libs-release" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="maven3" />
+      <option name="name" value="maven3" />
+      <option name="url" value="https://minecraft.curseforge.com/api/maven/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="maven2" />
+      <option name="name" value="maven2" />
+      <option name="url" value="https://www.cursemaven.com" />
+    </remote-repository>
   </component>
 </project>

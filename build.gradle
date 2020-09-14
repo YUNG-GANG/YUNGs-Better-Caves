@@ -1,5 +1,6 @@
 plugins {
 	id 'fabric-loom' version '0.4-SNAPSHOT'
+	id 'com.github.johnrengelman.shadow' version '6.0.0'
 	id 'maven-publish'
 }
 
@@ -7,7 +8,7 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 archivesBaseName = project.archives_base_name
-version = project.mod_version
+version = "${project.minecraft_version}-${project.mod_version}"
 group = project.maven_group
 
 dependencies {
@@ -23,7 +24,7 @@ dependencies {
 	// You may need to force-disable transitiveness on them.
 	compileOnly "com.google.code.findbugs:jsr305:3.0.2"
 
-	implementation "com.electronwill.night-config:core:${project.nightconfig_core_version}"
+	shadow "com.electronwill.night-config:toml:${project.nightconfig_toml_version}"
 	implementation "com.electronwill.night-config:toml:${project.nightconfig_toml_version}"
 }
 
@@ -59,8 +60,27 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 	from sourceSets.main.allSource
 }
 
+shadowJar {
+	relocate 'com.electronwill', 'com.yungnickyoung.minecraft.bettercaves'
+	configurations = [project.configurations.shadow]
+	classifier = "shadow"
+}
+
 jar {
 	from "LICENSE"
+}
+
+import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
+
+task relocateShadowJar(type: ConfigureShadowRelocation) {
+	target = tasks.shadowJar
+	prefix = "${project.group}.${project.archivesBaseName}.shadow"
+}
+tasks.shadowJar.dependsOn tasks.relocateShadowJar
+
+remapJar {
+	dependsOn shadowJar
+	input.set shadowJar.archiveFile.get()
 }
 
 // configure the maven publication
@@ -78,7 +98,6 @@ publishing {
 	}
 }
 
-/****Config Stuff****/
 repositories {
 	maven {
 		url 'https://maven.fabricmc.net/io/github/prospector/modmenu/'
@@ -96,7 +115,6 @@ dependencies {
 	include ("me.sargunvohra.mcmods:autoconfig1u:${project.auto_config_version}") {
 		exclude module: 'fabric-api'
 	}
-
 	modImplementation ("me.shedaniel.cloth:config-2:${project.cloth_config_version}") {
 		exclude module: 'fabric-api'
 	}
@@ -104,6 +122,9 @@ dependencies {
 		exclude module: 'fabric-api'
 	}
 	modImplementation ("io.github.prospector:modmenu:${project.mod_menu_version}"){
+		exclude module: 'fabric-api'
+	}
+	include ("io.github.prospector:modmenu:${project.mod_menu_version}"){
 		exclude module: 'fabric-api'
 	}
 }

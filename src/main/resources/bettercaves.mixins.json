@@ -4,6 +4,7 @@
   "package": "com.yungnickyoung.minecraft.bettercaves.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "MixinMinecraftServer"
   ],
   "client": [
   ],

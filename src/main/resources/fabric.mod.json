@@ -18,7 +18,7 @@
   },
   "license": "LGPLv3",
   "icon": "BetterCavesLogo.png",
-  "environment": "*",
+  "environment": "server",
   "entrypoints": {
     "main": [
       "com.yungnickyoung.minecraft.bettercaves.BetterCaves"

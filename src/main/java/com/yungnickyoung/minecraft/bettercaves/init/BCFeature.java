@@ -1,41 +1,27 @@
 package com.yungnickyoung.minecraft.bettercaves.init;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.world.feature.CarverFeature;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.WorldGenRegistries;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.gen.GenerationStage;
-import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraft.world.gen.feature.*;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.DeferredWorkQueue;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import java.util.*;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public class BCFeature {
     public static final CarverFeature BETTERCAVES_FEATURE = new CarverFeature(NoFeatureConfig.field_236558_a_);
     public static final ConfiguredFeature<?, ?> CONFIGURED_BETTERCAVES_FEATURE = new ConfiguredFeature<>(BETTERCAVES_FEATURE, new NoFeatureConfig());
 
-    /**
-     * Register
-     */
     public static void init() {
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(BCFeature::commonSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(BCFeature::configChanged);
         FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Feature.class, BCFeature::registerFeature);
         MinecraftForge.EVENT_BUS.addListener(BCFeature::worldUnload);
@@ -43,46 +29,6 @@ public class BCFeature {
 
     public static void registerFeature(final RegistryEvent.Register<Feature<?>> event) {
         Registry.register(Registry.FEATURE, new ResourceLocation(BCSettings.MOD_ID, "bettercaves"), BETTERCAVES_FEATURE);
-    }
-
-    /**
-     * Iterates over all biomes, removing their carvers and adding the Better Caves feature
-     * (which wraps all the pre-existing carvers) to the front of their feature lists
-     */
-    public static void commonSetup(FMLCommonSetupEvent event) {
-        DeferredWorkQueue.runLater(BCFeature::lateSetup);
-    }
-
-    /**
-     * Delayed setup to ensure we collect any carvers added by other mods.
-     */
-    private static void lateSetup() {
-        BetterCaves.LOGGER.info("Replacing biome carvers with Better Caves carvers...");
-
-        // Replace biome carvers with Better Caves carvers
-        for (Biome biome : WorldGenRegistries.field_243657_i) {
-            convertImmutableFeatures(biome);
-
-            // Save all pre-existing carvers for biome.
-            // These will be used in dimensions where Better Caves is not whitelisted.
-            List<Supplier<ConfiguredCarver<?>>> defaultAirCarvers = biome.func_242440_e().func_242489_a(GenerationStage.Carving.AIR);
-            List<Supplier<ConfiguredCarver<?>>> defaultLiquidCarvers = biome.func_242440_e().func_242489_a(GenerationStage.Carving.LIQUID);
-            BetterCaves.defaultBiomeAirCarvers.put(biome.toString(), convertImmutableList(defaultAirCarvers));
-            BetterCaves.defaultBiomeLiquidCarvers.put(biome.toString(), convertImmutableList(defaultLiquidCarvers));
-
-            // Use Access Transformer to make carvers field public so we can replace with empty list
-            biome.func_242440_e().field_242483_e = Maps.newHashMap();
-
-            // Use Access Transformer to make features field public so we can put our carver
-            // at the front of the list to give it guaranteed priority.
-            List<List<Supplier<ConfiguredFeature<?, ?>>>> biomeFeatures = biome.func_242440_e().field_242484_f;
-            while (biomeFeatures.size() <= GenerationStage.Decoration.RAW_GENERATION.ordinal()) {
-                biomeFeatures.add(Lists.newArrayList());
-            }
-            List<Supplier<ConfiguredFeature<?, ?>>> rawGenSuppliers = convertImmutableList(biomeFeatures.get(GenerationStage.Decoration.RAW_GENERATION.ordinal()));
-            rawGenSuppliers.add(0, () -> CONFIGURED_BETTERCAVES_FEATURE);
-            biomeFeatures.set(GenerationStage.Decoration.RAW_GENERATION.ordinal(), rawGenSuppliers);
-        }
     }
 
     /**
@@ -124,25 +70,5 @@ public class BCFeature {
 
             BetterCaves.whitelistedDimensions = whitelistedDimensions;
         }
-    }
-
-    /**
-     * In 1.16.2, many lists were made immutable. Other modders seemingly have confused themselves and made
-     * mutable lists immutable after processing them. This method serves to help avoid problems arising from
-     * attempting to modify immutable collections.
-     */
-    private static void convertImmutableFeatures(Biome biome) {
-        if (biome.func_242440_e().field_242484_f instanceof ImmutableList) {
-            biome.func_242440_e().field_242484_f = biome.func_242440_e().field_242484_f.stream().map(Lists::newArrayList).collect(Collectors.toList());
-        }
-    }
-
-    /**
-     * In 1.16.2, many lists were made immutable. Other modders seemingly have confused themselves and made
-     * mutable lists immutable after processing them. This method serves to help avoid problems arising from
-     * attempting to modify immutable collections.
-     */
-    private static <T> List<T> convertImmutableList(List<T> list) {
-        return new ArrayList<>(list);
     }
 }

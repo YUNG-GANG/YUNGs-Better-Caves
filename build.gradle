@@ -1,11 +1,13 @@
 buildscript {
     repositories {
         maven { url = "http://files.minecraftforge.net/maven" }
+        maven { url='https://dist.creeper.host/Sponge/maven' }
         jcenter()
         mavenCentral()
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
@@ -42,6 +44,7 @@ minecraft {
     runs {
         client {
             workingDirectory project.file('run')
+            arg "-mixin.config=" + modId + ".mixins.json"
 
             // Recommended logging data for a userdev environment
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
@@ -58,6 +61,7 @@ minecraft {
 
         server {
             workingDirectory project.file('run')
+            arg "-mixin.config=" + modId + ".mixins.json"
 
             // Recommended logging data for a userdev environment
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
@@ -111,7 +115,8 @@ jar {
                 "Implementation-Version"  : "${version}",
                 "Implementation-Vendor"   : modGroup,
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                "Signing-Fingerprint"     : project.hasProperty('signSHA1') ? project.findProperty('signSHA1') : "unsigned"
+                "Signing-Fingerprint"     : project.hasProperty('signSHA1') ? project.findProperty('signSHA1') : "unsigned",
+                "MixinConfigs": "${modId}.mixins.json"
         ],)
     }
 }
@@ -169,21 +174,8 @@ processResources {
     }
 }
 
-// Create Sources Jar
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-build.dependsOn sourcesJar
+apply plugin: 'org.spongepowered.mixin'
 
-//// Create Javadoc Jar
-//task javadocJar(type: Jar, dependsOn: javadoc) {
-//	classifier = 'javadoc'
-//	from javadoc.destinationDir
-//}
-//build.dependsOn javadocJar
-
-artifacts {
-    archives sourcesJar
-//	archives javadocJar
+mixin {
+    add sourceSets.main, "${modId}.refmap.json"
 }

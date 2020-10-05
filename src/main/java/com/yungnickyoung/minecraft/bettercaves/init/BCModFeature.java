@@ -35,6 +35,7 @@ public class BCModFeature {
 
     private static void registerFeature() {
         Registry.register(Registry.FEATURE, new Identifier(BCSettings.MOD_ID, "bettercaves"), BETTERCAVES_FEATURE);
+        Registry.register(BuiltinRegistries.CONFIGURED_FEATURE, new Identifier(BCSettings.MOD_ID, "bettercaves"), CONFIGURED_BETTERCAVES_FEATURE);
     }
 
     /**

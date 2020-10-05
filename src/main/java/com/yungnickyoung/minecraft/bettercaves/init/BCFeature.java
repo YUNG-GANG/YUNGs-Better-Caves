@@ -7,6 +7,7 @@ import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.world.feature.CarverFeature;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.WorldGenRegistries;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.*;
 import net.minecraftforge.common.MinecraftForge;
@@ -29,6 +30,7 @@ public class BCFeature {
 
     public static void registerFeature(final RegistryEvent.Register<Feature<?>> event) {
         Registry.register(Registry.FEATURE, new ResourceLocation(BCSettings.MOD_ID, "bettercaves"), BETTERCAVES_FEATURE);
+        Registry.register(WorldGenRegistries.field_243653_e, new ResourceLocation(BCSettings.MOD_ID, "bettercaves"), CONFIGURED_BETTERCAVES_FEATURE);
     }
 
     /**

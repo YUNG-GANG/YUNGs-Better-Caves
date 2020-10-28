@@ -29,7 +29,7 @@ public class BCFeature {
     }
 
     public static void registerFeature(final RegistryEvent.Register<Feature<?>> event) {
-        Registry.register(Registry.FEATURE, new ResourceLocation(BCSettings.MOD_ID, "bettercaves"), BETTERCAVES_FEATURE);
+        event.getRegistry().register(BETTERCAVES_FEATURE.setRegistryName(new ResourceLocation(BCSettings.MOD_ID, "bettercaves")));
         Registry.register(WorldGenRegistries.field_243653_e, new ResourceLocation(BCSettings.MOD_ID, "bettercaves"), CONFIGURED_BETTERCAVES_FEATURE);
     }
 

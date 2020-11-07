@@ -1,31 +1,31 @@
 package com.yungnickyoung.minecraft.bettercaves.config.cave;
 
-import me.sargunvohra.mcmods.autoconfig1u.annotation.ConfigEntry;
+//import me.sargunvohra.mcmods.autoconfig1u.annotation.ConfigEntry;
 
 public class ConfigSimplexCave {
-    @ConfigEntry.BoundedDiscrete(min = 0, max = 255)
-    @ConfigEntry.Gui.Tooltip
+//    @ConfigEntry.BoundedDiscrete(min = 0, max = 255)
+//    @ConfigEntry.Gui.Tooltip
     public int caveBottom = 1;
 
-    @ConfigEntry.BoundedDiscrete(min = 0, max = 255)
-    @ConfigEntry.Gui.Tooltip
+//    @ConfigEntry.BoundedDiscrete(min = 0, max = 255)
+//    @ConfigEntry.Gui.Tooltip
     public int caveTop = 80;
 
-    @ConfigEntry.BoundedDiscrete(min = 0, max = 255)
-    @ConfigEntry.Gui.Tooltip(count = 4)
+//    @ConfigEntry.BoundedDiscrete(min = 0, max = 255)
+//    @ConfigEntry.Gui.Tooltip(count = 4)
     public int caveSurfaceCutoff = 15;
 
-    @ConfigEntry.Gui.Tooltip
+//    @ConfigEntry.Gui.Tooltip
     public double yCompression = 2.2;
 
-    @ConfigEntry.Gui.Tooltip
+//    @ConfigEntry.Gui.Tooltip
     public double xzCompression = 0.9;
 
-    @ConfigEntry.BoundedDiscrete(min = 0, max = 10)
-    @ConfigEntry.Gui.Tooltip
+//    @ConfigEntry.BoundedDiscrete(min = 0, max = 10)
+//    @ConfigEntry.Gui.Tooltip
     public int cavePriority = 5;
 
-    @ConfigEntry.Gui.Excluded
+//    @ConfigEntry.Gui.Excluded
     public Advanced advancedSettings = new Advanced();
 
     public static class Advanced {

@@ -5,18 +5,18 @@ import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtils;
 import com.yungnickyoung.minecraft.bettercaves.util.ColPos;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.StructureWorldAccess;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Objects;
 import java.util.Random;
 
 public class WaterRegionController {
     private FastNoise waterRegionController;
-    private StructureWorldAccess world;
+    private WorldGenLevel world;
     private String dimensionName;
     private Random rand;
 
@@ -29,9 +29,9 @@ public class WaterRegionController {
     private static final float SMOOTH_RANGE = .04f;
     private static final float SMOOTH_DELTA = .01f;
 
-    public WaterRegionController(StructureWorldAccess worldIn, ConfigHolder config) {
+    public WaterRegionController(WorldGenLevel worldIn, ConfigHolder config) {
         this.world = worldIn;
-        this.dimensionName = Objects.requireNonNull(world.toServerWorld().getRegistryKey().getValue()).toString();
+        dimensionName = Objects.requireNonNull(world.registryAccess().dimensionTypes().getKey(world.dimensionType())).toString();
         this.rand = new Random();
 
         // Vars from config
@@ -78,18 +78,18 @@ public class WaterRegionController {
     private BlockState getLavaBlockFromString(String lavaString) {
         BlockState lavaBlock;
         try {
-            lavaBlock = Registry.BLOCK.get(new Identifier(lavaString)).getDefaultState();
+            lavaBlock = Registry.BLOCK.get(new ResourceLocation(lavaString)).defaultBlockState();
             BetterCaves.LOGGER.info(String.format("Using block '%s' as lava in cave generation for dimension %s", lavaBlock, dimensionName));
         } catch (Exception e) {
             BetterCaves.LOGGER.warn(String.format("Unable to use block '%s': %s", lavaString, e));
             BetterCaves.LOGGER.warn("Using vanilla lava instead...");
-            lavaBlock = Blocks.LAVA.getDefaultState();
+            lavaBlock = Blocks.LAVA.defaultBlockState();
         }
 
         // Default to vanilla lava if lavaBlock is null or contains air (the default registry block) when air was not specified
-        if (lavaBlock == null || (lavaBlock == Blocks.AIR.getDefaultState() && !lavaString.equals("minecraft:air"))) {
+        if (lavaBlock == null || (lavaBlock == Blocks.AIR.defaultBlockState() && !lavaString.equals("minecraft:air"))) {
             BetterCaves.LOGGER.warn(String.format("Unable to use block '%s': null block returned.\n Using vanilla lava instead...", lavaString));
-            lavaBlock = Blocks.LAVA.getDefaultState();
+            lavaBlock = Blocks.LAVA.defaultBlockState();
         }
         return lavaBlock;
     }
@@ -97,25 +97,25 @@ public class WaterRegionController {
     private BlockState getWaterBlockFromString(String waterString) {
         BlockState waterBlock;
         try {
-            waterBlock = Registry.BLOCK.get(new Identifier(waterString)).getDefaultState();
+            waterBlock = Registry.BLOCK.get(new ResourceLocation(waterString)).defaultBlockState();
             BetterCaves.LOGGER.info(String.format("Using block '%s' as water in cave generation for dimension %s", waterBlock, dimensionName));
 
         } catch (Exception e) {
             BetterCaves.LOGGER.warn(String.format("Unable to use block '%s': %s", waterString, e));
             BetterCaves.LOGGER.warn("Using vanilla water instead...");
-            waterBlock = Blocks.WATER.getDefaultState();
+            waterBlock = Blocks.WATER.defaultBlockState();
         }
 
         // Default to vanilla water if waterBlock is null or contains air (the default registry block) when air was not specified
-        if (waterBlock == null || (waterBlock == Blocks.AIR.getDefaultState() && !waterString.equals("minecraft:air"))) {
+        if (waterBlock == null || (waterBlock == Blocks.AIR.defaultBlockState() && !waterString.equals("minecraft:air"))) {
             BetterCaves.LOGGER.warn(String.format("Unable to use block '%s': null block returned.\n Using vanilla water instead...", waterString));
-            waterBlock = Blocks.WATER.getDefaultState();
+            waterBlock = Blocks.WATER.defaultBlockState();
         }
 
         return waterBlock;
     }
 
-    public void setWorld(StructureWorldAccess worldIn) {
+    public void setWorld(WorldGenLevel worldIn) {
         this.world = worldIn;
     }
 }

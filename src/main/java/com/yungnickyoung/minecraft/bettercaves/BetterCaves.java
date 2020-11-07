@@ -8,7 +8,7 @@ import com.yungnickyoung.minecraft.bettercaves.init.BCModFeature;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.BetterCavesCarver;
 import net.fabricmc.api.ModInitializer;
 
-import net.minecraft.world.gen.carver.ConfiguredCarver;
+import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,11 +40,11 @@ public class BetterCaves implements ModInitializer {
      * Better Caves deletes these and wraps them in its feature so that they can be
      * used for dimensions in which Better Caves is disabled.
      */
-    public static Map<String, List<Supplier<ConfiguredCarver<?>>>> defaultBiomeAirCarvers = new HashMap<>();
-    public static Map<String, List<Supplier<ConfiguredCarver<?>>>> defaultBiomeLiquidCarvers = new HashMap<>();
+    public static Map<String, List<Supplier<ConfiguredWorldCarver<?>>>> defaultBiomeAirCarvers = new HashMap<>();
+    public static Map<String, List<Supplier<ConfiguredWorldCarver<?>>>> defaultBiomeLiquidCarvers = new HashMap<>();
 
     /** Better Caves config. Uses AutoConfig. **/
-    public static Configuration CONFIG;
+    public static Configuration CONFIG = new Configuration();
 
     /** File referring to the overarching directory for custom dimension configs **/
     public static File customConfigDir;

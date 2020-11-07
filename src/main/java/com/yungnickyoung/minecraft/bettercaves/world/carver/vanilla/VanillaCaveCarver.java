@@ -5,15 +5,14 @@ import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
 import com.yungnickyoung.minecraft.bettercaves.util.ColPos;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.ICarver;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.Chunk;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Map;
@@ -39,7 +38,7 @@ public class VanillaCaveCarver implements ICarver {
         isReplaceGravelEnabled,
         isFloodedUndergroundEnabled;
     private Random rand = new Random();
-    private StructureWorldAccess world;
+    private WorldGenLevel world;
 
     private int range = 8;
 
@@ -64,7 +63,7 @@ public class VanillaCaveCarver implements ICarver {
     /**
      * Calls recursiveGenerate() on all chunks within a certain square range (default 8) of this chunk.
      */
-    public void generate(StructureWorldAccess worldIn, int chunkX, int chunkZ, Chunk primer, boolean addRooms, BlockState[][] liquidBlocks, Map<Long, Biome> biomeMap, boolean[][] validPositions, BitSet airCarvingMask, BitSet liquidCarvingMask) {
+    public void generate(WorldGenLevel worldIn, int chunkX, int chunkZ, ChunkAccess primer, boolean addRooms, BlockState[][] liquidBlocks, Map<Long, Biome> biomeMap, boolean[][] validPositions, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         int chunkRadius = this.range;
         this.world = worldIn;
         this.rand.setSeed(worldIn.getSeed());
@@ -80,7 +79,7 @@ public class VanillaCaveCarver implements ICarver {
         }
     }
 
-    public void generate(StructureWorldAccess worldIn, int x, int z, Chunk primer, boolean addRooms, BlockState[][] liquidBlocks, Map<Long, Biome> biomeMap, BitSet airCarvingMask, BitSet liquidCarvingMask) {
+    public void generate(WorldGenLevel worldIn, int x, int z, ChunkAccess primer, boolean addRooms, BlockState[][] liquidBlocks, Map<Long, Biome> biomeMap, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         boolean[][] validPositions = new boolean[16][16];
         for (boolean[] row : validPositions)
             Arrays.fill(row, true);
@@ -93,7 +92,7 @@ public class VanillaCaveCarver implements ICarver {
      * This means that when a chunk is checked multiple times by different neighbor chunks, each time it will be processed
      * the same way, ensuring the tunnels are always consistent and connecting.
      */
-    private void recursiveGenerate(StructureWorldAccess worldIn, int chunkX, int chunkZ, int originalChunkX, int originalChunkZ, @Nonnull Chunk primer, boolean addRooms, BlockState[][] liquidBlocks, Map<Long, Biome> biomeMap, boolean[][] validPositions, BitSet airCarvingMask, BitSet liquidCarvingMask) {
+    private void recursiveGenerate(WorldGenLevel worldIn, int chunkX, int chunkZ, int originalChunkX, int originalChunkZ, ChunkAccess primer, boolean addRooms, BlockState[][] liquidBlocks, Map<Long, Biome> biomeMap, boolean[][] validPositions, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         int numAttempts = this.rand.nextInt(this.rand.nextInt(this.rand.nextInt(15) + 1) + 1);
 
         if (this.rand.nextInt(100) > this.density) {
@@ -139,11 +138,11 @@ public class VanillaCaveCarver implements ICarver {
     }
 
 
-    private void addRoom(StructureWorldAccess worldIn, long seed, int originChunkX, int originChunkZ, Chunk primer, double caveStartX, double caveStartY, double caveStartZ, BlockState[][] liquidBlocks, Map<Long, Biome> biomeMap, boolean[][] validPositions, BitSet airCarvingMask, BitSet liquidCarvingMask) {
+    private void addRoom(WorldGenLevel worldIn, long seed, int originChunkX, int originChunkZ, ChunkAccess primer, double caveStartX, double caveStartY, double caveStartZ, BlockState[][] liquidBlocks, Map<Long, Biome> biomeMap, boolean[][] validPositions, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         this.addTunnel(worldIn, seed, originChunkX, originChunkZ, primer, caveStartX, caveStartY, caveStartZ, 1.0F + this.rand.nextFloat() * 6.0F, 0.0F, 0.0F, -1, -1, 0.5D, liquidBlocks, biomeMap, validPositions, airCarvingMask, liquidCarvingMask);
     }
 
-    protected void addTunnel(StructureWorldAccess worldIn, long seed, int originChunkX, int originChunkZ, Chunk chunk, double caveStartX, double caveStartY, double caveStartZ, float width, float yaw, float pitch, int startCounter, int endCounter, double heightModifier, BlockState[][] liquidBlocks, Map<Long, Biome> biomeMap, boolean[][] validPositions, BitSet airCarvingMask, BitSet liquidCarvingMask) {
+    protected void addTunnel(WorldGenLevel worldIn, long seed, int originChunkX, int originChunkZ, ChunkAccess chunk, double caveStartX, double caveStartY, double caveStartZ, float width, float yaw, float pitch, int startCounter, int endCounter, double heightModifier, BlockState[][] liquidBlocks, Map<Long, Biome> biomeMap, boolean[][] validPositions, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         BlockState liquidBlock;
         Random random = new Random(seed);
 
@@ -182,16 +181,16 @@ public class VanillaCaveCarver implements ICarver {
         while (startCounter < endCounter) {
             // Appears to change how wide caves are. Value will be between 1.5 and 1.5 + width.
             // Note that caves will become wider toward the middle, and close off on the ends.
-            double xzOffset = 1.5D + (double) (MathHelper.sin((float) startCounter * (float) Math.PI / (float) endCounter) * width);
+            double xzOffset = 1.5D + (double) (Mth.sin((float) startCounter * (float) Math.PI / (float) endCounter) * width);
 
             // Appears to just be a linear modifier for the cave height
             double yOffset = xzOffset * heightModifier;
 
-            float pitchXZ = MathHelper.cos(pitch);
-            float pitchY = MathHelper.sin(pitch);
-            caveStartX += MathHelper.cos(yaw) * pitchXZ;
+            float pitchXZ = Mth.cos(pitch);
+            float pitchY = Mth.sin(pitch);
+            caveStartX += Mth.cos(yaw) * pitchXZ;
             caveStartY += pitchY;
-            caveStartZ += MathHelper.sin(yaw) * pitchXZ;
+            caveStartZ += Mth.sin(yaw) * pitchXZ;
 
             boolean flag = random.nextInt(6) == 0;
             if (flag) {
@@ -228,12 +227,12 @@ public class VanillaCaveCarver implements ICarver {
 
                 // Only continue if cave start is close enough to origin
                 if (caveStartX >= originBlockX - 16.0D - xzOffset * 2.0D && caveStartZ >= originBlockZ - 16.0D - xzOffset * 2.0D && caveStartX <= originBlockX + 16.0D + xzOffset * 2.0D && caveStartZ <= originBlockZ + 16.0D + xzOffset * 2.0D) {
-                    int minX = MathHelper.floor(caveStartX - xzOffset) - originChunkX * 16 - 1;
-                    int minY = MathHelper.floor(caveStartY - yOffset) - 1;
-                    int minZ = MathHelper.floor(caveStartZ - xzOffset) - originChunkZ * 16 - 1;
-                    int maxX = MathHelper.floor(caveStartX + xzOffset) - originChunkX * 16 + 1;
-                    int maxY = MathHelper.floor(caveStartY + yOffset) + 1;
-                    int maxZ = MathHelper.floor(caveStartZ + xzOffset) - originChunkZ * 16 + 1;
+                    int minX = Mth.floor(caveStartX - xzOffset) - originChunkX * 16 - 1;
+                    int minY = Mth.floor(caveStartY - yOffset) - 1;
+                    int minZ = Mth.floor(caveStartZ - xzOffset) - originChunkZ * 16 - 1;
+                    int maxX = Mth.floor(caveStartX + xzOffset) - originChunkX * 16 + 1;
+                    int maxY = Mth.floor(caveStartY + yOffset) + 1;
+                    int maxZ = Mth.floor(caveStartZ + xzOffset) - originChunkZ * 16 + 1;
 
                     if (minX < 0) {
                         minX = 0;
@@ -307,7 +306,7 @@ public class VanillaCaveCarver implements ICarver {
         }
     }
 
-    private void digBlock(StructureWorldAccess worldIn, Chunk chunkIn, int chunkX, int chunkZ, int localX, int y, int localZ, BlockState liquidBlockState, Map<Long, Biome> biomeMap, BitSet airCarvingMask, BitSet liquidCarvingMask) {
+    private void digBlock(WorldGenLevel worldIn, ChunkAccess chunkIn, int chunkX, int chunkZ, int localX, int y, int localZ, BlockState liquidBlockState, Map<Long, Biome> biomeMap, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         // Check if already carved
         int bitIndex = localX | localZ << 4 | y << 8;
         if (airCarvingMask.get(bitIndex) || liquidCarvingMask.get(bitIndex)) {
@@ -318,7 +317,7 @@ public class VanillaCaveCarver implements ICarver {
         ColPos.Mutable mutableColPos = new ColPos.Mutable(blockPos);
 
         // Determine if cave is flooded at this location
-        boolean flooded = isFloodedUndergroundEnabled && !isDebugVisualizerEnabled && biomeMap.get(mutableColPos.toLong()).getCategory() == Biome.Category.OCEAN;
+        boolean flooded = isFloodedUndergroundEnabled && !isDebugVisualizerEnabled && biomeMap.get(mutableColPos.toLong()).getBiomeCategory() == Biome.BiomeCategory.OCEAN;
         if (flooded) {
             // Cannot go above sea level
             if (y >= worldIn.getSeaLevel()) {
@@ -327,10 +326,10 @@ public class VanillaCaveCarver implements ICarver {
 
             // Don't dig boundaries between flooded and unflooded openings.
             if (
-                (BetterCavesUtils.isPosInWorld(mutableColPos.set(blockPos).move(Direction.EAST), world) && biomeMap.get(mutableColPos.set(blockPos).move(Direction.EAST).toLong()).getCategory() != Biome.Category.OCEAN) ||
-                (BetterCavesUtils.isPosInWorld(mutableColPos.set(blockPos).move(Direction.WEST), world) && biomeMap.get(mutableColPos.set(blockPos).move(Direction.WEST).toLong()).getCategory() != Biome.Category.OCEAN) ||
-                (BetterCavesUtils.isPosInWorld(mutableColPos.set(blockPos).move(Direction.NORTH), world) && biomeMap.get(mutableColPos.set(blockPos).move(Direction.NORTH).toLong()).getCategory() != Biome.Category.OCEAN) ||
-                (BetterCavesUtils.isPosInWorld(mutableColPos.set(blockPos).move(Direction.SOUTH), world) && biomeMap.get(mutableColPos.set(blockPos).move(Direction.SOUTH).toLong()).getCategory() != Biome.Category.OCEAN)
+                (BetterCavesUtils.isPosInWorld(mutableColPos.set(blockPos).move(Direction.EAST), world) && biomeMap.get(mutableColPos.set(blockPos).move(Direction.EAST).toLong()).getBiomeCategory() != Biome.BiomeCategory.OCEAN) ||
+                (BetterCavesUtils.isPosInWorld(mutableColPos.set(blockPos).move(Direction.WEST), world) && biomeMap.get(mutableColPos.set(blockPos).move(Direction.WEST).toLong()).getBiomeCategory() != Biome.BiomeCategory.OCEAN) ||
+                (BetterCavesUtils.isPosInWorld(mutableColPos.set(blockPos).move(Direction.NORTH), world) && biomeMap.get(mutableColPos.set(blockPos).move(Direction.NORTH).toLong()).getBiomeCategory() != Biome.BiomeCategory.OCEAN) ||
+                (BetterCavesUtils.isPosInWorld(mutableColPos.set(blockPos).move(Direction.SOUTH), world) && biomeMap.get(mutableColPos.set(blockPos).move(Direction.SOUTH).toLong()).getBiomeCategory() != Biome.BiomeCategory.OCEAN)
             ) {
                 return;
             }
@@ -338,14 +337,14 @@ public class VanillaCaveCarver implements ICarver {
 
         // Carve block
         if (flooded) {
-            CarverUtils.carveFloodedBlock(chunkIn, rand, blockPos.mutableCopy(), liquidBlockState, liquidAltitude, liquidCarvingMask);
+            CarverUtils.carveFloodedBlock(chunkIn, rand, blockPos.mutable(), liquidBlockState, liquidAltitude, liquidCarvingMask);
         }
         else {
             CarverUtils.carveBlock(chunkIn, blockPos, liquidBlockState, this.liquidAltitude, this.isReplaceGravelEnabled, airCarvingMask);
         }
     }
 
-    public void setWorld(StructureWorldAccess worldIn) {
+    public void setWorld(WorldGenLevel worldIn) {
         this.world = worldIn;
     }
 }

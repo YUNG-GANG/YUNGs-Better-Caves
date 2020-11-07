@@ -22,21 +22,14 @@
   "entrypoints": {
     "main": [
       "com.yungnickyoung.minecraft.bettercaves.BetterCaves"
-    ],
-    "modmenu": [
-      "com.yungnickyoung.minecraft.bettercaves.config.gui.BCModMenu"
     ]
   },
   "mixins": [
     "bettercaves.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.7.4",
-    "fabric": "*",
-    "minecraft": ">=1.16.2"
-  },
-  "suggests": {
-    "flamingo": "*"
+    "fabricloader": ">=0.10.6+build.214",
+    "minecraft": ">=1.17-alpha.20.45.a"
   },
   "accessWidener" : "bettercaves.aw"
 }

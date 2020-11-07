@@ -18,6 +18,7 @@ public class ConfigLoader {
      * @return ConfigHolder loaded from file for given dimension
      */
     public static ConfigHolder loadConfigFromFileForDimension(String dimensionName) {
+//        return new ConfigHolder();
         String fileName = "DIM_" + dimensionName.replace(':', '-') + ".toml";
         File configFile = new File(BetterCaves.customConfigDir, fileName);
 
@@ -90,12 +91,12 @@ public class ConfigLoader {
 
             if ((type == Double.TYPE || type == Double.class) && value.getClass() == Integer.class) {
                 configOption.set(((Integer) value).doubleValue());
-                BetterCaves.LOGGER.debug("{}: overriding config option: {}", file.getName(), fullName);
+                BetterCaves.LOGGER.info("{}: overriding config option: {}", file.getName(), fullName);
             } else if (type != value.getClass()) {
                 BetterCaves.LOGGER.error("ERROR: WRONG TYPE for {} in config {}. Skipping...", fullName, file.getName());
             } else {
                 configOption.set(value);
-                BetterCaves.LOGGER.debug("{}: overriding config option: {}", file.getName(), fullName);
+                BetterCaves.LOGGER.info("{}: overriding config option: {}", file.getName(), fullName);
             }
         }
 

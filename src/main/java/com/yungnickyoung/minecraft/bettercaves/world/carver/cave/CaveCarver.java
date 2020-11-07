@@ -9,9 +9,9 @@ import com.yungnickyoung.minecraft.bettercaves.util.ColPos;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverSettings;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.ICarver;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.chunk.Chunk;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
 
 import java.util.*;
 
@@ -58,7 +58,7 @@ public class CaveCarver implements ICarver {
         }
     }
 
-    public void carveColumn(Chunk chunk, ColPos colPos, int topY, NoiseColumn noises, BlockState liquidBlock, boolean flooded, BitSet carvingMask) {
+    public void carveColumn(ChunkAccess chunk, ColPos colPos, int topY, NoiseColumn noises, BlockState liquidBlock, boolean flooded, BitSet carvingMask) {
         int localX = BetterCavesUtils.getLocal(colPos.getX());
         int localZ = BetterCavesUtils.getLocal(colPos.getZ());
 
@@ -67,10 +67,10 @@ public class CaveCarver implements ICarver {
             return;
         if (localZ < 0 || localZ > 15)
             return;
-        if (bottomY < 0 || bottomY > 255)
-            return;
-        if (topY < 0 || topY > 255)
-            return;
+//        if (bottomY < 0 || bottomY > 255)
+//            return;
+//        if (topY < 0 || topY > 255)
+//            return;
 
         // Altitude at which caves start closing off so they aren't all open to the surface
         int transitionBoundary = topY - surfaceCutoff;
@@ -111,7 +111,7 @@ public class CaveCarver implements ICarver {
             }
             else if (digBlock) {
                 if (flooded) {
-                    CarverUtils.carveFloodedBlock(chunk, new Random(), blockPos.mutableCopy(), liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel(), carvingMask);
+                    CarverUtils.carveFloodedBlock(chunk, new Random(), blockPos.mutable(), liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel(), carvingMask);
                 } else {
                     CarverUtils.carveBlock(chunk, blockPos, liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel(), carvingMask);
                 }

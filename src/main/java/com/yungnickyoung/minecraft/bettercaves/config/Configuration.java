@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import me.sargunvohra.mcmods.autoconfig1u.ConfigData;
 import me.sargunvohra.mcmods.autoconfig1u.annotation.Config;
-import me.sargunvohra.mcmods.autoconfig1u.annotation.ConfigEntry;
+//import me.sargunvohra.mcmods.autoconfig1u.annotation.ConfigEntry;
 
 import java.util.List;
 
@@ -18,8 +18,8 @@ import java.util.List;
  */
 @Config(name = BCSettings.BASE_CONFIG_NAME)
 public class Configuration implements ConfigData {
-    @ConfigEntry.Category("Better Caves")
-    @ConfigEntry.Gui.TransitiveObject
+//    @ConfigEntry.Category("Better Caves")
+//    @ConfigEntry.Gui.TransitiveObject
     public ConfigBetterCaves betterCaves = new ConfigBetterCaves();
 
     /**

@@ -12,12 +12,12 @@ import com.yungnickyoung.minecraft.bettercaves.util.ColPos;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverNoiseRange;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.cavern.CavernCarver;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.cavern.CavernCarverBuilder;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.Chunk;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 public class CavernCarverController {
-    private StructureWorldAccess world;
+    private WorldGenLevel world;
     private FastNoise cavernRegionController;
     private List<CarverNoiseRange> noiseRanges = new ArrayList<>();
 
@@ -34,7 +34,7 @@ public class CavernCarverController {
     private boolean isOverrideSurfaceDetectionEnabled;
     private boolean isFloodedUndergroundEnabled;
 
-    public CavernCarverController(StructureWorldAccess worldIn, ConfigHolder config) {
+    public CavernCarverController(WorldGenLevel worldIn, ConfigHolder config) {
         this.world = worldIn;
         this.isDebugViewEnabled = config.debugVisualizer.get();
         this.isOverrideSurfaceDetectionEnabled = config.overrideSurfaceDetection.get();
@@ -50,12 +50,12 @@ public class CavernCarverController {
         List<CavernCarver> carvers = new ArrayList<>();
         carvers.add(new CavernCarverBuilder(world.getSeed())
             .ofTypeFromConfig(CavernType.LIQUID, config)
-            .debugVisualizerBlock(Blocks.REDSTONE_BLOCK.getDefaultState())
+            .debugVisualizerBlock(Blocks.REDSTONE_BLOCK.defaultBlockState())
             .build()
         );
         carvers.add(new CavernCarverBuilder(world.getSeed())
             .ofTypeFromConfig(CavernType.FLOORED, config)
-            .debugVisualizerBlock(Blocks.GOLD_BLOCK.getDefaultState())
+            .debugVisualizerBlock(Blocks.GOLD_BLOCK.defaultBlockState())
             .build()
         );
 
@@ -91,7 +91,7 @@ public class CavernCarverController {
         }
     }
 
-    public void carveChunk(Chunk chunk, int chunkX, int chunkZ, int[][] surfaceAltitudes, BlockState[][] liquidBlocks, Map<Long, Biome> biomeMap, BitSet airCarvingMask, BitSet liquidCarvingMask) {
+    public void carveChunk(ChunkAccess chunk, int chunkX, int chunkZ, int[][] surfaceAltitudes, BlockState[][] liquidBlocks, Map<Long, Biome> biomeMap, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         // Prevent unnecessary computation if caverns are disabled
         if (noiseRanges.size() == 0) {
             return;
@@ -132,7 +132,7 @@ public class CavernCarverController {
                         ColPos colPos = new ColPos(chunkX * 16 + localX, chunkZ * 16 + localZ);
 
                         if (isFloodedUndergroundEnabled && !isDebugViewEnabled) {
-                            flooded = biomeMap.get(colPos.toLong()).getCategory() == Biome.Category.OCEAN;
+                            flooded = biomeMap.get(colPos.toLong()).getBiomeCategory() == Biome.BiomeCategory.OCEAN;
                             smoothAmpFloodFactor = BetterCavesUtils.getDistFactor(world, biomeMap, colPos, 2, flooded ? BetterCavesUtils.isNotOcean : BetterCavesUtils.isOcean);
                             if (smoothAmpFloodFactor <= .25) { // Wall between flooded and normal caves.
                                 continue; // Continue to prevent unnecessary noise calculation
@@ -190,7 +190,7 @@ public class CavernCarverController {
         }
     }
 
-    public void setWorld(StructureWorldAccess worldIn) {
+    public void setWorld(WorldGenLevel worldIn) {
         this.world = worldIn;
     }
 }

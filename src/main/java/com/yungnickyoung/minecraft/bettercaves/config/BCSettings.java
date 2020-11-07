@@ -8,8 +8,8 @@ public class BCSettings {
     public static final String MOD_ID = "bettercaves";
 
     public static final String CUSTOM_CONFIG_PATH = "bettercaves";
-    public static final String BASE_CONFIG_NAME = "bettercaves-fabric-1_16";
-    public static final String VERSION_PATH = "fabric-1_16";
+    public static final String BASE_CONFIG_NAME = "bettercaves-fabric-1_17";
+    public static final String VERSION_PATH = "fabric-1_17";
 
     public static final int SUB_CHUNK_SIZE = 4;
     public static final float[] START_COEFFS = new float[SUB_CHUNK_SIZE];

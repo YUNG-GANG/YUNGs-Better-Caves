@@ -10,18 +10,18 @@ import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.CaveCarve
 import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.CavernCarverController;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.RavineController;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.WaterRegionController;
-import net.minecraft.block.BlockState;
-import net.minecraft.world.Heightmap;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ProtoChunk;
-import net.minecraft.world.gen.GenerationStep;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ProtoChunk;
+import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.Heightmap;
 
 import java.util.*;
 
 public class BetterCavesCarver {
-    private StructureWorldAccess world;
+    private WorldGenLevel world;
     public long seed = 0;
     public ConfigHolder config;
 
@@ -35,9 +35,9 @@ public class BetterCavesCarver {
     }
 
     // Override the default carver's method to use Better Caves carving instead.
-    public void carve(Chunk chunkIn, int chunkX, int chunkZ) {
-        BitSet airCarvingMask = ((ProtoChunk) chunkIn).getOrCreateCarvingMask(GenerationStep.Carver.AIR);
-        BitSet liquidCarvingMask = ((ProtoChunk) chunkIn).getOrCreateCarvingMask(GenerationStep.Carver.LIQUID);
+    public void carve(ChunkAccess chunkIn, int chunkX, int chunkZ) {
+        BitSet airCarvingMask = ((ProtoChunk) chunkIn).getOrCreateCarvingMask(GenerationStep.Carving.AIR);
+        BitSet liquidCarvingMask = ((ProtoChunk) chunkIn).getOrCreateCarvingMask(GenerationStep.Carving.LIQUID);
 
         // Flatten bedrock into single layer, if enabled in user config
         if (config.flattenBedrock.get()) {
@@ -48,11 +48,15 @@ public class BetterCavesCarver {
         int[][] surfaceAltitudes = new int[16][16];
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
-                surfaceAltitudes[x][z] = config.overrideSurfaceDetection.get()
-                    ? 1 // Don't bother doing unnecessary calculations
-                    : Math.min(
-                        chunkIn.getHeightmap(Heightmap.Type.WORLD_SURFACE_WG).get(x, z),
-                        chunkIn.getHeightmap(Heightmap.Type.OCEAN_FLOOR_WG).get(x, z));
+                Map.Entry<Heightmap.Types, Heightmap> surfaceHeightmapEntry = chunkIn.getHeightmaps().stream()
+                    .filter(entry -> entry.getKey() == Heightmap.Types.WORLD_SURFACE_WG)
+                    .findFirst().orElse(null);
+                Map.Entry<Heightmap.Types, Heightmap> oceanHeightmapEntry = chunkIn.getHeightmaps().stream()
+                    .filter(entry -> entry.getKey() == Heightmap.Types.OCEAN_FLOOR_WG)
+                    .findFirst().orElse(null);
+                int surfaceHeight = surfaceHeightmapEntry == null ? 35 : surfaceHeightmapEntry.getValue().getFirstAvailable(x, z);
+                int oceanHeight = oceanHeightmapEntry == null ? 35 : oceanHeightmapEntry.getValue().getFirstAvailable(x, z);
+                surfaceAltitudes[x][z] = Math.min(surfaceHeight, oceanHeight);
             }
         }
 
@@ -74,21 +78,21 @@ public class BetterCavesCarver {
         cavernCarverController.carveChunk(chunkIn, chunkX, chunkZ, surfaceAltitudes, liquidBlocks, biomeMap, airCarvingMask, liquidCarvingMask);
 
         // Set carving masks for features to use
-        ((ProtoChunk) chunkIn).setCarvingMask(GenerationStep.Carver.AIR, airCarvingMask);
-        ((ProtoChunk) chunkIn).setCarvingMask(GenerationStep.Carver.LIQUID, liquidCarvingMask);
+        ((ProtoChunk) chunkIn).setCarvingMask(GenerationStep.Carving.AIR, airCarvingMask);
+        ((ProtoChunk) chunkIn).setCarvingMask(GenerationStep.Carving.LIQUID, liquidCarvingMask);
     }
 
     /**
      * Initialize Better Caves generators and cave region controllers for this world.
      */
-    public void initialize(StructureWorldAccess worldIn) {
+    public void initialize(WorldGenLevel worldIn) {
         // Extract world information
         this.world = worldIn;
         this.seed = worldIn.getSeed();
         String dimensionName = "";
 
         try {
-            dimensionName = Objects.requireNonNull(world.toServerWorld().getRegistryKey().getValue()).toString();
+            dimensionName = Objects.requireNonNull(world.registryAccess().dimensionTypes().getKey(world.dimensionType())).toString();
         } catch (NullPointerException e) {
             BetterCaves.LOGGER.error("ERROR: Unable to get dimension name! This could be a problem...");
         }
@@ -105,7 +109,7 @@ public class BetterCavesCarver {
         BetterCaves.LOGGER.debug("BETTER CAVES WORLD CARVER INITIALIZED WITH SEED {} IN {}", seed, dimensionName);
     }
 
-    public void setWorld(StructureWorldAccess worldIn) {
+    public void setWorld(WorldGenLevel worldIn) {
         this.world = worldIn;
         this.caveCarverController.setWorld(worldIn);
         this.cavernCarverController.setWorld(worldIn);

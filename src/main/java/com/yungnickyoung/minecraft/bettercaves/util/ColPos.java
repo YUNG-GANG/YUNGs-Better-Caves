@@ -1,9 +1,8 @@
 package com.yungnickyoung.minecraft.bettercaves.util;
 
-
-import net.minecraft.util.BlockRotation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Rotation;
 
 /**
  * Similar to the BlockPos class, but only provides two axes (x and z).
@@ -105,10 +104,10 @@ public class ColPos {
     }
 
     public ColPos offset(Direction facing, int n) {
-        return n == 0 ? this : new ColPos(this.getX() + facing.getOffsetX() * n, this.getZ() + facing.getOffsetZ() * n);
+        return n == 0 ? this : new ColPos(this.getX() + facing.getStepX() * n, this.getZ() + facing.getStepZ() * n);
     }
 
-    public ColPos rotate(BlockRotation rotationIn) {
+    public ColPos rotate(Rotation rotationIn) {
         switch(rotationIn) {
             case NONE:
             default:
@@ -164,7 +163,7 @@ public class ColPos {
         }
 
         public Mutable move(Direction facing, int n) {
-            return this.set(this.x + facing.getOffsetX() * n, this.z + facing.getOffsetZ() * n);
+            return this.set(this.x + facing.getStepX() * n, this.z + facing.getStepZ() * n);
         }
 
         public Mutable move(Direction facing) {

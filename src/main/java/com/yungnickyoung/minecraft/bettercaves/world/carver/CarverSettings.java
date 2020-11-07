@@ -1,7 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves.world.carver;
 
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseSettings;
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class CarverSettings {
     private long  seed;

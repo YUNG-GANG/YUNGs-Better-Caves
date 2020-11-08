@@ -18,11 +18,12 @@ public class FlattenBedrock {
     public static void flattenBedrock(ChunkAccess chunk, int bedrockLayerWidth) {
         BlockState replacementBlock = Blocks.STONE.defaultBlockState();
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+        int bottomY  = chunk.getMinBuildHeight();
 
         // Replace normal bedrock at bottom of map with stone
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
-                for (int y = 1; y < 5; y++) {
+                for (int y = bottomY + 1; y < 5; y++) {
                     pos.set(x, y, z);
                     if (chunk.getBlockState(pos) == BEDROCK)
                         chunk.setBlockState(pos, replacementBlock, false);
@@ -33,7 +34,7 @@ public class FlattenBedrock {
         // Create bedrock layer(s) at bottom of map
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
-                for (int y = 1; y < bedrockLayerWidth; y++) {
+                for (int y = bottomY + 1; y < bottomY + bedrockLayerWidth; y++) {
                     pos.set(x, y, z);
                     chunk.setBlockState(pos, BEDROCK, false);
                 }

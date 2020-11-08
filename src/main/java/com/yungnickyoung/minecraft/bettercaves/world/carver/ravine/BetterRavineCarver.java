@@ -63,7 +63,7 @@ public class BetterRavineCarver extends CanyonWorldCarver {
         Random random = new Random(seed);
         float f = 1.0F;
 
-        for(int i = 0; i < 256; ++i) {
+        for(int i = 0; i < chunkIn.getMaxBuildHeight(); ++i) {
             if (i == 0 || random.nextInt(3) == 0) {
                 f = 1.0F + random.nextFloat() * random.nextFloat();
             }

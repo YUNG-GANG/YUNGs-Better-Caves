@@ -193,13 +193,9 @@ public class VanillaCaveCarver implements ICarver {
             caveStartZ += Mth.sin(yaw) * pitchXZ;
 
             boolean flag = random.nextInt(6) == 0;
-            if (flag) {
-                pitch = pitch * 0.92F;
-            } else {
-                pitch = pitch * 0.7F;
-            }
+            pitch *= flag ? .92F : .7F;
 
-            pitch = pitch + pitchModifier * 0.1F;
+            pitch += pitchModifier * 0.1F;
             yaw += yawModifier * 0.1F;
 
             pitchModifier = pitchModifier * 0.9F;
@@ -218,10 +214,10 @@ public class VanillaCaveCarver implements ICarver {
                 double caveStartXOffsetFromCenter = caveStartX - originBlockX; // Number of blocks from current caveStartX to center of origin chunk
                 double caveStartZOffsetFromCenter = caveStartZ - originBlockZ; // Number of blocks from current caveStartZ to center of origin chunk
                 double distanceToEnd = endCounter - startCounter;
-                double d7 = width + 2.0F + 16.0F;
+                double maxDistanceRadius = width + 2.0F + 16.0F;
 
-                // I think this prevents caves from generating too far from the origin chunk
-                if (caveStartXOffsetFromCenter * caveStartXOffsetFromCenter + caveStartZOffsetFromCenter * caveStartZOffsetFromCenter - distanceToEnd * distanceToEnd > d7 * d7) {
+                // Prevent caves from generating too far from the origin chunk
+                if (caveStartXOffsetFromCenter * caveStartXOffsetFromCenter + caveStartZOffsetFromCenter * caveStartZOffsetFromCenter - distanceToEnd * distanceToEnd > maxDistanceRadius * maxDistanceRadius) {
                     return;
                 }
 
@@ -234,29 +230,13 @@ public class VanillaCaveCarver implements ICarver {
                     int maxY = Mth.floor(caveStartY + yOffset) + 1;
                     int maxZ = Mth.floor(caveStartZ + xzOffset) - originChunkZ * 16 + 1;
 
-                    if (minX < 0) {
-                        minX = 0;
-                    }
-
-                    if (maxX > 16) {
-                        maxX = 16;
-                    }
-
-                    if (minY < 1) {
-                        minY = 1;
-                    }
-
-//                    if (maxY > 248) {
-//                        maxY = 248;
-//                    }
-
-                    if (minZ < 0) {
-                        minZ = 0;
-                    }
-
-                    if (maxZ > 16) {
-                        maxZ = 16;
-                    }
+                    // Bound values
+                    minX = Math.max(minX, 0);
+                    maxX = Math.min(maxX, 16);
+                    minY = Math.max(minY, chunk.getMinBuildHeight());
+                    maxY = Math.min(maxY, chunk.getMaxBuildHeight() - 8);
+                    minZ = Math.max(minZ, 0);
+                    maxZ = Math.min(maxZ, 16);
 
                     for (int currX = minX; currX < maxX; ++currX) {
                         // Distance along the x-axis from the center (caveStart) of this ellipsoid.

@@ -48,15 +48,11 @@ public class BetterCavesCarver {
         int[][] surfaceAltitudes = new int[16][16];
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
-                Map.Entry<Heightmap.Types, Heightmap> surfaceHeightmapEntry = chunkIn.getHeightmaps().stream()
-                    .filter(entry -> entry.getKey() == Heightmap.Types.WORLD_SURFACE_WG)
-                    .findFirst().orElse(null);
-                Map.Entry<Heightmap.Types, Heightmap> oceanHeightmapEntry = chunkIn.getHeightmaps().stream()
-                    .filter(entry -> entry.getKey() == Heightmap.Types.OCEAN_FLOOR_WG)
-                    .findFirst().orElse(null);
-                int surfaceHeight = surfaceHeightmapEntry == null ? 35 : surfaceHeightmapEntry.getValue().getFirstAvailable(x, z);
-                int oceanHeight = oceanHeightmapEntry == null ? 35 : oceanHeightmapEntry.getValue().getFirstAvailable(x, z);
-                surfaceAltitudes[x][z] = Math.min(surfaceHeight, oceanHeight);
+                surfaceAltitudes[x][z] = config.overrideSurfaceDetection.get()
+                    ? 1 // Don't bother doing unnecessary calculations
+                    : Math.min(
+                        chunkIn.getHeight(Heightmap.Types.WORLD_SURFACE_WG, x, z),
+                        chunkIn.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, x, z));
             }
         }
 

@@ -246,9 +246,9 @@ public class VanillaCaveCarver implements ICarver {
                         minY = 1;
                     }
 
-                    if (maxY > 248) {
-                        maxY = 248;
-                    }
+//                    if (maxY > 248) {
+//                        maxY = 248;
+//                    }
 
                     if (minZ < 0) {
                         minZ = 0;

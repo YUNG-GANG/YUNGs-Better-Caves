@@ -21,7 +21,7 @@ public class BCModFeature {
 
     public static void init() {
         registerFeature();
-//        addFeatureToBiomes();
+        //        ServerWorldEvents.UNLOAD.register((unload, serverWorld) -> worldUnload(serverWorld)); // TODO - re-add fabric API
         BetterCaves.CONFIG = AutoConfig.getConfigHolder(Configuration.class).getConfig();
     }
 
@@ -31,19 +31,9 @@ public class BCModFeature {
     }
 
     /**
-     * Better Caves removes all current carvers and saves them to be used in dimensions where Better Caves is disabled.
-     * Better Caves is actually implemented as a featue (despite only having carver behavior) because it needs access
-     * to an instance of the World, which is not available to carvers.
-     */
-    // TODO - requires Fabric API to work, which currently doesn't work with the world height booster mod
-//    private static void addFeatureToBiomes() {
-//        ServerWorldEvents.UNLOAD.register((unload, serverWorld) -> worldUnload(serverWorld));
-//    }
-
-    /**
      * Removes the unloaded dimension's carver from the active carvers map.
      */
-    private static void worldUnload(ServerLevel world) {
+    private static void onWorldUnload(ServerLevel world) {
         try {
             String key = Objects.requireNonNull(world.registryAccess().dimensionTypes().getKey(world.dimensionType())).toString();
             BetterCaves.activeCarversMap.remove(key);

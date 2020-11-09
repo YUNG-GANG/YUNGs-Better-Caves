@@ -18,7 +18,6 @@ public class ConfigLoader {
      * @return ConfigHolder loaded from file for given dimension
      */
     public static ConfigHolder loadConfigFromFileForDimension(String dimensionName) {
-//        return new ConfigHolder();
         String fileName = "DIM_" + dimensionName.replace(':', '-') + ".toml";
         File configFile = new File(BetterCaves.customConfigDir, fileName);
 

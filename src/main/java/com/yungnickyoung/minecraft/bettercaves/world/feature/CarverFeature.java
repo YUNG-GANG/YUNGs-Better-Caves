@@ -127,8 +127,6 @@ public class CarverFeature extends Feature<NoneFeatureConfiguration> {
      * @return true if the provided dimension ID is whitelisted in the config
      */
     private boolean isDimensionWhitelisted(String dimensionName) {
-        // TODO - fix config -- still needs it or is it fixed?
-//        return dimensionName.equals("minecraft:overworld");
         return BetterCaves.CONFIG.betterCaves.enableGlobalWhitelist || BetterCaves.whitelistedDimensions.contains(dimensionName);
     }
 }

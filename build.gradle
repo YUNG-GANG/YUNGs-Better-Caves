@@ -24,8 +24,32 @@ dependencies {
 	// You may need to force-disable transitiveness on them.
 	compileOnly "com.google.code.findbugs:jsr305:3.0.2"
 
+	// NightConfig used for TOML parsing config file
 	shadow "com.electronwill.night-config:toml:${project.nightconfig_toml_version}"
 	implementation "com.electronwill.night-config:toml:${project.nightconfig_toml_version}"
+
+	// Autoconfig to automatically wire up config classes to TOML file
+	modImplementation ("me.sargunvohra.mcmods:autoconfig1u:${project.auto_config_version}") {
+		exclude module: 'fabric-api'
+	}
+	include ("me.sargunvohra.mcmods:autoconfig1u:${project.auto_config_version}") {
+		exclude module: 'fabric-api'
+	}
+
+	// Cloth and ModMenu for in-game config menu.
+	// Currently not available for 1.17.
+//	modImplementation ("me.shedaniel.cloth:config-2:${project.cloth_config_version}") {
+//		exclude module: 'fabric-api'
+//	}
+//	include ("me.shedaniel.cloth:config-2:${project.cloth_config_version}") {
+//		exclude module: 'fabric-api'
+//	}
+//	modImplementation ("io.github.prospector:modmenu:${project.mod_menu_version}"){
+//		exclude module: 'fabric-api'
+//	}
+//	include ("io.github.prospector:modmenu:${project.mod_menu_version}"){
+//		exclude module: 'fabric-api'
+//	}
 }
 
 minecraft {
@@ -106,25 +130,4 @@ repositories {
 		name "cotton-config"
 		url 'http://server.bbkr.space:8081/artifactory/libs-release'
 	}
-}
-
-dependencies {
-	modImplementation ("me.sargunvohra.mcmods:autoconfig1u:${project.auto_config_version}") {
-		exclude module: 'fabric-api'
-	}
-	include ("me.sargunvohra.mcmods:autoconfig1u:${project.auto_config_version}") {
-		exclude module: 'fabric-api'
-	}
-//	modImplementation ("me.shedaniel.cloth:config-2:${project.cloth_config_version}") {
-//		exclude module: 'fabric-api'
-//	}
-//	include ("me.shedaniel.cloth:config-2:${project.cloth_config_version}") {
-//		exclude module: 'fabric-api'
-//	}
-//	modImplementation ("io.github.prospector:modmenu:${project.mod_menu_version}"){
-//		exclude module: 'fabric-api'
-//	}
-//	include ("io.github.prospector:modmenu:${project.mod_menu_version}"){
-//		exclude module: 'fabric-api'
-//	}
 }

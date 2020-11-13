@@ -9,14 +9,19 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.WorldGenRegistries;
 import net.minecraft.world.World;
+import net.minecraft.world.gen.GenerationStage;
+import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraft.world.gen.feature.*;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 public class BCFeature {
     public static final CarverFeature BETTERCAVES_FEATURE = new CarverFeature(NoFeatureConfig.field_236558_a_);
@@ -25,12 +30,39 @@ public class BCFeature {
     public static void init() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(BCFeature::configChanged);
         FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Feature.class, BCFeature::registerFeature);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGH, BCFeature::onBiomeLoad);
         MinecraftForge.EVENT_BUS.addListener(BCFeature::worldUnload);
     }
 
     public static void registerFeature(final RegistryEvent.Register<Feature<?>> event) {
         event.getRegistry().register(BETTERCAVES_FEATURE.setRegistryName(new ResourceLocation(BCSettings.MOD_ID, "bettercaves")));
-        Registry.register(WorldGenRegistries.field_243653_e, new ResourceLocation(BCSettings.MOD_ID, "bettercaves"), CONFIGURED_BETTERCAVES_FEATURE);
+        Registry.register(WorldGenRegistries.CONFIGURED_FEATURE, new ResourceLocation(BCSettings.MOD_ID, "bettercaves"), CONFIGURED_BETTERCAVES_FEATURE);
+    }
+
+    /**
+     * Adds configured Portal Lake (aka Rift) and Monolith features to biomes.
+     */
+    private static void onBiomeLoad(BiomeLoadingEvent event) {
+        // Save all pre-existing carvers for biome.
+        // These will be used in dimensions where Better Caves is not whitelisted.
+        List<Supplier<ConfiguredCarver<?>>> defaultAirCarvers = event.getGeneration().getCarvers(GenerationStage.Carving.AIR);
+        List<Supplier<ConfiguredCarver<?>>> defaultLiquidCarvers = event.getGeneration().getCarvers(GenerationStage.Carving.LIQUID);
+        if (event.getName() != null) {
+            String biomeName = event.getName().toString();
+            BetterCaves.defaultBiomeAirCarvers.put(biomeName, defaultAirCarvers);
+            BetterCaves.defaultBiomeLiquidCarvers.put(biomeName, defaultLiquidCarvers);
+        } else {
+            BetterCaves.LOGGER.error("Found missing name when loading biome. This shouldn't happen! Aborting...");
+            return;
+        }
+
+        // Clear the biome's carvers
+        event.getGeneration().getCarvers(GenerationStage.Carving.AIR).clear();
+        event.getGeneration().getCarvers(GenerationStage.Carving.LIQUID).clear();
+
+        // Add the carver feature to the start of the RAW_GENERATION phase, ensuring it runs before all other features.
+        // This way we can closely simulate carver behavior.
+        event.getGeneration().getFeatures(GenerationStage.Decoration.RAW_GENERATION).add(0, () -> CONFIGURED_BETTERCAVES_FEATURE);
     }
 
     /**
@@ -39,7 +71,7 @@ public class BCFeature {
     public static void worldUnload(WorldEvent.Unload event) {
         BetterCaves.LOGGER.debug("UNLOADING WORLD");
         try {
-            String key = Objects.requireNonNull(((World) event.getWorld()).getDimensionKey().func_240901_a_()).toString();
+            String key = Objects.requireNonNull(((World) event.getWorld()).getDimensionKey().getLocation()).toString();
             BetterCaves.activeCarversMap.remove(key);
         } catch (NullPointerException e) {
             BetterCaves.LOGGER.error("ERROR: Unable to unload carver for dimension!");

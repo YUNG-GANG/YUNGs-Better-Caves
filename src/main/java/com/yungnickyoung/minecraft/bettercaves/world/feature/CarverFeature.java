@@ -45,7 +45,7 @@ public class CarverFeature extends Feature<NoFeatureConfig> {
         // Attempt to get dimension name, e.g. "minecraft:the_nether"
         String dimensionName = null;
         try {
-            dimensionName = Objects.requireNonNull(worldGenRegion.getWorld().getDimensionKey().func_240901_a_()).toString();
+            dimensionName = Objects.requireNonNull(worldGenRegion.getWorld().getDimensionKey().getLocation()).toString();
         } catch (NullPointerException e) {
             BetterCaves.LOGGER.error("ERROR: Unable to get dimension name! Using default cave gen...");
         }
@@ -89,8 +89,8 @@ public class CarverFeature extends Feature<NoFeatureConfig> {
         int zChunkPos = chunkPos.z;
 
         // Carving masks
-        BitSet airCarvingMask = ((ChunkPrimer) chunk).func_230345_b_(GenerationStage.Carving.AIR);
-        BitSet liquidCarvingMask = ((ChunkPrimer) chunk).func_230345_b_(GenerationStage.Carving.LIQUID);
+        BitSet airCarvingMask = ((ChunkPrimer) chunk).getOrAddCarvingMask(GenerationStage.Carving.AIR);
+        BitSet liquidCarvingMask = ((ChunkPrimer) chunk).getOrAddCarvingMask(GenerationStage.Carving.LIQUID);
 
         // Get biome info
         Biome biome = chunk.getBiomes().getNoiseBiome(pos.getX(), 1, pos.getZ());

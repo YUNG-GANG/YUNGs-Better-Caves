@@ -36,8 +36,8 @@ public class BetterCavesCarver {
 
     // Override the default carver's method to use Better Caves carving instead.
     public void carve(IChunk chunkIn, int chunkX, int chunkZ) {
-        BitSet airCarvingMask = ((ChunkPrimer) chunkIn).func_230345_b_(GenerationStage.Carving.AIR);
-        BitSet liquidCarvingMask = ((ChunkPrimer) chunkIn).func_230345_b_(GenerationStage.Carving.LIQUID);
+        BitSet airCarvingMask = ((ChunkPrimer) chunkIn).getOrAddCarvingMask(GenerationStage.Carving.AIR);
+        BitSet liquidCarvingMask = ((ChunkPrimer) chunkIn).getOrAddCarvingMask(GenerationStage.Carving.LIQUID);
 
         // Flatten bedrock into single layer, if enabled in user config
         if (config.flattenBedrock.get()) {
@@ -88,7 +88,7 @@ public class BetterCavesCarver {
         String dimensionName = "";
 
         try {
-            dimensionName = Objects.requireNonNull(world.getWorld().getDimensionKey().func_240901_a_()).toString();
+            dimensionName = Objects.requireNonNull(world.getWorld().getDimensionKey().getLocation()).toString();
         } catch (NullPointerException e) {
             BetterCaves.LOGGER.error("ERROR: Unable to get dimension name! This could be a problem...");
         }

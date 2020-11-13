@@ -31,7 +31,7 @@ public class WaterRegionController {
 
     public WaterRegionController(ISeedReader worldIn, ConfigHolder config) {
         this.world = worldIn;
-        this.dimensionName = Objects.requireNonNull(world.getWorld().getDimensionKey().func_240901_a_()).toString();
+        this.dimensionName = Objects.requireNonNull(world.getWorld().getDimensionKey().getLocation()).toString();
         this.rand = new Random();
 
         // Vars from config

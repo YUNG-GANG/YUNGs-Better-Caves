@@ -3,9 +3,7 @@
   "minVersion": "0.8",
   "package": "com.yungnickyoung.minecraft.bettercaves.mixin",
   "compatibilityLevel": "JAVA_8",
-  "mixins": [
-    "MixinMinecraftServer"
-  ],
+  "mixins": [],
   "client": [],
   "injectors": {
     "defaultRequire": 1

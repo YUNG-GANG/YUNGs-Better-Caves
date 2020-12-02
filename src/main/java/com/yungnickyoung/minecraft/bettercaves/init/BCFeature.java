@@ -45,8 +45,8 @@ public class BCFeature {
     private static void onBiomeLoad(BiomeLoadingEvent event) {
         // Save all pre-existing carvers for biome.
         // These will be used in dimensions where Better Caves is not whitelisted.
-        List<Supplier<ConfiguredCarver<?>>> defaultAirCarvers = event.getGeneration().getCarvers(GenerationStage.Carving.AIR);
-        List<Supplier<ConfiguredCarver<?>>> defaultLiquidCarvers = event.getGeneration().getCarvers(GenerationStage.Carving.LIQUID);
+        List<Supplier<ConfiguredCarver<?>>> defaultAirCarvers = new ArrayList<>(event.getGeneration().getCarvers(GenerationStage.Carving.AIR));
+        List<Supplier<ConfiguredCarver<?>>> defaultLiquidCarvers = new ArrayList<>(event.getGeneration().getCarvers(GenerationStage.Carving.LIQUID));
         if (event.getName() != null) {
             String biomeName = event.getName().toString();
             BetterCaves.defaultBiomeAirCarvers.put(biomeName, defaultAirCarvers);

@@ -95,10 +95,15 @@ public class CarverFeature extends Feature<NoFeatureConfig> {
         // Get biome info
         Biome biome = chunk.getBiomes().getNoiseBiome(pos.getX(), 1, pos.getZ());
         BiomeManager biomeManager = world.getBiomeManager().copyWithProvider(generator.getBiomeProvider());
+        if (biome.getRegistryName() == null) { // Check for null name just in case to prevent crash
+            BetterCaves.LOGGER.error("ERROR - failed to get biome name when fetching backup carvers!");
+            return false;
+        }
+        String biomeName = biome.getRegistryName().toString();
 
         // Grab the carvers we saved earlier for this biome
-        List<Supplier<ConfiguredCarver<?>>> defaultAirCarvers = BetterCaves.defaultBiomeAirCarvers.get(biome.toString());
-        List<Supplier<ConfiguredCarver<?>>> defaultLiquidCarvers = BetterCaves.defaultBiomeLiquidCarvers.get(biome.toString());
+        List<Supplier<ConfiguredCarver<?>>> defaultAirCarvers = BetterCaves.defaultBiomeAirCarvers.get(biomeName);
+        List<Supplier<ConfiguredCarver<?>>> defaultLiquidCarvers = BetterCaves.defaultBiomeLiquidCarvers.get(biomeName);
 
         // Verify lists are non-null to avoid NPE-related crashes.
         if (defaultAirCarvers == null || defaultLiquidCarvers == null) {

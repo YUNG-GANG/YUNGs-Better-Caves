@@ -139,8 +139,7 @@ public class CarverUtils {
             return;
         }
 
-        // Add magma and obsidian right above liquid altitude
-        if (blockPos.getY() == liquidAltitude + 1) {
+        if (liquidBlockState != null && liquidBlockState.getBlock() == Blocks.LAVA && blockPos.getY() == liquidAltitude + 1) { // Add magma and obsidian right above lava
             float f = rand.nextFloat();
             if (f < 0.25f) {
                 chunkIn.setBlockState(blockPos, Blocks.MAGMA_BLOCK.getDefaultState(), false);
@@ -148,15 +147,9 @@ public class CarverUtils {
             } else {
                 chunkIn.setBlockState(blockPos, Blocks.OBSIDIAN.getDefaultState(), false);
             }
-        }
-        // Replace any block below the liquid altitude with the liquid block passed in
-        else if (blockPos.getY() <= liquidAltitude) {
-            if (liquidBlockState != null) {
-                chunkIn.setBlockState(blockPos, liquidBlockState, false);
-            }
-        }
-        // Else, normal carving
-        else {
+        } else if (liquidBlockState != null && blockPos.getY() <= liquidAltitude) { // Replace any block below the liquid altitude with the liquid block passed in
+            chunkIn.setBlockState(blockPos, liquidBlockState, false);
+        } else { // Normal carving
             chunkIn.setBlockState(blockPos, WATER.getBlockState(), false);
 
             int x = blockPos.getX();

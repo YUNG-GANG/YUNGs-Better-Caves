@@ -7,6 +7,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.material.Material;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.IChunk;
@@ -158,11 +159,29 @@ public class CarverUtils {
         else {
             chunkIn.setBlockState(blockPos, WATER.getBlockState(), false);
 
+            int x = blockPos.getX();
+            int y = blockPos.getY();
+            int z = blockPos.getZ();
+
+            // Schedule fluid tick if along chunk boundary. Helps avoid weird floating water
+            for(Direction direction : Direction.Plane.HORIZONTAL) {
+                int j = blockPos.getX() + direction.getXOffset();
+                int k = blockPos.getZ() + direction.getZOffset();
+                if (j >> 4 != chunkIn.getPos().x || k >> 4 != chunkIn.getPos().z || chunkIn.getBlockState(blockPos.setPos(j, y, k)).isAir()) {
+                    chunkIn.setBlockState(blockPos, WATER.getBlockState(), false);
+                    chunkIn.getFluidsToBeTicked().scheduleTick(blockPos, WATER.getFluidState().getFluid(), 0);
+                    break;
+                }
+            }
+
+            blockPos.setPos(x, y, z); // Reset block pos to original pos
+
             // Replace floating gravel with andesite, if enabled
             if (replaceGravel && blockStateAbove == GRAVEL)
                 chunkIn.setBlockState(blockPos.up(), ANDESITE, false);
         }
     }
+
     public static void carveFloodedBlock(IChunk chunkIn, Random rand, BlockPos.Mutable blockPos, BlockState liquidBlockState, int liquidAltitude, BitSet carvingMask) {
         carveFloodedBlock(chunkIn, rand, blockPos, liquidBlockState, liquidAltitude, false, carvingMask);
     }

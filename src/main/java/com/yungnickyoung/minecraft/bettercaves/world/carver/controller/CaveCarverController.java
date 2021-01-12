@@ -167,7 +167,9 @@ public class CaveCarverController {
                         int localZ = startZ + offsetZ;
                         BlockPos colPos = new BlockPos(chunkX * 16 + localX, 1, chunkZ * 16 + localZ);
 
-                        flooded = isFloodedUndergroundEnabled && !isDebugViewEnabled && biomePos.apply(colPos).getCategory() == Biome.Category.OCEAN;
+                        flooded = isFloodedUndergroundEnabled
+                            && !isDebugViewEnabled
+                            && (biomePos.apply(colPos).getCategory() == Biome.Category.OCEAN);
                         if (flooded) {
                             if (
                                 (isPosInWorld(mutablePos.setPos(colPos).move(Direction.EAST), world) && biomePos.apply(mutablePos.setPos(colPos).move(Direction.EAST)).getCategory() != Biome.Category.OCEAN) ||

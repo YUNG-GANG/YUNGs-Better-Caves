@@ -117,7 +117,8 @@ public class CavernCarver implements ICarver {
                     CarverUtils.carveFloodedBlock(chunk, new Random(), blockPos.toMutable(), liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel(), carvingMask);
                 } else {
                     CarverUtils.carveBlock(chunk, blockPos, liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel(), carvingMask);
-                }            }
+                }
+            }
         }
     }
 

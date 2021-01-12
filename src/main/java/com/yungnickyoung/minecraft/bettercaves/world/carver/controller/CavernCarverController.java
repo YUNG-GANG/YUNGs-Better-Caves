@@ -8,7 +8,6 @@ import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseColumn;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtils;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
-import com.yungnickyoung.minecraft.bettercaves.util.ColPos;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverNoiseRange;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.cavern.CavernCarver;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.cavern.CavernCarverBuilder;
@@ -22,7 +21,7 @@ import net.minecraft.world.chunk.IChunk;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
-import java.util.Map;
+import java.util.function.Function;
 
 public class CavernCarverController {
     private ISeedReader world;
@@ -91,7 +90,7 @@ public class CavernCarverController {
         }
     }
 
-    public void carveChunk(IChunk chunk, int chunkX, int chunkZ, int[][] surfaceAltitudes, BlockState[][] liquidBlocks, Map<Long, Biome> biomeMap, BitSet airCarvingMask, BitSet liquidCarvingMask) {
+    public void carveChunk(IChunk chunk, int chunkX, int chunkZ, int[][] surfaceAltitudes, BlockState[][] liquidBlocks, Function<BlockPos, Biome> biomePos, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         // Prevent unnecessary computation if caverns are disabled
         if (noiseRanges.size() == 0) {
             return;
@@ -129,11 +128,11 @@ public class CavernCarverController {
                     for (int offsetZ = 0; offsetZ < BCSettings.SUB_CHUNK_SIZE; offsetZ++) {
                         int localX = startX + offsetX;
                         int localZ = startZ + offsetZ;
-                        ColPos colPos = new ColPos(chunkX * 16 + localX, chunkZ * 16 + localZ);
+                        BlockPos colPos = new BlockPos(chunkX * 16 + localX, 1, chunkZ * 16 + localZ);
 
                         if (isFloodedUndergroundEnabled && !isDebugViewEnabled) {
-                            flooded = biomeMap.get(colPos.toLong()).getCategory() == Biome.Category.OCEAN;
-                            smoothAmpFloodFactor = BetterCavesUtils.getDistFactor(world, biomeMap, colPos, 2, flooded ? BetterCavesUtils.isNotOcean : BetterCavesUtils.isOcean);
+                            flooded = biomePos.apply(colPos).getCategory() == Biome.Category.OCEAN;
+                            smoothAmpFloodFactor = BetterCavesUtils.getDistFactor(world, biomePos, colPos, 2, flooded ? BetterCavesUtils.isNotOcean : BetterCavesUtils.isOcean);
                             if (smoothAmpFloodFactor <= .25) { // Wall between flooded and normal caves.
                                 continue; // Continue to prevent unnecessary noise calculation
                             }

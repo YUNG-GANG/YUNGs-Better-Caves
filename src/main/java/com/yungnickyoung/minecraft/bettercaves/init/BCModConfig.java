@@ -1,9 +1,12 @@
 package com.yungnickyoung.minecraft.bettercaves.init;
 
+import com.google.common.collect.Lists;
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
 
 import java.io.File;
@@ -11,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 public class BCModConfig {
     public static void init() {
@@ -18,6 +22,35 @@ public class BCModConfig {
         createReadMe();
         // Register config with Forge
         ModLoadingContext.get().registerConfig(net.minecraftforge.fml.config.ModConfig.Type.COMMON, Configuration.SPEC, BCSettings.BASE_CONFIG_NAME);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(BCModConfig::configChanged);
+    }
+
+    /**
+     * Parses the whitelisted dimensions string and updates the stored values.
+     */
+    public static void configChanged(ModConfig.ModConfigEvent event) {
+        ModConfig config = event.getConfig();
+
+        if (config.getSpec() == Configuration.SPEC) {
+            String rawStringofList = Configuration.whitelistedDimensions.get();
+            int strLen = rawStringofList.length();
+
+            // Validate the string's format
+            if (strLen < 2 || rawStringofList.charAt(0) != '[' || rawStringofList.charAt(strLen - 1) != ']') {
+                BetterCaves.LOGGER.error("INVALID VALUE FOR SETTING 'Whitelisted Dimension IDs'. Using empty list instead...");
+                BetterCaves.whitelistedDimensions = Lists.newArrayList();
+                return;
+            }
+
+            // Parse string to list
+            List<String> inputListOfDimensionStrings = Lists.newArrayList(rawStringofList.substring(1, strLen - 1).split(",\\s*"));
+
+            // Parse list of strings, removing any entries that don't match existing dimension names
+            List<String> whitelistedDimensions = Lists.newArrayList();
+            whitelistedDimensions.addAll(inputListOfDimensionStrings);
+
+            BetterCaves.whitelistedDimensions = whitelistedDimensions;
+        }
     }
 
     private static void createDirectory() {

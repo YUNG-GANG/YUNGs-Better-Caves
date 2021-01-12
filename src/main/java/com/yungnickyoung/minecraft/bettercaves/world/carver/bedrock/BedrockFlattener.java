@@ -8,7 +8,7 @@ import net.minecraft.world.chunk.IChunk;
 /**
  * Class containing static method for flattening bedrock.
  */
-public class FlattenBedrock {
+public class BedrockFlattener {
     private static final BlockState BEDROCK = Blocks.BEDROCK.getDefaultState();
 
     /**

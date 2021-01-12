@@ -10,6 +10,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.IChunk;
 
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -101,7 +102,11 @@ public class BetterCavesUtils {
      * we are testing if the WorldGenRegion contains the provided BlockPos.
      */
     public static boolean isPosInWorld(ColPos pos, IWorld world) {
-         return world.chunkExists(pos.getX() >> 4, pos.getZ() >> 4);
+        return world.chunkExists(pos.getX() >> 4, pos.getZ() >> 4);
+    }
+
+    public static boolean isPosInWorld(BlockPos pos, IWorld world) {
+        return world.chunkExists(pos.getX() >> 4, pos.getZ() >> 4);
     }
 
     /**
@@ -129,6 +134,32 @@ public class BetterCavesUtils {
                     if (j != 0 && i != j) {
                         checkpos.setPos(pos).move(direction, i).move(direction.rotateYCCW(), j);
                         if (isPosInWorld(checkpos, worldIn) && isTargetBiome.test(biomeMap.get(checkpos.toLong()).getCategory())) {
+                            return (float)(i + j) / (2 * radius);
+                        }
+                    }
+                }
+            }
+        }
+
+        return 1;
+    }
+
+    /**
+     * Alternative method that uses vanilla biomePos Function (accepts BlockPos and returns the Biome at that pos)
+     * instead of my own biome map.
+     */
+    public static float getDistFactor(IWorld worldIn, Function<BlockPos, Biome> biomePos, BlockPos pos, int radius, Predicate<Biome.Category> isTargetBiome) {
+        BlockPos.Mutable checkpos = new BlockPos.Mutable();
+        for (int i = 1; i <= radius; i++) {
+            for (int j = 0; j <= i; j++) {
+                for (Direction direction : Direction.Plane.HORIZONTAL) {
+                    checkpos.setPos(pos).move(direction, i).move(direction.rotateY(), j);
+                    if (isPosInWorld(checkpos, worldIn) && isTargetBiome.test(biomePos.apply(checkpos).getCategory())) {
+                        return (float)(i + j) / (2 * radius);
+                    }
+                    if (j != 0 && i != j) {
+                        checkpos.setPos(pos).move(direction, i).move(direction.rotateYCCW(), j);
+                        if (isPosInWorld(checkpos, worldIn) && isTargetBiome.test(biomePos.apply(checkpos).getCategory())) {
                             return (float)(i + j) / (2 * radius);
                         }
                     }

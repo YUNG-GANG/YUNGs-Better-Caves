@@ -7,7 +7,7 @@ buildscript {
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
-//        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
@@ -44,7 +44,8 @@ minecraft {
     runs {
         client {
             workingDirectory project.file('run')
-//            arg "-mixin.config=" + modId + ".mixins.json"
+            arg "-mixin.config=" + modId + ".mixins.json"
+            property 'mixin.env.disableRefMap', 'true'
 
             // Recommended logging data for a userdev environment
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
@@ -61,7 +62,8 @@ minecraft {
 
         server {
             workingDirectory project.file('run')
-//            arg "-mixin.config=" + modId + ".mixins.json"
+            arg "-mixin.config=" + modId + ".mixins.json"
+            property 'mixin.env.disableRefMap', 'true'
 
             // Recommended logging data for a userdev environment
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
@@ -116,7 +118,7 @@ jar {
                 "Implementation-Vendor"   : modGroup,
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
                 "Signing-Fingerprint"     : project.hasProperty('signSHA1') ? project.findProperty('signSHA1') : "unsigned",
-//                "MixinConfigs": "${modId}.mixins.json"
+                "MixinConfigs": "${modId}.mixins.json"
         ],)
     }
 }
@@ -174,8 +176,8 @@ processResources {
     }
 }
 
-//apply plugin: 'org.spongepowered.mixin'
-//
-//mixin {
-//    add sourceSets.main, "${modId}.refmap.json"
-//}
+apply plugin: 'org.spongepowered.mixin'
+
+mixin {
+    add sourceSets.main, "${modId}.refmap.json"
+}

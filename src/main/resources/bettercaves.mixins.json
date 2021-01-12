@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "com.yungnickyoung.minecraft.bettercaves.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "ChunkStatusMixin",
+    "ChunkMixin",
+    "ChunkPrimerMixin",
+    "ChunkPrimerWrapperMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8"
+}

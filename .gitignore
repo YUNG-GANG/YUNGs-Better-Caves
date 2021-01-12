@@ -42,3 +42,7 @@ run/
 # Mac
 .DS_Store
 
+# Stuff generated from the fabric branch
+.idea/runConfigurations/Minecraft_Client.xml
+.idea/runConfigurations/Minecraft_Server.xml
+logs/

@@ -3,15 +3,9 @@ package com.yungnickyoung.minecraft.bettercaves;
 import com.google.common.collect.Lists;
 import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
 import com.yungnickyoung.minecraft.bettercaves.init.BCModConfig;
-import com.yungnickyoung.minecraft.bettercaves.init.BCFeature;
-import com.yungnickyoung.minecraft.bettercaves.world.carver.BetterCavesCarver;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.biome.Biome;
+import com.yungnickyoung.minecraft.bettercaves.init.BCCarver;
+import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.MasterController;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,7 +25,7 @@ public class BetterCaves {
      * Table of active Better Caves carvers. Maps dimension name to its carver.
      * We create separate carvers per dimension to allow for dimension-specific configuration.
      */
-    public static Map<String, BetterCavesCarver> activeCarversMap = new HashMap<>();
+    public static Map<String, MasterController> activeCarversMap = new HashMap<>();
 
     /**
      * List of whitelisted dimensions.
@@ -59,6 +53,6 @@ public class BetterCaves {
 
     private void init() {
         BCModConfig.init();
-        BCFeature.init();
+        BCCarver.init();
     }
 }

@@ -1,119 +1,135 @@
 package com.yungnickyoung.minecraft.bettercaves.world.carver;
 
-
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
-import com.yungnickyoung.minecraft.bettercaves.config.io.ConfigLoader;
-import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
-import com.yungnickyoung.minecraft.bettercaves.util.ColPos;
-import com.yungnickyoung.minecraft.bettercaves.world.carver.bedrock.FlattenBedrock;
-import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.CaveCarverController;
-import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.CavernCarverController;
-import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.RavineController;
-import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.WaterRegionController;
-import net.minecraft.block.BlockState;
-import net.minecraft.world.ISeedReader;
+import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
+import com.yungnickyoung.minecraft.bettercaves.world.IServerWorldHolder;
+import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.MasterController;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.gen.GenerationStage;
-import net.minecraft.world.gen.Heightmap;
+import net.minecraft.world.gen.carver.ConfiguredCarver;
+import net.minecraft.world.gen.carver.EmptyCarverConfig;
+import net.minecraft.world.gen.carver.WorldCarver;
+import net.minecraft.world.server.ServerWorld;
 
-import java.util.*;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.BitSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
-public class BetterCavesCarver {
-    private ISeedReader world;
-    public long seed = 0;
-    public ConfigHolder config;
-
-    // Controllers
-    private CaveCarverController   caveCarverController;
-    private CavernCarverController cavernCarverController;
-    private WaterRegionController  waterRegionController;
-    private RavineController       ravineController;
-
+/**
+ * Delegates carving to existing BetterCavesCarver instances for each dimension,
+ * creating new instances when needed.
+ */
+public class BetterCavesCarver extends WorldCarver<EmptyCarverConfig> {
     public BetterCavesCarver() {
+        super(EmptyCarverConfig.field_236237_b_, 256);
     }
 
-    // Override the default carver's method to use Better Caves carving instead.
-    public void carve(IChunk chunkIn, int chunkX, int chunkZ) {
+    @Override
+    @ParametersAreNonnullByDefault
+    public boolean carveRegion(IChunk chunkIn, Function<BlockPos, Biome> biomePos, Random rand, int seaLevel, int chunkXOffset, int chunkZOffset, int chunkX, int chunkZ, BitSet carvingMask, EmptyCarverConfig config) {
+        IServerWorldHolder serverWorldHolder = (IServerWorldHolder) chunkIn;
+
+        // Ensure we only carve each chunk a single time
+        if (serverWorldHolder.hasBeenCarved()) {
+            return false;
+        }
+
+        // Despite being passed the carving mask as a parameter, we explicitly retrieve the masks for both stages of carving.
+        // This allows us to update the proper mask depending on the biome (flooded caves, which spawn in ocean biomes,
+        // use the liquid carving mask) in a single carver.
+        // This is not intuitive for vanilla-style carvers, but works well for mine since Better Caves carve in a single pass-through
+        // using noise with global world coordinates.
         BitSet airCarvingMask = ((ChunkPrimer) chunkIn).getOrAddCarvingMask(GenerationStage.Carving.AIR);
         BitSet liquidCarvingMask = ((ChunkPrimer) chunkIn).getOrAddCarvingMask(GenerationStage.Carving.LIQUID);
 
-        // Flatten bedrock into single layer, if enabled in user config
-        if (config.flattenBedrock.get()) {
-            FlattenBedrock.flattenBedrock(chunkIn, config.bedrockWidth.get());
+        // Get world from chunk via mixin.
+        // Thank you to TelepathicGrunt for this!!
+        ServerWorld world = serverWorldHolder.getServerWorld();
+
+        if (world == null) return false;
+
+        // Attempt to get dimension name, e.g. "minecraft:the_nether"
+        String dimensionName = null;
+        try {
+            dimensionName = Objects.requireNonNull(world.getDimensionKey().getLocation()).toString();
+        } catch (NullPointerException e) {
+            BetterCaves.LOGGER.error("ERROR: Unable to get dimension name! Using default cave gen...");
         }
 
-        // Determine surface altitudes in this chunk
-        int[][] surfaceAltitudes = new int[16][16];
-        for (int x = 0; x < 16; x++) {
-            for (int z = 0; z < 16; z++) {
-                surfaceAltitudes[x][z] = config.overrideSurfaceDetection.get()
-                    ? 1 // Don't bother doing unnecessary calculations
-                    : Math.min(
-                        chunkIn.getTopBlockY(Heightmap.Type.WORLD_SURFACE_WG, x, z),
-                        chunkIn.getTopBlockY(Heightmap.Type.OCEAN_FLOOR_WG, x, z));
+        // If dimension isn't whitelisted, use default carvers instead of BC carver
+        if (dimensionName == null || !isDimensionWhitelisted(dimensionName)) {
+            return useDefaultCarvers(world, chunkIn, biomePos, rand, seaLevel, chunkXOffset, chunkZOffset, chunkX, chunkZ, airCarvingMask, liquidCarvingMask);
+        }
+
+        // Check if a carver hasn't been created for this dimension, or if
+        // the seeds don't match (player probably changed worlds)
+        if (BetterCaves.activeCarversMap.get(dimensionName) == null || BetterCaves.activeCarversMap.get(dimensionName).getSeed() != world.getSeed()) {
+            // Replace map entry with fresh carver
+            MasterController newCarver = new MasterController();
+            BetterCaves.activeCarversMap.put(dimensionName, newCarver);
+            BetterCaves.LOGGER.info(String.format("CREATING AND INIT'ING CARVER W DIMENSION %s...", dimensionName));
+            newCarver.initialize(world);
+        }
+
+        MasterController carver = BetterCaves.activeCarversMap.get(dimensionName);
+        carver.setWorld(world); // Ensure carver's world is up to date
+        boolean retVal= carver.carveRegion(chunkIn, biomePos, chunkIn.getPos().x, chunkIn.getPos().z, airCarvingMask, liquidCarvingMask); // Let's carve, baby
+        serverWorldHolder.setCarved(true);
+        return retVal;
+    }
+
+    @Override
+    @ParametersAreNonnullByDefault
+    public boolean shouldCarve(Random rand, int chunkX, int chunkZ, EmptyCarverConfig config) {
+        return true;
+    }
+
+    @Override
+    protected boolean func_222708_a(double p_222708_1_, double p_222708_3_, double p_222708_5_, int p_222708_7_) {
+        return true;
+    }
+
+    private boolean useDefaultCarvers(ServerWorld world, IChunk chunkIn, Function<BlockPos, Biome> biomePos, Random rand, int seaLevel, int chunkXOffset, int chunkZOffset, int chunkX, int chunkZ, BitSet airCarvingMask, BitSet liquidCarvingMask) {
+        // Grab the carvers we saved earlier for this biome
+        String biomeName = world.getNoiseBiome(chunkIn.getPos().x << 2, 0, chunkIn.getPos().z << 2).getRegistryName().toString();
+        List<Supplier<ConfiguredCarver<?>>> defaultAirCarvers = BetterCaves.defaultBiomeAirCarvers.get(biomeName);
+        List<Supplier<ConfiguredCarver<?>>> defaultLiquidCarvers = BetterCaves.defaultBiomeLiquidCarvers.get(biomeName);
+
+        // Verify lists are non-null to avoid NPE-related crashes.
+        if (defaultAirCarvers == null || defaultLiquidCarvers == null) {
+            return false;
+        }
+
+        // Air carvers
+        for (Supplier<ConfiguredCarver<?>> carverSupplier : defaultAirCarvers) {
+            ConfiguredCarver<?> carver = carverSupplier.get();
+            if (carver.shouldCarve(rand, chunkX, chunkZ)) {
+                carver.carveRegion(chunkIn, biomePos, rand, seaLevel, chunkXOffset, chunkZOffset, chunkX, chunkZ, airCarvingMask);
             }
         }
 
-        // Determine biomes in this chunk - used for flooded cave checking
-        Map<Long, Biome> biomeMap = new HashMap<>();
-        for (int x = chunkX * 16 - 2; x <= chunkX * 16 + 17; x++) {
-            for (int z = chunkZ * 16 - 2; z <= chunkZ * 16 + 17; z++) {
-                ColPos pos = new ColPos(x, z);
-                biomeMap.put(pos.toLong(), world.getBiome(pos.toBlockPos()));
+        // Liquid carvers
+        for (Supplier<ConfiguredCarver<?>> carverSupplier : defaultLiquidCarvers) {
+            ConfiguredCarver<?> carver = carverSupplier.get();
+            if (carver.shouldCarve(rand, chunkX, chunkZ)) {
+                carver.carveRegion(chunkIn, biomePos, rand, seaLevel, chunkXOffset, chunkZOffset, chunkX, chunkZ, liquidCarvingMask);
             }
         }
 
-        // Determine liquid blocks for this chunk
-        BlockState[][] liquidBlocks = waterRegionController.getLiquidBlocksForChunk(chunkX, chunkZ);
-
-        // Carve chunk
-        ravineController.carveChunk(chunkIn, chunkX, chunkZ, liquidBlocks, biomeMap, airCarvingMask, liquidCarvingMask);
-        caveCarverController.carveChunk(chunkIn, chunkX, chunkZ, surfaceAltitudes, liquidBlocks, biomeMap, airCarvingMask, liquidCarvingMask);
-        cavernCarverController.carveChunk(chunkIn, chunkX, chunkZ, surfaceAltitudes, liquidBlocks, biomeMap, airCarvingMask, liquidCarvingMask);
-
-        // Set carving masks for features to use
-        ((ChunkPrimer) chunkIn).setCarvingMask(GenerationStage.Carving.AIR, airCarvingMask);
-        ((ChunkPrimer) chunkIn).setCarvingMask(GenerationStage.Carving.LIQUID, liquidCarvingMask);
+        return true;
     }
 
     /**
-     * Initialize Better Caves generators and cave region controllers for this world.
+     * @return true if the provided dimension ID is whitelisted in the config
      */
-    public void initialize(ISeedReader worldIn) {
-        // Extract world information
-        this.world = worldIn;
-        this.seed = worldIn.getSeed();
-        String dimensionName = "";
-
-        try {
-            dimensionName = Objects.requireNonNull(world.getWorld().getDimensionKey().getLocation()).toString();
-        } catch (NullPointerException e) {
-            BetterCaves.LOGGER.error("ERROR: Unable to get dimension name! This could be a problem...");
-        }
-
-        // Load config from file for this dimension
-        this.config = dimensionName.equals("") ? new ConfigHolder() : ConfigLoader.loadConfigFromFileForDimension(dimensionName);
-
-        // Initialize controllers
-        this.caveCarverController   = new CaveCarverController(worldIn, config);
-        this.cavernCarverController = new CavernCarverController(worldIn, config);
-        this.waterRegionController  = new WaterRegionController(worldIn, config);
-        this.ravineController       = new RavineController(worldIn, config);
-
-        BetterCaves.LOGGER.debug(String.format("BETTER CAVES WORLD CARVER INITIALIZED WITH SEED %d IN %s", seed, dimensionName));
-    }
-
-    public void setWorld(ISeedReader worldIn) {
-        this.world = worldIn;
-        this.caveCarverController.setWorld(worldIn);
-        this.cavernCarverController.setWorld(worldIn);
-        this.waterRegionController.setWorld(worldIn);
-        this.ravineController.setWorld(worldIn);
-    }
-
-    public long getSeed() {
-        return this.seed;
+    private boolean isDimensionWhitelisted(String dimensionName) {
+        return Configuration.enableGlobalWhitelist.get() || BetterCaves.whitelistedDimensions.contains(dimensionName);
     }
 }

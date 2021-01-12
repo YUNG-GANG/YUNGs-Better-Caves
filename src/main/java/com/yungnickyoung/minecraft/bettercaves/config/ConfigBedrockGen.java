@@ -17,7 +17,7 @@ public class ConfigBedrockGen {
         flattenBedrock = BUILDER
             .comment(
                 " Replaces the usual bedrock generation pattern with flat layers.\n" +
-                "     Activates in all whitelisted dimension, where applicable. The End is unaffected.\n" +
+                "     Activates in all whitelisted dimensions.\n" +
                 " Default: true")
             .worldRestart()
             .define("Flatten Bedrock", true);

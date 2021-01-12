@@ -32,7 +32,7 @@ public class MasterController {
     public boolean carveRegion(IChunk chunkIn, Function<BlockPos, Biome> biomePos, int chunkX, int chunkZ, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         // Flatten bedrock into single layer, if enabled in user config, before carving caves
         if (configHolder.flattenBedrock.get()) {
-            BedrockFlattener.flattenBedrock(chunkIn, configHolder.bedrockWidth.get());
+            BedrockFlattener.flattenBedrock(chunkIn, biomePos, configHolder.bedrockWidth.get());
         }
 
         // Determine surface altitudes in this chunk

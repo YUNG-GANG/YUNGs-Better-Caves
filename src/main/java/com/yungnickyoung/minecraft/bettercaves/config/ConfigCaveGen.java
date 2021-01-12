@@ -22,24 +22,24 @@ public class ConfigCaveGen {
         builder.push("Cave Generation");
 
         caveRegionSize = builder
-                .comment(" Determines how large cave regions are.\n Controls how long a cave system of a certain cave type" +
-                        " extends before intersecting with a cave system of another type.\n Larger Region Size = more " +
-                        "cave interconnectivity for a given area, but possibly less variation.\n Accepted values: Small, Medium, Large, ExtraLarge" +
+                .comment(" Determines how large cave regions are." +
+                        "\n Larger Region Size = more cave interconnectivity for a given area, but possibly less variation." +
+                        "\n Accepted values: Small, Medium, Large, ExtraLarge" +
                         "\n Default: Large")
                 .worldRestart()
                 .define("Cave Region Size", "Small");
 
         cavernRegionSize = builder
-                .comment(" Determines how large cavern regions are. This controls the average size of caverns." +
+                .comment(" Determines how large cavern regions are. This affects the average size of caverns." +
                         "\n Accepted values: Small, Medium, Large, ExtraLarge" +
                         "\n Default: Small")
                 .worldRestart()
                 .define("Cavern Region Size", "Small");
 
         surfaceCutoff = builder
-                .comment(" The depth from a given point on the surface (or the Max Cave Altitude, whichever is " +
-                        "lower) at which caves start to close off. Decrease this to create more cave openings in the" +
-                        " sides of mountains. Increase to create less above-surface openings." +
+                .comment(" The depth from a given point on the surface (or the Max Cave Altitude, whichever is lower) at which caves start to close off." +
+                        "\n Decrease this to create more cave openings in the sides of mountains." +
+                        "\n Increase to create less above-surface openings." +
                         "\n Default: 10")
                 .worldRestart()
                 .defineInRange("Cave Surface Cutoff Depth", 10, 0, 255);

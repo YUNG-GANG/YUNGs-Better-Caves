@@ -34,8 +34,7 @@ public class ConfigCaves {
         caveRegionSize = BUILDER
             .comment(
                 " Determines how large cave regions are.\n" +
-                    "     Controls how long a cave system of a certain cave type extends before intersecting with a cave system of another type.\n" +
-                    "     Larger = more cave interconnectivity for a given area, but less variation.\n" +
+                    "     Controls the average size of a cave system.\n" +
                     " Accepted values: Small, Medium, Large, ExtraLarge, Custom\n" +
                     " Default: Small (recommended).")
             .worldRestart()

@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[34,)"
+loaderVersion="[35,)"
 license="GPLv3"
 issueTrackerURL="https://github.com/yungnickyoung/YUNGs-Better-Caves/issues"
 displayURL="https://www.curseforge.com/minecraft/mc-mods/yungs-better-caves"
@@ -17,13 +17,13 @@ logoFile="BCLogo.png"
 [[dependencies.bettercaves]]
     modId="forge"
     mandatory=true
-    versionRange="[34,)"
+    versionRange="[35,)"
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.bettercaves]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.16.3,)"
+    versionRange="[1.16.4,)"
     ordering="NONE"
     side="BOTH"

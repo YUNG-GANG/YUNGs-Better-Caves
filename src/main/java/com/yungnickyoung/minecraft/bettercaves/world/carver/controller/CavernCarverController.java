@@ -5,7 +5,6 @@ import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
 import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
-import com.yungnickyoung.minecraft.bettercaves.noise.NoiseColumn;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtils;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverNoiseRange;
@@ -25,7 +24,7 @@ import java.util.function.Function;
 
 public class CavernCarverController {
     private ISeedReader world;
-    private FastNoise cavernRegionController;
+    private FastNoise cavernRegionSampler;
     private List<CarverNoiseRange> noiseRanges = new ArrayList<>();
 
     // Vars from config
@@ -39,11 +38,11 @@ public class CavernCarverController {
         this.isOverrideSurfaceDetectionEnabled = config.overrideSurfaceDetection.get();
         this.isFloodedUndergroundEnabled = config.enableFloodedUnderground.get();
 
-        // Configure cavern region controller, which determines what type of cavern should be carved in any given region
+        // Configure cavern region sampler, which determines what type of cavern should be carved in any given region
         float cavernRegionSize = calcCavernRegionSize(config.cavernRegionSize.get(), config.cavernRegionCustomSize.get().floatValue());
-        this.cavernRegionController = new FastNoise();
-        this.cavernRegionController.SetSeed((int)world.getSeed() + 333);
-        this.cavernRegionController.SetFrequency(cavernRegionSize);
+        this.cavernRegionSampler = new FastNoise();
+        this.cavernRegionSampler.SetSeed((int)world.getSeed() + 333);
+        this.cavernRegionSampler.SetFrequency(cavernRegionSize);
 
         // Initialize all carvers using config options
         List<CavernCarver> carvers = new ArrayList<>();
@@ -142,7 +141,7 @@ public class CavernCarverController {
                         BlockState liquidBlock = liquidBlocks[localX][localZ];
 
                         // Get noise values used to determine cavern region
-                        float cavernRegionNoise = cavernRegionController.GetNoise(colPos.getX(), colPos.getZ());
+                        float cavernRegionNoise = cavernRegionSampler.GetNoise(colPos.getX(), colPos.getZ());
 
                         // Carve cavern using matching carver
                         for (CarverNoiseRange range : noiseRanges) {
@@ -160,7 +159,7 @@ public class CavernCarverController {
                             if (range.getNoiseCube() == null) {
                                 range.setNoiseCube(carver.getNoiseGen().interpolateNoiseCube(startPos, endPos, bottomY, maxHeight));
                             }
-                            NoiseColumn noiseColumn = range.getNoiseCube().get(offsetX).get(offsetZ);
+                            double[][] noiseColumn = range.getNoiseCube()[offsetX][offsetZ];
                             carver.carveColumn(chunk, colPos, topY, smoothAmp, noiseColumn, liquidBlock, flooded, flooded ? liquidCarvingMask : airCarvingMask);
                             break;
                         }
@@ -171,7 +170,7 @@ public class CavernCarverController {
     }
 
     /**
-     * @return frequency value for cavern region controller
+     * @return frequency value for cavern region sampler
      */
     private float calcCavernRegionSize(String cavernRegionSize, float cavernRegionCustomSize) {
         switch (cavernRegionSize) {

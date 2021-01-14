@@ -2,9 +2,7 @@ package com.yungnickyoung.minecraft.bettercaves.world.carver.cavern;
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
-import com.yungnickyoung.minecraft.bettercaves.noise.NoiseColumn;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
-import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverSettings;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.ICarver;
@@ -13,7 +11,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.IChunk;
 
 import java.util.BitSet;
-import java.util.List;
 import java.util.Random;
 
 /**
@@ -48,19 +45,15 @@ public class CavernCarver implements ICarver {
         }
     }
 
-    public void carveColumn(IChunk chunk, BlockPos colPos, int topY, float smoothAmp, NoiseColumn noises, BlockState liquidBlock, boolean flooded, BitSet carvingMask) {
-        int localX = BetterCavesUtils.getLocal(colPos.getX());
-        int localZ = BetterCavesUtils.getLocal(colPos.getZ());
+    public void carveColumn(IChunk chunk, BlockPos colPos, int topY, float smoothAmp, double[][] noises, BlockState liquidBlock, boolean flooded, BitSet carvingMask) {
+        int localX = colPos.getX() & 0xF;
+        int localZ = colPos.getZ() & 0xF;
 
         // Validate vars
-        if (localX < 0 || localX > 15)
-            return;
-        if (localZ < 0 || localZ > 15)
-            return;
-        if (bottomY < 0 || bottomY > 255)
-            return;
-        if (topY > 255)
-            return;
+        if (bottomY < 0) bottomY = 0;
+        if (bottomY > 255) bottomY = 255;
+        if (topY < 2) topY = 2;
+        if (topY > 255) topY = 255;
 
         // Set altitude at which caverns start closing off on the top
         topY -= 2;
@@ -76,17 +69,18 @@ public class CavernCarver implements ICarver {
         topTransitionBoundary = Math.max(topTransitionBoundary, 1);
         bottomTransitionBoundary = Math.min(bottomTransitionBoundary, 255);
 
+        BlockPos.Mutable localPos = new BlockPos.Mutable(localX, 1, localZ);
+
         /* =============== Dig out caves and caverns in this chunk, based on noise values =============== */
         for (int y = topY; y >= bottomY; y--) {
             if (y <= settings.getLiquidAltitude() && liquidBlock == null)
                 break;
 
-            List<Double> noiseBlock;
             boolean digBlock = false;
 
             // Compute a single noise value to represent all the noise values in the NoiseTuple
             float noise = 1;
-            noiseBlock = noises.get(y).getNoiseValues();
+            double[] noiseBlock = noises[y - bottomY];
             for (double n : noiseBlock)
                 noise *= n;
 
@@ -107,16 +101,16 @@ public class CavernCarver implements ICarver {
             if (noise < noiseThreshold)
                 digBlock = true;
 
-            BlockPos blockPos = new BlockPos(localX, y, localZ);
+            localPos.setPos(localX, y, localZ);
 
             // Dig out the block if it passed the threshold check, using the debug visualizer if enabled
             if (settings.isEnableDebugVisualizer()) {
-                CarverUtils.debugCarveBlock(chunk, blockPos, settings.getDebugBlock(), digBlock);
+                CarverUtils.debugCarveBlock(chunk, localPos, settings.getDebugBlock(), digBlock);
             } else if (digBlock) {
                 if (flooded) {
-                    CarverUtils.carveFloodedBlock(chunk, new Random(), blockPos.toMutable(), liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel(), carvingMask);
+                    CarverUtils.carveFloodedBlock(chunk, new Random(), localPos, liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel(), carvingMask);
                 } else {
-                    CarverUtils.carveBlock(chunk, blockPos, liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel(), carvingMask);
+                    CarverUtils.carveBlock(chunk, localPos, liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel(), carvingMask);
                 }
             }
         }

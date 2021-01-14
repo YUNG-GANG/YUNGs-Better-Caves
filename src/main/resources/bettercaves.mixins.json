@@ -2,6 +2,7 @@
   "required": true,
   "package": "com.yungnickyoung.minecraft.bettercaves.mixin",
   "compatibilityLevel": "JAVA_8",
+  "refmap": "bettercaves.refmap.json",
   "mixins": [
     "ChunkStatusMixin",
     "ChunkMixin",

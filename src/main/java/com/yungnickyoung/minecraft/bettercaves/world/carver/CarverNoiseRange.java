@@ -1,6 +1,5 @@
 package com.yungnickyoung.minecraft.bettercaves.world.carver;
 
-import com.yungnickyoung.minecraft.bettercaves.noise.NoiseCube;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtils;
 
 /**
@@ -23,7 +22,7 @@ public class CarverNoiseRange {
     private ICarver carver;
 
     // The NoiseCube associated with this range of noises.
-    private NoiseCube noiseCube;
+    private double[][][][] noiseCube;
 
     // The degree of smoothing on cavern edges. For a given SMOOTH_PERCENT x, both the
     // bottom and top ends of the noise range are each smoothed by (x * 100) percent.
@@ -61,11 +60,11 @@ public class CarverNoiseRange {
         return carver;
     }
 
-    public NoiseCube getNoiseCube() {
+    public double[][][][] getNoiseCube() {
         return noiseCube;
     }
 
-    public void setNoiseCube(NoiseCube noiseCube) {
+    public void setNoiseCube(double[][][][] noiseCube) {
         this.noiseCube = noiseCube;
     }
 

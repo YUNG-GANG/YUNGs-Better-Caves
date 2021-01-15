@@ -1,11 +1,9 @@
 {
   "homepage": "https://www.curseforge.com/minecraft/mc-mods/yungs-better-caves",
-  "1.16": {
-    "1.0": "1.16.1 release",
-    "1.1": "Optimizations and bugfixes"
-  },
   "promos": {
-    "1.16-latest": "1.1",
-    "1.16-recommended": "1.1"
+    "1.16.3-latest": "1.16.3-1.0.6",
+    "1.16.3-recommended": "1.16.3-1.0.6",
+    "1.16.4-latest": "1.16.4-1.1",
+    "1.16.4-recommended": "1.16.4-1.1"
   }
 }

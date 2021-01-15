@@ -27,3 +27,10 @@ logoFile="BCLogo.png"
     versionRange="[1.16.4,)"
     ordering="NONE"
     side="BOTH"
+
+[[dependencies.bettercaves]]
+    modId="yungsapi"
+    versionRange="[1.16.4-Forge-2,)"
+    mandatory=true
+    ordering="NONE"
+    side="BOTH"

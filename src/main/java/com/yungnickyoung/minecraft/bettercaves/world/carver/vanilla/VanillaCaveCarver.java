@@ -310,6 +310,11 @@ public class VanillaCaveCarver implements ICarver {
     }
 
     private void digBlock(IWorld worldIn, IChunk chunkIn, int chunkX, int chunkZ, int localX, int y, int localZ, BlockState liquidBlockState, Function<BlockPos, Biome> biomePos, BitSet airCarvingMask, BitSet liquidCarvingMask) {
+        // Don't carve space between water and lava regions
+        if (y <= liquidAltitude && liquidBlockState == null) {
+            return;
+        }
+
         // Check if already carved
         int bitIndex = localX | localZ << 4 | y << 8;
         if (airCarvingMask.get(bitIndex) || liquidCarvingMask.get(bitIndex)) {

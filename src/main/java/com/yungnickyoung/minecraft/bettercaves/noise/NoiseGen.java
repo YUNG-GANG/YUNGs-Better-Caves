@@ -1,6 +1,9 @@
 package com.yungnickyoung.minecraft.bettercaves.noise;
 
 import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
+import com.yungnickyoung.minecraft.yungsapi.noise.FastNoise;
+import com.yungnickyoung.minecraft.yungsapi.noise.INoiseLibrary;
+import com.yungnickyoung.minecraft.yungsapi.noise.OpenSimplex2S;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;

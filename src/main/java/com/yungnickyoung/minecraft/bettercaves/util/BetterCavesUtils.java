@@ -1,5 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.util;
 
+import com.yungnickyoung.minecraft.yungsapi.math.ColPos;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.Blocks;

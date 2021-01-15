@@ -1,5 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves.noise;
 
+import com.yungnickyoung.minecraft.yungsapi.noise.FastNoise;
+
 public class NoiseSettings {
     private FastNoise.NoiseType   noiseType   = FastNoise.NoiseType.SimplexFractal;
     private FastNoise.FractalType fractalType = FastNoise.FractalType.FBM;

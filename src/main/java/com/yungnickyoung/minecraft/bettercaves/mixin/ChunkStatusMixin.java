@@ -1,3 +1,6 @@
+/*
+ * Many thanks to TelepathicGrunt and Won-Ton for helping me with this!
+ */
 package com.yungnickyoung.minecraft.bettercaves.mixin;
 
 import com.mojang.datafixers.util.Either;
@@ -21,7 +24,6 @@ import java.util.function.Function;
 
 @Mixin(ChunkStatus.class)
 public class ChunkStatusMixin {
-
     @Inject(method = "doGenerationWork", at = @At(value = "HEAD"))
     private void pushCarvingContext(ServerWorld worldIn,
                                 ChunkGenerator chunkGeneratorIn,

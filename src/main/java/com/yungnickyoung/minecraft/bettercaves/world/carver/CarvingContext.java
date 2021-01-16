@@ -32,13 +32,22 @@ public class CarvingContext {
 
     /**
      * Consume the currently held CarvingContext.
-     * A null value means we are in the wrong generation stage.
+     * A null value means we are in the wrong generation stage, or the context has already been consumed.
      */
     @Nullable
     public static CarvingContext pop() {
         CarvingContext context = CONTEXT.get();
         CONTEXT.set(null);
         return context;
+    }
+
+    /**
+     * Peek the currently held CarvingContext without consuming it.
+     * A null value means we are in the wrong generation stage, or the context has already been consumed.
+     */
+    @Nullable
+    public static CarvingContext peek() {
+        return CONTEXT.get();
     }
 
     /**

@@ -2,11 +2,9 @@ package com.yungnickyoung.minecraft.bettercaves.world.carver;
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
-import com.yungnickyoung.minecraft.bettercaves.world.IServerWorldHolder;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.MasterController;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
@@ -34,10 +32,15 @@ public class BetterCavesCarver extends WorldCarver<EmptyCarverConfig> {
     @Override
     @ParametersAreNonnullByDefault
     public boolean carveRegion(IChunk chunkIn, Function<BlockPos, Biome> biomePos, Random rand, int seaLevel, int chunkXOffset, int chunkZOffset, int chunkX, int chunkZ, BitSet carvingMask, EmptyCarverConfig config) {
-        IServerWorldHolder serverWorldHolder = (IServerWorldHolder) chunkIn;
+        // A null CarvingContext indicates we're in not the 'air carving' stage so exit early.
+        CarvingContext context = CarvingContext.peek();
+        if (context == null) {
+            return false;
+        }
 
-        // Ensure we only carve each chunk a single time
-        if (serverWorldHolder.hasBeenCarved()) {
+        ServerWorld world = context.getWorld();
+        if (world == null) {
+            BetterCaves.LOGGER.error("ERROR: Unable to retrieve world from CarvingContext!");
             return false;
         }
 
@@ -46,14 +49,8 @@ public class BetterCavesCarver extends WorldCarver<EmptyCarverConfig> {
         // use the liquid carving mask) in a single carver.
         // This is not intuitive for vanilla-style carvers, but works well for mine since Better Caves carve in a single pass-through
         // using noise with global world coordinates.
-        BitSet airCarvingMask = ((ChunkPrimer) chunkIn).getOrAddCarvingMask(GenerationStage.Carving.AIR);
-        BitSet liquidCarvingMask = ((ChunkPrimer) chunkIn).getOrAddCarvingMask(GenerationStage.Carving.LIQUID);
-
-        // Get world from chunk via mixin.
-        // Thank you to TelepathicGrunt for this!!
-        ServerWorld world = serverWorldHolder.getServerWorld();
-
-        if (world == null) return false;
+        BitSet airCarvingMask = context.getMask(GenerationStage.Carving.AIR);
+        BitSet liquidCarvingMask = context.getMask(GenerationStage.Carving.LIQUID);
 
         // Attempt to get dimension name, e.g. "minecraft:the_nether"
         String dimensionName = null;
@@ -68,6 +65,11 @@ public class BetterCavesCarver extends WorldCarver<EmptyCarverConfig> {
             return useDefaultCarvers(world, chunkIn, biomePos, rand, seaLevel, chunkXOffset, chunkZOffset, chunkX, chunkZ, airCarvingMask, liquidCarvingMask);
         }
 
+        // Pop this thread's carving context, as it is no longer needed.
+        // It's important we do this after the dimension whitelist check, as default carvers should use the ordinary
+        // vanilla algorithm, where a single chunk is examined multiple times.
+        CarvingContext.pop();
+
         // Check if a carver hasn't been created for this dimension, or if
         // the seeds don't match (player probably changed worlds)
         if (BetterCaves.activeCarversMap.get(dimensionName) == null || BetterCaves.activeCarversMap.get(dimensionName).getSeed() != world.getSeed()) {
@@ -78,11 +80,11 @@ public class BetterCavesCarver extends WorldCarver<EmptyCarverConfig> {
             newCarver.initialize(world);
         }
 
-        MasterController carver = BetterCaves.activeCarversMap.get(dimensionName);
-        carver.setWorld(world); // Ensure carver's world is up to date
-        boolean retVal= carver.carveRegion(chunkIn, biomePos, chunkIn.getPos().x, chunkIn.getPos().z, airCarvingMask, liquidCarvingMask); // Let's carve, baby
-        serverWorldHolder.setCarved(true);
-        return retVal;
+        // Retrieve the master controller for this dimension
+        MasterController masterController = BetterCaves.activeCarversMap.get(dimensionName);
+        masterController.setWorld(world); // Ensure controller's world is up to date
+
+        return masterController.carveRegion(chunkIn, biomePos, chunkIn.getPos().x, chunkIn.getPos().z, airCarvingMask, liquidCarvingMask);
     }
 
     @Override

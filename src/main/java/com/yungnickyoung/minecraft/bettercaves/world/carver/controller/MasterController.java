@@ -9,9 +9,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.ISeedReader;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.chunk.IChunk;
-import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.Heightmap;
 
 import java.util.BitSet;
@@ -54,10 +52,6 @@ public class MasterController {
         ravineCarverController.carveChunk(chunkIn, chunkX, chunkZ, liquidBlocks, biomePos, airCarvingMask, liquidCarvingMask);
         caveCarverController.carveChunk(chunkIn, chunkX, chunkZ, surfaceAltitudes, liquidBlocks, biomePos, airCarvingMask, liquidCarvingMask);
         cavernCarverController.carveChunk(chunkIn, chunkX, chunkZ, surfaceAltitudes, liquidBlocks, biomePos, airCarvingMask, liquidCarvingMask);
-
-        // Set carving masks for features to use
-        ((ChunkPrimer) chunkIn).setCarvingMask(GenerationStage.Carving.AIR, airCarvingMask);
-        ((ChunkPrimer) chunkIn).setCarvingMask(GenerationStage.Carving.LIQUID, liquidCarvingMask);
 
         return true;
     }

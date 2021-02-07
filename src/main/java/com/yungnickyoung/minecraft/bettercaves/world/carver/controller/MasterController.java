@@ -24,7 +24,7 @@ public class MasterController {
     // Controllers
     private CaveCarverController   caveCarverController;
     private CavernCarverController cavernCarverController;
-    private WaterRegionController  waterRegionController;
+    private LiquidRegionController liquidRegionController;
     private RavineCarverController ravineCarverController;
 
     public boolean carveRegion(IChunk chunkIn, Function<BlockPos, Biome> biomePos, int chunkX, int chunkZ, BitSet airCarvingMask, BitSet liquidCarvingMask) {
@@ -46,7 +46,7 @@ public class MasterController {
         }
 
         // Determine liquid blocks for this chunk
-        BlockState[][] liquidBlocks = waterRegionController.getLiquidBlocksForChunk(chunkX, chunkZ);
+        BlockState[][] liquidBlocks = liquidRegionController.getLiquidBlocksForChunk(chunkX, chunkZ);
 
         // Carve chunk
         ravineCarverController.carveChunk(chunkIn, chunkX, chunkZ, liquidBlocks, biomePos, airCarvingMask, liquidCarvingMask);
@@ -77,7 +77,7 @@ public class MasterController {
         // Initialize controllers
         this.caveCarverController   = new CaveCarverController(worldIn, configHolder);
         this.cavernCarverController = new CavernCarverController(worldIn, configHolder);
-        this.waterRegionController  = new WaterRegionController(worldIn, configHolder);
+        this.liquidRegionController = new LiquidRegionController(worldIn, configHolder);
         this.ravineCarverController = new RavineCarverController(worldIn, configHolder);
 
         BetterCaves.LOGGER.debug(String.format("BETTER CAVES WORLD CARVER INITIALIZED WITH SEED %d IN %s", seed, dimensionName));
@@ -90,7 +90,7 @@ public class MasterController {
         this.world = worldIn;
         this.caveCarverController.setWorld(worldIn);
         this.cavernCarverController.setWorld(worldIn);
-        this.waterRegionController.setWorld(worldIn);
+        this.liquidRegionController.setWorld(worldIn);
         this.ravineCarverController.setWorld(worldIn);
     }
 

@@ -14,8 +14,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 import java.util.Objects;
 import java.util.Random;
 
-public class WaterRegionController {
-    private FastNoise waterRegionController;
+public class LiquidRegionController {
+    private FastNoise liquidRegionSampler;
     private ISeedReader world;
     private String dimensionName;
     private Random rand;
@@ -23,13 +23,13 @@ public class WaterRegionController {
     // Vars determined from config
     private BlockState lavaBlock;
     private BlockState waterBlock;
-    private float waterRegionThreshold;
+    private float liquidRegionThreshold;
 
     // Constants
     private static final float SMOOTH_RANGE = .04f;
     private static final float SMOOTH_DELTA = .01f;
 
-    public WaterRegionController(ISeedReader worldIn, ConfigHolder config) {
+    public LiquidRegionController(ISeedReader worldIn, ConfigHolder config) {
         this.world = worldIn;
         this.dimensionName = Objects.requireNonNull(world.getWorld().getDimensionKey().getLocation()).toString();
         this.rand = new Random();
@@ -37,13 +37,13 @@ public class WaterRegionController {
         // Vars from config
         lavaBlock = getLavaBlockFromString(config.lavaBlock.get());
         waterBlock = getWaterBlockFromString(config.waterBlock.get());
-        waterRegionThreshold = NoiseUtils.simplexNoiseOffsetByPercent(-1f, config.waterRegionSpawnChance.get().floatValue() / 100f);
+        liquidRegionThreshold = NoiseUtils.simplexNoiseOffsetByPercent(-1f, config.waterRegionSpawnChance.get().floatValue() / 100f);
 
-        // Water region controller
+        // Liquid region sampler
         float waterRegionSize = config.cavernRegionSize.get().equals("ExtraLarge") ? .001f : .004f;
-        waterRegionController = new FastNoise();
-        waterRegionController.SetSeed((int) world.getSeed() + 444);
-        waterRegionController.SetFrequency(waterRegionSize);
+        liquidRegionSampler = new FastNoise();
+        liquidRegionSampler.SetSeed((int) world.getSeed() + 444);
+        liquidRegionSampler.SetFrequency(waterRegionSize);
     }
 
     public BlockState[][] getLiquidBlocksForChunk(int chunkX, int chunkZ) {
@@ -61,14 +61,14 @@ public class WaterRegionController {
 
     private BlockState getLiquidBlockAtPos(Random rand, ColPos colPos) {
         BlockState liquidBlock = lavaBlock;
-        if (waterRegionThreshold > -1f) { // Don't bother calculating noise if water regions are disabled
-            float waterRegionNoise = waterRegionController.GetNoise(colPos.getX(), colPos.getZ());
+        if (liquidRegionThreshold > -1f) { // Don't bother calculating noise if water regions are disabled
+            float liquidRegionNoise = liquidRegionSampler.GetNoise(colPos.getX(), colPos.getZ());
 
             // If water region threshold check is passed, change liquid block to water
             float randOffset = rand.nextFloat() * SMOOTH_DELTA + SMOOTH_RANGE;
-            if (waterRegionNoise < waterRegionThreshold - randOffset)
+            if (liquidRegionNoise < liquidRegionThreshold - randOffset)
                 liquidBlock = waterBlock;
-            else if (waterRegionNoise < waterRegionThreshold + randOffset)
+            else if (liquidRegionNoise < liquidRegionThreshold + randOffset)
                 liquidBlock = null;
         }
         return liquidBlock;

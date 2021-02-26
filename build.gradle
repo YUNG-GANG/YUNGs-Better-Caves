@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '0.4-SNAPSHOT'
+	id 'fabric-loom' version '0.5-SNAPSHOT'
 	id 'com.github.johnrengelman.shadow' version '6.0.0'
 	id 'maven-publish'
 }
@@ -17,6 +17,31 @@ dependencies {
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
+	// YUNG's API - required dependency
+	modImplementation ("com.yungnickyoung.minecraft.yungsapi:YungsApi:${project.yungs_api_version}") {
+		exclude module: 'fabric-api'
+	}
+
+	// AutoConfig, ModMenu and Cloth Config - included in JAR
+	include ("me.sargunvohra.mcmods:autoconfig1u:${project.auto_config_version}") {
+		exclude module: 'fabric-api'
+	}
+	modImplementation ("me.sargunvohra.mcmods:autoconfig1u:${project.auto_config_version}") {
+		exclude module: 'fabric-api'
+	}
+	include ("me.shedaniel.cloth:config-2:${project.cloth_config_version}") {
+		exclude module: 'fabric-api'
+	}
+	modImplementation ("me.shedaniel.cloth:config-2:${project.cloth_config_version}") {
+		exclude module: 'fabric-api'
+	}
+	include ("io.github.prospector:modmenu:${project.mod_menu_version}"){
+		exclude module: 'fabric-api'
+	}
+	modImplementation ("io.github.prospector:modmenu:${project.mod_menu_version}"){
+		exclude module: 'fabric-api'
+	}
+
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
@@ -24,6 +49,7 @@ dependencies {
 	// You may need to force-disable transitiveness on them.
 	compileOnly "com.google.code.findbugs:jsr305:3.0.2"
 
+	// Nightconfig
 	shadow "com.electronwill.night-config:toml:${project.nightconfig_toml_version}"
 	implementation "com.electronwill.night-config:toml:${project.nightconfig_toml_version}"
 }
@@ -105,26 +131,5 @@ repositories {
 	maven {
 		name "cotton-config"
 		url 'http://server.bbkr.space:8081/artifactory/libs-release'
-	}
-}
-
-dependencies {
-	modImplementation ("me.sargunvohra.mcmods:autoconfig1u:${project.auto_config_version}") {
-		exclude module: 'fabric-api'
-	}
-	include ("me.sargunvohra.mcmods:autoconfig1u:${project.auto_config_version}") {
-		exclude module: 'fabric-api'
-	}
-	modImplementation ("me.shedaniel.cloth:config-2:${project.cloth_config_version}") {
-		exclude module: 'fabric-api'
-	}
-	include ("me.shedaniel.cloth:config-2:${project.cloth_config_version}") {
-		exclude module: 'fabric-api'
-	}
-	modImplementation ("io.github.prospector:modmenu:${project.mod_menu_version}"){
-		exclude module: 'fabric-api'
-	}
-	include ("io.github.prospector:modmenu:${project.mod_menu_version}"){
-		exclude module: 'fabric-api'
 	}
 }

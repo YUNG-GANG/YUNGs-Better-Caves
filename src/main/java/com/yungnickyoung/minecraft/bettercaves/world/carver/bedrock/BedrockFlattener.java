@@ -3,20 +3,22 @@ package com.yungnickyoung.minecraft.bettercaves.world.carver.bedrock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
+
+import java.util.function.Function;
 
 /**
  * Class containing static method for flattening bedrock.
  */
-public class FlattenBedrock {
+public class BedrockFlattener {
     private static final BlockState BEDROCK = Blocks.BEDROCK.getDefaultState();
 
     /**
      * Flattens bedrock in a given chunk
      * @param bedrockLayerWidth Width of the bedrock layer, in blocks
      */
-    public static void flattenBedrock(Chunk chunk, int bedrockLayerWidth) {
-        BlockState replacementBlock = Blocks.STONE.getDefaultState();
+    public static void flattenBedrock(Chunk chunk, Function<BlockPos, Biome> biomePos, int bedrockLayerWidth) {
         BlockPos.Mutable pos = new BlockPos.Mutable();
 
         // Replace normal bedrock at bottom of map with stone
@@ -25,7 +27,7 @@ public class FlattenBedrock {
                 for (int y = 1; y < 5; y++) {
                     pos.set(x, y, z);
                     if (chunk.getBlockState(pos) == BEDROCK)
-                        chunk.setBlockState(pos, replacementBlock, false);
+                        chunk.setBlockState(pos, biomePos.apply(pos).getGenerationSettings().getSurfaceConfig().getUnderMaterial(), false);
                 }
             }
         }

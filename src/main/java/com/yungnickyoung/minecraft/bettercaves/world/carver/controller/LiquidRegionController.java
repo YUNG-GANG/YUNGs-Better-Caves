@@ -14,7 +14,7 @@ import net.minecraft.world.StructureWorldAccess;
 import java.util.Objects;
 import java.util.Random;
 
-public class WaterRegionController {
+public class LiquidRegionController {
     private FastNoise waterRegionController;
     private StructureWorldAccess world;
     private String dimensionName;
@@ -29,7 +29,7 @@ public class WaterRegionController {
     private static final float SMOOTH_RANGE = .04f;
     private static final float SMOOTH_DELTA = .01f;
 
-    public WaterRegionController(StructureWorldAccess worldIn, ConfigHolder config) {
+    public LiquidRegionController(StructureWorldAccess worldIn, ConfigHolder config) {
         this.world = worldIn;
         this.dimensionName = Objects.requireNonNull(world.toServerWorld().getRegistryKey().getValue()).toString();
         this.rand = new Random();

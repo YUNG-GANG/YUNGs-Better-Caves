@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <bytecodeTargetLevel>
+    <bytecodeTargetLevel target="1.8">
       <module name="bettercaves-${mcversion}_api" target="1.8" />
       <module name="bettercaves-${mcversion}_main" target="1.8" />
       <module name="bettercaves-${mcversion}_test" target="1.8" />
@@ -11,6 +11,12 @@
       <module name="BetterCaves-1.15.2_test" target="1.8" />
       <module name="BetterCaves-1.16.1_main" target="1.8" />
       <module name="BetterCaves-1.16.1_test" target="1.8" />
+      <module name="BetterCaves-1.16.2_main" target="1.8" />
+      <module name="BetterCaves-1.16.2_test" target="1.8" />
+      <module name="BetterCaves-1.16.3_main" target="1.8" />
+      <module name="BetterCaves-1.16.3_test" target="1.8" />
+      <module name="BetterCaves-1.16.4_main" target="1.8" />
+      <module name="BetterCaves-1.16.4_test" target="1.8" />
       <module name="Yung's_Better_Caves_api" target="1.8" />
       <module name="Yung's_Better_Caves_main" target="1.8" />
       <module name="Yung's_Better_Caves_test" target="1.8" />

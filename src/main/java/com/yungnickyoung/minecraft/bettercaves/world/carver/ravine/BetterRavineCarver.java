@@ -3,7 +3,6 @@ package com.yungnickyoung.minecraft.bettercaves.world.carver.ravine;
 import com.mojang.serialization.Codec;
 import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
-import com.yungnickyoung.minecraft.bettercaves.util.ColPos;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverUtils;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
@@ -14,8 +13,8 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.ProbabilityConfig;
 
 import java.util.BitSet;
-import java.util.Map;
 import java.util.Random;
+import java.util.function.Function;
 
 /**
  * Re-implements vanilla ravine carver, but with a few modifications for Better Caves config options.
@@ -40,7 +39,7 @@ public class BetterRavineCarver extends net.minecraft.world.gen.carver.RavineCar
         this.liquidAltitude = config.liquidAltitude.get();
     }
 
-    public void carve(Chunk chunkIn, Random rand, int seaLevel, int chunkX, int chunkZ, int originChunkX, int originChunkZ, BlockState[][] liquidBlocks, Map<Long, Biome> biomeMap, BitSet airCarvingMask, BitSet liquidCarvingMask) {
+    public void carve(Chunk chunkIn, Random rand, int seaLevel, int chunkX, int chunkZ, int originChunkX, int originChunkZ, BlockState[][] liquidBlocks, Function<BlockPos, Biome> biomePos, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         int i = (this.getBranchFactor() * 2 - 1) * 16;
         double startX = chunkX * 16 + rand.nextInt(16);
         double startY = rand.nextInt(rand.nextInt(40) + 8) + 20;
@@ -55,10 +54,10 @@ public class BetterRavineCarver extends net.minecraft.world.gen.carver.RavineCar
         int startCounter = 0;
         int endCounter = i - rand.nextInt(i / 4);
 
-        this.carveRavine(chunkIn, rand.nextLong(), seaLevel, originChunkX, originChunkZ, startX, startY, startZ, width, yaw, pitch, startCounter, endCounter, heightModifier, liquidBlocks, biomeMap, airCarvingMask, liquidCarvingMask);
+        this.carveRavine(chunkIn, rand.nextLong(), seaLevel, originChunkX, originChunkZ, startX, startY, startZ, width, yaw, pitch, startCounter, endCounter, heightModifier, liquidBlocks, biomePos, airCarvingMask, liquidCarvingMask);
     }
 
-    private void carveRavine(Chunk chunkIn, long seed, int seaLevel, int originChunkX, int originChunkZ, double ravineStartX, double ravineStartY, double ravineStartZ, float width, float yaw, float pitch, int startCounter, int endCounter, double heightModifier, BlockState[][] liquidBlocks, Map<Long, Biome> biomeMap, BitSet airCarvingMask, BitSet liquidCarvingMask) {
+    private void carveRavine(Chunk chunkIn, long seed, int seaLevel, int originChunkX, int originChunkZ, double ravineStartX, double ravineStartY, double ravineStartZ, float width, float yaw, float pitch, int startCounter, int endCounter, double heightModifier, BlockState[][] liquidBlocks, Function<BlockPos, Biome> biomePos, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         Random random = new Random(seed);
         float f = 1.0F;
 
@@ -108,7 +107,7 @@ public class BetterRavineCarver extends net.minecraft.world.gen.carver.RavineCar
                     return;
                 }
 
-                this.carveRegion(chunkIn, seed, seaLevel, originChunkX, originChunkZ, ravineStartX, ravineStartY, ravineStartZ, xzOffset, yOffset, liquidBlocks, biomeMap, airCarvingMask, liquidCarvingMask);
+                this.carveRegion(chunkIn, seed, seaLevel, originChunkX, originChunkZ, ravineStartX, ravineStartY, ravineStartZ, xzOffset, yOffset, liquidBlocks, biomePos, airCarvingMask, liquidCarvingMask);
             }
             startCounter++;
         }
@@ -125,7 +124,7 @@ public class BetterRavineCarver extends net.minecraft.world.gen.carver.RavineCar
         return ravineStartXOffsetFromCenter * ravineStartXOffsetFromCenter + ravineStartZOffsetFromCenter * ravineStartZOffsetFromCenter - distanceToEnd * distanceToEnd <= d5 * d5;
     }
 
-    protected void carveRegion(Chunk chunkIn, long seed, int seaLevel, int originChunkX, int originChunkZ, double ravineStartX, double ravineStartY, double ravineStartZ, double xzOffset, double yOffset, BlockState[][] liquidBlocks, Map<Long, Biome> biomeMap, BitSet airCarvingMask, BitSet liquidCarvingMask) {
+    protected void carveRegion(Chunk chunkIn, long seed, int seaLevel, int originChunkX, int originChunkZ, double ravineStartX, double ravineStartY, double ravineStartZ, double xzOffset, double yOffset, BlockState[][] liquidBlocks, Function<BlockPos, Biome> biomePos, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         BlockState liquidBlock;
         Random rand = new Random(seed + (long)originChunkX + (long)originChunkZ);
         double originBlockX = originChunkX * 16 + 8;
@@ -170,7 +169,7 @@ public class BetterRavineCarver extends net.minecraft.world.gen.carver.RavineCar
                             if (!this.isPositionExcluded(xAxisDist, yAxisDist, zAxisDist, currY)) {
                                 mutableBlockPos.set(realX, currY, realZ);
                                 liquidBlock = liquidBlocks[currLocalX][currLocalZ];
-                                this.carveBlock(chunkIn, rand, seaLevel, mutableBlockPos, liquidBlock, biomeMap, airCarvingMask, liquidCarvingMask);
+                                this.carveBlock(chunkIn, rand, seaLevel, mutableBlockPos, liquidBlock, biomePos, airCarvingMask, liquidCarvingMask);
                             }
                         }
                     }
@@ -184,17 +183,15 @@ public class BetterRavineCarver extends net.minecraft.world.gen.carver.RavineCar
         return (xAxisDist * xAxisDist + zAxisDist * zAxisDist) * (double)this.heightToHorizontalStretchFactor[currY - 1] + yAxisDist * yAxisDist / 6.0D >= 1.0D;
     }
 
-    private void carveBlock(Chunk chunkIn, Random rand, int seaLevel, BlockPos.Mutable blockPos, BlockState liquidBlockState, Map<Long, Biome> biomeMap, BitSet airCarvingMask, BitSet liquidCarvingMask) {
+    private void carveBlock(Chunk chunkIn, Random rand, int seaLevel, BlockPos.Mutable blockPos, BlockState liquidBlockState, Function<BlockPos, Biome> biomePos, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         // Check if already carved
         int bitIndex = (blockPos.getX() & 0xF) | ((blockPos.getZ() & 0xF) << 4) | (blockPos.getY() << 8);
         if (airCarvingMask.get(bitIndex) || liquidCarvingMask.get(bitIndex)) {
             return;
         }
 
-        ColPos colPos = ColPos.fromBlockPos(blockPos);
-
         // Determine if ravine is flooded at this location
-        boolean flooded = isFloodedRavinesEnabled && biomeMap.get(colPos.toLong()).getCategory() == Biome.Category.OCEAN;
+        boolean flooded = isFloodedRavinesEnabled && biomePos.apply(blockPos).getCategory() == Biome.Category.OCEAN;
         if (flooded) {
             // Cannot go above sea level
             if (blockPos.getY() >= seaLevel) {
@@ -203,7 +200,7 @@ public class BetterRavineCarver extends net.minecraft.world.gen.carver.RavineCar
         }
 
         // Don't dig in boundaries between flooded and unflooded openings.
-        float smoothAmpFloodFactor = BetterCavesUtils.getDistFactor(world, biomeMap, colPos, 2, flooded ? BetterCavesUtils.isNotOcean : BetterCavesUtils.isOcean);
+        float smoothAmpFloodFactor = BetterCavesUtils.getDistFactor(world, biomePos, blockPos, 2, flooded ? BetterCavesUtils.isNotOcean : BetterCavesUtils.isOcean);
         if (smoothAmpFloodFactor <= .25f) { // Wall between flooded and normal caves.
             return;
         }

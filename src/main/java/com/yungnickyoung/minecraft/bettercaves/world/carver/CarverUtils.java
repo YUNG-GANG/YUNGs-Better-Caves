@@ -8,6 +8,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.Material;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 
@@ -138,8 +139,7 @@ public class CarverUtils {
             return;
         }
 
-        // Add magma and obsidian right above liquid altitude
-        if (blockPos.getY() == liquidAltitude + 1) {
+        if (liquidBlockState != null && liquidBlockState.getBlock() == Blocks.LAVA && blockPos.getY() == liquidAltitude + 1) { // Add magma and obsidian right above lava
             float f = rand.nextFloat();
             if (f < 0.25f) {
                 chunkIn.setBlockState(blockPos, Blocks.MAGMA_BLOCK.getDefaultState(), false);
@@ -147,16 +147,27 @@ public class CarverUtils {
             } else {
                 chunkIn.setBlockState(blockPos, Blocks.OBSIDIAN.getDefaultState(), false);
             }
-        }
-        // Replace any block below the liquid altitude with the liquid block passed in
-        else if (blockPos.getY() <= liquidAltitude) {
-            if (liquidBlockState != null) {
-                chunkIn.setBlockState(blockPos, liquidBlockState, false);
+        } else if (liquidBlockState != null && blockPos.getY() <= liquidAltitude) { // Replace any block below the liquid altitude with the liquid block passed in
+            chunkIn.setBlockState(blockPos, liquidBlockState, false);
+        } else { // Normal carving
+            chunkIn.setBlockState(blockPos, WATER, false);
+
+            int x = blockPos.getX();
+            int y = blockPos.getY();
+            int z = blockPos.getZ();
+
+            // Schedule fluid tick if along chunk boundary. Helps avoid weird floating water
+            for(Direction direction : Direction.Type.HORIZONTAL) {
+                int j = blockPos.getX() + direction.getOffsetX();
+                int k = blockPos.getZ() + direction.getOffsetZ();
+                if (j >> 4 != chunkIn.getPos().x || k >> 4 != chunkIn.getPos().z || chunkIn.getBlockState(blockPos.set(j, y, k)).isAir()) {
+                    chunkIn.setBlockState(blockPos, WATER, false);
+                    chunkIn.getFluidTickScheduler().schedule(blockPos, WATER.getFluidState().getFluid(), 0);
+                    break;
+                }
             }
-        }
-        // Else, normal carving
-        else {
-            chunkIn.setBlockState(blockPos, WATER.getFluidState().getBlockState(), false);
+
+            blockPos.set(x, y, z); // Reset block pos to original pos
 
             // Replace floating gravel with andesite, if enabled
             if (replaceGravel && blockStateAbove == GRAVEL)

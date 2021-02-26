@@ -3,9 +3,9 @@ package com.yungnickyoung.minecraft.bettercaves;
 import com.google.common.collect.Lists;
 import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
+import com.yungnickyoung.minecraft.bettercaves.init.BCModCarver;
 import com.yungnickyoung.minecraft.bettercaves.init.BCModConfig;
-import com.yungnickyoung.minecraft.bettercaves.init.BCModFeature;
-import com.yungnickyoung.minecraft.bettercaves.world.carver.BetterCavesCarver;
+import com.yungnickyoung.minecraft.bettercaves.world.carver.controller.MasterController;
 import net.fabricmc.api.ModInitializer;
 
 import net.minecraft.world.gen.carver.ConfiguredCarver;
@@ -27,7 +27,7 @@ public class BetterCaves implements ModInitializer {
      * Table of active Better Caves carvers. Maps dimension name to its carver.
      * We create separate carvers per dimension to allow for dimension-specific configuration.
      */
-    public static Map<String, BetterCavesCarver> activeCarversMap = new HashMap<>();
+    public static Map<String, MasterController> activeCarversMap = new HashMap<>();
 
     /**
      * List of whitelisted dimensions.
@@ -55,6 +55,6 @@ public class BetterCaves implements ModInitializer {
     public void onInitialize() {
         LOGGER.debug("Better Caves entry point");
         BCModConfig.init();
-        BCModFeature.init();
+        BCModCarver.init();
     }
 }

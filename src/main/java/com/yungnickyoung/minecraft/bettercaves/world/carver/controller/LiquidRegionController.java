@@ -15,7 +15,7 @@ import java.util.Objects;
 import java.util.Random;
 
 public class LiquidRegionController {
-    private FastNoise waterRegionController;
+    private FastNoise waterRegionSampler;
     private StructureWorldAccess world;
     private String dimensionName;
     private Random rand;
@@ -39,11 +39,11 @@ public class LiquidRegionController {
         waterBlock = getWaterBlockFromString(config.waterBlock.get());
         waterRegionThreshold = NoiseUtils.simplexNoiseOffsetByPercent(-1f, config.waterRegionSpawnChance.get().floatValue() / 100f);
 
-        // Water region controller
+        // Water region sampler
         float waterRegionSize = config.cavernRegionSize.get().equalsIgnoreCase("extralarge") ? .001f : .004f;
-        waterRegionController = new FastNoise();
-        waterRegionController.SetSeed((int) world.getSeed() + 444);
-        waterRegionController.SetFrequency(waterRegionSize);
+        waterRegionSampler = new FastNoise();
+        waterRegionSampler.SetSeed((int) world.getSeed() + 444);
+        waterRegionSampler.SetFrequency(waterRegionSize);
     }
 
     public BlockState[][] getLiquidBlocksForChunk(int chunkX, int chunkZ) {
@@ -63,7 +63,7 @@ public class LiquidRegionController {
     private BlockState getLiquidBlockAtPos(Random rand, ColPos colPos) {
         BlockState liquidBlock = lavaBlock;
         if (waterRegionThreshold > -1f) { // Don't bother calculating noise if water regions are disabled
-            float waterRegionNoise = waterRegionController.GetNoise(colPos.getX(), colPos.getZ());
+            float waterRegionNoise = waterRegionSampler.GetNoise(colPos.getX(), colPos.getZ());
 
             // If water region threshold check is passed, change liquid block to water
             float randOffset = rand.nextFloat() * SMOOTH_DELTA + SMOOTH_RANGE;

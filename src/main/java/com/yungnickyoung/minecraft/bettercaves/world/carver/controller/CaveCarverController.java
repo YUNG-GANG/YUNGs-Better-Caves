@@ -5,7 +5,6 @@ import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
 import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
-import com.yungnickyoung.minecraft.bettercaves.noise.NoiseColumn;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverNoiseRange;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.ICarver;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.cave.CaveCarver;
@@ -30,7 +29,7 @@ import static com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils.isPo
 public class CaveCarverController {
     private StructureWorldAccess world;
     private VanillaCaveCarver surfaceCaveCarver; // only used if surface caves enabled
-    private FastNoise caveRegionController;
+    private FastNoise caveRegionSampler;
     private List<CarverNoiseRange> noiseRanges = new ArrayList<>();
 
     // Vars from config
@@ -56,14 +55,13 @@ public class CaveCarverController {
             .debugVisualizerBlock(Blocks.EMERALD_BLOCK.getDefaultState())
             .build();
 
-        // Configure cave region controller, which determines what type of cave should be
-        // carved in any given region
+        // Configure cave region sampler, which determines what type of cave should be carved in any given region
         float caveRegionSize = calcCaveRegionSize(config.caveRegionSize.get(), config.caveRegionCustomSize.get().floatValue());
-        this.caveRegionController = new FastNoise();
-        this.caveRegionController.SetSeed((int)worldIn.getSeed() + 222);
-        this.caveRegionController.SetFrequency(caveRegionSize);
-        this.caveRegionController.SetNoiseType(FastNoise.NoiseType.Cellular);
-        this.caveRegionController.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
+        this.caveRegionSampler = new FastNoise();
+        this.caveRegionSampler.SetSeed((int)worldIn.getSeed() + 222);
+        this.caveRegionSampler.SetFrequency(caveRegionSize);
+        this.caveRegionSampler.SetNoiseType(FastNoise.NoiseType.Cellular);
+        this.caveRegionSampler.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
         // Initialize all carvers using config options
         List<ICarver> carvers = new ArrayList<>();
@@ -185,7 +183,7 @@ public class CaveCarverController {
                         BlockState liquidBlock = liquidBlocks[localX][localZ];
 
                         // Get noise values used to determine cave region
-                        float caveRegionNoise = caveRegionController.GetNoise(colPos.getX(), colPos.getZ());
+                        float caveRegionNoise = caveRegionSampler.GetNoise(colPos.getX(), colPos.getZ());
 
                         // Carve cave using matching carver
                         for (CarverNoiseRange range : noiseRanges) {
@@ -207,7 +205,7 @@ public class CaveCarverController {
                                 if (range.getNoiseCube() == null) {
                                     range.setNoiseCube(carver.getNoiseGen().interpolateNoiseCube(startPos, endPos, bottomY, maxHeight));
                                 }
-                                NoiseColumn noiseColumn = range.getNoiseCube().get(offsetX).get(offsetZ);
+                                double[][] noiseColumn = range.getNoiseCube()[offsetX][offsetZ];
                                 carver.carveColumn(chunk, colPos, topY, noiseColumn, liquidBlock, flooded, flooded ? liquidCarvingMask : airCarvingMask);
                                 break;
                             }

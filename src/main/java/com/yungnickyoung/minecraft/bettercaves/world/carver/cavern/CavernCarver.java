@@ -2,9 +2,7 @@ package com.yungnickyoung.minecraft.bettercaves.world.carver.cavern;
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
-import com.yungnickyoung.minecraft.bettercaves.noise.NoiseColumn;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
-import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverSettings;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.ICarver;
@@ -13,7 +11,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.Chunk;
 
 import java.util.BitSet;
-import java.util.List;
 import java.util.Random;
 
 /**
@@ -48,19 +45,15 @@ public class CavernCarver implements ICarver {
         }
     }
 
-    public void carveColumn(Chunk chunk, BlockPos colPos, int topY, float smoothAmp, NoiseColumn noises, BlockState liquidBlock, boolean flooded, BitSet carvingMask) {
-        int localX = BetterCavesUtils.getLocal(colPos.getX());
-        int localZ = BetterCavesUtils.getLocal(colPos.getZ());
+    public void carveColumn(Chunk chunk, BlockPos colPos, int topY, float smoothAmp, double[][] noises, BlockState liquidBlock, boolean flooded, BitSet carvingMask) {
+        int localX = colPos.getX() & 0xF;
+        int localZ = colPos.getZ() & 0xF;
 
         // Validate vars
-        if (localX < 0 || localX > 15)
-            return;
-        if (localZ < 0 || localZ > 15)
-            return;
-        if (bottomY < 0 || bottomY > 255)
-            return;
-        if (topY > 255)
-            return;
+        if (bottomY < 0) bottomY = 0;
+        if (bottomY > 255) bottomY = 255;
+        if (topY < 2) topY = 2;
+        if (topY > 255) topY = 255;
 
         // Set altitude at which caverns start closing off on the top
         topY -= 2;
@@ -83,12 +76,11 @@ public class CavernCarver implements ICarver {
             if (y <= settings.getLiquidAltitude() && liquidBlock == null)
                 break;
 
-            List<Double> noiseBlock;
             boolean digBlock = false;
 
             // Compute a single noise value to represent all the noise values in the NoiseTuple
             float noise = 1;
-            noiseBlock = noises.get(y).getNoiseValues();
+            double[] noiseBlock = noises[y - bottomY];
             for (double n : noiseBlock)
                 noise *= n;
 

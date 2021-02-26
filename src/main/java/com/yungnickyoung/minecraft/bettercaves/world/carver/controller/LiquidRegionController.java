@@ -49,11 +49,12 @@ public class LiquidRegionController {
     public BlockState[][] getLiquidBlocksForChunk(int chunkX, int chunkZ) {
         rand.setSeed(world.getSeed() ^ chunkX ^ chunkZ);
         BlockState[][] blocks = new BlockState[16][16];
+        ColPos.Mutable pos = new ColPos.Mutable();
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
                 int realX = chunkX * 16 + x;
                 int realZ = chunkZ * 16 + z;
-                ColPos pos = new ColPos(realX, realZ);
+                pos.set(chunkX * 16 + x, chunkZ * 16 + z);
                 blocks[x][z] = getLiquidBlockAtPos(rand, pos);
             }
         }

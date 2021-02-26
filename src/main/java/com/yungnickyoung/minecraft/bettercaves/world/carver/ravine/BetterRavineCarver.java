@@ -169,6 +169,11 @@ public class BetterRavineCarver extends net.minecraft.world.gen.carver.RavineCar
                             if (!this.isPositionExcluded(xAxisDist, yAxisDist, zAxisDist, currY)) {
                                 mutableBlockPos.set(realX, currY, realZ);
                                 liquidBlock = liquidBlocks[currLocalX][currLocalZ];
+
+                                // Don't carve space between water and lava regions
+                                if (currY <= liquidAltitude && liquidBlock == null)
+                                    return;
+
                                 this.carveBlock(chunkIn, rand, seaLevel, mutableBlockPos, liquidBlock, biomePos, airCarvingMask, liquidCarvingMask);
                             }
                         }

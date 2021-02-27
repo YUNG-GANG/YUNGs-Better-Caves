@@ -2,9 +2,9 @@ package com.yungnickyoung.minecraft.bettercaves.world.carver.controller;
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
-import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtils;
-import com.yungnickyoung.minecraft.bettercaves.util.ColPos;
+import com.yungnickyoung.minecraft.yungsapi.math.ColPos;
+import com.yungnickyoung.minecraft.yungsapi.noise.FastNoise;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.Identifier;
@@ -52,8 +52,6 @@ public class LiquidRegionController {
         ColPos.Mutable pos = new ColPos.Mutable();
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
-                int realX = chunkX * 16 + x;
-                int realZ = chunkZ * 16 + z;
                 pos.set(chunkX * 16 + x, chunkZ * 16 + z);
                 blocks[x][z] = getLiquidBlockAtPos(rand, pos);
             }

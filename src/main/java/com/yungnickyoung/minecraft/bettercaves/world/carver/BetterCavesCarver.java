@@ -100,7 +100,7 @@ public class BetterCavesCarver extends WorldCarver<EmptyCarverConfig> {
 
     private boolean useDefaultCarvers(ServerWorld world, IChunk chunkIn, Function<BlockPos, Biome> biomePos, Random rand, int seaLevel, int chunkXOffset, int chunkZOffset, int chunkX, int chunkZ, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         // Grab the carvers we saved earlier for this biome
-        String biomeName = world.getNoiseBiome(chunkIn.getPos().x << 2, 0, chunkIn.getPos().z << 2).getRegistryName().toString();
+        String biomeName = biomePos.apply(new BlockPos(chunkIn.getPos().x << 4, 0, chunkIn.getPos().z << 4)).getRegistryName().toString();
         List<Supplier<ConfiguredCarver<?>>> defaultAirCarvers = BetterCaves.defaultBiomeAirCarvers.get(biomeName);
         List<Supplier<ConfiguredCarver<?>>> defaultLiquidCarvers = BetterCaves.defaultBiomeLiquidCarvers.get(biomeName);
 

@@ -6,7 +6,6 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ProtoChunk;
 import net.minecraft.world.gen.GenerationStep;
 
-import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.BitSet;
 
@@ -34,7 +33,6 @@ public class CarvingContext {
      * Consume the currently held CarvingContext.
      * A null value means we are in the wrong generation stage, or the context has already been consumed.
      */
-    @Nullable
     public static CarvingContext pop() {
         CarvingContext context = CONTEXT.get();
         CONTEXT.set(null);
@@ -45,7 +43,6 @@ public class CarvingContext {
      * Peek the currently held CarvingContext without consuming it.
      * A null value means we are in the wrong generation stage, or the context has already been consumed.
      */
-    @Nullable
     public static CarvingContext peek() {
         return CONTEXT.get();
     }

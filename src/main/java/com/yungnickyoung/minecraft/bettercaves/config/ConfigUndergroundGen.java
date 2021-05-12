@@ -3,7 +3,7 @@ package com.yungnickyoung.minecraft.bettercaves.config;
 import com.yungnickyoung.minecraft.bettercaves.config.cave.ConfigCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.cavern.ConfigCaverns;
 import com.yungnickyoung.minecraft.bettercaves.config.ravine.ConfigRavine;
-import me.sargunvohra.mcmods.autoconfig1u.annotation.ConfigEntry;
+import me.shedaniel.autoconfig.annotation.ConfigEntry;
 
 public class ConfigUndergroundGen {
     @ConfigEntry.Category("Caves")

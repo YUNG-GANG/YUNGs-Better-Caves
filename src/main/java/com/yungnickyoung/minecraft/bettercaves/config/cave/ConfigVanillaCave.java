@@ -1,6 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.config.cave;
 
-import me.sargunvohra.mcmods.autoconfig1u.annotation.ConfigEntry;
+import me.shedaniel.autoconfig.annotation.ConfigEntry;
 
 public class ConfigVanillaCave {
     @ConfigEntry.Gui.Tooltip

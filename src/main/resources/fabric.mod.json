@@ -32,9 +32,9 @@
   ],
   "depends": {
     "fabricloader": ">=0.10.6",
-    "fabric": ">=0.25.0",
-    "minecraft": ">=1.16.2",
-    "yungsapi": ">=1.16.5-Fabric-2"
+    "fabric": ">=0.33.0+1.16",
+    "minecraft": ">=1.16.4",
+    "yungsapi": ">=1.16.5-Fabric-5"
   },
   "accessWidener" : "bettercaves.aw"
 }

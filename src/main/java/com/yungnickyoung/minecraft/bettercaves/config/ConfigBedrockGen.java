@@ -1,7 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves.config;
 
-import me.sargunvohra.mcmods.autoconfig1u.annotation.Config;
-import me.sargunvohra.mcmods.autoconfig1u.annotation.ConfigEntry;
+import me.shedaniel.autoconfig.annotation.Config;
+import me.shedaniel.autoconfig.annotation.ConfigEntry;
 
 @Config(name = "better-caves")
 public class ConfigBedrockGen {

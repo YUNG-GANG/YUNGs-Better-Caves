@@ -3,8 +3,8 @@ package com.yungnickyoung.minecraft.bettercaves.init;
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
-import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
-import me.sargunvohra.mcmods.autoconfig1u.serializer.Toml4jConfigSerializer;
+import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.File;
@@ -15,9 +15,10 @@ import java.nio.file.Paths;
 
 public class BCModConfig {
     public static void init() {
+        AutoConfig.register(Configuration.class, Toml4jConfigSerializer::new);
+        BetterCaves.CONFIG = AutoConfig.getConfigHolder(Configuration.class).getConfig();
         createDirectory();
         createReadMe();
-        AutoConfig.register(Configuration.class, Toml4jConfigSerializer::new);
     }
 
     private static void createDirectory() {

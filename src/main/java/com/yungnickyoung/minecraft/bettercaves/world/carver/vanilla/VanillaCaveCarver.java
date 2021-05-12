@@ -12,7 +12,6 @@ import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Random;
@@ -92,7 +91,7 @@ public class VanillaCaveCarver implements ICarver {
      * This means that when a chunk is checked multiple times by different neighbor chunks, each time it will be processed
      * the same way, ensuring the tunnels are always consistent and connecting.
      */
-    private void recursiveGenerate(StructureWorldAccess worldIn, int chunkX, int chunkZ, int originalChunkX, int originalChunkZ, @Nonnull Chunk primer, boolean addRooms, BlockState[][] liquidBlocks, Function<BlockPos, Biome> biomePos, boolean[][] validPositions, BitSet airCarvingMask, BitSet liquidCarvingMask) {
+    private void recursiveGenerate(StructureWorldAccess worldIn, int chunkX, int chunkZ, int originalChunkX, int originalChunkZ, Chunk primer, boolean addRooms, BlockState[][] liquidBlocks, Function<BlockPos, Biome> biomePos, boolean[][] validPositions, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         int numAttempts = this.rand.nextInt(this.rand.nextInt(this.rand.nextInt(15) + 1) + 1);
 
         if (this.rand.nextInt(100) > this.density) {

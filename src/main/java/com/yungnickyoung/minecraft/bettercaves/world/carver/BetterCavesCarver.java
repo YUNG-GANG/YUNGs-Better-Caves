@@ -11,7 +11,6 @@ import net.minecraft.world.gen.carver.Carver;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraft.world.gen.carver.DefaultCarverConfig;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Objects;
@@ -29,7 +28,6 @@ public class BetterCavesCarver extends Carver<DefaultCarverConfig> {
     }
 
     @Override
-    @ParametersAreNonnullByDefault
     public boolean carve(Chunk chunkIn, Function<BlockPos, Biome> biomePos, Random rand, int seaLevel, int chunkXOffset, int chunkZOffset, int chunkX, int chunkZ, BitSet carvingMask, DefaultCarverConfig config) {
         // A null CarvingContext indicates we're in not the 'air carving' stage so exit early.
         CarvingContext context = CarvingContext.peek();
@@ -87,7 +85,6 @@ public class BetterCavesCarver extends Carver<DefaultCarverConfig> {
     }
 
     @Override
-    @ParametersAreNonnullByDefault
     public boolean shouldCarve(Random rand, int chunkX, int chunkZ, DefaultCarverConfig config) {
         return true;
     }
@@ -99,7 +96,7 @@ public class BetterCavesCarver extends Carver<DefaultCarverConfig> {
 
     private boolean useDefaultCarvers(ServerWorld world, Chunk chunkIn, Function<BlockPos, Biome> biomePos, Random rand, int seaLevel, int chunkXOffset, int chunkZOffset, int chunkX, int chunkZ, BitSet airCarvingMask, BitSet liquidCarvingMask) {
         // Grab the carvers we saved earlier for this biome
-        String biomeName = world.getBiomeForNoiseGen(chunkIn.getPos().x << 2, 0, chunkIn.getPos().z << 2).toString();
+        String biomeName = biomePos.apply(new BlockPos(chunkIn.getPos().x << 4, 0, chunkIn.getPos().z << 4)).toString();
         List<Supplier<ConfiguredCarver<?>>> defaultAirCarvers = BetterCaves.defaultBiomeAirCarvers.get(biomeName);
         List<Supplier<ConfiguredCarver<?>>> defaultLiquidCarvers = BetterCaves.defaultBiomeLiquidCarvers.get(biomeName);
 

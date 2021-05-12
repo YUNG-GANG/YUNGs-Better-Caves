@@ -2,9 +2,7 @@ package com.yungnickyoung.minecraft.bettercaves.init;
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
-import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.BetterCavesCarver;
-import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
@@ -25,7 +23,6 @@ public class BCModCarver {
     public static void init() {
         registerCarver();
         ServerWorldEvents.UNLOAD.register((unload, serverWorld) -> worldUnload(serverWorld));
-        BetterCaves.CONFIG = AutoConfig.getConfigHolder(Configuration.class).getConfig();
     }
 
     private static void registerCarver() {

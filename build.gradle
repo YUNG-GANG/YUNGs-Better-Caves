@@ -1,0 +1,28 @@
+plugins {
+    id 'fabric-loom' version '1.10-SNAPSHOT' apply false
+    id "org.jetbrains.gradle.plugin.idea-ext" version "1.1.7" // required for NeoGradle
+    id 'org.spongepowered.mixin' version '0.7-SNAPSHOT' apply false
+    id 'net.darkhax.curseforgegradle' version "${curseforgegradle_version}" apply false // curseforge publishing
+    id "com.modrinth.minotaur" version "2.+" apply false // modrinth publishing
+}
+
+subprojects {
+    configurations.all {
+        resolutionStrategy {
+            cacheChangingModulesFor 60, 'seconds'
+            cacheDynamicVersionsFor 60, 'seconds'
+        }
+    }
+    // Pass the raw project version string as an extra property to each subproject
+    // since the version property will be overwritten by the complete version string
+    ext {
+        rawVersion = project.version
+    }
+}
+
+task publishCurseForge(dependsOn: [':Forge:publishCurseForgeForge', ':Fabric:publishCurseForgeFabric', ':NeoForge:publishCurseForgeNeoForge']) {
+}
+task publishModrinth(dependsOn: [':Forge:modrinth', ':Fabric:modrinth', ':NeoForge:modrinth']) {
+}
+task publishCurseAndModrinth(dependsOn: ['publishCurseForge', 'publishModrinth']) {
+}

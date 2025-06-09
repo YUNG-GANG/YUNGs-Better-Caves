@@ -1,0 +1,14 @@
+{
+  "type": "neoforge:remove_carvers",
+  // Can either be a biome id, such as "minecraft:plains",
+  // or a list of biome ids, such as ["minecraft:plains", "minecraft:badlands", ...],
+  // or a biome tag, such as "#c:is_overworld".
+  "biomes": "#minecraft:is_overworld",
+  // Can either be a carver id, such as "examplemod:add_carvers_example",
+  // or a list of carver ids, such as ["examplemod:add_carvers_example", "minecraft:canyon", ...],
+  // or a carver tag, such as "#examplemod:configured_carver_tag".
+  "carvers": [
+    "minecraft:cave",
+    "minecraft:cave_extra_underground"
+  ]
+}

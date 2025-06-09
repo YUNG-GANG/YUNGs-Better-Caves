@@ -1,0 +1,120 @@
+plugins {
+    id 'java-library'
+}
+
+base {
+    archivesName = "${mod_name}"
+    version = "${mc_version}-${project.name}-${project.version}"
+}
+
+group = maven_group
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(java_version)
+    withSourcesJar()
+    withJavadocJar()
+}
+
+repositories {
+    mavenCentral()
+    // https://docs.gradle.org/current/userguide/declaring_repositories.html#declaring_content_exclusively_found_in_one_repository
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'Sponge'
+                url = 'https://repo.spongepowered.org/repository/maven-public'
+            }
+        }
+        filter { includeGroupAndSubgroups("org.spongepowered") }
+    }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'ParchmentMC'
+                url = 'https://maven.parchmentmc.org/'
+            }
+        }
+        filter { includeGroup('org.parchmentmc.data') }
+    }
+    maven {
+        name = 'BlameJared'
+        url = 'https://maven.blamejared.com'
+    }
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+// Declare capabilities on the outgoing configurations.
+// Read more about capabilities here: https://docs.gradle.org/current/userguide/component_capabilities.html#sec:declaring-additional-capabilities-for-a-local-component
+['apiElements', 'runtimeElements', 'sourcesElements', 'javadocElements'].each { variant ->
+    configurations."$variant".outgoing {
+        capability("$group:${base.archivesName.get()}:$version")
+        capability("$group:$mod_id-${project.name}-${mc_version}:$version")
+        capability("$group:$mod_id:$version")
+    }
+//    publishing.publications.configureEach {
+//        suppressPomMetadataWarningsFor(variant)
+//    }
+}
+
+sourcesJar {
+    from(rootProject.file("LICENSE")) {
+        rename { "${it}_${mod_name}" }
+    }
+}
+
+javadoc {
+    if (JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+}
+
+jar {
+    from(rootProject.file("LICENSE")) {
+        rename { "${it}_${mod_name}" }
+    }
+
+    manifest {
+        attributes([
+                'Specification-Title'   : mod_name,
+                'Specification-Vendor'  : mod_author,
+                'Specification-Version' : project.jar.archiveVersion,
+                'Implementation-Title'  : project.name,
+                'Implementation-Version': project.jar.archiveVersion,
+                'Implementation-Vendor' : mod_author,
+                'Built-On-Minecraft'    : mc_version
+        ])
+    }
+}
+
+processResources {
+    def expandProps = [
+            "version": version,
+            "group": project.group, //Else we target the task's group.
+            "mc_version": mc_version,
+            "mc_version_range": mc_version_range,
+            "mc_version_range_fabric": mc_version_range_fabric,
+            "fabric_version": fabric_version,
+            "fabric_loader_version": fabric_loader_version,
+            "clothconfig_version_fabric": clothconfig_version_fabric,
+            "neoforge_version": neoforge_version,
+            "neoforge_version_range": neoforge_version_range,
+            "neoforge_loader_version_range": neoforge_loader_version_range,
+            "forge_version": forge_version,
+            "forge_loader_version_range": forge_loader_version_range,
+            "mod_full_name": mod_full_name,
+            "mod_author": mod_author,
+            "mod_id": mod_id,
+            "license": license,
+            "mod_description": project.mod_description,
+            "mod_credits": mod_credits,
+            "java_version": java_version,
+            "yungsapi_version": yungsapi_version
+    ]
+
+    filesMatching(['pack.mcmeta', 'fabric.mod.json', 'META-INF/mods.toml', 'META-INF/neoforge.mods.toml', '*.mixins.json']) {
+        expand expandProps
+    }
+    inputs.properties(expandProps)
+}

@@ -9,6 +9,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.CarvingMask;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.Aquifer;
+import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.carver.CarverConfiguration;
 
 import java.util.Random;
@@ -49,11 +51,10 @@ public class CarverUtils {
      * @param airBlockState    the BlockState to use for air.
      * @param liquidBlockState the BlockState to use for liquids. May be null if in buffer zone between liquid regions
      * @param liquidAltitude   altitude at and below which air is replaced with liquidBlockState
-     * @param replaceGravel    if floating gravel should be replaced with andesite
      * @param carvingMask      BitSet that keeps track of which blocks have already been dug.
      */
-    public static void carveBlock(CarverConfiguration config, ChunkAccess chunkAccess, BlockPos blockPos, BlockState airBlockState, BlockState
-            liquidBlockState, int liquidAltitude, boolean replaceGravel, CarvingMask carvingMask) {
+    public static void carveBlock(CarverConfiguration config, ChunkAccess chunkAccess, BlockPos blockPos, BlockState airBlockState,
+                                  BlockState liquidBlockState, int liquidAltitude, CarvingMask carvingMask, Aquifer aquifer) {
         // Mark block as processed - for use by features
         carvingMask.set(blockPos.getX(), blockPos.getY(), blockPos.getZ());
 
@@ -72,7 +73,7 @@ public class CarverUtils {
             return;
         }
 
-        if (airBlockState == CAVE_AIR && blockPos.getY() <= liquidAltitude) { // Replace any block below the liquid altitude with the liquid block passed in
+        if (airBlockState.isAir() && blockPos.getY() <= liquidAltitude) { // Replace any block below the liquid altitude with the liquid block passed in
             if (liquidBlockState != null) {
                 chunkAccess.setBlockState(blockPos, liquidBlockState, false);
             }
@@ -95,20 +96,34 @@ public class CarverUtils {
 //                chunkAccess.setBlockState(blockPosAbove, ANDESITE, false);
 
             // Replace this block with air, effectively "digging" it out
-            chunkAccess.setBlockState(blockPos, airBlockState, false);
+            BlockState newBlockState = aquifer.computeSubstance(new DensityFunction.SinglePointContext(
+                        blockPos.getX(), blockPos.getY(), blockPos.getZ()), 0.0);
+
+            if (newBlockState == null) {
+                return;
+            }
+
+            chunkAccess.setBlockState(blockPos, newBlockState, false);
+            if (aquifer.shouldScheduleFluidUpdate() && !newBlockState.getFluidState().isEmpty()) {
+                chunkAccess.markPosForPostprocessing(blockPos);
+            }
+
+//            if ($$8.isTrue()) {
+//                $$6.setWithOffset($$5, Direction.DOWN);
+//                if ($$2.getBlockState($$6).is(Blocks.DIRT)) {
+//                    $$0.topMaterial($$3, $$2, $$6, !$$10.getFluidState().isEmpty()).ifPresent($$2x -> {
+//                        $$2.setBlockState($$6, $$2x, false);
+//                        if (!$$2x.getFluidState().isEmpty()) {
+//                            $$2.markPosForPostprocessing($$6);
+//                        }
+//                    });
+//                }
+//            }
         }
     }
 
-    public static void carveBlock(CarverConfiguration config, ChunkAccess chunkAccess, BlockPos blockPos, BlockState liquidBlockState, int liquidAltitude, boolean replaceGravel, CarvingMask carvingMask) {
-        carveBlock(config, chunkAccess, blockPos, Blocks.CAVE_AIR.defaultBlockState(), liquidBlockState, liquidAltitude, replaceGravel, carvingMask);
-    }
-
-    public static void carveBlock(CarverConfiguration config, ChunkAccess chunkAccess, int x, int y, int z, BlockState liquidBlockState, int liquidAltitude, boolean replaceGravel, CarvingMask carvingMask) {
-        carveBlock(config,chunkAccess, new BlockPos(x, y, z), Blocks.CAVE_AIR.defaultBlockState(), liquidBlockState, liquidAltitude, replaceGravel, carvingMask);
-    }
-
-    public static void carveBlock(CarverConfiguration config, ChunkAccess chunkAccess, int x, int y, int z, BlockState airBlockState, BlockState liquidBlockState, int liquidAltitude, boolean replaceGravel, CarvingMask carvingMask) {
-        carveBlock(config,chunkAccess, new BlockPos(x, y, z), airBlockState, liquidBlockState, liquidAltitude, replaceGravel, carvingMask);
+    public static void carveBlock(CarverConfiguration config, ChunkAccess chunkAccess, BlockPos blockPos, BlockState liquidBlockState, int liquidAltitude, CarvingMask carvingMask, Aquifer aquifer) {
+        carveBlock(config, chunkAccess, blockPos, Blocks.AIR.defaultBlockState(), liquidBlockState, liquidAltitude, carvingMask, aquifer);
     }
 
     /**

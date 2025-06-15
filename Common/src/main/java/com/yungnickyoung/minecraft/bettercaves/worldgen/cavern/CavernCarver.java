@@ -12,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.CarvingMask;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.Aquifer;
 import net.minecraft.world.level.levelgen.carver.CarverConfiguration;
 
 import java.util.BitSet;
@@ -44,13 +45,14 @@ public class CavernCarver implements ICarver {
         if (bottomY > topY) {
             BetterCavesCommon.LOGGER.warn("Warning: Min altitude for caverns should not be greater than max altitude.");
             BetterCavesCommon.LOGGER.warn("Using default values...");
-            this.bottomY = 1;
-            this.topY = 35;
+            this.bottomY = -63;
+            this.topY = -28;
         }
     }
 
     public void carveColumn(CarverConfiguration config, ChunkAccess chunk, BlockPos colPos, int topY, float smoothAmp,
-                            double[][] noises, BlockState liquidBlock, boolean flooded, CarvingMask carvingMask) {
+                            double[][] noises, BlockState liquidBlock, CarvingMask carvingMask,
+                            Aquifer aquifer) {
         int localX = colPos.getX() & 0xF;
         int localZ = colPos.getZ() & 0xF;
 
@@ -71,10 +73,11 @@ public class CavernCarver implements ICarver {
         }
 
         // Validate transition boundaries
-        topTransitionBoundary = Math.max(topTransitionBoundary, 1);
-        bottomTransitionBoundary = Math.min(bottomTransitionBoundary, 255);
+//        topTransitionBoundary = Math.max(topTransitionBoundary, 1);
+//        bottomTransitionBoundary = Math.min(bottomTransitionBoundary, 255);
 
         BlockPos.MutableBlockPos localPos = new BlockPos.MutableBlockPos(localX, 1, localZ);
+        BlockPos.MutableBlockPos realPos = new BlockPos.MutableBlockPos(colPos.getX(), 1, colPos.getZ());
 
         /* =============== Dig out caves and caverns in this chunk, based on noise values =============== */
         for (int y = topY; y >= bottomY; y--) {
@@ -107,16 +110,17 @@ public class CavernCarver implements ICarver {
                 digBlock = true;
 
             localPos.set(localX, y, localZ);
+            realPos.setY(y);
 
             // Dig out the block if it passed the threshold check, using the debug visualizer if enabled
             if (settings.isEnableDebugVisualizer()) {
                 CarverUtils.debugCarveBlock(chunk, localPos, settings.getDebugBlock(), digBlock);
             } else if (digBlock) {
-                if (flooded) {
-                    CarverUtils.carveFloodedBlock(config, chunk, new Random(), localPos, liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel(), carvingMask);
-                } else {
-                    CarverUtils.carveBlock(config, chunk, localPos, liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel(), carvingMask);
-                }
+//                if (flooded) {
+//                    CarverUtils.carveFloodedBlock(config, chunk, new Random(), localPos, liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel(), carvingMask);
+//                } else {
+                    CarverUtils.carveBlock(config, chunk, realPos, liquidBlock, settings.getLiquidAltitude(), carvingMask, aquifer);
+//                }
             }
         }
     }

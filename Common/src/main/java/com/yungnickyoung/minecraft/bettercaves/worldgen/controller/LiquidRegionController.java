@@ -7,6 +7,7 @@ import com.yungnickyoung.minecraft.yungsapi.noise.FastNoise;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
 
 import java.util.Random;
 
@@ -37,7 +38,8 @@ public class LiquidRegionController {
         liquidRegionSampler.SetFrequency(waterRegionSize);
     }
 
-    public BlockState[][] getLiquidBlocksForChunk(ChunkPos chunkPos) {
+    public BlockState[][] getLiquidBlocksForChunk(ChunkAccess chunkAccess) {
+        ChunkPos chunkPos = chunkAccess.getPos();
         rand.setSeed(serverLevel.getSeed() ^ chunkPos.x ^ chunkPos.z);
         BlockState[][] blocks = new BlockState[16][16];
         ColPos.Mutable pos = new ColPos.Mutable();

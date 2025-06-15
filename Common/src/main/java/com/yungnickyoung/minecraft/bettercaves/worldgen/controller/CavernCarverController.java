@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.CarvingMask;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.Aquifer;
 import net.minecraft.world.level.levelgen.carver.CarverConfiguration;
 
 import java.util.ArrayList;
@@ -93,32 +94,34 @@ public class CavernCarverController {
         }
     }
 
-    public void carveChunk(CarverConfiguration config, ChunkAccess chunk, ChunkPos chunkPos, int[][] surfaceAltitudes,
-                           BlockState[][] liquidBlocks, Function<BlockPos, Holder<Biome>> biomeProvider, CarvingMask carvingMask) {
+    public void carveChunk(CarverConfiguration config, ChunkAccess chunkAccess, int[][] surfaceAltitudes,
+                           BlockState[][] liquidBlocks, Function<BlockPos, Holder<Biome>> biomeProvider, CarvingMask carvingMask,
+                           Aquifer aquifer) {
         // Prevent unnecessary computation if caverns are disabled
         if (noiseRanges.isEmpty()) {
             return;
         }
 
-        boolean flooded = false;
+//        boolean flooded = false;
         float smoothAmpFloodFactor = 1;
 
         for (int subX = 0; subX < 16 / BCSettings.SUB_CHUNK_SIZE; subX++) {
             for (int subZ = 0; subZ < 16 / BCSettings.SUB_CHUNK_SIZE; subZ++) {
-                int startX = subX * BCSettings.SUB_CHUNK_SIZE;
-                int startZ = subZ * BCSettings.SUB_CHUNK_SIZE;
-                int endX = startX + BCSettings.SUB_CHUNK_SIZE - 1;
-                int endZ = startZ + BCSettings.SUB_CHUNK_SIZE - 1;
-                BlockPos startPos = new BlockPos(chunkPos.x * 16 + startX, 1, chunkPos.z * 16 + startZ);
-                BlockPos endPos = new BlockPos(chunkPos.x * 16 + endX, 1, chunkPos.z * 16 + endZ);
+                int localStartX = subX * BCSettings.SUB_CHUNK_SIZE;
+                int localStartZ = subZ * BCSettings.SUB_CHUNK_SIZE;
+                int localEndX = localStartX + BCSettings.SUB_CHUNK_SIZE - 1;
+                int localEndZ = localStartZ + BCSettings.SUB_CHUNK_SIZE - 1;
+                BlockPos startPos = new BlockPos(chunkAccess.getPos().x * 16 + localStartX, 1, chunkAccess.getPos().z * 16 + localStartZ);
+                BlockPos endPos = new BlockPos(chunkAccess.getPos().x * 16 + localEndX, 1, chunkAccess.getPos().z * 16 + localEndZ);
 
+                // Reset noise cubes for this subchunk
                 noiseRanges.forEach(range -> range.setNoiseCube(null));
 
                 // Get max height in subchunk. This is needed for calculating the noise cube
                 int maxHeight = 0;
                 if (!isOverrideSurfaceDetectionEnabled) { // Only necessary if we aren't overriding surface detection
-                    for (int x = startX; x < endX; x++) {
-                        for (int z = startZ; z < endZ; z++) {
+                    for (int x = localStartX; x < localEndX; x++) {
+                        for (int z = localStartZ; z < localEndZ; z++) {
                             maxHeight = Math.max(maxHeight, surfaceAltitudes[x][z]);
                         }
                     }
@@ -130,18 +133,18 @@ public class CavernCarverController {
 
                 for (int offsetX = 0; offsetX < BCSettings.SUB_CHUNK_SIZE; offsetX++) {
                     for (int offsetZ = 0; offsetZ < BCSettings.SUB_CHUNK_SIZE; offsetZ++) {
-                        int localX = startX + offsetX;
-                        int localZ = startZ + offsetZ;
-                        BlockPos colPos = new BlockPos(chunkPos.x * 16 + localX, 1, chunkPos.z * 16 + localZ);
+                        int localX = localStartX + offsetX;
+                        int localZ = localStartZ + offsetZ;
+                        BlockPos colPos = new BlockPos(chunkAccess.getPos().x * 16 + localX, 1, chunkAccess.getPos().z * 16 + localZ);
 
-                        if (isFloodedUndergroundEnabled && !isDebugViewEnabled) {
-                            flooded = biomeProvider.apply(colPos).is(BiomeTags.IS_OCEAN);
-                            smoothAmpFloodFactor = BetterCavesUtils.getDistFactor(serverLevel, biomeProvider, colPos, 2,
-                                    flooded ? BetterCavesUtils.isNotOcean : BetterCavesUtils.isOcean);
-                            if (smoothAmpFloodFactor <= .25) { // Wall between flooded and normal caves.
-                                continue; // Continue to prevent unnecessary noise calculation
-                            }
-                        }
+//                        if (isFloodedUndergroundEnabled && !isDebugViewEnabled) {
+//                            flooded = biomeProvider.apply(colPos).is(BiomeTags.IS_OCEAN);
+//                            smoothAmpFloodFactor = BetterCavesUtils.getDistFactor(serverLevel, biomeProvider, colPos, 2,
+//                                    flooded ? BetterCavesUtils.isNotOcean : BetterCavesUtils.isOcean);
+//                            if (smoothAmpFloodFactor <= .25) { // Wall between flooded and normal caves.
+//                                continue; // Continue to prevent unnecessary noise calculation
+//                            }
+//                        }
 
                         int surfaceAltitude = surfaceAltitudes[localX][localZ];
                         BlockState liquidBlock = liquidBlocks[localX][localZ];
@@ -154,7 +157,7 @@ public class CavernCarverController {
                             if (!range.contains(cavernRegionNoise)) {
                                 continue;
                             }
-                            CavernCarver carver = (CavernCarver)range.getCarver();
+                            CavernCarver carver = (CavernCarver) range.getCarver();
                             int bottomY = carver.getBottomY();
                             int topY = isDebugViewEnabled ? carver.getTopY() : Math.min(surfaceAltitude, carver.getTopY());
                             if (isOverrideSurfaceDetectionEnabled) {
@@ -166,7 +169,7 @@ public class CavernCarverController {
                                 range.setNoiseCube(carver.getNoiseGen().interpolateNoiseCube(startPos, endPos, bottomY, maxHeight));
                             }
                             double[][] noiseColumn = range.getNoiseCube()[offsetX][offsetZ];
-                            carver.carveColumn(config, chunk, colPos, topY, smoothAmp, noiseColumn, liquidBlock, flooded, carvingMask);
+                            carver.carveColumn(config, chunkAccess, colPos, topY, smoothAmp, noiseColumn, liquidBlock, carvingMask, aquifer);
                             break;
                         }
                     }

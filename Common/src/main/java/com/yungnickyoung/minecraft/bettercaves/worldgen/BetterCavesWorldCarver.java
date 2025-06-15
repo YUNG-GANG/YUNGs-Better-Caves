@@ -26,9 +26,9 @@ public class BetterCavesWorldCarver extends WorldCarver<BetterCavesWorldCarverCo
 
     @Override
     @ParametersAreNonnullByDefault
-    public boolean carve(CarvingContext carvingContext, BetterCavesWorldCarverConfig config, ChunkAccess chunkAccess,
+    public boolean carve(CarvingContext carvingContext, BetterCavesWorldCarverConfig config, ChunkAccess centerChunk,
                          Function<BlockPos, Holder<Biome>> biomeProvider, RandomSource random, Aquifer aquifer,
-                         ChunkPos chunkPos, CarvingMask carvingMask) {
+                         ChunkPos carvingChunkPos, CarvingMask carvingMask) {
         // A null CarvingContext indicates we're in not the 'air carving' stage so exit early.
         CavegenContext context = CavegenContext.peek();
         if (context == null) {
@@ -60,7 +60,7 @@ public class BetterCavesWorldCarver extends WorldCarver<BetterCavesWorldCarverCo
 //        MasterController masterController = BetterCaves.activeCarversMap.get(dimensionName);
 //        masterController.setServerLevel(world); // Ensure controller's world is up to date
 
-        return masterController.carve(config, chunkAccess, biomeProvider, chunkPos, carvingMask);
+        return masterController.carve(config, centerChunk, biomeProvider, carvingMask, aquifer);
     }
 
     @Override

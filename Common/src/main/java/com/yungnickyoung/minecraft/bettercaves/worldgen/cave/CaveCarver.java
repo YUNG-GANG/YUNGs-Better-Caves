@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.CarvingMask;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.Aquifer;
 import net.minecraft.world.level.levelgen.carver.CarverConfiguration;
 
 import java.util.BitSet;
@@ -62,8 +63,8 @@ public class CaveCarver implements ICarver {
         }
     }
 
-    public void carveColumn(CarverConfiguration config, ChunkAccess chunk, BlockPos colPos, int topY, double[][] noises, BlockState liquidBlock,
-                            boolean flooded, CarvingMask carvingMask) {
+    public void carveColumn(CarverConfiguration config, ChunkAccess chunk, BlockPos colPos, int topY, double[][] noises,
+                            BlockState liquidBlock, CarvingMask carvingMask, Aquifer aquifer) {
         int localX = colPos.getX() & 0xF;
         int localZ = colPos.getZ() & 0xF;
 
@@ -91,6 +92,7 @@ public class CaveCarver implements ICarver {
         }
 
         BlockPos.MutableBlockPos localPos = new BlockPos.MutableBlockPos(localX, 1, localZ);
+        BlockPos.MutableBlockPos realPos = new BlockPos.MutableBlockPos(colPos.getX(), 1, colPos.getZ());
 
         // Dig out caves in this column, based on noise values
         for (int y = topY; y >= bottomY; y--) {
@@ -109,17 +111,17 @@ public class CaveCarver implements ICarver {
             }
 
             localPos.set(localX, y, localZ);
+            realPos.setY(y);
 
             // Dig out the block if it passed the threshold check, using the debug visualizer if enabled
             if (settings.isEnableDebugVisualizer()) {
                 CarverUtils.debugCarveBlock(chunk, localPos, settings.getDebugBlock(), digBlock);
-            }
-            else if (digBlock) {
-                if (flooded) {
-                    CarverUtils.carveFloodedBlock(config, chunk, new Random(), localPos, liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel(), carvingMask);
-                } else {
-                    CarverUtils.carveBlock(config, chunk, localPos, liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel(), carvingMask);
-                }
+            } else if (digBlock) {
+//                if (flooded) {
+//                    CarverUtils.carveFloodedBlock(config, chunk, new Random(), localPos, liquidBlock, settings.getLiquidAltitude(), carvingMask);
+//                } else {
+                    CarverUtils.carveBlock(config, chunk, realPos, liquidBlock, settings.getLiquidAltitude(), carvingMask, aquifer);
+//                }
             }
         }
     }

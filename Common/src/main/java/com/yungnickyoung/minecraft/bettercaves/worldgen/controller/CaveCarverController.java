@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.CarvingMask;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.Aquifer;
 import net.minecraft.world.level.levelgen.carver.CarverConfiguration;
 
 import java.util.ArrayList;
@@ -119,15 +120,17 @@ public class CaveCarverController {
         }
     }
 
-    public void carveChunk(CarverConfiguration config, ChunkAccess chunkAccess, ChunkPos chunkPos, int[][] surfaceAltitudes, BlockState[][] liquidBlocks,
-                           Function<BlockPos, Holder<Biome>> biomeProvider, CarvingMask carvingMask) {
+    public void carveChunk(CarverConfiguration config, ChunkAccess chunkAccess, int[][] surfaceAltitudes,
+                           BlockState[][] liquidBlocks, Function<BlockPos, Holder<Biome>> biomeProvider, CarvingMask carvingMask,
+                           Aquifer aquifer
+    ) {
         // Prevent unnecessary computation if caves are disabled
         if (noiseRanges.isEmpty() && !isSurfaceCavesEnabled) {
             return;
         }
 
         BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
-        boolean flooded;
+//        boolean flooded;
 
         // Flag to keep track of whether we've already carved vanilla caves for this chunk, since
         // vanilla caves operate on a chunk-by-chunk basis rather than by column
@@ -140,20 +143,20 @@ public class CaveCarverController {
         // Break into subchunks for noise interpolation
         for (int subX = 0; subX < 16 / BCSettings.SUB_CHUNK_SIZE; subX++) {
             for (int subZ = 0; subZ < 16 / BCSettings.SUB_CHUNK_SIZE; subZ++) {
-                int startX = subX * BCSettings.SUB_CHUNK_SIZE;
-                int startZ = subZ * BCSettings.SUB_CHUNK_SIZE;
-                int endX = startX + BCSettings.SUB_CHUNK_SIZE - 1;
-                int endZ = startZ + BCSettings.SUB_CHUNK_SIZE - 1;
-                BlockPos startPos = new BlockPos(chunkPos.x * 16 + startX, 1, chunkPos.z * 16 + startZ);
-                BlockPos endPos = new BlockPos(chunkPos.x * 16 + endX, 1, chunkPos.z * 16 + endZ);
+                int localStartX = subX * BCSettings.SUB_CHUNK_SIZE;
+                int localStartZ = subZ * BCSettings.SUB_CHUNK_SIZE;
+                int localEndX = localStartX + BCSettings.SUB_CHUNK_SIZE - 1;
+                int localEndZ = localStartZ + BCSettings.SUB_CHUNK_SIZE - 1;
+                BlockPos startPos = new BlockPos(chunkAccess.getPos().x * 16 + localStartX, 1, chunkAccess.getPos().z * 16 + localStartZ);
+                BlockPos endPos = new BlockPos(chunkAccess.getPos().x * 16 + localEndX, 1, chunkAccess.getPos().z * 16 + localEndZ);
 
                 noiseRanges.forEach(range -> range.setNoiseCube(null));
 
                 // Get max height in subchunk. This is needed for calculating the noise cube
                 int maxHeight = 0;
                 if (!isOverrideSurfaceDetectionEnabled) { // Only necessary if we aren't overriding surface detection
-                    for (int x = startX; x < endX; x++) {
-                        for (int z = startZ; z < endZ; z++) {
+                    for (int x = localStartX; x < localEndX; x++) {
+                        for (int z = localStartZ; z < localEndZ; z++) {
                             maxHeight = Math.max(maxHeight, surfaceAltitudes[x][z]);
                         }
                     }
@@ -165,22 +168,22 @@ public class CaveCarverController {
                 // Offset within subchunk
                 for (int offsetX = 0; offsetX < BCSettings.SUB_CHUNK_SIZE; offsetX++) {
                     for (int offsetZ = 0; offsetZ < BCSettings.SUB_CHUNK_SIZE; offsetZ++) {
-                        int localX = startX + offsetX;
-                        int localZ = startZ + offsetZ;
-                        BlockPos colPos = new BlockPos(chunkPos.x * 16 + localX, 62, chunkPos.z * 16 + localZ);
+                        int localX = localStartX + offsetX;
+                        int localZ = localStartZ + offsetZ;
+                        BlockPos colPos = new BlockPos(chunkAccess.getPos().x * 16 + localX, 62, chunkAccess.getPos().z * 16 + localZ);
 
-                        flooded = isFloodedUndergroundEnabled
-                                && !isDebugViewEnabled
-                                && (biomeProvider.apply(colPos).is(BiomeTags.IS_OCEAN));
-                        if (flooded) {
-                            if ((BetterCavesUtils.isPosInWorld(mutablePos.set(colPos).move(Direction.EAST), serverLevel) && !biomeProvider.apply(mutablePos.set(colPos).move(Direction.EAST)).is(BiomeTags.IS_OCEAN)) ||
-                                    (BetterCavesUtils.isPosInWorld(mutablePos.set(colPos).move(Direction.WEST), serverLevel) && !biomeProvider.apply(mutablePos.set(colPos).move(Direction.WEST)).is(BiomeTags.IS_OCEAN)) ||
-                                    (BetterCavesUtils.isPosInWorld(mutablePos.set(colPos).move(Direction.NORTH), serverLevel) && !biomeProvider.apply(mutablePos.set(colPos).move(Direction.NORTH)).is(BiomeTags.IS_OCEAN)) ||
-                                    (BetterCavesUtils.isPosInWorld(mutablePos.set(colPos).move(Direction.SOUTH), serverLevel) && !biomeProvider.apply(mutablePos.set(colPos).move(Direction.SOUTH)).is(BiomeTags.IS_OCEAN))
-                            ) {
-                                continue;
-                            }
-                        }
+//                        flooded = isFloodedUndergroundEnabled
+//                                && !isDebugViewEnabled
+//                                && (biomeProvider.apply(colPos).is(BiomeTags.IS_OCEAN));
+//                        if (flooded) {
+//                            if ((BetterCavesUtils.isPosInWorld(mutablePos.set(colPos).move(Direction.EAST), serverLevel) && !biomeProvider.apply(mutablePos.set(colPos).move(Direction.EAST)).is(BiomeTags.IS_OCEAN)) ||
+//                                    (BetterCavesUtils.isPosInWorld(mutablePos.set(colPos).move(Direction.WEST), serverLevel) && !biomeProvider.apply(mutablePos.set(colPos).move(Direction.WEST)).is(BiomeTags.IS_OCEAN)) ||
+//                                    (BetterCavesUtils.isPosInWorld(mutablePos.set(colPos).move(Direction.NORTH), serverLevel) && !biomeProvider.apply(mutablePos.set(colPos).move(Direction.NORTH)).is(BiomeTags.IS_OCEAN)) ||
+//                                    (BetterCavesUtils.isPosInWorld(mutablePos.set(colPos).move(Direction.SOUTH), serverLevel) && !biomeProvider.apply(mutablePos.set(colPos).move(Direction.SOUTH)).is(BiomeTags.IS_OCEAN))
+//                            ) {
+//                                continue;
+//                            }
+//                        }
 
                         int surfaceAltitude = surfaceAltitudes[localX][localZ];
                         BlockState liquidBlock = liquidBlocks[localX][localZ];
@@ -208,7 +211,7 @@ public class CaveCarverController {
                                     range.setNoiseCube(carver.getNoiseGen().interpolateNoiseCube(startPos, endPos, bottomY, maxHeight));
                                 }
                                 double[][] noiseColumn = range.getNoiseCube()[offsetX][offsetZ];
-                                carver.carveColumn(config, chunkAccess, colPos, topY, noiseColumn, liquidBlock, flooded, carvingMask);
+                                carver.carveColumn(config, chunkAccess, colPos, topY, noiseColumn, liquidBlock, carvingMask, aquifer);
                                 break;
                             }
 //                            else if (range.getCarver() instanceof VanillaCaveCarver) {

@@ -54,19 +54,19 @@ public class NoiseGen {
      * Generate noise tuples for a column of blocks.
      * @param x The global x-coordinate of this column
      * @param z The global z-coordinate of this column
-     * @param minHeight The bottom y-coordinate to start generating noise values for
-     * @param maxHeight The top y-coordinate to stop generating noise values for
+     * @param bottomY The bottom y-coordinate to start generating noise values for
+     * @param topY The top y-coordinate to stop generating noise values for
      */
-    public double[][] generateNoiseColumn(int x, int z, int minHeight, int maxHeight) {
-        double[][] noiseColumn = new double[maxHeight - minHeight + 1][numGenerators];
+    private double[][] generateNoiseColumn(int x, int z, int bottomY, int topY) {
+        double[][] noiseColumn = new double[topY - bottomY + 1][numGenerators];
 
-        for (int y = minHeight; y <= maxHeight; y++) {
+        for (int y = bottomY; y <= topY; y++) {
 
             double[] noiseVals = new double[numGenerators];
             for (int i = 0; i < numGenerators; i++) {
                 noiseVals[i] = listNoiseGens.get(i).GetNoise(x * xzCompression, y * yCompression, z * xzCompression);
             }
-            noiseColumn[y - minHeight] = noiseVals;
+            noiseColumn[y - bottomY] = noiseVals;
         }
 
         return noiseColumn;
@@ -80,10 +80,10 @@ public class NoiseGen {
      *                 This column must have x and z coordinates lower than that of endPos.
      * @param endPos   Position of any block in the ending corner column of the cube.
      *                 This column must have x and z coordinates higher than that of startPos.
-     * @param minHeight The bottom y-coordinate to start generating noise values for
-     * @param maxHeight The top y-coordinate to stop generating noise values for
+     * @param bottomY The bottom y-coordinate to start generating noise values for
+     * @param topY The top y-coordinate to stop generating noise values for
      */
-    public double[][][][] interpolateNoiseCube(BlockPos startPos, BlockPos endPos, int minHeight, int maxHeight) {
+    public double[][][][] interpolateNoiseCube(BlockPos startPos, BlockPos endPos, int bottomY, int topY) {
         float startCoeff, endCoeff;
         int startX       = startPos.getX();
         int endX         = endPos.getX();
@@ -93,16 +93,16 @@ public class NoiseGen {
 
         // Calculate noise tuples for four corner columns
         double[][] noisesX0Z0 =
-                generateNoiseColumn(startX, startZ, minHeight, maxHeight);
+                generateNoiseColumn(startX, startZ, bottomY, topY);
         double[][] noisesX0Z1 =
-                generateNoiseColumn(startX, endZ, minHeight, maxHeight);
+                generateNoiseColumn(startX, endZ, bottomY, topY);
         double[][] noisesX1Z0 =
-                generateNoiseColumn(endX, startZ, minHeight, maxHeight);
+                generateNoiseColumn(endX, startZ, bottomY, topY);
         double[][] noisesX1Z1 =
-                generateNoiseColumn(endX, endZ, minHeight, maxHeight);
+                generateNoiseColumn(endX, endZ, bottomY, topY);
 
         // Initialize cube with 4 corner columns
-        double[][][][] cube = new double[subChunkSize][subChunkSize][maxHeight - minHeight + 1][numGenerators]; // [x len][z len][y len][num gens (usually 2)]
+        double[][][][] cube = new double[subChunkSize][subChunkSize][topY - bottomY + 1][numGenerators]; // [x len][z len][y len][num gens (usually 2)]
         cube[0][0] = noisesX0Z0;
         cube[0][subChunkSize - 1] = noisesX0Z1;
         cube[subChunkSize - 1][0] = noisesX1Z0;
@@ -113,15 +113,15 @@ public class NoiseGen {
             startCoeff = BCSettings.START_COEFFS[x];
             endCoeff = BCSettings.END_COEFFS[x];
 
-            for (int y = minHeight; y <= maxHeight; y++) {
+            for (int y = bottomY; y <= topY; y++) {
                 for (int i = 0; i < numGenerators; i++) {
-                    cube[x][0][y - minHeight][i] = (cube[0][0][y - minHeight][i] * startCoeff) + (cube[subChunkSize - 1][0][y - minHeight][i] * endCoeff);
+                    cube[x][0][y - bottomY][i] = (cube[0][0][y - bottomY][i] * startCoeff) + (cube[subChunkSize - 1][0][y - bottomY][i] * endCoeff);
                 }
             }
 
-            for (int y = minHeight; y <= maxHeight; y++) {
+            for (int y = bottomY; y <= topY; y++) {
                 for (int i = 0; i < numGenerators; i++) {
-                    cube[x][subChunkSize - 1][y - minHeight][i] = (cube[0][subChunkSize - 1][y - minHeight][i] * startCoeff) + (cube[subChunkSize - 1][subChunkSize - 1][y - minHeight][i] * endCoeff);
+                    cube[x][subChunkSize - 1][y - bottomY][i] = (cube[0][subChunkSize - 1][y - bottomY][i] * startCoeff) + (cube[subChunkSize - 1][subChunkSize - 1][y - bottomY][i] * endCoeff);
                 }
             }
         }
@@ -132,9 +132,9 @@ public class NoiseGen {
                 startCoeff = BCSettings.START_COEFFS[z];
                 endCoeff = BCSettings.END_COEFFS[z];
 
-                for (int y = minHeight; y <= maxHeight; y++) {
+                for (int y = bottomY; y <= topY; y++) {
                     for (int i = 0; i < numGenerators; i++) {
-                        cube[x][z][y - minHeight][i] = (cube[x][0][y - minHeight][i] * startCoeff) + (cube[x][subChunkSize - 1][y - minHeight][i] * endCoeff);
+                        cube[x][z][y - bottomY][i] = (cube[x][0][y - bottomY][i] * startCoeff) + (cube[x][subChunkSize - 1][y - bottomY][i] * endCoeff);
                     }
                 }
             }

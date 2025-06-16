@@ -17,6 +17,9 @@ public class BetterCavesFabric implements ModInitializer {
     static final ResourceKey<ConfiguredWorldCarver<?>> BETTER_CAVE_CARVER = ResourceKey.create(Registries.CONFIGURED_CARVER,
             BetterCavesCommon.id("better_cave"));
 
+    static final ResourceKey<ConfiguredWorldCarver<?>> SURFACE_CAVE_CARVER = ResourceKey.create(Registries.CONFIGURED_CARVER,
+            BetterCavesCommon.id("surface_cave"));
+
     @Override
     public void onInitialize() {
         BetterCavesCommon.init();
@@ -34,6 +37,10 @@ public class BetterCavesFabric implements ModInitializer {
                         biomeSelectionContext -> biomeSelectionContext.hasTag(BiomeTags.IS_OVERWORLD),
                         modificationContext -> modificationContext.getGenerationSettings()
                                 .addCarver(GenerationStep.Carving.AIR, BETTER_CAVE_CARVER));
-
+        BiomeModifications.create(BetterCavesCommon.id("add_surface_cave_carver"))
+                .add(ModificationPhase.ADDITIONS,
+                        biomeSelectionContext -> biomeSelectionContext.hasTag(BiomeTags.IS_OVERWORLD),
+                        modificationContext -> modificationContext.getGenerationSettings()
+                                .addCarver(GenerationStep.Carving.AIR, SURFACE_CAVE_CARVER));
     }
 }

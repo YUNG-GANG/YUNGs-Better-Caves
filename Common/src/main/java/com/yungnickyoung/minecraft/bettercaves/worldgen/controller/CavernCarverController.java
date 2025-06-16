@@ -1,18 +1,15 @@
 package com.yungnickyoung.minecraft.bettercaves.worldgen.controller;
 
-import com.yungnickyoung.minecraft.bettercaves.BCSettings;
+import com.yungnickyoung.minecraft.bettercaves.BCConstants;
 import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtils;
-import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
-import com.yungnickyoung.minecraft.bettercaves.worldgen.CarverNoiseRange;
-import com.yungnickyoung.minecraft.bettercaves.worldgen.cavern.CavernCarver;
+import com.yungnickyoung.minecraft.bettercaves.worldgen.carver.CarverNoiseRange;
+import com.yungnickyoung.minecraft.bettercaves.worldgen.carver.CavernCarver;
 import com.yungnickyoung.minecraft.yungsapi.noise.FastNoise;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.BiomeTags;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -26,37 +23,33 @@ import java.util.List;
 import java.util.function.Function;
 
 public class CavernCarverController {
-    private ServerLevel serverLevel;
-    private FastNoise cavernRegionSampler;
-    private List<CarverNoiseRange> noiseRanges = new ArrayList<>();
+    private final FastNoise cavernRegionSampler;
+    private final List<CarverNoiseRange> noiseRanges = new ArrayList<>();
 
     // Vars from config
-    private boolean isDebugViewEnabled;
-    private boolean isOverrideSurfaceDetectionEnabled;
-    private boolean isFloodedUndergroundEnabled;
+    private final boolean isDebugViewEnabled;
+    private final boolean isOverrideSurfaceDetectionEnabled;
 
     public CavernCarverController(ServerLevel serverLevel) {
-        this.serverLevel = serverLevel;
         this.isDebugViewEnabled = false; //config.debugVisualizer.get();
         this.isOverrideSurfaceDetectionEnabled = BetterCavesCommon.CONFIG.undergroundGen.misc.overrideSurfaceDetection;
-        this.isFloodedUndergroundEnabled = BetterCavesCommon.CONFIG.undergroundGen.misc.enableFloodedUnderground;
 
         // Configure cavern region sampler, which determines what type of cavern should be carved in any given region
         float cavernRegionSize = calcCavernRegionSize(
                 BetterCavesCommon.CONFIG.undergroundGen.caverns.cavernRegionSize,
                 (float) BetterCavesCommon.CONFIG.undergroundGen.caverns.customRegionSize);
         this.cavernRegionSampler = new FastNoise();
-        this.cavernRegionSampler.SetSeed((int) this.serverLevel.getSeed() + 333);
+        this.cavernRegionSampler.SetSeed((int) serverLevel.getSeed() + 333);
         this.cavernRegionSampler.SetFrequency(cavernRegionSize);
 
         // Initialize all carvers using config options
         List<CavernCarver> carvers = new ArrayList<>();
-        carvers.add(new CavernCarver.Builder(this.serverLevel.getSeed())
+        carvers.add(new CavernCarver.Builder(serverLevel.getSeed())
                 .ofTypeFromConfig(CavernType.LIQUID)
                 .debugVisualizerBlock(Blocks.REDSTONE_BLOCK.defaultBlockState())
                 .build()
         );
-        carvers.add(new CavernCarver.Builder(this.serverLevel.getSeed())
+        carvers.add(new CavernCarver.Builder(serverLevel.getSeed())
                 .ofTypeFromConfig(CavernType.FLOORED)
                 .debugVisualizerBlock(Blocks.GOLD_BLOCK.defaultBlockState())
                 .build()
@@ -81,7 +74,7 @@ public class CavernCarverController {
 
         for (CavernCarver carver : carvers) {
             BetterCavesCommon.LOGGER.debug("--> CARVER");
-            float rangeCDFPercent = (float)carver.getPriority() / totalPriority * spawnChance;
+            float rangeCDFPercent = (float) carver.getPriority() / totalPriority * spawnChance;
             float topNoise = NoiseUtils.simplexNoiseOffsetByPercent(currNoise, rangeCDFPercent);
             CarverNoiseRange range = new CarverNoiseRange(currNoise, topNoise, carver);
             noiseRanges.add(range);
@@ -102,15 +95,14 @@ public class CavernCarverController {
             return;
         }
 
-//        boolean flooded = false;
         float smoothAmpFloodFactor = 1;
 
-        for (int subX = 0; subX < 16 / BCSettings.SUB_CHUNK_SIZE; subX++) {
-            for (int subZ = 0; subZ < 16 / BCSettings.SUB_CHUNK_SIZE; subZ++) {
-                int localStartX = subX * BCSettings.SUB_CHUNK_SIZE;
-                int localStartZ = subZ * BCSettings.SUB_CHUNK_SIZE;
-                int localEndX = localStartX + BCSettings.SUB_CHUNK_SIZE - 1;
-                int localEndZ = localStartZ + BCSettings.SUB_CHUNK_SIZE - 1;
+        for (int subX = 0; subX < 16 / BCConstants.SUB_CHUNK_SIZE; subX++) {
+            for (int subZ = 0; subZ < 16 / BCConstants.SUB_CHUNK_SIZE; subZ++) {
+                int localStartX = subX * BCConstants.SUB_CHUNK_SIZE;
+                int localStartZ = subZ * BCConstants.SUB_CHUNK_SIZE;
+                int localEndX = localStartX + BCConstants.SUB_CHUNK_SIZE - 1;
+                int localEndZ = localStartZ + BCConstants.SUB_CHUNK_SIZE - 1;
                 BlockPos startPos = new BlockPos(chunkAccess.getPos().x * 16 + localStartX, 1, chunkAccess.getPos().z * 16 + localStartZ);
                 BlockPos endPos = new BlockPos(chunkAccess.getPos().x * 16 + localEndX, 1, chunkAccess.getPos().z * 16 + localEndZ);
 
@@ -131,20 +123,11 @@ public class CavernCarverController {
                     }
                 }
 
-                for (int offsetX = 0; offsetX < BCSettings.SUB_CHUNK_SIZE; offsetX++) {
-                    for (int offsetZ = 0; offsetZ < BCSettings.SUB_CHUNK_SIZE; offsetZ++) {
+                for (int offsetX = 0; offsetX < BCConstants.SUB_CHUNK_SIZE; offsetX++) {
+                    for (int offsetZ = 0; offsetZ < BCConstants.SUB_CHUNK_SIZE; offsetZ++) {
                         int localX = localStartX + offsetX;
                         int localZ = localStartZ + offsetZ;
                         BlockPos colPos = new BlockPos(chunkAccess.getPos().x * 16 + localX, 1, chunkAccess.getPos().z * 16 + localZ);
-
-//                        if (isFloodedUndergroundEnabled && !isDebugViewEnabled) {
-//                            flooded = biomeProvider.apply(colPos).is(BiomeTags.IS_OCEAN);
-//                            smoothAmpFloodFactor = BetterCavesUtils.getDistFactor(serverLevel, biomeProvider, colPos, 2,
-//                                    flooded ? BetterCavesUtils.isNotOcean : BetterCavesUtils.isOcean);
-//                            if (smoothAmpFloodFactor <= .25) { // Wall between flooded and normal caves.
-//                                continue; // Continue to prevent unnecessary noise calculation
-//                            }
-//                        }
 
                         int surfaceAltitude = surfaceAltitudes[localX][localZ];
                         BlockState liquidBlock = liquidBlocks[localX][localZ];

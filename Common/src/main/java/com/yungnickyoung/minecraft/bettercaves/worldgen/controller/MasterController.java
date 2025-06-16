@@ -18,30 +18,38 @@ import java.util.Map;
 import java.util.function.Function;
 
 public class MasterController {
-    public long seed = 0;
-//    public ConfigHolder configHolder;
+    private final CaveCarverController caveCarverController;
+    private final CavernCarverController cavernCarverController;
+    private final LiquidRegionController liquidRegionController;
+    private final Map<ChunkPos, Boolean> chunkCarvedMap = new HashMap<>();
 
-    // Controllers
-    private CaveCarverController caveCarverController;
-    private CavernCarverController cavernCarverController;
-    private LiquidRegionController liquidRegionController;
-//    private RavineCarverController ravineCarverController;
-
-    private Map<ChunkPos, Boolean> chunkCarvedMap = new HashMap<>();
-    private void markChunkAsCarved(ChunkAccess chunkAccess) {
-        chunkCarvedMap.put(chunkAccess.getPos(), true);
-    }
-    private boolean isChunkCarved(ChunkAccess chunkAccess) {
-        return chunkCarvedMap.getOrDefault(chunkAccess.getPos(), false);
+    public MasterController(ServerLevel serverLevel) {
+        this.caveCarverController = new CaveCarverController(serverLevel);
+        this.cavernCarverController = new CavernCarverController(serverLevel);
+        this.liquidRegionController = new LiquidRegionController(serverLevel);
+        BetterCavesCommon.LOGGER.debug("MASTER CONTROLLER INITIALIZED");
     }
 
     public boolean carve(CarverConfiguration config, ChunkAccess chunkAccess, Function<BlockPos, Holder<Biome>> biomeProvider,
                          CarvingMask carvingMask, Aquifer aquifer) {
-        if (isChunkCarved(chunkAccess)) {
+        if (chunkCarvedMap.getOrDefault(chunkAccess.getPos(), false)) {
             return false; // Chunk has already been carved
         }
 
-        // Determine surface altitudes in this chunk
+        int[][] surfaceAltitudes = getSurfaceAltitudes(chunkAccess);
+        BlockState[][] liquidBlocks = liquidRegionController.getLiquidBlocksForChunk(chunkAccess);
+
+        // Carve chunk
+        caveCarverController.carveChunk(config, chunkAccess, surfaceAltitudes, liquidBlocks, biomeProvider, carvingMask, aquifer);
+        cavernCarverController.carveChunk(config, chunkAccess, surfaceAltitudes, liquidBlocks, biomeProvider, carvingMask, aquifer);
+
+        // Mark chunk as carved to prevent reprocessing
+        chunkCarvedMap.put(chunkAccess.getPos(), true);
+
+        return true;
+    }
+
+    private int[][] getSurfaceAltitudes(ChunkAccess chunkAccess) {
         int[][] surfaceAltitudes = new int[16][16];
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
@@ -52,49 +60,6 @@ public class MasterController {
                         chunkAccess.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, x, z));
             }
         }
-
-        // Determine liquid blocks for this chunk
-        BlockState[][] liquidBlocks = liquidRegionController.getLiquidBlocksForChunk(chunkAccess);
-
-        // Carve chunk
-//        ravineCarverController.carveChunk(chunkAccess, chunkX, chunkZ, liquidBlocks, biomePos, airCarvingMask, liquidCarvingMask);
-        caveCarverController.carveChunk(config, chunkAccess, surfaceAltitudes, liquidBlocks, biomeProvider, carvingMask, aquifer);
-        cavernCarverController.carveChunk(config, chunkAccess, surfaceAltitudes, liquidBlocks, biomeProvider, carvingMask, aquifer);
-
-        // Mark chunk as carved to prevent reprocessing
-        markChunkAsCarved(chunkAccess);
-
-        return true;
-    }
-
-    /**
-     * Initialize Better Caves generators and cave region controllers for this world.
-     */
-    public void initialize(ServerLevel serverLevel) {
-        // Extract world information
-        this.seed = serverLevel.getSeed();
-
-        // Initialize controllers
-        this.caveCarverController   = new CaveCarverController(serverLevel);
-        this.cavernCarverController = new CavernCarverController(serverLevel);
-        this.liquidRegionController = new LiquidRegionController(serverLevel);
-//        this.ravineCarverController = new RavineCarverController(serverLevel, configHolder);
-
-        BetterCavesCommon.LOGGER.debug("BETTER CAVES WORLD CARVER INITIALIZED");
-    }
-
-//    /**
-//     * Updates the current world, and propagates the update to all carver controllers.
-//     */
-//    public void setServerLevel(LevelReader serverLevel) {
-//        this.world = serverLevel;
-//        this.caveCarverController.setWorld(serverLevel);
-//        this.cavernCarverController.setWorld(serverLevel);
-//        this.liquidRegionController.setWorld(serverLevel);
-//        this.ravineCarverController.setWorld(serverLevel);
-//    }
-
-    public long getSeed() {
-        return this.seed;
+        return surfaceAltitudes;
     }
 }

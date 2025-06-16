@@ -1,7 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves.noise;
 
 
-import com.yungnickyoung.minecraft.bettercaves.BCSettings;
+import com.yungnickyoung.minecraft.bettercaves.BCConstants;
 import com.yungnickyoung.minecraft.yungsapi.noise.FastNoise;
 import com.yungnickyoung.minecraft.yungsapi.noise.INoiseLibrary;
 import com.yungnickyoung.minecraft.yungsapi.noise.OpenSimplex2S;
@@ -110,8 +110,8 @@ public class NoiseGen {
 
         // Populate edge planes along x axis
         for (int x = 1; x < subChunkSize - 1; x++) {
-            startCoeff = BCSettings.START_COEFFS[x];
-            endCoeff = BCSettings.END_COEFFS[x];
+            startCoeff = BCConstants.START_COEFFS[x];
+            endCoeff = BCConstants.END_COEFFS[x];
 
             for (int y = bottomY; y <= topY; y++) {
                 for (int i = 0; i < numGenerators; i++) {
@@ -129,8 +129,8 @@ public class NoiseGen {
         // Populate rest of cube by interpolating the two edge planes
         for (int x = 0; x < subChunkSize; x++) {
             for (int z = 1; z < subChunkSize - 1; z++) {
-                startCoeff = BCSettings.START_COEFFS[z];
-                endCoeff = BCSettings.END_COEFFS[z];
+                startCoeff = BCConstants.START_COEFFS[z];
+                endCoeff = BCConstants.END_COEFFS[z];
 
                 for (int y = bottomY; y <= topY; y++) {
                     for (int i = 0; i < numGenerators; i++) {

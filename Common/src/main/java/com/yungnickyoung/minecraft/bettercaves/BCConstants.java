@@ -1,6 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves;
 
-public class BCSettings {
+public class BCConstants {
     public static final int SUB_CHUNK_SIZE = 4;
     public static final float[] START_COEFFS = new float[SUB_CHUNK_SIZE];
     public static final float[] END_COEFFS = new float[SUB_CHUNK_SIZE];
@@ -14,5 +14,5 @@ public class BCSettings {
         }
     }
 
-    private BCSettings() {} // private constructor prevents instantiation
+    private BCConstants() {} // private constructor prevents instantiation
 }

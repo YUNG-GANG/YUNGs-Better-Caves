@@ -2,19 +2,15 @@ package com.yungnickyoung.minecraft.bettercaves.worldgen;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.util.valueproviders.FloatProvider;
-import net.minecraft.util.valueproviders.UniformFloat;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.VerticalAnchor;
 import net.minecraft.world.level.levelgen.carver.CarverConfiguration;
 import net.minecraft.world.level.levelgen.carver.CarverDebugSettings;
 import net.minecraft.world.level.levelgen.heightproviders.HeightProvider;
-import net.minecraft.world.level.levelgen.heightproviders.UniformHeight;
 
 public class BetterCavesWorldCarverConfig extends CarverConfiguration {
     public static final Codec<BetterCavesWorldCarverConfig> CODEC = RecordCodecBuilder.create($$0 -> $$0.group(

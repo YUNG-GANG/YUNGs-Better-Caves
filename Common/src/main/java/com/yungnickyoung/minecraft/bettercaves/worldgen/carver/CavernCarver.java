@@ -1,12 +1,9 @@
-package com.yungnickyoung.minecraft.bettercaves.worldgen.cavern;
+package com.yungnickyoung.minecraft.bettercaves.worldgen.carver;
 
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
-import com.yungnickyoung.minecraft.bettercaves.worldgen.CarverSettings;
-import com.yungnickyoung.minecraft.bettercaves.worldgen.CarverUtils;
-import com.yungnickyoung.minecraft.bettercaves.worldgen.ICarver;
 import com.yungnickyoung.minecraft.yungsapi.noise.FastNoise;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
@@ -15,38 +12,36 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.Aquifer;
 import net.minecraft.world.level.levelgen.carver.CarverConfiguration;
 
-import java.util.BitSet;
-import java.util.Random;
-
 /**
  * BetterCaves Cavern carver.
  * Caverns are large openings generated at the bottom of the world.
  */
-public class CavernCarver implements ICarver {
-    private CarverSettings settings;
-    private NoiseGen noiseGen;
-    private CavernType cavernType;
+public class CavernCarver extends AbstractCarver {
+    private final NoiseGen noiseGen;
+    private final CavernType cavernType;
     private int bottomY;
     private int topY;
 
     public CavernCarver(final Builder builder) {
-        settings = builder.getSettings();
-        noiseGen = new NoiseGen(
-                settings.getSeed(),
-                settings.isFastNoise(),
-                settings.getNoiseSettings(),
-                settings.getNumGens(),
-                settings.getyCompression(),
-                settings.getXzCompression()
+        super(builder.getSettings());
+        this.noiseGen = new NoiseGen(
+                this.settings.getSeed(),
+                this.settings.isFastNoise(),
+                this.settings.getNoiseSettings(),
+                this.settings.getNumGens(),
+                this.settings.getyCompression(),
+                this.settings.getXzCompression()
         );
-        cavernType = builder.getCavernType();
-        bottomY = builder.getBottomY();
-        topY = builder.getTopY();
+        this.cavernType = builder.getCavernType();
         if (bottomY > topY) {
             BetterCavesCommon.LOGGER.warn("Warning: Min altitude for caverns should not be greater than max altitude.");
             BetterCavesCommon.LOGGER.warn("Using default values...");
+            // TODO change how this validation works?
             this.bottomY = -63;
             this.topY = -28;
+        } else {
+            this.bottomY = builder.getBottomY();
+            this.topY = builder.getTopY();
         }
     }
 
@@ -56,11 +51,7 @@ public class CavernCarver implements ICarver {
         int localX = colPos.getX() & 0xF;
         int localZ = colPos.getZ() & 0xF;
 
-        // Validate vars
-//        if (bottomY < 0) bottomY = 0;
-//        if (bottomY > 255) bottomY = 255;
-//        if (topY < 2) topY = 2;
-//        if (topY > 255) topY = 255;
+        // TODO - Validate topY and bottomY
 
         // Set altitude at which caverns start closing off on the top
         topY -= 2;
@@ -72,7 +63,7 @@ public class CavernCarver implements ICarver {
             bottomTransitionBoundary = bottomY < settings.getLiquidAltitude() ? settings.getLiquidAltitude() + 8 : bottomY + 7;
         }
 
-        // Validate transition boundaries
+        // TODO - Validate transition boundaries?
 //        topTransitionBoundary = Math.max(topTransitionBoundary, 1);
 //        bottomTransitionBoundary = Math.min(bottomTransitionBoundary, 255);
 
@@ -114,13 +105,9 @@ public class CavernCarver implements ICarver {
 
             // Dig out the block if it passed the threshold check, using the debug visualizer if enabled
             if (settings.isEnableDebugVisualizer()) {
-                CarverUtils.debugCarveBlock(chunk, localPos, settings.getDebugBlock(), digBlock);
+                this.debugCarveBlock(chunk, localPos, digBlock);
             } else if (digBlock) {
-//                if (flooded) {
-//                    CarverUtils.carveFloodedBlock(config, chunk, new Random(), localPos, liquidBlock, settings.getLiquidAltitude(), settings.isReplaceFloatingGravel(), carvingMask);
-//                } else {
-                    CarverUtils.carveBlock(config, chunk, realPos, liquidBlock, settings.getLiquidAltitude(), carvingMask, aquifer);
-//                }
+                this.carveBlock(config, chunk, realPos, liquidBlock, carvingMask, aquifer);
             }
         }
     }
@@ -150,7 +137,7 @@ public class CavernCarver implements ICarver {
      * Fields may be built individually or loaded in bulk via the {@code ofTypeFromCarver} method
      */
     public static class Builder {
-        private CarverSettings settings;
+        private final CarverSettings settings;
         private CavernType cavernType;
         private int bottomY;
         private int topY;
@@ -165,6 +152,7 @@ public class CavernCarver implements ICarver {
 
         /**
          * Helps build a CavernCarver from a ConfigHolder based on its CavernType
+         *
          * @param cavernType the CavernType of this CavernCarver
          */
         public Builder ofTypeFromConfig(CavernType cavernType) {
@@ -207,6 +195,7 @@ public class CavernCarver implements ICarver {
         }
 
         /* ================================== Builder Setters ================================== */
+
         /**
          * @param noiseType The type of noise this carver will use
          */
@@ -308,7 +297,7 @@ public class CavernCarver implements ICarver {
          */
         public Builder bottomY(int bottomY) {
             this.bottomY = bottomY;
-            return  this;
+            return this;
         }
 
         /**

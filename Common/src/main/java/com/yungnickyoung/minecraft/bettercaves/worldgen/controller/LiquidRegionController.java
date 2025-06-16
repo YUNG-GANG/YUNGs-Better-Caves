@@ -13,11 +13,14 @@ import java.util.Random;
 
 public class LiquidRegionController {
     private final ServerLevel serverLevel;
-    private final FastNoise liquidRegionSampler;
     private final Random rand;
+    private final FastNoise liquidRegionSampler;
     private final float liquidRegionThreshold;
 
-    // Constants
+    /*
+     * Constants used to add a small amount of random offset to the noise threshold check to smooth out the transition
+     * between liquid and non-liquid blocks.
+     */
     private static final float SMOOTH_RANGE = .04f;
     private static final float SMOOTH_DELTA = .01f;
 
@@ -29,13 +32,10 @@ public class LiquidRegionController {
                 (float) (BetterCavesCommon.CONFIG.undergroundGen.waterRegions.waterRegionSpawnChance / 100));
 
         // Liquid region sampler
-//        float waterRegionSize = BetterCavesCommon.CONFIG.undergroundGen.caverns.cavernRegionSize.get().equals("ExtraLarge")
-//                ? .001f
-//                : .004f;
-        float waterRegionSize = 0.004f;
+        double waterRegionSize = BetterCavesCommon.CONFIG.undergroundGen.waterRegions.waterRegionSize;
         liquidRegionSampler = new FastNoise();
         liquidRegionSampler.SetSeed((int) this.serverLevel.getSeed() + 444);
-        liquidRegionSampler.SetFrequency(waterRegionSize);
+        liquidRegionSampler.SetFrequency((float) waterRegionSize);
     }
 
     public BlockState[][] getLiquidBlocksForChunk(ChunkAccess chunkAccess) {
@@ -58,13 +58,12 @@ public class LiquidRegionController {
         }
 
         float liquidRegionNoise = liquidRegionSampler.GetNoise(colPos.getX(), colPos.getZ());
+        float barrierZoneWidth = rand.nextFloat() * SMOOTH_DELTA + SMOOTH_RANGE;
 
-        // If water region threshold check is passed, change liquid block to water
-        float randOffset = rand.nextFloat() * SMOOTH_DELTA + SMOOTH_RANGE;
-        if (liquidRegionNoise < liquidRegionThreshold - randOffset) {
+        if (liquidRegionNoise < liquidRegionThreshold - barrierZoneWidth) {
             return BetterCavesCommon.CONFIG.undergroundGen.misc.waterBlock;
-        } else if (liquidRegionNoise < liquidRegionThreshold + randOffset) {
-            return null;
+        } else if (liquidRegionNoise < liquidRegionThreshold + barrierZoneWidth) {
+            return null; // Solid block barrier between water and lava regions
         } else {
             return BetterCavesCommon.CONFIG.undergroundGen.misc.lavaBlock;
         }

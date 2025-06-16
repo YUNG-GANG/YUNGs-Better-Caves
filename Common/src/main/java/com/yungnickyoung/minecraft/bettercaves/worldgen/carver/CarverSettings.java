@@ -1,4 +1,4 @@
-package com.yungnickyoung.minecraft.bettercaves.worldgen;
+package com.yungnickyoung.minecraft.bettercaves.worldgen.carver;
 
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseSettings;
 import net.minecraft.world.level.block.state.BlockState;

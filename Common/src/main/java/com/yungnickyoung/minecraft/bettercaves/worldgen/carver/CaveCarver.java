@@ -1,11 +1,8 @@
-package com.yungnickyoung.minecraft.bettercaves.worldgen.cave;
+package com.yungnickyoung.minecraft.bettercaves.worldgen.carver;
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
 import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
-import com.yungnickyoung.minecraft.bettercaves.worldgen.CarverSettings;
-import com.yungnickyoung.minecraft.bettercaves.worldgen.CarverUtils;
-import com.yungnickyoung.minecraft.bettercaves.worldgen.ICarver;
 import com.yungnickyoung.minecraft.yungsapi.noise.FastNoise;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
@@ -14,52 +11,53 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.Aquifer;
 import net.minecraft.world.level.levelgen.carver.CarverConfiguration;
 
-import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
-public class CaveCarver implements ICarver {
-    private CarverSettings settings;
-    private NoiseGen noiseGen;
-    private int surfaceCutoff;
-    private int bottomY;
-    private int topY;
+public class CaveCarver extends AbstractCarver {
+    private final NoiseGen noiseGen;
+    private final int surfaceCutoff;
+    private final int bottomY;
+    private final int topY;
 
     /**
-     * Set true to perform pre-processing on noise values, adjusting them to increase ...
-     * ... headroom in the y direction.
+     * Set true to perform pre-processing on noise values, adjusting them to increase headroom in the y direction.
      */
     private final boolean enableYAdjust;
 
-    /** Adjustment value for the block immediately above. Must be between 0 and 1.0 */
+    /**
+     * Adjustment value for the block immediately above. Must be between 0 and 1.0
+     */
     private final float yAdjustF1;
 
-    /** Adjustment value for the block two blocks above. Must be between 0 and 1.0 */
+    /**
+     * Adjustment value for the block two blocks above. Must be between 0 and 1.0
+     */
     private final float yAdjustF2;
 
     public CaveCarver(final Builder builder) {
-        settings = builder.getSettings();
-        noiseGen = new NoiseGen(
-                settings.getSeed(),
-                settings.isFastNoise(),
-                settings.getNoiseSettings(),
-                settings.getNumGens(),
-                settings.getyCompression(),
-                settings.getXzCompression()
+        super(builder.getSettings());
+        this.noiseGen = new NoiseGen(
+                this.settings.getSeed(),
+                this.settings.isFastNoise(),
+                this.settings.getNoiseSettings(),
+                this.settings.getNumGens(),
+                this.settings.getyCompression(),
+                this.settings.getXzCompression()
         );
-        surfaceCutoff = builder.getSurfaceCutoff();
-        enableYAdjust = builder.isEnableYAdjust();
-        yAdjustF1 = builder.getyAdjustF1();
-        yAdjustF2 = builder.getyAdjustF2();
+        this.surfaceCutoff = builder.getSurfaceCutoff();
+        this.enableYAdjust = builder.isEnableYAdjust();
+        this.yAdjustF1 = builder.getyAdjustF1();
+        this.yAdjustF2 = builder.getyAdjustF2();
         if (builder.getBottomY() > builder.getTopY()) {
             BetterCavesCommon.LOGGER.warn("Warning: Min altitude for caves should not be greater than max altitude.");
             BetterCavesCommon.LOGGER.warn("Using default values...");
-            this.bottomY = 1;
+            // TODO change how this validation works?
+            this.bottomY = -63;
             this.topY = 80;
         } else {
-            bottomY = builder.getBottomY();
-            topY = builder.getTopY();
+            this.bottomY = builder.getBottomY();
+            this.topY = builder.getTopY();
         }
     }
 
@@ -68,16 +66,12 @@ public class CaveCarver implements ICarver {
         int localX = colPos.getX() & 0xF;
         int localZ = colPos.getZ() & 0xF;
 
-        // Validate vars
-//        if (bottomY < 0) bottomY = 0;
-//        if (bottomY > 255) bottomY = 255;
-//        if (topY < 0) topY = 0;
-//        if (topY > 255) topY = 255;
+        // TODO - Validate topY and bottomY
 
         // Altitude at which caves start closing off so they aren't all open to the surface
         int transitionBoundary = topY - surfaceCutoff;
 
-        // Validate transition boundary
+        // TODO = Validate transition boundary?
 //        if (transitionBoundary < 1)
 //            transitionBoundary = 1;
 
@@ -115,13 +109,9 @@ public class CaveCarver implements ICarver {
 
             // Dig out the block if it passed the threshold check, using the debug visualizer if enabled
             if (settings.isEnableDebugVisualizer()) {
-                CarverUtils.debugCarveBlock(chunk, localPos, settings.getDebugBlock(), digBlock);
+                this.debugCarveBlock(chunk, localPos, digBlock);
             } else if (digBlock) {
-//                if (flooded) {
-//                    CarverUtils.carveFloodedBlock(config, chunk, new Random(), localPos, liquidBlock, settings.getLiquidAltitude(), carvingMask);
-//                } else {
-                    CarverUtils.carveBlock(config, chunk, realPos, liquidBlock, settings.getLiquidAltitude(), carvingMask, aquifer);
-//                }
+                this.carveBlock(config, chunk, realPos, liquidBlock, carvingMask, aquifer);
             }
         }
     }
@@ -131,12 +121,13 @@ public class CaveCarver implements ICarver {
      * This function adjusts the noise value of blocks based on the noise values of blocks below.
      * This has the effect of raising the ceilings of caves, giving the player more headroom.
      * Big shoutouts to the guys behind Worley's Caves for this great idea.
-     * @param noises The column of noises as a map, mapping the y-coordinate of a block to its NoiseTuple
-     * @param topY Top y-coordinate of the noise column
-     * @param bottomY Bottom y-coordinate of the noise column
+     *
+     * @param noises     The column of noises as a map, mapping the y-coordinate of a block to its NoiseTuple
+     * @param topY       Top y-coordinate of the noise column
+     * @param bottomY    Bottom y-coordinate of the noise column
      * @param thresholds Map of y-coordinates to noise thresholds. This is the output of the generateThresholds method.
-     * @param numGens Number of noise values to create per block. This is equal to the number of floats held
-     *                in each NoiseTuple for each block in the noise column.
+     * @param numGens    Number of noise values to create per block. This is equal to the number of floats held
+     *                   in each NoiseTuple for each block in the noise column.
      */
     private void preprocessCaveNoiseCol(double[][] noises, int topY, int bottomY, Map<Integer, Float> thresholds, int numGens) {
         /* Adjust simplex noise values based on blocks above in order to give the player more headroom */
@@ -181,8 +172,9 @@ public class CaveCarver implements ICarver {
      * Generate a map of y-coordinates to thresholds for a column of blocks.
      * This is useful because the threshold will decrease near the surface, and it is useful (and more accurate)
      * to have a precomputed threshold value when doing y-adjustments for caves.
-     * @param topY Top y-coordinate of the column
-     * @param bottomY Bottom y-coordinate of the column
+     *
+     * @param topY               Top y-coordinate of the column
+     * @param bottomY            Bottom y-coordinate of the column
      * @param transitionBoundary The y-coordinate at which the caves start to close off
      * @return Map of y-coordinates to noise thresholds
      */
@@ -191,7 +183,7 @@ public class CaveCarver implements ICarver {
         for (int realY = bottomY; realY <= topY; realY++) {
             float noiseThreshold = settings.getNoiseThreshold();
             if (realY >= transitionBoundary)
-                noiseThreshold *= (1 + .3f * ((float)(realY - transitionBoundary) / (topY - transitionBoundary)));
+                noiseThreshold *= (1 + .3f * ((float) (realY - transitionBoundary) / (topY - transitionBoundary)));
             thresholds.put(realY, noiseThreshold);
         }
 
@@ -223,7 +215,7 @@ public class CaveCarver implements ICarver {
      * Fields may be built individually or loaded in bulk via the {@code ofTypeFromCarver} method
      */
     public static class Builder {
-        private CarverSettings settings;
+        private final CarverSettings settings;
         private int surfaceCutoff;
         private int bottomY;
         private int topY;
@@ -241,6 +233,7 @@ public class CaveCarver implements ICarver {
 
         /**
          * Helps build a CaveCarver from a ConfigHolder based on its CaveType
+         *
          * @param caveType the CaveType of this CaveCarver
          */
         public Builder ofTypeFromConfig(CaveType caveType) {
@@ -291,6 +284,7 @@ public class CaveCarver implements ICarver {
         }
 
         /* ================================== Builder Setters ================================== */
+
         /**
          * @param noiseType The type of noise this carver will use
          */

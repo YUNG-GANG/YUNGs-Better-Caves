@@ -126,8 +126,7 @@ public class ConfigModule {
 
         public static class WaterRegions {
             public double waterRegionSpawnChance = 40.0;
-            public String waterRegionSize = "Medium";
-            public double waterRegionCustomSize = 0.004;
+            public double waterRegionSize = 0.001;
         }
 
         public static class Misc {

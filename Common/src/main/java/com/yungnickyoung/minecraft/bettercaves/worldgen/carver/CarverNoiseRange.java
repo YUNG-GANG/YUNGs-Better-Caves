@@ -1,4 +1,4 @@
-package com.yungnickyoung.minecraft.bettercaves.worldgen;
+package com.yungnickyoung.minecraft.bettercaves.worldgen.carver;
 
 
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtils;
@@ -21,7 +21,7 @@ public class CarverNoiseRange {
     private final float smoothTopCutoff;
 
     // The carver associated with this range of noises.
-    private final ICarver carver;
+    private final AbstractCarver carver;
 
     // The NoiseCube associated with this range of noises.
     private double[][][][] noiseCube;
@@ -30,7 +30,7 @@ public class CarverNoiseRange {
     // bottom and top ends of the noise range are each smoothed by (x * 100) percent.
     private static final float SMOOTH_PERCENT = .3f;
 
-    public CarverNoiseRange(float bottom, float top, ICarver carver) {
+    public CarverNoiseRange(float bottom, float top, AbstractCarver carver) {
         this.bottom = bottom;
         this.top = top;
         float smoothRangePercent = getPercentLength() * SMOOTH_PERCENT;
@@ -57,7 +57,7 @@ public class CarverNoiseRange {
         return (top == 1 ? 1 : NoiseUtils.noiseToCDF(top)) - (bottom == -1 ? 0 : NoiseUtils.noiseToCDF(bottom));
     }
 
-    public ICarver getCarver() {
+    public AbstractCarver getCarver() {
         return carver;
     }
 

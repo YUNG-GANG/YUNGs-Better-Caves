@@ -4,8 +4,7 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class ConfigWaterRegions {
     public final ModConfigSpec.DoubleValue waterRegionSpawnChance;
-    public final ModConfigSpec.ConfigValue<String> waterRegionSize;
-    public final ModConfigSpec.DoubleValue waterRegionCustomSize;
+    public final ModConfigSpec.DoubleValue waterRegionSize;
 
     public ConfigWaterRegions(final ModConfigSpec.Builder BUILDER) {
         BUILDER
@@ -24,23 +23,10 @@ public class ConfigWaterRegions {
 
         waterRegionSize = BUILDER
                 .comment(
-                        " Determines how large water regions are.\n" +
-                                " Default: Medium (recommended).")
+                        " Determines how large water regions are. Smaller value = larger regions.\n" +
+                                " Default: 0.001")
                 .worldRestart()
-                .define("Water Region Size", "Medium");
-
-        waterRegionCustomSize = BUILDER
-                .comment(
-                        " Custom value for water region size. Smaller value = larger regions. This value is very sensitive to change.\n" +
-                                "     ONLY WORKS IF Water Region Size IS Custom.\n" +
-                                "     Provided values:\n" +
-                                "         Small: 0.008\n" +
-                                "         Medium: 0.004\n" +
-                                "         Large: 0.0028\n" +
-                                "         ExtraLarge: 0.001\n" +
-                                " Default: 0.004")
-                .worldRestart()
-                .defineInRange("Water Region Size Custom Value", .004, 0, .05);
+                .defineInRange("Water Region Size", 0.001, 0, .05);
 
         BUILDER.pop();
     }

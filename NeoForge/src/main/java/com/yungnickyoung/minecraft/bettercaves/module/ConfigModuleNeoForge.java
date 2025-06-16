@@ -84,7 +84,6 @@ public class ConfigModuleNeoForge {
         // Water Regions
         BetterCavesCommon.CONFIG.undergroundGen.waterRegions.waterRegionSpawnChance = BCConfigNeoForge.caveSettings.waterRegions.waterRegionSpawnChance.get();
         BetterCavesCommon.CONFIG.undergroundGen.waterRegions.waterRegionSize = BCConfigNeoForge.caveSettings.waterRegions.waterRegionSize.get();
-        BetterCavesCommon.CONFIG.undergroundGen.waterRegions.waterRegionCustomSize = BCConfigNeoForge.caveSettings.waterRegions.waterRegionCustomSize.get();
 
         // Underground Misc
         BetterCavesCommon.CONFIG.undergroundGen.misc.liquidAltitude = BCConfigNeoForge.caveSettings.miscellaneous.liquidAltitude.get();

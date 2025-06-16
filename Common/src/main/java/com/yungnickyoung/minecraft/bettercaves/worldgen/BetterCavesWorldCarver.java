@@ -43,22 +43,15 @@ public class BetterCavesWorldCarver extends WorldCarver<BetterCavesWorldCarverCo
 
         CavegenContext.pop();
 
-        // Check if a carver hasn't been created for this dimension, or if
-        // the seeds don't match (player probably changed worlds)
-
         IMasterControllerProvider provider = (IMasterControllerProvider) serverLevel;
         MasterController masterController = provider.getMasterController();
 
+        // Check if a carver hasn't been created for this dimension
         if (masterController == null) {
             BetterCavesCommon.LOGGER.info("CREATING AND INIT'ING MASTER CONTROLLER...");
-            masterController = new MasterController();
+            masterController = new MasterController(serverLevel);
             provider.setMasterController(masterController);
-            masterController.initialize(serverLevel);
         }
-
-        // Retrieve the master controller for this dimension
-//        MasterController masterController = BetterCaves.activeCarversMap.get(dimensionName);
-//        masterController.setServerLevel(world); // Ensure controller's world is up to date
 
         return masterController.carve(config, centerChunk, biomeProvider, carvingMask, aquifer);
     }

@@ -1,30 +1,6 @@
 {
   "type": "minecraft:cave",
   "config": {
-    "debug_settings": {
-      "air_state": {
-        "Name": "minecraft:crimson_button",
-        "Properties": {
-          "face": "wall",
-          "facing": "north",
-          "powered": "false"
-        }
-      },
-      "barrier_state": {
-        "Name": "minecraft:glass"
-      },
-      "lava_state": {
-        "Name": "minecraft:orange_stained_glass"
-      },
-      "water_state": {
-        "Name": "minecraft:candle",
-        "Properties": {
-          "candles": "1",
-          "lit": "false",
-          "waterlogged": "false"
-        }
-      }
-    },
     "floor_level": {
       "type": "minecraft:uniform",
       "max_exclusive": -0.4,

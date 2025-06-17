@@ -49,11 +49,11 @@ public class BetterCavesWorldCarver extends WorldCarver<BetterCavesWorldCarverCo
         // Check if a carver hasn't been created for this dimension
         if (masterController == null) {
             BetterCavesCommon.LOGGER.info("CREATING AND INIT'ING MASTER CONTROLLER...");
-            masterController = new MasterController(serverLevel);
+            masterController = new MasterController(serverLevel, config);
             provider.setMasterController(masterController);
         }
 
-        return masterController.carve(config, centerChunk, biomeProvider, carvingMask, aquifer);
+        return masterController.carve(centerChunk, biomeProvider, carvingMask, aquifer);
     }
 
     @Override

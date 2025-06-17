@@ -4,22 +4,22 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class ConfigModule {
-    public UndergroundGen undergroundGen = new UndergroundGen();
+//    public UndergroundGen undergroundGen = new UndergroundGen();
 
     public static class UndergroundGen {
-        public Caves caves = new Caves();
-        public Caverns caverns = new Caverns();
-        public WaterRegions waterRegions = new WaterRegions();
-        public Misc misc = new Misc();
+//        public Caves caves = new Caves();
+//        public Caverns caverns = new Caverns();
+//        public WaterRegions waterRegions = new WaterRegions();
+//        public Misc misc = new Misc();
 
         public static class Caves {
-            public CubicCaves cubicCaves = new CubicCaves();
-            public SimplexCaves simplexCaves = new SimplexCaves();
-            public SurfaceCaves surfaceCaves = new SurfaceCaves();
-            public VanillaCaves vanillaCaves = new VanillaCaves();
-            public double caveSpawnChance = 100.0;
-            public String caveRegionSize = "Small";
-            public double customRegionSize = 0.008;
+//            public CubicCaves cubicCaves = new CubicCaves();
+//            public SimplexCaves simplexCaves = new SimplexCaves();
+//            public SurfaceCaves surfaceCaves = new SurfaceCaves();
+//            public VanillaCaves vanillaCaves = new VanillaCaves();
+//            public double caveSpawnChance = 100.0;
+//            public String caveRegionSize = "Small"; // equivalent to .008f
+//            public double customRegionSize = 0.008;
 
             public static class CubicCaves {
                 public int caveBottom = -63;
@@ -84,7 +84,7 @@ public class ConfigModule {
             public LiquidCaverns liquidCaverns = new LiquidCaverns();
             public FlooredCaverns flooredCaverns = new FlooredCaverns();
             public double cavernSpawnChance = 25;
-            public String cavernRegionSize = "Medium";
+            public String cavernRegionSize = "Medium"; // equivalent to .007f
             public double customRegionSize = 0.01;
 
             public static class LiquidCaverns {
@@ -130,12 +130,12 @@ public class ConfigModule {
         }
 
         public static class Misc {
-            public int liquidAltitude = -55;
-            public BlockState lavaBlock = Blocks.LAVA.defaultBlockState();
-            public BlockState waterBlock = Blocks.WATER.defaultBlockState();
-            public boolean replaceFloatingGravel = true;
-            public boolean overrideSurfaceDetection = false;
-            public boolean enableFloodedUnderground = true;
+//            public int liquidAltitude = -55;
+//            public BlockState lavaBlock = Blocks.LAVA.defaultBlockState();
+//            public BlockState waterBlock = Blocks.WATER.defaultBlockState();
+//            public boolean replaceFloatingGravel = true;
+//            public boolean overrideSurfaceDetection = false;
+//            public boolean enableFloodedUnderground = true;
         }
     }
 }

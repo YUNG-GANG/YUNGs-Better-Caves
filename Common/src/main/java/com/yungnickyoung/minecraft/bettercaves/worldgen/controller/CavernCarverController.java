@@ -4,6 +4,7 @@ import com.yungnickyoung.minecraft.bettercaves.BCConstants;
 import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtils;
+import com.yungnickyoung.minecraft.bettercaves.worldgen.BetterCavesWorldCarverConfig;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.carver.CarverNoiseRange;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.carver.CavernCarver;
 import com.yungnickyoung.minecraft.yungsapi.noise.FastNoise;
@@ -11,12 +12,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.CarvingMask;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.Aquifer;
-import net.minecraft.world.level.levelgen.carver.CarverConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,35 +26,35 @@ public class CavernCarverController {
     private final List<CarverNoiseRange> noiseRanges = new ArrayList<>();
 
     // Vars from config
+    private final BetterCavesWorldCarverConfig config;
     private final boolean isDebugViewEnabled;
     private final boolean isOverrideSurfaceDetectionEnabled;
 
-    public CavernCarverController(ServerLevel serverLevel) {
+    public CavernCarverController(ServerLevel serverLevel, BetterCavesWorldCarverConfig config) {
+        this.config = config;
         this.isDebugViewEnabled = false; //config.debugVisualizer.get();
-        this.isOverrideSurfaceDetectionEnabled = BetterCavesCommon.CONFIG.undergroundGen.misc.overrideSurfaceDetection;
+        this.isOverrideSurfaceDetectionEnabled = config.misc.overrideSurfaceDetection();
 
         // Configure cavern region sampler, which determines what type of cavern should be carved in any given region
-        float cavernRegionSize = calcCavernRegionSize(
-                BetterCavesCommon.CONFIG.undergroundGen.caverns.cavernRegionSize,
-                (float) BetterCavesCommon.CONFIG.undergroundGen.caverns.customRegionSize);
+        double cavernRegionSize = config.caverns.cavernRegionSizeFrequency();
         this.cavernRegionSampler = new FastNoise();
         this.cavernRegionSampler.SetSeed((int) serverLevel.getSeed() + 333);
-        this.cavernRegionSampler.SetFrequency(cavernRegionSize);
+        this.cavernRegionSampler.SetFrequency((float) cavernRegionSize);
 
         // Initialize all carvers using config options
         List<CavernCarver> carvers = new ArrayList<>();
         carvers.add(new CavernCarver.Builder(serverLevel.getSeed())
-                .ofTypeFromConfig(CavernType.LIQUID)
-                .debugVisualizerBlock(Blocks.REDSTONE_BLOCK.defaultBlockState())
+                .ofTypeFromConfig(CavernType.LIQUID, config)
+                .debugVisualizerBlock(config.caverns.liquidCaverns().debugCarveState())
                 .build()
         );
         carvers.add(new CavernCarver.Builder(serverLevel.getSeed())
-                .ofTypeFromConfig(CavernType.FLOORED)
-                .debugVisualizerBlock(Blocks.GOLD_BLOCK.defaultBlockState())
+                .ofTypeFromConfig(CavernType.FLOORED, config)
+                .debugVisualizerBlock(config.caverns.flooredCaverns().debugCarveState())
                 .build()
         );
 
-        float spawnChance = (float) (BetterCavesCommon.CONFIG.undergroundGen.caverns.cavernSpawnChance / 100f);
+        float spawnChance = (float) (config.caverns.cavernSpawnChance() / 100f);
         int totalPriority = carvers.stream().map(CavernCarver::getPriority).reduce(0, Integer::sum);
 
         BetterCavesCommon.LOGGER.debug("CAVERN INFORMATION");
@@ -87,7 +86,7 @@ public class CavernCarverController {
         }
     }
 
-    public void carveChunk(CarverConfiguration config, ChunkAccess chunkAccess, int[][] surfaceAltitudes,
+    public void carveChunk(ChunkAccess chunkAccess, int[][] surfaceAltitudes,
                            BlockState[][] liquidBlocks, Function<BlockPos, Holder<Biome>> biomeProvider, CarvingMask carvingMask,
                            Aquifer aquifer) {
         // Prevent unnecessary computation if caverns are disabled
@@ -159,18 +158,5 @@ public class CavernCarverController {
                 }
             }
         }
-    }
-
-    /**
-     * @return frequency value for cavern region sampler
-     */
-    private float calcCavernRegionSize(String cavernRegionSize, float cavernRegionCustomSize) {
-        return switch (cavernRegionSize) {
-            case "Small" -> .01f;
-            case "Large" -> .005f;
-            case "ExtraLarge" -> .001f;
-            case "Custom" -> cavernRegionCustomSize;
-            default -> .007f;
-        };
     }
 }

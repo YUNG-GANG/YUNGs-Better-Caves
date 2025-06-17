@@ -4,13 +4,13 @@ package com.yungnickyoung.minecraft.bettercaves.worldgen.carver;
 import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
+import com.yungnickyoung.minecraft.bettercaves.worldgen.BetterCavesWorldCarverConfig;
 import com.yungnickyoung.minecraft.yungsapi.noise.FastNoise;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.CarvingMask;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.Aquifer;
-import net.minecraft.world.level.levelgen.carver.CarverConfiguration;
 
 /**
  * BetterCaves Cavern carver.
@@ -45,7 +45,7 @@ public class CavernCarver extends AbstractCarver {
         }
     }
 
-    public void carveColumn(CarverConfiguration config, ChunkAccess chunk, BlockPos colPos, int topY, float smoothAmp,
+    public void carveColumn(BetterCavesWorldCarverConfig config, ChunkAccess chunk, BlockPos colPos, int topY, float smoothAmp,
                             double[][] noises, BlockState liquidBlock, CarvingMask carvingMask,
                             Aquifer aquifer) {
         int localX = colPos.getX() & 0xF;
@@ -155,40 +155,38 @@ public class CavernCarver extends AbstractCarver {
          *
          * @param cavernType the CavernType of this CavernCarver
          */
-        public Builder ofTypeFromConfig(CavernType cavernType) {
-            this.settings.setLiquidAltitude(BetterCavesCommon.CONFIG.undergroundGen.misc.liquidAltitude);
-            this.settings.setReplaceFloatingGravel(BetterCavesCommon.CONFIG.undergroundGen.misc.replaceFloatingGravel);
+        public Builder ofTypeFromConfig(CavernType cavernType, BetterCavesWorldCarverConfig config) {
+            this.settings.setLiquidAltitude(config.liquidRegions.liquidAltitude());
             this.settings.getNoiseSettings().setFractalType(FastNoise.FractalType.RigidMulti);
-//            this.settings.setEnableDebugVisualizer(config.debugVisualizer.get());
-            this.settings.setEnableDebugVisualizer(false);
+            this.settings.setEnableDebugVisualizer(config.debugSettings.enabled());
             this.settings.setFastNoise(true);
             this.cavernType = cavernType;
             switch (cavernType) {
                 case LIQUID:
-                    this.settings.setNoiseThreshold((float) BetterCavesCommon.CONFIG.undergroundGen.caverns.liquidCaverns.advancedSettings.noiseThreshold);
-                    this.settings.getNoiseSettings().setNoiseType(FastNoise.NoiseType.valueOf(BetterCavesCommon.CONFIG.undergroundGen.caverns.liquidCaverns.advancedSettings.noiseType));
-                    this.settings.getNoiseSettings().setOctaves(BetterCavesCommon.CONFIG.undergroundGen.caverns.liquidCaverns.advancedSettings.fractalOctaves);
-                    this.settings.getNoiseSettings().setGain((float) BetterCavesCommon.CONFIG.undergroundGen.caverns.liquidCaverns.advancedSettings.fractalGain);
-                    this.settings.getNoiseSettings().setFrequency((float) BetterCavesCommon.CONFIG.undergroundGen.caverns.liquidCaverns.advancedSettings.fractalFrequency);
-                    this.settings.setNumGens(BetterCavesCommon.CONFIG.undergroundGen.caverns.liquidCaverns.advancedSettings.numGenerators);
-                    this.settings.setyCompression((float) BetterCavesCommon.CONFIG.undergroundGen.caverns.liquidCaverns.yCompression);
-                    this.settings.setXzCompression((float) BetterCavesCommon.CONFIG.undergroundGen.caverns.liquidCaverns.xzCompression);
-                    this.settings.setPriority(BetterCavesCommon.CONFIG.undergroundGen.caverns.liquidCaverns.cavePriority);
-                    this.bottomY = BetterCavesCommon.CONFIG.undergroundGen.caverns.liquidCaverns.cavernBottom;
-                    this.topY = BetterCavesCommon.CONFIG.undergroundGen.caverns.liquidCaverns.cavernTop;
+                    this.settings.setNoiseThreshold((float) config.caverns.liquidCaverns().advanced().noiseThreshold());
+                    this.settings.getNoiseSettings().setNoiseType(FastNoise.NoiseType.valueOf(config.caverns.liquidCaverns().advanced().noiseType()));
+                    this.settings.getNoiseSettings().setOctaves(config.caverns.liquidCaverns().advanced().fractalOctaves());
+                    this.settings.getNoiseSettings().setGain((float) config.caverns.liquidCaverns().advanced().fractalGain());
+                    this.settings.getNoiseSettings().setFrequency((float) config.caverns.liquidCaverns().advanced().fractalFrequency());
+                    this.settings.setNumGens(config.caverns.liquidCaverns().advanced().numGenerators());
+                    this.settings.setyCompression((float) config.caverns.liquidCaverns().yCompression());
+                    this.settings.setXzCompression((float) config.caverns.liquidCaverns().xzCompression());
+                    this.settings.setPriority(config.caverns.liquidCaverns().cavePriority());
+                    this.bottomY = config.caverns.liquidCaverns().cavernBottom();
+                    this.topY = config.caverns.liquidCaverns().cavernTop();
                     break;
                 case FLOORED:
-                    this.settings.setNoiseThreshold((float) BetterCavesCommon.CONFIG.undergroundGen.caverns.flooredCaverns.advancedSettings.noiseThreshold);
-                    this.settings.getNoiseSettings().setNoiseType(FastNoise.NoiseType.valueOf(BetterCavesCommon.CONFIG.undergroundGen.caverns.flooredCaverns.advancedSettings.noiseType));
-                    this.settings.getNoiseSettings().setOctaves(BetterCavesCommon.CONFIG.undergroundGen.caverns.flooredCaverns.advancedSettings.fractalOctaves);
-                    this.settings.getNoiseSettings().setGain((float) BetterCavesCommon.CONFIG.undergroundGen.caverns.flooredCaverns.advancedSettings.fractalGain);
-                    this.settings.getNoiseSettings().setFrequency((float) BetterCavesCommon.CONFIG.undergroundGen.caverns.flooredCaverns.advancedSettings.fractalFrequency);
-                    this.settings.setNumGens(BetterCavesCommon.CONFIG.undergroundGen.caverns.flooredCaverns.advancedSettings.numGenerators);
-                    this.settings.setyCompression((float) BetterCavesCommon.CONFIG.undergroundGen.caverns.flooredCaverns.yCompression);
-                    this.settings.setXzCompression((float) BetterCavesCommon.CONFIG.undergroundGen.caverns.flooredCaverns.xzCompression);
-                    this.settings.setPriority(BetterCavesCommon.CONFIG.undergroundGen.caverns.flooredCaverns.cavePriority);
-                    this.bottomY = BetterCavesCommon.CONFIG.undergroundGen.caverns.flooredCaverns.cavernBottom;
-                    this.topY = BetterCavesCommon.CONFIG.undergroundGen.caverns.flooredCaverns.cavernTop;
+                    this.settings.setNoiseThreshold((float) config.caverns.flooredCaverns().advanced().noiseThreshold());
+                    this.settings.getNoiseSettings().setNoiseType(FastNoise.NoiseType.valueOf(config.caverns.flooredCaverns().advanced().noiseType()));
+                    this.settings.getNoiseSettings().setOctaves(config.caverns.flooredCaverns().advanced().fractalOctaves());
+                    this.settings.getNoiseSettings().setGain((float) config.caverns.flooredCaverns().advanced().fractalGain());
+                    this.settings.getNoiseSettings().setFrequency((float) config.caverns.flooredCaverns().advanced().fractalFrequency());
+                    this.settings.setNumGens(config.caverns.flooredCaverns().advanced().numGenerators());
+                    this.settings.setyCompression((float) config.caverns.flooredCaverns().yCompression());
+                    this.settings.setXzCompression((float) config.caverns.flooredCaverns().xzCompression());
+                    this.settings.setPriority(config.caverns.flooredCaverns().cavePriority());
+                    this.bottomY = config.caverns.flooredCaverns().cavernBottom();
+                    this.topY = config.caverns.flooredCaverns().cavernTop();
                     break;
             }
             return this;
@@ -197,114 +195,10 @@ public class CavernCarver extends AbstractCarver {
         /* ================================== Builder Setters ================================== */
 
         /**
-         * @param noiseType The type of noise this carver will use
-         */
-        public Builder noiseType(FastNoise.NoiseType noiseType) {
-            settings.getNoiseSettings().setNoiseType(noiseType);
-            return this;
-        }
-
-        /**
-         * @param fractalOctaves Number of fractal octaves to use in ridged multifractal noise generation
-         */
-        public Builder fractalOctaves(int fractalOctaves) {
-            settings.getNoiseSettings().setOctaves(fractalOctaves);
-            return this;
-        }
-
-        /**
-         * @param fractalGain Amount of gain to use in ridged multifractal noise generation
-         */
-        public Builder fractalGain(float fractalGain) {
-            settings.getNoiseSettings().setGain(fractalGain);
-            return this;
-        }
-
-        /**
-         * @param fractalFreq Frequency to use in ridged multifractal noise generation
-         */
-        public Builder fractalFrequency(float fractalFreq) {
-            settings.getNoiseSettings().setFrequency(fractalFreq);
-            return this;
-        }
-
-        /**
-         * @param numGens Number of noise values to calculate for a given block
-         */
-        public Builder numberOfGenerators(int numGens) {
-            settings.setNumGens(numGens);
-            return this;
-        }
-
-        /**
-         * @param yCompression Vertical cave gen compression. Use 1.0 for default generation
-         */
-        public Builder verticalCompression(float yCompression) {
-            settings.setyCompression(yCompression);
-            return this;
-        }
-
-        /**
-         * @param xzCompression Horizontal cave gen compression. Use 1.0 for default generation
-         */
-        public Builder horizontalCompression(float xzCompression) {
-            settings.setXzCompression(xzCompression);
-            return this;
-        }
-
-        /**
-         * @param noiseThreshold Noise threshold to determine whether or not a given block will be dug out
-         */
-        public Builder noiseThreshold(float noiseThreshold) {
-            settings.setNoiseThreshold(noiseThreshold);
-            return this;
-        }
-
-        /**
          * @param vBlock Block used for this cave type in the debug visualizer
          */
         public Builder debugVisualizerBlock(BlockState vBlock) {
             settings.setDebugBlock(vBlock);
-            return this;
-        }
-
-        /**
-         * @param liquidAltitude altitude at and below which air is replaced with liquid
-         */
-        public Builder liquidAltitude(int liquidAltitude) {
-            settings.setLiquidAltitude(liquidAltitude);
-            return this;
-        }
-
-        /**
-         * Enable the debug visualizer
-         */
-        public Builder enableDebugVisualizer(boolean enableDebugVisualizer) {
-            settings.setEnableDebugVisualizer(enableDebugVisualizer);
-            return this;
-        }
-
-        /**
-         * Set cavern type
-         */
-        public Builder cavernType(CavernType cavernType) {
-            this.cavernType = cavernType;
-            return this;
-        }
-
-        /**
-         * Set cavern bottom Y coordinate
-         */
-        public Builder bottomY(int bottomY) {
-            this.bottomY = bottomY;
-            return this;
-        }
-
-        /**
-         * Set cavern top Y coordinate
-         */
-        public Builder topY(int topY) {
-            this.topY = topY;
             return this;
         }
 

@@ -3,20 +3,19 @@ package com.yungnickyoung.minecraft.bettercaves.worldgen.controller;
 import com.yungnickyoung.minecraft.bettercaves.BCConstants;
 import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
 import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
-import com.yungnickyoung.minecraft.bettercaves.worldgen.carver.CarverNoiseRange;
+import com.yungnickyoung.minecraft.bettercaves.worldgen.BetterCavesWorldCarverConfig;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.carver.AbstractCarver;
+import com.yungnickyoung.minecraft.bettercaves.worldgen.carver.CarverNoiseRange;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.carver.CaveCarver;
 import com.yungnickyoung.minecraft.yungsapi.noise.FastNoise;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.CarvingMask;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.Aquifer;
-import net.minecraft.world.level.levelgen.carver.CarverConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,21 +26,21 @@ public class CaveCarverController {
     private final List<CarverNoiseRange> noiseRanges = new ArrayList<>();
 
     // Vars from config
+    private final BetterCavesWorldCarverConfig config;
     private final boolean isDebugViewEnabled;
     private final boolean isOverrideSurfaceDetectionEnabled;
 
-    public CaveCarverController(ServerLevel serverLevel) {
-        this.isDebugViewEnabled = false;
-        this.isOverrideSurfaceDetectionEnabled = BetterCavesCommon.CONFIG.undergroundGen.misc.overrideSurfaceDetection;
+    public CaveCarverController(ServerLevel serverLevel, BetterCavesWorldCarverConfig config) {
+        this.config = config;
+        this.isDebugViewEnabled = config.debugSettings.enabled();
+        this.isOverrideSurfaceDetectionEnabled = config.misc.overrideSurfaceDetection();
 
         // Configure cave region sampler, which determines what type of cave should be
         // carved in any given region
-        float caveRegionSize = calcCaveRegionSize(
-                BetterCavesCommon.CONFIG.undergroundGen.caves.caveRegionSize,
-                (float) BetterCavesCommon.CONFIG.undergroundGen.caves.customRegionSize);
+        double caveRegionSize = config.caves.caveRegionSizeFrequency();
         this.caveRegionSampler = new FastNoise();
         this.caveRegionSampler.SetSeed((int) serverLevel.getSeed() + 222);
-        this.caveRegionSampler.SetFrequency(caveRegionSize);
+        this.caveRegionSampler.SetFrequency((float) caveRegionSize);
         this.caveRegionSampler.SetNoiseType(FastNoise.NoiseType.Cellular);
         this.caveRegionSampler.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
@@ -49,14 +48,14 @@ public class CaveCarverController {
         List<AbstractCarver> carvers = new ArrayList<>();
         // Type 1 caves
         carvers.add(new CaveCarver.Builder(serverLevel.getSeed())
-                .ofTypeFromConfig(CaveType.CUBIC)
-                .debugVisualizerBlock(Blocks.OAK_PLANKS.defaultBlockState())
+                .ofTypeFromConfig(CaveType.CUBIC, config)
+                .debugVisualizerBlock(config.caves.cubicCaves().debugCarveState())
                 .build()
         );
         // Type 2 caves
         carvers.add(new CaveCarver.Builder(serverLevel.getSeed())
-                .ofTypeFromConfig(CaveType.SIMPLEX)
-                .debugVisualizerBlock(Blocks.COBBLESTONE.defaultBlockState())
+                .ofTypeFromConfig(CaveType.SIMPLEX, config)
+                .debugVisualizerBlock(config.caves.simplexCaves().debugCarveState())
                 .build()
         );
 
@@ -64,7 +63,7 @@ public class CaveCarverController {
         carvers.removeIf(carver -> carver.getPriority() == 0);
 
         // Initialize vars for calculating sampler noise thresholds
-        float maxPossibleNoiseThreshold = (float) (BetterCavesCommon.CONFIG.undergroundGen.caves.caveSpawnChance * .01 * 2 - 1);
+        float maxPossibleNoiseThreshold = (float) (config.caves.caveSpawnChance() * .01 * 2 - 1);
         int totalPriority = carvers.stream().map(AbstractCarver::getPriority).reduce(0, Integer::sum);
         float totalRangeLength = maxPossibleNoiseThreshold - (-1f);
         float currNoise = -1f;
@@ -85,7 +84,7 @@ public class CaveCarverController {
         }
     }
 
-    public void carveChunk(CarverConfiguration config, ChunkAccess chunkAccess, int[][] surfaceAltitudes,
+    public void carveChunk(ChunkAccess chunkAccess, int[][] surfaceAltitudes,
                            BlockState[][] liquidBlocks, Function<BlockPos, Holder<Biome>> biomeProvider, CarvingMask carvingMask,
                            Aquifer aquifer) {
         // Prevent unnecessary computation if caves are disabled
@@ -159,18 +158,5 @@ public class CaveCarverController {
                 }
             }
         }
-    }
-
-    /**
-     * @return frequency value for cave region sampler
-     */
-    private float calcCaveRegionSize(String caveRegionSize, float caveRegionCustomSize) {
-        return switch (caveRegionSize) {
-            case "Small" -> .008f;
-            case "Large" -> .0032f;
-            case "ExtraLarge" -> .001f;
-            case "Custom" -> caveRegionCustomSize;
-            default -> .005f;
-        };
     }
 }

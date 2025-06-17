@@ -1,6 +1,5 @@
 package com.yungnickyoung.minecraft.bettercaves;
 
-import com.yungnickyoung.minecraft.bettercaves.module.CarverModule;
 import com.yungnickyoung.minecraft.bettercaves.module.ConfigModule;
 import com.yungnickyoung.minecraft.yungsapi.api.YungAutoRegister;
 import net.minecraft.resources.ResourceLocation;

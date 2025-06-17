@@ -1,6 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves.worldgen.carver;
 
 import com.google.common.collect.ImmutableSet;
+import com.yungnickyoung.minecraft.bettercaves.worldgen.BetterCavesWorldCarverConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -8,7 +9,6 @@ import net.minecraft.world.level.chunk.CarvingMask;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.Aquifer;
 import net.minecraft.world.level.levelgen.DensityFunction;
-import net.minecraft.world.level.levelgen.carver.CarverConfiguration;
 
 public abstract class AbstractCarver {
     protected final CarverSettings settings;
@@ -39,13 +39,13 @@ public abstract class AbstractCarver {
      * @param carvingMask      Keeps track of which blocks have already been carved.
      * @param aquifer          The Aquifer.
      */
-    protected void carveBlock(CarverConfiguration config, ChunkAccess chunkAccess, BlockPos blockPos, BlockState airBlockState,
-                                  BlockState liquidBlockState, CarvingMask carvingMask, Aquifer aquifer) {
+    protected void carveBlock(BetterCavesWorldCarverConfig config, ChunkAccess chunkAccess, BlockPos blockPos, BlockState airBlockState,
+                              BlockState liquidBlockState, CarvingMask carvingMask, Aquifer aquifer) {
         // Mark block as processed - for use by features
         carvingMask.set(blockPos.getX(), blockPos.getY(), blockPos.getZ());
 
         // Only continue if the block is replaceable
-        if (!chunkAccess.getBlockState(blockPos).is(config.replaceable)) {
+        if (!chunkAccess.getBlockState(blockPos).is(config.misc.replaceable())) {
             return;
         }
 
@@ -82,7 +82,7 @@ public abstract class AbstractCarver {
         }
     }
 
-    protected void carveBlock(CarverConfiguration config, ChunkAccess chunkAccess, BlockPos blockPos, BlockState liquidBlockState, CarvingMask carvingMask, Aquifer aquifer) {
+    protected void carveBlock(BetterCavesWorldCarverConfig config, ChunkAccess chunkAccess, BlockPos blockPos, BlockState liquidBlockState, CarvingMask carvingMask, Aquifer aquifer) {
         carveBlock(config, chunkAccess, blockPos, Blocks.AIR.defaultBlockState(), liquidBlockState, carvingMask, aquifer);
     }
 

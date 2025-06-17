@@ -3,13 +3,13 @@ package com.yungnickyoung.minecraft.bettercaves.worldgen.carver;
 import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
 import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
+import com.yungnickyoung.minecraft.bettercaves.worldgen.BetterCavesWorldCarverConfig;
 import com.yungnickyoung.minecraft.yungsapi.noise.FastNoise;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.CarvingMask;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.Aquifer;
-import net.minecraft.world.level.levelgen.carver.CarverConfiguration;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -61,7 +61,7 @@ public class CaveCarver extends AbstractCarver {
         }
     }
 
-    public void carveColumn(CarverConfiguration config, ChunkAccess chunk, BlockPos colPos, int topY, double[][] noises,
+    public void carveColumn(BetterCavesWorldCarverConfig config, ChunkAccess chunk, BlockPos colPos, int topY, double[][] noises,
                             BlockState liquidBlock, CarvingMask carvingMask, Aquifer aquifer) {
         int localX = colPos.getX() & 0xF;
         int localZ = colPos.getZ() & 0xF;
@@ -236,48 +236,46 @@ public class CaveCarver extends AbstractCarver {
          *
          * @param caveType the CaveType of this CaveCarver
          */
-        public Builder ofTypeFromConfig(CaveType caveType) {
-            this.settings.setLiquidAltitude(BetterCavesCommon.CONFIG.undergroundGen.misc.liquidAltitude);
-            this.settings.setReplaceFloatingGravel(BetterCavesCommon.CONFIG.undergroundGen.misc.replaceFloatingGravel);
-//            this.settings.setEnableDebugVisualizer(config.debugVisualizer.get());
-            this.settings.setEnableDebugVisualizer(false);
+        public Builder ofTypeFromConfig(CaveType caveType, BetterCavesWorldCarverConfig config) {
+            this.settings.setLiquidAltitude(config.liquidRegions.liquidAltitude());
+            this.settings.setEnableDebugVisualizer(config.debugSettings.enabled());
             this.settings.getNoiseSettings().setFractalType(FastNoise.FractalType.RigidMulti);
             switch (caveType) {
                 case CUBIC:
                     this.settings.setFastNoise(true);
-                    this.settings.setNoiseThreshold((float) BetterCavesCommon.CONFIG.undergroundGen.caves.cubicCaves.advancedSettings.noiseThreshold);
-                    this.settings.getNoiseSettings().setNoiseType(FastNoise.NoiseType.valueOf(BetterCavesCommon.CONFIG.undergroundGen.caves.cubicCaves.advancedSettings.noiseType));
-                    this.settings.getNoiseSettings().setOctaves(BetterCavesCommon.CONFIG.undergroundGen.caves.cubicCaves.advancedSettings.fractalOctaves);
-                    this.settings.getNoiseSettings().setGain((float) BetterCavesCommon.CONFIG.undergroundGen.caves.cubicCaves.advancedSettings.fractalGain);
-                    this.settings.getNoiseSettings().setFrequency((float) BetterCavesCommon.CONFIG.undergroundGen.caves.cubicCaves.advancedSettings.fractalFrequency);
-                    this.settings.setNumGens(BetterCavesCommon.CONFIG.undergroundGen.caves.cubicCaves.advancedSettings.numGenerators);
-                    this.settings.setXzCompression((float) BetterCavesCommon.CONFIG.undergroundGen.caves.cubicCaves.xzCompression);
-                    this.settings.setyCompression((float) BetterCavesCommon.CONFIG.undergroundGen.caves.cubicCaves.yCompression);
-                    this.settings.setPriority(BetterCavesCommon.CONFIG.undergroundGen.caves.cubicCaves.cavePriority);
-                    this.surfaceCutoff = BetterCavesCommon.CONFIG.undergroundGen.caves.cubicCaves.caveSurfaceCutoff;
-                    this.bottomY = BetterCavesCommon.CONFIG.undergroundGen.caves.cubicCaves.caveBottom;
-                    this.topY = BetterCavesCommon.CONFIG.undergroundGen.caves.cubicCaves.caveTop;
-                    this.enableYAdjust = BetterCavesCommon.CONFIG.undergroundGen.caves.cubicCaves.advancedSettings.yAdjust;
-                    this.yAdjustF1 = (float) BetterCavesCommon.CONFIG.undergroundGen.caves.cubicCaves.advancedSettings.yAdjustF1;
-                    this.yAdjustF2 = (float) BetterCavesCommon.CONFIG.undergroundGen.caves.cubicCaves.advancedSettings.yAdjustF2;
+                    this.settings.setNoiseThreshold((float) config.caves.cubicCaves().advanced().noiseThreshold());
+                    this.settings.getNoiseSettings().setNoiseType(FastNoise.NoiseType.valueOf(config.caves.cubicCaves().advanced().noiseType()));
+                    this.settings.getNoiseSettings().setOctaves(config.caves.cubicCaves().advanced().fractalOctaves());
+                    this.settings.getNoiseSettings().setGain((float) config.caves.cubicCaves().advanced().fractalGain());
+                    this.settings.getNoiseSettings().setFrequency((float) config.caves.cubicCaves().advanced().fractalFrequency());
+                    this.settings.setNumGens(config.caves.cubicCaves().advanced().numGenerators());
+                    this.settings.setXzCompression((float) config.caves.cubicCaves().xzCompression());
+                    this.settings.setyCompression((float) config.caves.cubicCaves().yCompression());
+                    this.settings.setPriority(config.caves.cubicCaves().cavePriority());
+                    this.surfaceCutoff = config.caves.cubicCaves().caveSurfaceCutoff();
+                    this.bottomY = config.caves.cubicCaves().caveBottom();
+                    this.topY = config.caves.cubicCaves().caveTop();
+                    this.enableYAdjust = config.caves.cubicCaves().advanced().yAdjust();
+                    this.yAdjustF1 = (float) config.caves.cubicCaves().advanced().yAdjustF1();
+                    this.yAdjustF2 = (float) config.caves.cubicCaves().advanced().yAdjustF2();
                     break;
                 case SIMPLEX:
                     this.settings.setFastNoise(false);
-                    this.settings.setNoiseThreshold((float) BetterCavesCommon.CONFIG.undergroundGen.caves.simplexCaves.advancedSettings.noiseThreshold);
-                    this.settings.getNoiseSettings().setNoiseType(FastNoise.NoiseType.valueOf(BetterCavesCommon.CONFIG.undergroundGen.caves.simplexCaves.advancedSettings.noiseType));
-                    this.settings.getNoiseSettings().setOctaves(BetterCavesCommon.CONFIG.undergroundGen.caves.simplexCaves.advancedSettings.fractalOctaves);
-                    this.settings.getNoiseSettings().setGain((float) BetterCavesCommon.CONFIG.undergroundGen.caves.simplexCaves.advancedSettings.fractalGain);
-                    this.settings.getNoiseSettings().setFrequency((float) BetterCavesCommon.CONFIG.undergroundGen.caves.simplexCaves.advancedSettings.fractalFrequency);
-                    this.settings.setNumGens(BetterCavesCommon.CONFIG.undergroundGen.caves.simplexCaves.advancedSettings.numGenerators);
-                    this.settings.setXzCompression((float) BetterCavesCommon.CONFIG.undergroundGen.caves.simplexCaves.xzCompression);
-                    this.settings.setyCompression((float) BetterCavesCommon.CONFIG.undergroundGen.caves.simplexCaves.yCompression);
-                    this.settings.setPriority(BetterCavesCommon.CONFIG.undergroundGen.caves.simplexCaves.cavePriority);
-                    this.surfaceCutoff = BetterCavesCommon.CONFIG.undergroundGen.caves.simplexCaves.caveSurfaceCutoff;
-                    this.bottomY = BetterCavesCommon.CONFIG.undergroundGen.caves.simplexCaves.caveBottom;
-                    this.topY = BetterCavesCommon.CONFIG.undergroundGen.caves.simplexCaves.caveTop;
-                    this.enableYAdjust = BetterCavesCommon.CONFIG.undergroundGen.caves.simplexCaves.advancedSettings.yAdjust;
-                    this.yAdjustF1 = (float) BetterCavesCommon.CONFIG.undergroundGen.caves.simplexCaves.advancedSettings.yAdjustF1;
-                    this.yAdjustF2 = (float) BetterCavesCommon.CONFIG.undergroundGen.caves.simplexCaves.advancedSettings.yAdjustF2;
+                    this.settings.setNoiseThreshold((float) config.caves.simplexCaves().advanced().noiseThreshold());
+                    this.settings.getNoiseSettings().setNoiseType(FastNoise.NoiseType.valueOf(config.caves.simplexCaves().advanced().noiseType()));
+                    this.settings.getNoiseSettings().setOctaves(config.caves.simplexCaves().advanced().fractalOctaves());
+                    this.settings.getNoiseSettings().setGain((float) config.caves.simplexCaves().advanced().fractalGain());
+                    this.settings.getNoiseSettings().setFrequency((float) config.caves.simplexCaves().advanced().fractalFrequency());
+                    this.settings.setNumGens(config.caves.simplexCaves().advanced().numGenerators());
+                    this.settings.setXzCompression((float) config.caves.simplexCaves().xzCompression());
+                    this.settings.setyCompression((float) config.caves.simplexCaves().yCompression());
+                    this.settings.setPriority(config.caves.simplexCaves().cavePriority());
+                    this.surfaceCutoff = config.caves.simplexCaves().caveSurfaceCutoff();
+                    this.bottomY = config.caves.simplexCaves().caveBottom();
+                    this.topY = config.caves.simplexCaves().caveTop();
+                    this.enableYAdjust = config.caves.simplexCaves().advanced().yAdjust();
+                    this.yAdjustF1 = (float) config.caves.simplexCaves().advanced().yAdjustF1();
+                    this.yAdjustF2 = (float) config.caves.simplexCaves().advanced().yAdjustF2();
                     break;
             }
             return this;
@@ -286,138 +284,10 @@ public class CaveCarver extends AbstractCarver {
         /* ================================== Builder Setters ================================== */
 
         /**
-         * @param noiseType The type of noise this carver will use
+         * @param blockState Block used for this cave type in the debug visualizer
          */
-        public Builder noiseType(FastNoise.NoiseType noiseType) {
-            settings.getNoiseSettings().setNoiseType(noiseType);
-            return this;
-        }
-
-        /**
-         * @param fractalOctaves Number of fractal octaves to use in ridged multifractal noise generation
-         */
-        public Builder fractalOctaves(int fractalOctaves) {
-            settings.getNoiseSettings().setOctaves(fractalOctaves);
-            return this;
-        }
-
-        /**
-         * @param fractalGain Amount of gain to use in ridged multifractal noise generation
-         */
-        public Builder fractalGain(float fractalGain) {
-            settings.getNoiseSettings().setGain(fractalGain);
-            return this;
-        }
-
-        /**
-         * @param fractalFreq Frequency to use in ridged multifractal noise generation
-         */
-        public Builder fractalFrequency(float fractalFreq) {
-            settings.getNoiseSettings().setFrequency(fractalFreq);
-            return this;
-        }
-
-        /**
-         * @param numGens Number of noise values to calculate for a given block
-         */
-        public Builder numberOfGenerators(int numGens) {
-            settings.setNumGens(numGens);
-            return this;
-        }
-
-        /**
-         * @param yCompression Vertical cave gen compression. Use 1.0 for default generation
-         */
-        public Builder verticalCompression(float yCompression) {
-            settings.setyCompression(yCompression);
-            return this;
-        }
-
-        /**
-         * @param xzCompression Horizontal cave gen compression. Use 1.0 for default generation
-         */
-        public Builder horizontalCompression(float xzCompression) {
-            settings.setXzCompression(xzCompression);
-            return this;
-        }
-
-        /**
-         * @param surfaceCutoff Cave surface cutoff depth
-         */
-        public Builder surfaceCutoff(int surfaceCutoff) {
-            this.surfaceCutoff = surfaceCutoff;
-            return this;
-        }
-
-        /**
-         * @param bottomY Cave bottom y-coordinate
-         */
-        public Builder bottomY(int bottomY) {
-            this.bottomY = bottomY;
-            return this;
-        }
-
-        /**
-         * @param topY Cave top y-coordinate
-         */
-        public Builder topY(int topY) {
-            this.topY = topY;
-            return this;
-        }
-
-        /**
-         * @param yAdjustF1 Adjustment value for the block immediately above. Must be between 0 and 1.0
-         */
-        public Builder verticalAdjuster1(float yAdjustF1) {
-            this.yAdjustF1 = yAdjustF1;
-            return this;
-        }
-
-        /**
-         * @param yAdjustF2 Adjustment value for the block two blocks above. Must be between 0 and 1.0
-         */
-        public Builder verticalAdjuster2(float yAdjustF2) {
-            this.yAdjustF2 = yAdjustF2;
-            return this;
-        }
-
-        /**
-         * @param enableYAdjust Whether or not to adjust/increase the height of caves.
-         */
-        public Builder enableVerticalAdjustment(boolean enableYAdjust) {
-            this.enableYAdjust = enableYAdjust;
-            return this;
-        }
-
-        /**
-         * @param noiseThreshold Noise threshold to determine whether or not a given block will be dug out
-         */
-        public Builder noiseThreshold(float noiseThreshold) {
-            settings.setNoiseThreshold(noiseThreshold);
-            return this;
-        }
-
-        /**
-         * @param vBlock Block used for this cave type in the debug visualizer
-         */
-        public Builder debugVisualizerBlock(BlockState vBlock) {
-            settings.setDebugBlock(vBlock);
-            return this;
-        }
-
-        /**
-         * @param liquidAltitude altitude at and below which air is replaced with liquid
-         */
-        public Builder liquidAltitude(int liquidAltitude) {
-            settings.setLiquidAltitude(liquidAltitude);
-            return this;
-        }
-
-        /**
-         * Enable the debug visualizer
-         */
-        public Builder enableDebugVisualizer(boolean enableDebugVisualizer) {
-            settings.setEnableDebugVisualizer(enableDebugVisualizer);
+        public Builder debugVisualizerBlock(BlockState blockState) {
+            settings.setDebugBlock(blockState);
             return this;
         }
 

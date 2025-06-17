@@ -20,7 +20,6 @@ public class CarverSettings {
 
     /* ------------------ Worldgen Params ------------------ */
     private int     liquidAltitude;
-    private boolean replaceFloatingGravel;
 
     /* -------------------- Debug Params ------------------- */
     private BlockState debugBlock;             // Block used to represent this cave/cavern type in the debug visualizer
@@ -100,14 +99,6 @@ public class CarverSettings {
 
     public void setLiquidAltitude(int liquidAltitude) {
         this.liquidAltitude = liquidAltitude;
-    }
-
-    public boolean isReplaceFloatingGravel() {
-        return replaceFloatingGravel;
-    }
-
-    public void setReplaceFloatingGravel(boolean replaceFloatingGravel) {
-        this.replaceFloatingGravel = replaceFloatingGravel;
     }
 
     public BlockState getDebugBlock() {

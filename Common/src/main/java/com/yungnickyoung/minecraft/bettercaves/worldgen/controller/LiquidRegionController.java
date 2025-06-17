@@ -1,7 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves.worldgen.controller;
 
-import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtils;
+import com.yungnickyoung.minecraft.bettercaves.worldgen.BetterCavesWorldCarverConfig;
 import com.yungnickyoung.minecraft.yungsapi.math.ColPos;
 import com.yungnickyoung.minecraft.yungsapi.noise.FastNoise;
 import net.minecraft.server.level.ServerLevel;
@@ -12,6 +12,7 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import java.util.Random;
 
 public class LiquidRegionController {
+    private final BetterCavesWorldCarverConfig config;
     private final ServerLevel serverLevel;
     private final Random rand;
     private final FastNoise liquidRegionSampler;
@@ -24,18 +25,19 @@ public class LiquidRegionController {
     private static final float SMOOTH_RANGE = .04f;
     private static final float SMOOTH_DELTA = .01f;
 
-    public LiquidRegionController(ServerLevel serverLevel) {
+    public LiquidRegionController(ServerLevel serverLevel, BetterCavesWorldCarverConfig config) {
+        this.config = config;
         this.serverLevel = serverLevel;
         this.rand = new Random();
 
         liquidRegionThreshold = NoiseUtils.simplexNoiseOffsetByPercent(-1f,
-                (float) (BetterCavesCommon.CONFIG.undergroundGen.waterRegions.waterRegionSpawnChance / 100));
+                (float) (config.liquidRegions.waterRegionSpawnChance() / 100));
 
         // Liquid region sampler
-        double waterRegionSize = BetterCavesCommon.CONFIG.undergroundGen.waterRegions.waterRegionSize;
+        double liquidRegionSize = config.liquidRegions.liquidRegionSize();
         liquidRegionSampler = new FastNoise();
         liquidRegionSampler.SetSeed((int) this.serverLevel.getSeed() + 444);
-        liquidRegionSampler.SetFrequency((float) waterRegionSize);
+        liquidRegionSampler.SetFrequency((float) liquidRegionSize);
     }
 
     public BlockState[][] getLiquidBlocksForChunk(ChunkAccess chunkAccess) {
@@ -54,18 +56,18 @@ public class LiquidRegionController {
 
     private BlockState getLiquidBlockAtPos(Random rand, ColPos colPos) {
         if (this.liquidRegionThreshold <= -1f) { // Don't bother calculating noise if water regions are disabled
-            return BetterCavesCommon.CONFIG.undergroundGen.misc.lavaBlock;
+            return config.liquidRegions.lavaBlockState();
         }
 
         float liquidRegionNoise = liquidRegionSampler.GetNoise(colPos.getX(), colPos.getZ());
         float barrierZoneWidth = rand.nextFloat() * SMOOTH_DELTA + SMOOTH_RANGE;
 
         if (liquidRegionNoise < liquidRegionThreshold - barrierZoneWidth) {
-            return BetterCavesCommon.CONFIG.undergroundGen.misc.waterBlock;
+            return config.liquidRegions.waterBlockState();
         } else if (liquidRegionNoise < liquidRegionThreshold + barrierZoneWidth) {
             return null; // Solid block barrier between water and lava regions
         } else {
-            return BetterCavesCommon.CONFIG.undergroundGen.misc.lavaBlock;
+            return config.liquidRegions.lavaBlockState();
         }
     }
 }

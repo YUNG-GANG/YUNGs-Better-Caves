@@ -15,6 +15,8 @@ import net.minecraft.world.level.levelgen.carver.CarverConfiguration;
 import net.minecraft.world.level.levelgen.carver.CarverDebugSettings;
 import net.minecraft.world.level.levelgen.heightproviders.UniformHeight;
 
+import java.util.List;
+
 public class BetterCavesWorldCarverConfig extends CarverConfiguration {
     public static final Codec<BetterCavesWorldCarverConfig> CODEC = RecordCodecBuilder.create(
             builder -> builder.group(
@@ -49,13 +51,10 @@ public class BetterCavesWorldCarverConfig extends CarverConfiguration {
         this.debugSettings = debugSettings;
     }
 
-    public record CaveSettings(CaveSubCarverSettings cubicCaves, CaveSubCarverSettings simplexCaves,
-                               double caveSpawnChance, double caveRegionSizeFrequency
-    ) {
+    public record CaveSettings(List<CaveSubCarverSettings> carvers, double caveSpawnChance, double caveRegionSizeFrequency) {
         public static final Codec<CaveSettings> CODEC = RecordCodecBuilder.create(
                 builder -> builder.group(
-                        CaveSubCarverSettings.CODEC.fieldOf("cubic_caves").forGetter(config -> config.cubicCaves),
-                        CaveSubCarverSettings.CODEC.fieldOf("simplex_caves").forGetter(config -> config.simplexCaves),
+                        CaveSubCarverSettings.CODEC.listOf().fieldOf("carvers").forGetter(config -> config.carvers),
                         Codec.DOUBLE.fieldOf("cave_spawn_chance").forGetter(config -> config.caveSpawnChance),
                         Codec.DOUBLE.fieldOf("cave_region_size_frequency").forGetter(config -> config.caveRegionSizeFrequency)
                 ).apply(builder, CaveSettings::new));
@@ -91,7 +90,8 @@ public class BetterCavesWorldCarverConfig extends CarverConfiguration {
                     boolean yAdjust,
                     double yAdjustF1,
                     double yAdjustF2,
-                    String noiseType
+                    String noiseType,
+                    boolean isFastNoise
             ) {
                 public static final Codec<Advanced> CODEC = RecordCodecBuilder.create(
                         builder -> builder.group(
@@ -103,17 +103,17 @@ public class BetterCavesWorldCarverConfig extends CarverConfiguration {
                                 Codec.BOOL.fieldOf("y_adjust").forGetter(Advanced::yAdjust),
                                 Codec.DOUBLE.fieldOf("y_adjust_f1").forGetter(Advanced::yAdjustF1),
                                 Codec.DOUBLE.fieldOf("y_adjust_f2").forGetter(Advanced::yAdjustF2),
-                                Codec.STRING.fieldOf("noise_type").forGetter(Advanced::noiseType)
+                                Codec.STRING.fieldOf("noise_type").forGetter(Advanced::noiseType),
+                                Codec.BOOL.fieldOf("is_fast_noise").forGetter(Advanced::isFastNoise)
                         ).apply(builder, Advanced::new));
             }
         }
     }
 
-    public record CavernSettings(CavernSubCarverSettings liquidCaverns, CavernSubCarverSettings flooredCaverns, double cavernSpawnChance, double cavernRegionSizeFrequency) {
+    public record CavernSettings(List<CavernSubCarverSettings> carvers, double cavernSpawnChance, double cavernRegionSizeFrequency) {
         public static final Codec<CavernSettings> CODEC = RecordCodecBuilder.create(
                 builder -> builder.group(
-                        CavernSubCarverSettings.CODEC.fieldOf("liquid_caverns").forGetter(CavernSettings::liquidCaverns),
-                        CavernSubCarverSettings.CODEC.fieldOf("floored_caverns").forGetter(CavernSettings::flooredCaverns),
+                        CavernSubCarverSettings.CODEC.listOf().fieldOf("carvers").forGetter(CavernSettings::carvers),
                         Codec.DOUBLE.fieldOf("cavern_spawn_chance").forGetter(CavernSettings::cavernSpawnChance),
                         Codec.DOUBLE.fieldOf("cavern_region_size_frequency").forGetter(CavernSettings::cavernRegionSizeFrequency)
                 ).apply(builder, CavernSettings::new));
@@ -124,6 +124,7 @@ public class BetterCavesWorldCarverConfig extends CarverConfiguration {
                 double yCompression,
                 double xzCompression,
                 int cavePriority,
+                boolean isFloored,
                 BlockState debugCarveState,
                 Advanced advanced
         ) {
@@ -134,6 +135,7 @@ public class BetterCavesWorldCarverConfig extends CarverConfiguration {
                             Codec.DOUBLE.fieldOf("y_compression").forGetter(CavernSubCarverSettings::yCompression),
                             Codec.DOUBLE.fieldOf("xz_compression").forGetter(CavernSubCarverSettings::xzCompression),
                             Codec.INT.fieldOf("cave_priority").forGetter(CavernSubCarverSettings::cavePriority),
+                            Codec.BOOL.fieldOf("is_floored").forGetter(CavernSubCarverSettings::isFloored),
                             BlockState.CODEC.optionalFieldOf("debug_carve_state", Blocks.OAK_PLANKS.defaultBlockState()).forGetter(CavernSubCarverSettings::debugCarveState),
                             Advanced.CODEC.fieldOf("advanced").forGetter(CavernSubCarverSettings::advanced)
                     ).apply(builder, CavernSubCarverSettings::new));
@@ -144,7 +146,8 @@ public class BetterCavesWorldCarverConfig extends CarverConfiguration {
                     double fractalGain,
                     double fractalFrequency,
                     int numGenerators,
-                    String noiseType
+                    String noiseType,
+                    boolean isFastNoise
             ) {
                 public static final Codec<Advanced> CODEC = RecordCodecBuilder.create(
                         builder -> builder.group(
@@ -153,7 +156,8 @@ public class BetterCavesWorldCarverConfig extends CarverConfiguration {
                                 Codec.DOUBLE.fieldOf("fractal_gain").forGetter(Advanced::fractalGain),
                                 Codec.DOUBLE.fieldOf("fractal_frequency").forGetter(Advanced::fractalFrequency),
                                 Codec.INT.fieldOf("num_generators").forGetter(Advanced::numGenerators),
-                                Codec.STRING.fieldOf("noise_type").forGetter(Advanced::noiseType)
+                                Codec.STRING.fieldOf("noise_type").forGetter(Advanced::noiseType),
+                                Codec.BOOL.fieldOf("is_fast_noise").forGetter(Advanced::isFastNoise)
                         ).apply(builder, Advanced::new));
             }
         }

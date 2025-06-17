@@ -2,90 +2,100 @@
   "type": "bettercaves:better_cave",
   "config": {
     "caves": {
-      "cubic_caves": {
-        "cave_bottom": -63,
-        "cave_top": 80,
-        "cave_surface_cutoff": 15,
-        "y_compression": 5.0,
-        "xz_compression": 1.6,
-        "cave_priority": 10,
-        "debug_carve_state": {
-          "Name": "minecraft:oak_planks"
+      "carvers": [
+        {
+          "cave_bottom": -63,
+          "cave_top": 80,
+          "cave_surface_cutoff": 15,
+          "y_compression": 5.0,
+          "xz_compression": 1.6,
+          "cave_priority": 10,
+          "debug_carve_state": {
+            "Name": "minecraft:oak_planks"
+          },
+          "advanced": {
+            "noise_threshold": 0.95,
+            "fractal_octaves": 1,
+            "fractal_gain": 0.3,
+            "fractal_frequency": 0.03,
+            "num_generators": 2,
+            "y_adjust": true,
+            "y_adjust_f1": 0.9,
+            "y_adjust_f2": 0.9,
+            "is_fast_noise": true,
+            "noise_type": "CubicFractal"
+          }
         },
-        "advanced": {
-          "noise_threshold": 0.95,
-          "fractal_octaves": 1,
-          "fractal_gain": 0.3,
-          "fractal_frequency": 0.03,
-          "num_generators": 2,
-          "y_adjust": true,
-          "y_adjust_f1": 0.9,
-          "y_adjust_f2": 0.9,
-          "noise_type": "CubicFractal"
+        {
+          "cave_bottom": -63,
+          "cave_top": 80,
+          "cave_surface_cutoff": 15,
+          "y_compression": 2.2,
+          "xz_compression": 0.9,
+          "cave_priority": 5,
+          "debug_carve_state": {
+            "Name": "minecraft:cobblestone"
+          },
+          "advanced": {
+            "noise_threshold": 0.82,
+            "fractal_octaves": 1,
+            "fractal_gain": 0.3,
+            "fractal_frequency": 0.025,
+            "num_generators": 2,
+            "y_adjust": true,
+            "y_adjust_f1": 0.95,
+            "y_adjust_f2": 0.5,
+            "is_fast_noise": false,
+            "noise_type": "SimplexFractal"
+          }
         }
-      },
-      "simplex_caves": {
-        "cave_bottom": -63,
-        "cave_top": 80,
-        "cave_surface_cutoff": 15,
-        "y_compression": 2.2,
-        "xz_compression": 0.9,
-        "cave_priority": 5,
-        "debug_carve_state": {
-          "Name": "minecraft:cobblestone"
-        },
-        "advanced": {
-          "noise_threshold": 0.82,
-          "fractal_octaves": 1,
-          "fractal_gain": 0.3,
-          "fractal_frequency": 0.025,
-          "num_generators": 2,
-          "y_adjust": true,
-          "y_adjust_f1": 0.95,
-          "y_adjust_f2": 0.5,
-          "noise_type": "SimplexFractal"
-        }
-      },
+      ],
       "cave_spawn_chance": 100.0,
       "cave_region_size_frequency": 0.008
     },
     "caverns": {
-      "liquid_caverns": {
-        "cavern_bottom": -63,
-        "cavern_top": -28,
-        "y_compression": 1.3,
-        "xz_compression": 0.7,
-        "cave_priority": 10,
-        "debug_carve_state": {
-          "Name": "minecraft:redstone_block"
+      "carvers": [
+        {
+          "cavern_bottom": -63,
+          "cavern_top": -28,
+          "y_compression": 1.3,
+          "xz_compression": 0.7,
+          "cave_priority": 10,
+          "is_floored": false,
+          "debug_carve_state": {
+            "Name": "minecraft:redstone_block"
+          },
+          "advanced": {
+            "noise_threshold": 0.6,
+            "fractal_octaves": 1,
+            "fractal_gain": 0.3,
+            "fractal_frequency": 0.03,
+            "num_generators": 2,
+            "noise_type": "SimplexFractal",
+            "is_fast_noise": true
+          }
         },
-        "advanced": {
-          "noise_threshold": 0.6,
-          "fractal_octaves": 1,
-          "fractal_gain": 0.3,
-          "fractal_frequency": 0.03,
-          "num_generators": 2,
-          "noise_type": "SimplexFractal"
+        {
+          "cavern_bottom": -63,
+          "cavern_top": -28,
+          "y_compression": 1.3,
+          "xz_compression": 0.7,
+          "cave_priority": 10,
+          "is_floored": true,
+          "debug_carve_state": {
+            "Name": "minecraft:gold_block"
+          },
+          "advanced": {
+            "noise_threshold": 0.6,
+            "fractal_octaves": 1,
+            "fractal_gain": 0.3,
+            "fractal_frequency": 0.028,
+            "num_generators": 2,
+            "noise_type": "SimplexFractal",
+            "is_fast_noise": true
+          }
         }
-      },
-      "floored_caverns": {
-        "cavern_bottom": -63,
-        "cavern_top": -28,
-        "y_compression": 1.3,
-        "xz_compression": 0.7,
-        "cave_priority": 10,
-        "debug_carve_state": {
-          "Name": "minecraft:gold_block"
-        },
-        "advanced": {
-          "noise_threshold": 0.6,
-          "fractal_octaves": 1,
-          "fractal_gain": 0.3,
-          "fractal_frequency": 0.028,
-          "num_generators": 2,
-          "noise_type": "SimplexFractal"
-        }
-      },
+      ],
       "cavern_spawn_chance": 25.0,
       "cavern_region_size_frequency": 0.007
     },

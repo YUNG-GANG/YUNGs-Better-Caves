@@ -2,7 +2,6 @@ package com.yungnickyoung.minecraft.bettercaves.worldgen.controller;
 
 import com.yungnickyoung.minecraft.bettercaves.BCConstants;
 import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
-import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.BetterCavesWorldCarverConfig;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.carver.AbstractCarver;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.carver.CarverNoiseRange;
@@ -45,21 +44,9 @@ public class CaveCarverController {
         this.caveRegionSampler.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
         // Initialize all carvers using config options
-        List<AbstractCarver> carvers = new ArrayList<>();
-        // Type 1 caves
-        carvers.add(new CaveCarver.Builder(serverLevel.getSeed())
-                .ofTypeFromConfig(CaveType.CUBIC, config)
-                .debugVisualizerBlock(config.caves.cubicCaves().debugCarveState())
-                .build()
-        );
-        // Type 2 caves
-        carvers.add(new CaveCarver.Builder(serverLevel.getSeed())
-                .ofTypeFromConfig(CaveType.SIMPLEX, config)
-                .debugVisualizerBlock(config.caves.simplexCaves().debugCarveState())
-                .build()
-        );
+        List<AbstractCarver> carvers = CaveCarver.createCarversFromConfig(config, serverLevel);
 
-        // Remove carvers with no priority
+        // Remove carvers with no priority to prevent unnecessary computation
         carvers.removeIf(carver -> carver.getPriority() == 0);
 
         // Initialize vars for calculating sampler noise thresholds

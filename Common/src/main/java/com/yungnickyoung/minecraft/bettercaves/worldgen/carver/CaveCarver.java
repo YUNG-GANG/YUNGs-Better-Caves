@@ -1,17 +1,19 @@
 package com.yungnickyoung.minecraft.bettercaves.worldgen.carver;
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
-import com.yungnickyoung.minecraft.bettercaves.enums.CaveType;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.BetterCavesWorldCarverConfig;
 import com.yungnickyoung.minecraft.yungsapi.noise.FastNoise;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.CarvingMask;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.Aquifer;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class CaveCarver extends AbstractCarver {
@@ -35,7 +37,17 @@ public class CaveCarver extends AbstractCarver {
      */
     private final float yAdjustF2;
 
-    public CaveCarver(final Builder builder) {
+    public static List<AbstractCarver> createCarversFromConfig(BetterCavesWorldCarverConfig config, ServerLevel serverLevel) {
+        List<AbstractCarver> carvers = new ArrayList<>();
+        config.caves.carvers().forEach(carverSettings -> {
+            carvers.add(new Builder(serverLevel.getSeed())
+                    .fromConfig(config, carverSettings)
+                    .build());
+        });
+        return carvers;
+    }
+
+    private CaveCarver(final Builder builder) {
         super(builder.getSettings());
         this.noiseGen = new NoiseGen(
                 this.settings.getSeed(),
@@ -210,10 +222,6 @@ public class CaveCarver extends AbstractCarver {
         return this.topY;
     }
 
-    /**
-     * Builder class for CaveCarver.
-     * Fields may be built individually or loaded in bulk via the {@code ofTypeFromCarver} method
-     */
     public static class Builder {
         private final CarverSettings settings;
         private int surfaceCutoff;
@@ -231,67 +239,29 @@ public class CaveCarver extends AbstractCarver {
             return new CaveCarver(this);
         }
 
-        /**
-         * Helps build a CaveCarver from a ConfigHolder based on its CaveType
-         *
-         * @param caveType the CaveType of this CaveCarver
-         */
-        public Builder ofTypeFromConfig(CaveType caveType, BetterCavesWorldCarverConfig config) {
+        private Builder fromConfig(BetterCavesWorldCarverConfig config, BetterCavesWorldCarverConfig.CaveSettings.CaveSubCarverSettings subCarverSettings) {
             this.settings.setLiquidAltitude(config.liquidRegions.liquidAltitude());
             this.settings.setEnableDebugVisualizer(config.debugSettings.enabled());
             this.settings.getNoiseSettings().setFractalType(FastNoise.FractalType.RigidMulti);
-            switch (caveType) {
-                case CUBIC:
-                    this.settings.setFastNoise(true);
-                    this.settings.setNoiseThreshold((float) config.caves.cubicCaves().advanced().noiseThreshold());
-                    this.settings.getNoiseSettings().setNoiseType(FastNoise.NoiseType.valueOf(config.caves.cubicCaves().advanced().noiseType()));
-                    this.settings.getNoiseSettings().setOctaves(config.caves.cubicCaves().advanced().fractalOctaves());
-                    this.settings.getNoiseSettings().setGain((float) config.caves.cubicCaves().advanced().fractalGain());
-                    this.settings.getNoiseSettings().setFrequency((float) config.caves.cubicCaves().advanced().fractalFrequency());
-                    this.settings.setNumGens(config.caves.cubicCaves().advanced().numGenerators());
-                    this.settings.setXzCompression((float) config.caves.cubicCaves().xzCompression());
-                    this.settings.setyCompression((float) config.caves.cubicCaves().yCompression());
-                    this.settings.setPriority(config.caves.cubicCaves().cavePriority());
-                    this.surfaceCutoff = config.caves.cubicCaves().caveSurfaceCutoff();
-                    this.bottomY = config.caves.cubicCaves().caveBottom();
-                    this.topY = config.caves.cubicCaves().caveTop();
-                    this.enableYAdjust = config.caves.cubicCaves().advanced().yAdjust();
-                    this.yAdjustF1 = (float) config.caves.cubicCaves().advanced().yAdjustF1();
-                    this.yAdjustF2 = (float) config.caves.cubicCaves().advanced().yAdjustF2();
-                    break;
-                case SIMPLEX:
-                    this.settings.setFastNoise(false);
-                    this.settings.setNoiseThreshold((float) config.caves.simplexCaves().advanced().noiseThreshold());
-                    this.settings.getNoiseSettings().setNoiseType(FastNoise.NoiseType.valueOf(config.caves.simplexCaves().advanced().noiseType()));
-                    this.settings.getNoiseSettings().setOctaves(config.caves.simplexCaves().advanced().fractalOctaves());
-                    this.settings.getNoiseSettings().setGain((float) config.caves.simplexCaves().advanced().fractalGain());
-                    this.settings.getNoiseSettings().setFrequency((float) config.caves.simplexCaves().advanced().fractalFrequency());
-                    this.settings.setNumGens(config.caves.simplexCaves().advanced().numGenerators());
-                    this.settings.setXzCompression((float) config.caves.simplexCaves().xzCompression());
-                    this.settings.setyCompression((float) config.caves.simplexCaves().yCompression());
-                    this.settings.setPriority(config.caves.simplexCaves().cavePriority());
-                    this.surfaceCutoff = config.caves.simplexCaves().caveSurfaceCutoff();
-                    this.bottomY = config.caves.simplexCaves().caveBottom();
-                    this.topY = config.caves.simplexCaves().caveTop();
-                    this.enableYAdjust = config.caves.simplexCaves().advanced().yAdjust();
-                    this.yAdjustF1 = (float) config.caves.simplexCaves().advanced().yAdjustF1();
-                    this.yAdjustF2 = (float) config.caves.simplexCaves().advanced().yAdjustF2();
-                    break;
-            }
+            this.settings.setDebugBlock(subCarverSettings.debugCarveState());
+            this.settings.setFastNoise(subCarverSettings.advanced().isFastNoise());
+            this.settings.setNoiseThreshold((float) subCarverSettings.advanced().noiseThreshold());
+            this.settings.getNoiseSettings().setNoiseType(FastNoise.NoiseType.valueOf(subCarverSettings.advanced().noiseType()));
+            this.settings.getNoiseSettings().setOctaves(subCarverSettings.advanced().fractalOctaves());
+            this.settings.getNoiseSettings().setGain((float) subCarverSettings.advanced().fractalGain());
+            this.settings.getNoiseSettings().setFrequency((float) subCarverSettings.advanced().fractalFrequency());
+            this.settings.setNumGens(subCarverSettings.advanced().numGenerators());
+            this.settings.setXzCompression((float) subCarverSettings.xzCompression());
+            this.settings.setyCompression((float) subCarverSettings.yCompression());
+            this.settings.setPriority(subCarverSettings.cavePriority());
+            this.surfaceCutoff = subCarverSettings.caveSurfaceCutoff();
+            this.bottomY = subCarverSettings.caveBottom();
+            this.topY = subCarverSettings.caveTop();
+            this.enableYAdjust = subCarverSettings.advanced().yAdjust();
+            this.yAdjustF1 = (float) subCarverSettings.advanced().yAdjustF1();
+            this.yAdjustF2 = (float) subCarverSettings.advanced().yAdjustF2();
             return this;
         }
-
-        /* ================================== Builder Setters ================================== */
-
-        /**
-         * @param blockState Block used for this cave type in the debug visualizer
-         */
-        public Builder debugVisualizerBlock(BlockState blockState) {
-            settings.setDebugBlock(blockState);
-            return this;
-        }
-
-        /* ================================== Builder Getters ================================== */
 
         public CarverSettings getSettings() {
             return settings;

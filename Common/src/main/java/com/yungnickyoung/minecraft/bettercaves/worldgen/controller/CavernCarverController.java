@@ -2,9 +2,9 @@ package com.yungnickyoung.minecraft.bettercaves.worldgen.controller;
 
 import com.yungnickyoung.minecraft.bettercaves.BCConstants;
 import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
-import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtils;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.BetterCavesWorldCarverConfig;
+import com.yungnickyoung.minecraft.bettercaves.worldgen.carver.AbstractCarver;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.carver.CarverNoiseRange;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.carver.CavernCarver;
 import com.yungnickyoung.minecraft.yungsapi.noise.FastNoise;
@@ -42,20 +42,10 @@ public class CavernCarverController {
         this.cavernRegionSampler.SetFrequency((float) cavernRegionSize);
 
         // Initialize all carvers using config options
-        List<CavernCarver> carvers = new ArrayList<>();
-        carvers.add(new CavernCarver.Builder(serverLevel.getSeed())
-                .ofTypeFromConfig(CavernType.LIQUID, config)
-                .debugVisualizerBlock(config.caverns.liquidCaverns().debugCarveState())
-                .build()
-        );
-        carvers.add(new CavernCarver.Builder(serverLevel.getSeed())
-                .ofTypeFromConfig(CavernType.FLOORED, config)
-                .debugVisualizerBlock(config.caverns.flooredCaverns().debugCarveState())
-                .build()
-        );
+        List<AbstractCarver> carvers = CavernCarver.createCarversFromConfig(config, serverLevel);
 
         float spawnChance = (float) (config.caverns.cavernSpawnChance() / 100f);
-        int totalPriority = carvers.stream().map(CavernCarver::getPriority).reduce(0, Integer::sum);
+        int totalPriority = carvers.stream().map(AbstractCarver::getPriority).reduce(0, Integer::sum);
 
         BetterCavesCommon.LOGGER.debug("CAVERN INFORMATION");
         BetterCavesCommon.LOGGER.debug("--> SPAWN CHANCE SET TO: {}", spawnChance);
@@ -71,7 +61,7 @@ public class CavernCarverController {
 
         float currNoise = -1f;
 
-        for (CavernCarver carver : carvers) {
+        for (AbstractCarver carver : carvers) {
             BetterCavesCommon.LOGGER.debug("--> CARVER");
             float rangeCDFPercent = (float) carver.getPriority() / totalPriority * spawnChance;
             float topNoise = NoiseUtils.simplexNoiseOffsetByPercent(currNoise, rangeCDFPercent);

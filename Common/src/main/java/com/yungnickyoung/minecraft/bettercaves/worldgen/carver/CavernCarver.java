@@ -2,15 +2,18 @@ package com.yungnickyoung.minecraft.bettercaves.worldgen.carver;
 
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
-import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.BetterCavesWorldCarverConfig;
 import com.yungnickyoung.minecraft.yungsapi.noise.FastNoise;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.CarvingMask;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.Aquifer;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * BetterCaves Cavern carver.
@@ -18,9 +21,19 @@ import net.minecraft.world.level.levelgen.Aquifer;
  */
 public class CavernCarver extends AbstractCarver {
     private final NoiseGen noiseGen;
-    private final CavernType cavernType;
     private int bottomY;
     private int topY;
+    private final boolean isFloored;
+
+    public static List<AbstractCarver> createCarversFromConfig(BetterCavesWorldCarverConfig config, ServerLevel serverLevel) {
+        List<AbstractCarver> carvers = new ArrayList<>();
+        config.caverns.carvers().forEach(carverSettings -> {
+            carvers.add(new Builder(serverLevel.getSeed())
+                    .fromConfig(config, carverSettings)
+                    .build());
+        });
+        return carvers;
+    }
 
     public CavernCarver(final Builder builder) {
         super(builder.getSettings());
@@ -32,7 +45,6 @@ public class CavernCarver extends AbstractCarver {
                 this.settings.getyCompression(),
                 this.settings.getXzCompression()
         );
-        this.cavernType = builder.getCavernType();
         if (bottomY > topY) {
             BetterCavesCommon.LOGGER.warn("Warning: Min altitude for caverns should not be greater than max altitude.");
             BetterCavesCommon.LOGGER.warn("Using default values...");
@@ -43,6 +55,7 @@ public class CavernCarver extends AbstractCarver {
             this.bottomY = builder.getBottomY();
             this.topY = builder.getTopY();
         }
+        this.isFloored = builder.isFloored();
     }
 
     public void carveColumn(BetterCavesWorldCarverConfig config, ChunkAccess chunk, BlockPos colPos, int topY, float smoothAmp,
@@ -59,7 +72,9 @@ public class CavernCarver extends AbstractCarver {
 
         // Set altitude at which caverns start closing off on the bottom
         int bottomTransitionBoundary = bottomY + 3;
-        if (cavernType == CavernType.FLOORED) { // Close off floored caverns more to create "floors"
+
+        // Close off floored caverns more to create "floors"
+        if (this.isFloored) {
             bottomTransitionBoundary = bottomY < settings.getLiquidAltitude() ? settings.getLiquidAltitude() + 8 : bottomY + 7;
         }
 
@@ -132,15 +147,11 @@ public class CavernCarver extends AbstractCarver {
         return topY;
     }
 
-    /**
-     * Builder class for CavernCarver.
-     * Fields may be built individually or loaded in bulk via the {@code ofTypeFromCarver} method
-     */
     public static class Builder {
         private final CarverSettings settings;
-        private CavernType cavernType;
         private int bottomY;
         private int topY;
+        private boolean isFloored;
 
         public Builder(long seed) {
             settings = new CarverSettings(seed);
@@ -150,66 +161,29 @@ public class CavernCarver extends AbstractCarver {
             return new CavernCarver(this);
         }
 
-        /**
-         * Helps build a CavernCarver from a ConfigHolder based on its CavernType
-         *
-         * @param cavernType the CavernType of this CavernCarver
-         */
-        public Builder ofTypeFromConfig(CavernType cavernType, BetterCavesWorldCarverConfig config) {
+        private Builder fromConfig(BetterCavesWorldCarverConfig config, BetterCavesWorldCarverConfig.CavernSettings.CavernSubCarverSettings subCarverSettings) {
             this.settings.setLiquidAltitude(config.liquidRegions.liquidAltitude());
-            this.settings.getNoiseSettings().setFractalType(FastNoise.FractalType.RigidMulti);
             this.settings.setEnableDebugVisualizer(config.debugSettings.enabled());
-            this.settings.setFastNoise(true);
-            this.cavernType = cavernType;
-            switch (cavernType) {
-                case LIQUID:
-                    this.settings.setNoiseThreshold((float) config.caverns.liquidCaverns().advanced().noiseThreshold());
-                    this.settings.getNoiseSettings().setNoiseType(FastNoise.NoiseType.valueOf(config.caverns.liquidCaverns().advanced().noiseType()));
-                    this.settings.getNoiseSettings().setOctaves(config.caverns.liquidCaverns().advanced().fractalOctaves());
-                    this.settings.getNoiseSettings().setGain((float) config.caverns.liquidCaverns().advanced().fractalGain());
-                    this.settings.getNoiseSettings().setFrequency((float) config.caverns.liquidCaverns().advanced().fractalFrequency());
-                    this.settings.setNumGens(config.caverns.liquidCaverns().advanced().numGenerators());
-                    this.settings.setyCompression((float) config.caverns.liquidCaverns().yCompression());
-                    this.settings.setXzCompression((float) config.caverns.liquidCaverns().xzCompression());
-                    this.settings.setPriority(config.caverns.liquidCaverns().cavePriority());
-                    this.bottomY = config.caverns.liquidCaverns().cavernBottom();
-                    this.topY = config.caverns.liquidCaverns().cavernTop();
-                    break;
-                case FLOORED:
-                    this.settings.setNoiseThreshold((float) config.caverns.flooredCaverns().advanced().noiseThreshold());
-                    this.settings.getNoiseSettings().setNoiseType(FastNoise.NoiseType.valueOf(config.caverns.flooredCaverns().advanced().noiseType()));
-                    this.settings.getNoiseSettings().setOctaves(config.caverns.flooredCaverns().advanced().fractalOctaves());
-                    this.settings.getNoiseSettings().setGain((float) config.caverns.flooredCaverns().advanced().fractalGain());
-                    this.settings.getNoiseSettings().setFrequency((float) config.caverns.flooredCaverns().advanced().fractalFrequency());
-                    this.settings.setNumGens(config.caverns.flooredCaverns().advanced().numGenerators());
-                    this.settings.setyCompression((float) config.caverns.flooredCaverns().yCompression());
-                    this.settings.setXzCompression((float) config.caverns.flooredCaverns().xzCompression());
-                    this.settings.setPriority(config.caverns.flooredCaverns().cavePriority());
-                    this.bottomY = config.caverns.flooredCaverns().cavernBottom();
-                    this.topY = config.caverns.flooredCaverns().cavernTop();
-                    break;
-            }
+            this.settings.getNoiseSettings().setFractalType(FastNoise.FractalType.RigidMulti);
+            this.settings.setDebugBlock(subCarverSettings.debugCarveState());
+            this.settings.setFastNoise(subCarverSettings.advanced().isFastNoise());
+            this.settings.setNoiseThreshold((float) subCarverSettings.advanced().noiseThreshold());
+            this.settings.getNoiseSettings().setNoiseType(FastNoise.NoiseType.valueOf(subCarverSettings.advanced().noiseType()));
+            this.settings.getNoiseSettings().setOctaves(subCarverSettings.advanced().fractalOctaves());
+            this.settings.getNoiseSettings().setGain((float) subCarverSettings.advanced().fractalGain());
+            this.settings.getNoiseSettings().setFrequency((float) subCarverSettings.advanced().fractalFrequency());
+            this.settings.setNumGens(subCarverSettings.advanced().numGenerators());
+            this.settings.setyCompression((float) subCarverSettings.yCompression());
+            this.settings.setXzCompression((float) subCarverSettings.xzCompression());
+            this.settings.setPriority(subCarverSettings.cavePriority());
+            this.bottomY = subCarverSettings.cavernBottom();
+            this.topY = subCarverSettings.cavernTop();
+            this.isFloored = subCarverSettings.isFloored();
             return this;
         }
-
-        /* ================================== Builder Setters ================================== */
-
-        /**
-         * @param vBlock Block used for this cave type in the debug visualizer
-         */
-        public Builder debugVisualizerBlock(BlockState vBlock) {
-            settings.setDebugBlock(vBlock);
-            return this;
-        }
-
-        /* ================================== Builder Getters ================================== */
 
         public CarverSettings getSettings() {
             return settings;
-        }
-
-        public CavernType getCavernType() {
-            return cavernType;
         }
 
         public int getBottomY() {
@@ -218,6 +192,10 @@ public class CavernCarver extends AbstractCarver {
 
         public int getTopY() {
             return topY;
+        }
+
+        public  boolean isFloored() {
+            return isFloored;
         }
     }
 }

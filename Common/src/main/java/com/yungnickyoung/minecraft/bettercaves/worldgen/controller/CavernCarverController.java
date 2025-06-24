@@ -30,21 +30,22 @@ public class CavernCarverController {
     private final boolean isDebugViewEnabled;
     private final boolean isOverrideSurfaceDetectionEnabled;
 
-    public CavernCarverController(ServerLevel serverLevel, BetterCavesWorldCarverConfig config) {
+    public CavernCarverController(ServerLevel serverLevel, BetterCavesWorldCarverConfig config,
+                                  BetterCavesWorldCarverConfig.CavernLayerSettings layerSettings) {
         this.config = config;
         this.isDebugViewEnabled = false; //config.debugVisualizer.get();
         this.isOverrideSurfaceDetectionEnabled = config.misc.overrideSurfaceDetection();
 
         // Configure cavern region sampler, which determines what type of cavern should be carved in any given region
-        double cavernRegionSize = config.caverns.cavernRegionSizeFrequency();
+        double cavernRegionSize = layerSettings.cavernRegionSizeFrequency();
         this.cavernRegionSampler = new FastNoise();
         this.cavernRegionSampler.SetSeed((int) serverLevel.getSeed() + 333);
         this.cavernRegionSampler.SetFrequency((float) cavernRegionSize);
 
         // Initialize all carvers using config options
-        List<AbstractCarver> carvers = CavernCarver.createCarversFromConfig(config, serverLevel);
+        List<AbstractCarver> carvers = CavernCarver.createCarversFromConfig(serverLevel, config, layerSettings);
 
-        float spawnChance = (float) (config.caverns.cavernSpawnChance() / 100f);
+        float spawnChance = (float) (layerSettings.cavernSpawnChance() / 100f);
         int totalPriority = carvers.stream().map(AbstractCarver::getPriority).reduce(0, Integer::sum);
 
         BetterCavesCommon.LOGGER.debug("CAVERN INFORMATION");

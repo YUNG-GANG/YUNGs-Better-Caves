@@ -13,21 +13,25 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.Aquifer;
 import net.minecraft.world.level.levelgen.Heightmap;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
 public class MasterController {
     private final BetterCavesWorldCarverConfig config;
-    private final CaveCarverController caveCarverController;
-    private final CavernCarverController cavernCarverController;
+    private final List<CaveCarverController> caveLayers = new ArrayList<>();
+    private final List<CavernCarverController> cavernLayers = new ArrayList<>();
     private final LiquidRegionController liquidRegionController;
     private final Set<ChunkPos> carvedChunkCache = new HashSet<>();
 
     public MasterController(ServerLevel serverLevel, BetterCavesWorldCarverConfig config) {
         this.config = config;
-        this.caveCarverController = new CaveCarverController(serverLevel, config);
-        this.cavernCarverController = new CavernCarverController(serverLevel, config);
+        config.caveLayers.forEach(caveLayerSettings -> this.caveLayers.add(
+                new CaveCarverController(serverLevel, config, caveLayerSettings)));
+        config.cavernLayers.forEach(cavernLayerSettings -> this.cavernLayers.add(
+                new CavernCarverController(serverLevel, config, cavernLayerSettings)));
         this.liquidRegionController = new LiquidRegionController(serverLevel, config);
         BetterCavesCommon.LOGGER.debug("MASTER CONTROLLER INITIALIZED");
     }
@@ -42,8 +46,8 @@ public class MasterController {
         BlockState[][] liquidBlocks = liquidRegionController.getLiquidBlocksForChunk(chunkAccess);
 
         // Carve chunk
-        caveCarverController.carveChunk(chunkAccess, surfaceAltitudes, liquidBlocks, biomeProvider, carvingMask, aquifer);
-        cavernCarverController.carveChunk(chunkAccess, surfaceAltitudes, liquidBlocks, biomeProvider, carvingMask, aquifer);
+        caveLayers.forEach(caveLayer -> caveLayer.carveChunk(chunkAccess, surfaceAltitudes, liquidBlocks, biomeProvider, carvingMask, aquifer));
+        cavernLayers.forEach(cavernLayer -> cavernLayer.carveChunk(chunkAccess, surfaceAltitudes, liquidBlocks, biomeProvider, carvingMask, aquifer));
 
         // Mark chunk as carved to prevent duplicate processing
         carvedChunkCache.add(chunkAccess.getPos());

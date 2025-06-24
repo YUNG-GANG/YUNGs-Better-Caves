@@ -29,14 +29,15 @@ public class CaveCarverController {
     private final boolean isDebugViewEnabled;
     private final boolean isOverrideSurfaceDetectionEnabled;
 
-    public CaveCarverController(ServerLevel serverLevel, BetterCavesWorldCarverConfig config) {
+    public CaveCarverController(ServerLevel serverLevel, BetterCavesWorldCarverConfig config,
+                                BetterCavesWorldCarverConfig.CaveLayerSettings layerSettings) {
         this.config = config;
         this.isDebugViewEnabled = config.debugSettings.enabled();
         this.isOverrideSurfaceDetectionEnabled = config.misc.overrideSurfaceDetection();
 
         // Configure cave region sampler, which determines what type of cave should be
         // carved in any given region
-        double caveRegionSize = config.caves.caveRegionSizeFrequency();
+        double caveRegionSize = layerSettings.caveRegionSizeFrequency();
         this.caveRegionSampler = new FastNoise();
         this.caveRegionSampler.SetSeed((int) serverLevel.getSeed() + 222);
         this.caveRegionSampler.SetFrequency((float) caveRegionSize);
@@ -44,13 +45,13 @@ public class CaveCarverController {
         this.caveRegionSampler.SetCellularDistanceFunction(FastNoise.CellularDistanceFunction.Natural);
 
         // Initialize all carvers using config options
-        List<AbstractCarver> carvers = CaveCarver.createCarversFromConfig(config, serverLevel);
+        List<AbstractCarver> carvers = CaveCarver.createCarversFromConfig(serverLevel, config, layerSettings);
 
         // Remove carvers with no priority to prevent unnecessary computation
         carvers.removeIf(carver -> carver.getPriority() == 0);
 
         // Initialize vars for calculating sampler noise thresholds
-        float maxPossibleNoiseThreshold = (float) (config.caves.caveSpawnChance() * .01 * 2 - 1);
+        float maxPossibleNoiseThreshold = (float) (layerSettings.caveSpawnChance() * .01 * 2 - 1);
         int totalPriority = carvers.stream().map(AbstractCarver::getPriority).reduce(0, Integer::sum);
         float totalRangeLength = maxPossibleNoiseThreshold - (-1f);
         float currNoise = -1f;

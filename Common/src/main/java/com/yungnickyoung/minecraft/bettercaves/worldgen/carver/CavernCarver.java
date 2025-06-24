@@ -25,9 +25,11 @@ public class CavernCarver extends AbstractCarver {
     private int topY;
     private final boolean isFloored;
 
-    public static List<AbstractCarver> createCarversFromConfig(BetterCavesWorldCarverConfig config, ServerLevel serverLevel) {
+    public static List<AbstractCarver> createCarversFromConfig(ServerLevel serverLevel,
+                                                               BetterCavesWorldCarverConfig config,
+                                                               BetterCavesWorldCarverConfig.CavernLayerSettings layerSettings) {
         List<AbstractCarver> carvers = new ArrayList<>();
-        config.caverns.carvers().forEach(carverSettings -> {
+        layerSettings.carvers().forEach(carverSettings -> {
             carvers.add(new Builder(serverLevel.getSeed())
                     .fromConfig(config, carverSettings)
                     .build());
@@ -161,7 +163,7 @@ public class CavernCarver extends AbstractCarver {
             return new CavernCarver(this);
         }
 
-        private Builder fromConfig(BetterCavesWorldCarverConfig config, BetterCavesWorldCarverConfig.CavernSettings.CavernSubCarverSettings subCarverSettings) {
+        private Builder fromConfig(BetterCavesWorldCarverConfig config, BetterCavesWorldCarverConfig.CavernLayerSettings.CavernSubCarverSettings subCarverSettings) {
             this.settings.setLiquidAltitude(config.liquidRegions.liquidAltitude());
             this.settings.setEnableDebugVisualizer(config.debugSettings.enabled());
             this.settings.getNoiseSettings().setFractalType(FastNoise.FractalType.RigidMulti);

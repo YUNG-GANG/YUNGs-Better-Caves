@@ -20,21 +20,22 @@ import java.util.List;
 public class BetterCavesWorldCarverConfig extends CarverConfiguration {
     public static final Codec<BetterCavesWorldCarverConfig> CODEC = RecordCodecBuilder.create(
             builder -> builder.group(
-                    CaveSettings.CODEC.fieldOf("caves").forGetter(config -> config.caves),
-                    CavernSettings.CODEC.fieldOf("caverns").forGetter(config -> config.caverns),
+                    CaveLayerSettings.CODEC.listOf().fieldOf("cave_layers").forGetter(config -> config.caveLayers),
+                    CavernLayerSettings.CODEC.listOf().fieldOf("cavern_layers").forGetter(config -> config.cavernLayers),
                     LiquidRegionSettings.CODEC.fieldOf("liquid_regions").forGetter(config -> config.liquidRegions),
                     MiscSettings.CODEC.fieldOf("misc").forGetter(config -> config.misc),
                     DebugSettings.CODEC.optionalFieldOf("debug_settings", DebugSettings.DEFAULT).forGetter(config -> config.debugSettings)
             ).apply(builder, BetterCavesWorldCarverConfig::new));
 
-    public final CaveSettings caves;
-    public final CavernSettings caverns;
+    public final List<CaveLayerSettings> caveLayers;
+    public final List<CavernLayerSettings> cavernLayers;
     public final LiquidRegionSettings liquidRegions;
     public final MiscSettings misc;
     public final DebugSettings debugSettings;
 
-    public BetterCavesWorldCarverConfig(CaveSettings caves, CavernSettings caverns, LiquidRegionSettings liquidRegions,
-                                        MiscSettings misc, DebugSettings debugSettings) {
+    public BetterCavesWorldCarverConfig(List<CaveLayerSettings> caveLayers, List<CavernLayerSettings> cavernLayers,
+                                        LiquidRegionSettings liquidRegions, MiscSettings misc,
+                                        DebugSettings debugSettings) {
         // Call the superclass constructor with default values.
         // These values aren't actually used in the Better Caves carver.
         super(
@@ -44,20 +45,20 @@ public class BetterCavesWorldCarverConfig extends CarverConfiguration {
                 VerticalAnchor.aboveBottom(8),
                 CarverDebugSettings.DEFAULT,
                 HolderSet.direct(Holder.direct(Blocks.STONE)));
-        this.caves = caves;
-        this.caverns = caverns;
+        this.caveLayers = caveLayers;
+        this.cavernLayers = cavernLayers;
         this.liquidRegions = liquidRegions;
         this.misc = misc;
         this.debugSettings = debugSettings;
     }
 
-    public record CaveSettings(List<CaveSubCarverSettings> carvers, double caveSpawnChance, double caveRegionSizeFrequency) {
-        public static final Codec<CaveSettings> CODEC = RecordCodecBuilder.create(
+    public record CaveLayerSettings(List<CaveSubCarverSettings> carvers, double caveSpawnChance, double caveRegionSizeFrequency) {
+        public static final Codec<CaveLayerSettings> CODEC = RecordCodecBuilder.create(
                 builder -> builder.group(
                         CaveSubCarverSettings.CODEC.listOf().fieldOf("carvers").forGetter(config -> config.carvers),
                         Codec.DOUBLE.fieldOf("cave_spawn_chance").forGetter(config -> config.caveSpawnChance),
                         Codec.DOUBLE.fieldOf("cave_region_size_frequency").forGetter(config -> config.caveRegionSizeFrequency)
-                ).apply(builder, CaveSettings::new));
+                ).apply(builder, CaveLayerSettings::new));
 
         public record CaveSubCarverSettings(
                 int caveBottom,
@@ -110,13 +111,13 @@ public class BetterCavesWorldCarverConfig extends CarverConfiguration {
         }
     }
 
-    public record CavernSettings(List<CavernSubCarverSettings> carvers, double cavernSpawnChance, double cavernRegionSizeFrequency) {
-        public static final Codec<CavernSettings> CODEC = RecordCodecBuilder.create(
+    public record CavernLayerSettings(List<CavernSubCarverSettings> carvers, double cavernSpawnChance, double cavernRegionSizeFrequency) {
+        public static final Codec<CavernLayerSettings> CODEC = RecordCodecBuilder.create(
                 builder -> builder.group(
-                        CavernSubCarverSettings.CODEC.listOf().fieldOf("carvers").forGetter(CavernSettings::carvers),
-                        Codec.DOUBLE.fieldOf("cavern_spawn_chance").forGetter(CavernSettings::cavernSpawnChance),
-                        Codec.DOUBLE.fieldOf("cavern_region_size_frequency").forGetter(CavernSettings::cavernRegionSizeFrequency)
-                ).apply(builder, CavernSettings::new));
+                        CavernSubCarverSettings.CODEC.listOf().fieldOf("carvers").forGetter(CavernLayerSettings::carvers),
+                        Codec.DOUBLE.fieldOf("cavern_spawn_chance").forGetter(CavernLayerSettings::cavernSpawnChance),
+                        Codec.DOUBLE.fieldOf("cavern_region_size_frequency").forGetter(CavernLayerSettings::cavernRegionSizeFrequency)
+                ).apply(builder, CavernLayerSettings::new));
 
         public record CavernSubCarverSettings(
                 int cavernBottom,

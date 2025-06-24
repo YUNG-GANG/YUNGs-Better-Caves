@@ -5,7 +5,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class CarverSettings {
     private long  seed;
-    private int   priority;
+    private int spawnWeight;
 
     /* ============================== Values determined through config ============================== */
     /* ------------- Ridged Multifractal Params ------------- */
@@ -37,12 +37,12 @@ public class CarverSettings {
         this.seed = seed;
     }
 
-    public int getPriority() {
-        return priority;
+    public int getSpawnWeight() {
+        return spawnWeight;
     }
 
-    public void setPriority(int priority) {
-        this.priority = priority;
+    public void setSpawnWeight(int spawnWeight) {
+        this.spawnWeight = spawnWeight;
     }
 
     public NoiseSettings getNoiseSettings() {

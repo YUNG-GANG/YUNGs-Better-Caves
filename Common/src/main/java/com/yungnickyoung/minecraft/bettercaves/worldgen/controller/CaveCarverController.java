@@ -47,23 +47,23 @@ public class CaveCarverController {
         // Initialize all carvers using config options
         List<AbstractCarver> carvers = CaveCarver.createCarversFromConfig(serverLevel, config, layerSettings);
 
-        // Remove carvers with no priority to prevent unnecessary computation
-        carvers.removeIf(carver -> carver.getPriority() == 0);
+        // Remove carvers with no spawn weight to prevent unnecessary computation
+        carvers.removeIf(carver -> carver.getSpawnWeight() == 0);
 
         // Initialize vars for calculating sampler noise thresholds
         float maxPossibleNoiseThreshold = (float) (layerSettings.caveSpawnChance() * .01 * 2 - 1);
-        int totalPriority = carvers.stream().map(AbstractCarver::getPriority).reduce(0, Integer::sum);
+        int totalSpawnWeight = carvers.stream().map(AbstractCarver::getSpawnWeight).reduce(0, Integer::sum);
         float totalRangeLength = maxPossibleNoiseThreshold - (-1f);
         float currNoise = -1f;
 
         BetterCavesCommon.LOGGER.debug("CAVE INFORMATION");
         BetterCavesCommon.LOGGER.debug("--> MAX POSSIBLE THRESHOLD: {}", maxPossibleNoiseThreshold);
-        BetterCavesCommon.LOGGER.debug("--> TOTAL PRIORITY: {}", totalPriority);
+        BetterCavesCommon.LOGGER.debug("--> TOTAL SPAWN WEIGHT: {}", totalSpawnWeight);
         BetterCavesCommon.LOGGER.debug("--> TOTAL RANGE LENGTH: {}", totalRangeLength);
 
         for (AbstractCarver carver : carvers) {
             BetterCavesCommon.LOGGER.debug("--> CARVER");
-            float noiseRangeLength = (float) carver.getPriority() / totalPriority * totalRangeLength;
+            float noiseRangeLength = (float) carver.getSpawnWeight() / totalSpawnWeight * totalRangeLength;
             float rangeTop = currNoise + noiseRangeLength;
             CarverNoiseRange range = new CarverNoiseRange(currNoise, rangeTop, carver);
             currNoise = rangeTop;

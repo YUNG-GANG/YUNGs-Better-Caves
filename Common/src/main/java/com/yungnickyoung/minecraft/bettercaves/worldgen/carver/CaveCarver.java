@@ -212,8 +212,8 @@ public class CaveCarver extends AbstractCarver {
         return settings;
     }
 
-    public int getPriority() {
-        return settings.getPriority();
+    public int getSpawnWeight() {
+        return settings.getSpawnWeight();
     }
 
     public int getBottomY() {
@@ -255,7 +255,7 @@ public class CaveCarver extends AbstractCarver {
             this.settings.setNumGens(subCarverSettings.advanced().numGenerators());
             this.settings.setXzCompression((float) subCarverSettings.xzCompression());
             this.settings.setyCompression((float) subCarverSettings.yCompression());
-            this.settings.setPriority(subCarverSettings.spawnWeight());
+            this.settings.setSpawnWeight(subCarverSettings.spawnWeight());
             this.surfaceCutoff = subCarverSettings.surfaceCutoffDistance();
             this.bottomY = subCarverSettings.bottomY();
             this.topY = subCarverSettings.topY();

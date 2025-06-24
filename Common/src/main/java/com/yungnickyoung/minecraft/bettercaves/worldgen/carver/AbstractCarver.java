@@ -13,7 +13,7 @@ import net.minecraft.world.level.levelgen.DensityFunction;
 public abstract class AbstractCarver {
     protected final CarverSettings settings;
 
-    public abstract int getPriority();
+    public abstract int getSpawnWeight();
     public abstract int getTopY();
 
     private final ImmutableSet<BlockState> DEBUG_BLOCKS = ImmutableSet.of(

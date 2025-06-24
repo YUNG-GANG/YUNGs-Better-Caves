@@ -46,13 +46,13 @@ public class CavernCarverController {
         List<AbstractCarver> carvers = CavernCarver.createCarversFromConfig(serverLevel, config, layerSettings);
 
         float spawnChance = (float) (layerSettings.cavernSpawnChance() / 100f);
-        int totalPriority = carvers.stream().map(AbstractCarver::getPriority).reduce(0, Integer::sum);
+        int totalSpawnWeight = carvers.stream().map(AbstractCarver::getSpawnWeight).reduce(0, Integer::sum);
 
         BetterCavesCommon.LOGGER.debug("CAVERN INFORMATION");
         BetterCavesCommon.LOGGER.debug("--> SPAWN CHANCE SET TO: {}", spawnChance);
-        BetterCavesCommon.LOGGER.debug("--> TOTAL PRIORITY: {}", totalPriority);
+        BetterCavesCommon.LOGGER.debug("--> TOTAL SPAWN WEIGHT: {}", totalSpawnWeight);
 
-        carvers.removeIf(carver -> carver.getPriority() == 0);
+        carvers.removeIf(carver -> carver.getSpawnWeight() == 0);
         float totalDeadzonePercent = 1 - spawnChance;
         float deadzonePercent = carvers.size() > 1
                 ? totalDeadzonePercent / (carvers.size() - 1)
@@ -64,7 +64,7 @@ public class CavernCarverController {
 
         for (AbstractCarver carver : carvers) {
             BetterCavesCommon.LOGGER.debug("--> CARVER");
-            float rangeCDFPercent = (float) carver.getPriority() / totalPriority * spawnChance;
+            float rangeCDFPercent = (float) carver.getSpawnWeight() / totalSpawnWeight * spawnChance;
             float topNoise = NoiseUtils.simplexNoiseOffsetByPercent(currNoise, rangeCDFPercent);
             CarverNoiseRange range = new CarverNoiseRange(currNoise, topNoise, carver);
             noiseRanges.add(range);

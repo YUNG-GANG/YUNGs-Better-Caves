@@ -5,12 +5,12 @@
       {
         "carvers": [
           {
-            "cave_bottom": -63,
-            "cave_top": 80,
-            "cave_surface_cutoff": 15,
+            "spawn_weight": 10,
+            "bottom_y": -63,
+            "top_y": 80,
+            "surface_cutoff_distance": 15,
             "y_compression": 5.0,
             "xz_compression": 1.6,
-            "cave_priority": 10,
             "debug_carve_state": {
               "Name": "minecraft:oak_planks"
             },
@@ -28,12 +28,12 @@
             }
           },
           {
-            "cave_bottom": -63,
-            "cave_top": 80,
-            "cave_surface_cutoff": 15,
+            "spawn_weight": 5,
+            "bottom_y": -63,
+            "top_y": 80,
+            "surface_cutoff_distance": 15,
             "y_compression": 2.2,
             "xz_compression": 0.9,
-            "cave_priority": 5,
             "debug_carve_state": {
               "Name": "minecraft:cobblestone"
             },
@@ -59,11 +59,11 @@
       {
         "carvers": [
           {
-            "cavern_bottom": -63,
-            "cavern_top": -28,
+            "spawn_weight": 10,
+            "bottom_y": -63,
+            "top_y": -28,
             "y_compression": 1.3,
             "xz_compression": 0.7,
-            "cave_priority": 10,
             "is_floored": false,
             "debug_carve_state": {
               "Name": "minecraft:redstone_block"
@@ -79,11 +79,11 @@
             }
           },
           {
-            "cavern_bottom": -63,
-            "cavern_top": -28,
+            "spawn_weight": 10,
+            "bottom_y": -63,
+            "top_y": -28,
             "y_compression": 1.3,
             "xz_compression": 0.7,
-            "cave_priority": 10,
             "is_floored": true,
             "debug_carve_state": {
               "Name": "minecraft:gold_block"

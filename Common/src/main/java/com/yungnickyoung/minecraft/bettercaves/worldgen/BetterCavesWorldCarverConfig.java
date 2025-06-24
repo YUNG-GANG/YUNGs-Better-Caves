@@ -61,23 +61,23 @@ public class BetterCavesWorldCarverConfig extends CarverConfiguration {
                 ).apply(builder, CaveLayerSettings::new));
 
         public record CaveSubCarverSettings(
-                int caveBottom,
-                int caveTop,
-                int caveSurfaceCutoff,
+                int bottomY,
+                int topY,
+                int surfaceCutoffDistance,
                 double yCompression,
                 double xzCompression,
-                int cavePriority,
+                int spawnWeight,
                 BlockState debugCarveState,
                 Advanced advanced
         ) {
             public static final Codec<CaveSubCarverSettings> CODEC = RecordCodecBuilder.create(
                     builder -> builder.group(
-                            Codec.INT.fieldOf("cave_bottom").forGetter(CaveSubCarverSettings::caveBottom),
-                            Codec.INT.fieldOf("cave_top").forGetter(CaveSubCarverSettings::caveTop),
-                            Codec.INT.fieldOf("cave_surface_cutoff").forGetter(CaveSubCarverSettings::caveSurfaceCutoff),
+                            Codec.INT.fieldOf("bottom_y").forGetter(CaveSubCarverSettings::bottomY),
+                            Codec.INT.fieldOf("top_y").forGetter(CaveSubCarverSettings::topY),
+                            Codec.INT.fieldOf("surface_cutoff_distance").forGetter(CaveSubCarverSettings::surfaceCutoffDistance),
                             Codec.DOUBLE.fieldOf("y_compression").forGetter(CaveSubCarverSettings::yCompression),
                             Codec.DOUBLE.fieldOf("xz_compression").forGetter(CaveSubCarverSettings::xzCompression),
-                            Codec.INT.fieldOf("cave_priority").forGetter(CaveSubCarverSettings::cavePriority),
+                            Codec.INT.fieldOf("spawn_weight").forGetter(CaveSubCarverSettings::spawnWeight),
                             BlockState.CODEC.optionalFieldOf("debug_carve_state", Blocks.OAK_PLANKS.defaultBlockState()).forGetter(CaveSubCarverSettings::debugCarveState),
                             Advanced.CODEC.fieldOf("advanced").forGetter(CaveSubCarverSettings::advanced)
                     ).apply(builder, CaveSubCarverSettings::new));
@@ -120,22 +120,22 @@ public class BetterCavesWorldCarverConfig extends CarverConfiguration {
                 ).apply(builder, CavernLayerSettings::new));
 
         public record CavernSubCarverSettings(
-                int cavernBottom,
-                int cavernTop,
+                int bottomY,
+                int topY,
                 double yCompression,
                 double xzCompression,
-                int cavePriority,
+                int spawnWeight,
                 boolean isFloored,
                 BlockState debugCarveState,
                 Advanced advanced
         ) {
             public static final Codec<CavernSubCarverSettings> CODEC = RecordCodecBuilder.create(
                     builder -> builder.group(
-                            Codec.INT.fieldOf("cavern_bottom").forGetter(CavernSubCarverSettings::cavernBottom),
-                            Codec.INT.fieldOf("cavern_top").forGetter(CavernSubCarverSettings::cavernTop),
+                            Codec.INT.fieldOf("bottom_y").forGetter(CavernSubCarverSettings::bottomY),
+                            Codec.INT.fieldOf("top_y").forGetter(CavernSubCarverSettings::topY),
                             Codec.DOUBLE.fieldOf("y_compression").forGetter(CavernSubCarverSettings::yCompression),
                             Codec.DOUBLE.fieldOf("xz_compression").forGetter(CavernSubCarverSettings::xzCompression),
-                            Codec.INT.fieldOf("cave_priority").forGetter(CavernSubCarverSettings::cavePriority),
+                            Codec.INT.fieldOf("spawn_weight").forGetter(CavernSubCarverSettings::spawnWeight),
                             Codec.BOOL.fieldOf("is_floored").forGetter(CavernSubCarverSettings::isFloored),
                             BlockState.CODEC.optionalFieldOf("debug_carve_state", Blocks.OAK_PLANKS.defaultBlockState()).forGetter(CavernSubCarverSettings::debugCarveState),
                             Advanced.CODEC.fieldOf("advanced").forGetter(CavernSubCarverSettings::advanced)

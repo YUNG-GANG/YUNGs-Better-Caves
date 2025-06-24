@@ -177,9 +177,9 @@ public class CavernCarver extends AbstractCarver {
             this.settings.setNumGens(subCarverSettings.advanced().numGenerators());
             this.settings.setyCompression((float) subCarverSettings.yCompression());
             this.settings.setXzCompression((float) subCarverSettings.xzCompression());
-            this.settings.setPriority(subCarverSettings.cavePriority());
-            this.bottomY = subCarverSettings.cavernBottom();
-            this.topY = subCarverSettings.cavernTop();
+            this.settings.setPriority(subCarverSettings.spawnWeight());
+            this.bottomY = subCarverSettings.bottomY();
+            this.topY = subCarverSettings.topY();
             this.isFloored = subCarverSettings.isFloored();
             return this;
         }

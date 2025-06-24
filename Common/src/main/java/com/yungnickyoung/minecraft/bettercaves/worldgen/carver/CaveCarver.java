@@ -255,10 +255,10 @@ public class CaveCarver extends AbstractCarver {
             this.settings.setNumGens(subCarverSettings.advanced().numGenerators());
             this.settings.setXzCompression((float) subCarverSettings.xzCompression());
             this.settings.setyCompression((float) subCarverSettings.yCompression());
-            this.settings.setPriority(subCarverSettings.cavePriority());
-            this.surfaceCutoff = subCarverSettings.caveSurfaceCutoff();
-            this.bottomY = subCarverSettings.caveBottom();
-            this.topY = subCarverSettings.caveTop();
+            this.settings.setPriority(subCarverSettings.spawnWeight());
+            this.surfaceCutoff = subCarverSettings.surfaceCutoffDistance();
+            this.bottomY = subCarverSettings.bottomY();
+            this.topY = subCarverSettings.topY();
             this.enableYAdjust = subCarverSettings.advanced().yAdjust();
             this.yAdjustF1 = (float) subCarverSettings.advanced().yAdjustF1();
             this.yAdjustF2 = (float) subCarverSettings.advanced().yAdjustF2();

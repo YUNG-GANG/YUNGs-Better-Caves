@@ -99,7 +99,7 @@
             }
           }
         ],
-        "cavern_spawn_chance": 40.0,
+        "cavern_spawn_chance": 30.0,
         "cavern_region_size_frequency": 0.005
       },
       {

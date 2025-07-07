@@ -4,12 +4,8 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "bettercaves.refmap.json",
   "mixins": [
-    "BiomeDefaultFeaturesMixin",
-    "BiomeGenerationSettingsBuilderMixin",
     "ChunkStatusTasksMixin",
-    "NoiseRouterDataMixin",
-    "ServerLevelMixin",
-    "accessor.BiomeGenerationSettingsBuilderAccessor"
+    "ServerLevelMixin"
   ],
   "injectors": {
     "defaultRequire": 1

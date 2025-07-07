@@ -51,8 +51,8 @@ public class CavernCarver extends AbstractCarver {
             BetterCavesCommon.LOGGER.warn("Warning: Min altitude for caverns should not be greater than max altitude.");
             BetterCavesCommon.LOGGER.warn("Using default values...");
             // TODO change how this validation works?
-            this.bottomY = -63;
-            this.topY = -28;
+            throw new IllegalArgumentException(
+                    "bettercaves: Cavern Carver's bottomY cannot be greater than topY. Please check your config.");
         } else {
             this.bottomY = builder.getBottomY();
             this.topY = builder.getTopY();

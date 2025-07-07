@@ -1,6 +1,5 @@
 package com.yungnickyoung.minecraft.bettercaves.module;
 
-import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
 import com.yungnickyoung.minecraft.bettercaves.config.BCConfigFabric;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigHolder;
@@ -21,6 +20,5 @@ public class ConfigModuleFabric {
     }
 
     private static void bakeConfig(BCConfigFabric configFabric) {
-        // UndergroundGen
     }
 }

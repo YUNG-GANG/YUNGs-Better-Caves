@@ -54,7 +54,6 @@ public abstract class AbstractCarver {
                 chunkAccess.setBlockState(blockPos, liquidBlockState, false);
             }
         } else {
-            // Replace this block with air, effectively "digging" it out
             BlockState newBlockState = aquifer.computeSubstance(new DensityFunction.SinglePointContext(
                     blockPos.getX(), blockPos.getY(), blockPos.getZ()), 0.0);
 

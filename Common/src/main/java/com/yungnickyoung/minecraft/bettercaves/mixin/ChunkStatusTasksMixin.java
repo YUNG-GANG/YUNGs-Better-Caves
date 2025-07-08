@@ -1,7 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves.mixin;
 
 import com.yungnickyoung.minecraft.bettercaves.worldgen.CavegenContext;
-import com.yungnickyoung.minecraft.bettercaves.worldgen.ExperimentalLiquidRegions;
+import com.yungnickyoung.minecraft.bettercaves.worldgen.LiquidRegions;
 import net.minecraft.server.level.GenerationChunkHolder;
 import net.minecraft.util.StaticCache2D;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -28,6 +28,6 @@ public class ChunkStatusTasksMixin {
      */
     @Inject(method = "generateStructureStarts", at = @At("HEAD"))
     private static void bettercaves$generateLiquidRegions(WorldGenContext worldGenContext, ChunkStep $$1, StaticCache2D<GenerationChunkHolder> $$2, ChunkAccess chunkAccess, CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir) {
-        ExperimentalLiquidRegions.getInstance(worldGenContext.level()).generateLiquidBlocksForChunk(chunkAccess);
+        LiquidRegions.getInstance(worldGenContext.level()).generateLiquidBlocksForChunk(chunkAccess);
     }
 }

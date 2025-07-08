@@ -1,7 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.mixin;
 
-import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
-import com.yungnickyoung.minecraft.bettercaves.worldgen.ExperimentalLiquidRegions;
+import com.yungnickyoung.minecraft.bettercaves.worldgen.LiquidRegions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
@@ -22,18 +21,17 @@ public class AquiferMixin {
         if (blockState == null || blockState.is(Blocks.AIR)) return; // Only modify liquids
 
         ChunkPos chunkPos = new ChunkPos(new BlockPos(context.blockX(), context.blockY(), context.blockZ()));
-        ExperimentalLiquidRegions.CacheData cacheData = ExperimentalLiquidRegions.getInstance().cache.get(chunkPos);
+        LiquidRegions.CacheData cacheData = LiquidRegions.getInstance().cache.get(chunkPos);
 
         if (cacheData == null) {
-            BetterCavesCommon.LOGGER.info("NULL ({} {} {}) {}", context.blockX(), context.blockY(), context.blockZ(), chunkPos);
+//            BetterCavesCommon.LOGGER.info("NULL ({} {} {}) {}", context.blockX(), context.blockY(), context.blockZ(), chunkPos);
             return;
         }
 
         if (context.blockY() > cacheData.liquidAltitude()) {
-            return;
+            return; // Only modify if it's at or below the liquid altitude for this position
         }
 
-        // Only modify if it's at or below the liquid altitude for this position
         int localX = context.blockX() & 15;
         int localZ = context.blockZ() & 15;
         BlockState liquidBlock = cacheData.liquidBlocks()[localX][localZ];

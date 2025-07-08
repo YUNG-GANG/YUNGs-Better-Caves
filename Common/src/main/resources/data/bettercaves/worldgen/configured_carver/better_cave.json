@@ -129,17 +129,6 @@
         "cavern_region_size_frequency": 0.007
       }
     ],
-    "liquid_regions": {
-      "liquid_region_size": 0.001,
-      "water_region_spawn_chance": 40.0,
-      "liquid_altitude": -55,
-      "water_block_state": {
-        "Name": "minecraft:water"
-      },
-      "lava_block_state": {
-        "Name": "minecraft:lava"
-      }
-    },
     "misc": {
       "replaceable": "#minecraft:overworld_carver_replaceables",
       "override_surface_detection": false

@@ -66,7 +66,7 @@ public abstract class AbstractCarver {
                 chunkAccess.markPosForPostprocessing(blockPos);
             }
 
-            // TODO
+            // TODO? vanilla behavior
 //            if ($$8.isTrue()) {
 //                $$6.setWithOffset($$5, Direction.DOWN);
 //                if ($$2.getBlockState($$6).is(Blocks.DIRT)) {

@@ -30,5 +30,8 @@ public class ConfigModuleNeoForge {
     }
 
     private static void bakeConfig() {
+        BetterCavesCommon.CONFIG.liquidRegions.liquidAltitude = BCConfigNeoForge.liquidRegions.liquidAltitude.get();
+        BetterCavesCommon.CONFIG.liquidRegions.liquidRegionSize = BCConfigNeoForge.liquidRegions.liquidRegionSize.get();
+        BetterCavesCommon.CONFIG.liquidRegions.waterRegionSpawnChance = BCConfigNeoForge.liquidRegions.waterRegionSpawnChance.get();
     }
 }

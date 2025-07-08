@@ -7,7 +7,7 @@ import me.shedaniel.autoconfig.annotation.ConfigEntry;
 
 @Config(name= BetterCavesCommon.MOD_ID + "-fabric-" + BetterCavesCommon.MC_VERSION_STRING)
 public class BCConfigFabric implements ConfigData {
-    @ConfigEntry.Category("Better Caves")
+    @ConfigEntry.Category("YUNG's Better Caves")
     @ConfigEntry.Gui.TransitiveObject
     public ConfigGeneralFabric general = new ConfigGeneralFabric();
 }

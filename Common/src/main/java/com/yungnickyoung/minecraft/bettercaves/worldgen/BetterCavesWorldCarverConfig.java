@@ -22,20 +22,17 @@ public class BetterCavesWorldCarverConfig extends CarverConfiguration {
             builder -> builder.group(
                     CaveLayerSettings.CODEC.listOf().fieldOf("cave_layers").forGetter(config -> config.caveLayers),
                     CavernLayerSettings.CODEC.listOf().fieldOf("cavern_layers").forGetter(config -> config.cavernLayers),
-                    LiquidRegionSettings.CODEC.fieldOf("liquid_regions").forGetter(config -> config.liquidRegions),
                     MiscSettings.CODEC.fieldOf("misc").forGetter(config -> config.misc),
                     DebugSettings.CODEC.optionalFieldOf("debug_settings", DebugSettings.DEFAULT).forGetter(config -> config.debugSettings)
             ).apply(builder, BetterCavesWorldCarverConfig::new));
 
     public final List<CaveLayerSettings> caveLayers;
     public final List<CavernLayerSettings> cavernLayers;
-    public final LiquidRegionSettings liquidRegions;
     public final MiscSettings misc;
     public final DebugSettings debugSettings;
 
     public BetterCavesWorldCarverConfig(List<CaveLayerSettings> caveLayers, List<CavernLayerSettings> cavernLayers,
-                                        LiquidRegionSettings liquidRegions, MiscSettings misc,
-                                        DebugSettings debugSettings) {
+                                        MiscSettings misc, DebugSettings debugSettings) {
         // Call the superclass constructor with default values.
         // These values aren't actually used in the Better Caves carver.
         super(
@@ -47,7 +44,6 @@ public class BetterCavesWorldCarverConfig extends CarverConfiguration {
                 HolderSet.direct(Holder.direct(Blocks.STONE)));
         this.caveLayers = caveLayers;
         this.cavernLayers = cavernLayers;
-        this.liquidRegions = liquidRegions;
         this.misc = misc;
         this.debugSettings = debugSettings;
     }
@@ -162,18 +158,6 @@ public class BetterCavesWorldCarverConfig extends CarverConfiguration {
                         ).apply(builder, Advanced::new));
             }
         }
-    }
-
-    public record LiquidRegionSettings(double liquidRegionSize, double waterRegionSpawnChance, int liquidAltitude,
-                                       BlockState waterBlockState, BlockState lavaBlockState) {
-        public static final Codec<LiquidRegionSettings> CODEC = RecordCodecBuilder.create(
-                builder -> builder.group(
-                        Codec.DOUBLE.fieldOf("liquid_region_size").forGetter(LiquidRegionSettings::liquidRegionSize),
-                        Codec.DOUBLE.fieldOf("water_region_spawn_chance").forGetter(LiquidRegionSettings::waterRegionSpawnChance),
-                        Codec.INT.fieldOf("liquid_altitude").forGetter(LiquidRegionSettings::liquidAltitude),
-                        BlockState.CODEC.fieldOf("water_block_state").forGetter(LiquidRegionSettings::waterBlockState),
-                        BlockState.CODEC.fieldOf("lava_block_state").forGetter(LiquidRegionSettings::lavaBlockState)
-                ).apply(builder, LiquidRegionSettings::new));
     }
 
     public record MiscSettings(HolderSet<Block> replaceable, boolean overrideSurfaceDetection) {

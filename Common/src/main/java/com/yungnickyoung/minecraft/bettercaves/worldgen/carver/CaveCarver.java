@@ -241,7 +241,7 @@ public class CaveCarver extends AbstractCarver {
         }
 
         private Builder fromConfig(BetterCavesWorldCarverConfig config, BetterCavesWorldCarverConfig.CaveLayerSettings.CaveSubCarverSettings subCarverSettings) {
-            this.settings.setLiquidAltitude(config.liquidRegions.liquidAltitude());
+            this.settings.setLiquidAltitude(BetterCavesCommon.CONFIG.liquidRegions.liquidAltitude);
             this.settings.setEnableDebugVisualizer(config.debugSettings.enabled());
             this.settings.getNoiseSettings().setFractalType(FastNoise.FractalType.RigidMulti);
             this.settings.setDebugBlock(subCarverSettings.debugCarveState());

@@ -1,5 +1,8 @@
 package com.yungnickyoung.minecraft.bettercaves.worldgen;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtils;
 import com.yungnickyoung.minecraft.yungsapi.math.ColPos;
 import com.yungnickyoung.minecraft.yungsapi.noise.FastNoise;
@@ -12,19 +15,19 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ExperimentalLiquidRegions {
-    private static ExperimentalLiquidRegions INSTANCE;
-    public static ExperimentalLiquidRegions getInstance(ServerLevel serverLevel) {
+public class LiquidRegions {
+    private static LiquidRegions INSTANCE;
+    public static LiquidRegions getInstance(ServerLevel serverLevel) {
         if (INSTANCE == null) {
-            INSTANCE = new ExperimentalLiquidRegions(serverLevel);
+            INSTANCE = new LiquidRegions(serverLevel);
         }
         return INSTANCE;
     }
-    public static ExperimentalLiquidRegions getInstance() {
+    public static LiquidRegions getInstance() {
         return INSTANCE;
     }
 
-    private final BetterCavesWorldCarverConfig.LiquidRegionSettings config;
+    private final Settings settings;
     private final ServerLevel serverLevel;
     private final Random rand;
     private final FastNoise liquidRegionSampler;
@@ -41,17 +44,22 @@ public class ExperimentalLiquidRegions {
     private static final float SMOOTH_RANGE = .04f;
     private static final float SMOOTH_DELTA = .01f;
 
-    public ExperimentalLiquidRegions(ServerLevel serverLevel) {
-        this.config = new BetterCavesWorldCarverConfig.LiquidRegionSettings(.001, 40.0, -55,
-                Blocks.WATER.defaultBlockState(), Blocks.LAVA.defaultBlockState());
+    public LiquidRegions(ServerLevel serverLevel) {
+        this.settings = new Settings(
+                BetterCavesCommon.CONFIG.liquidRegions.liquidRegionSize,
+                BetterCavesCommon.CONFIG.liquidRegions.waterRegionSpawnChance,
+                BetterCavesCommon.CONFIG.liquidRegions.liquidAltitude,
+                Blocks.WATER.defaultBlockState(),
+                Blocks.LAVA.defaultBlockState()
+        );
         this.serverLevel = serverLevel;
         this.rand = new Random();
 
         liquidRegionThreshold = NoiseUtils.simplexNoiseOffsetByPercent(-1f,
-                (float) (config.waterRegionSpawnChance() / 100));
+                (float) (settings.waterRegionSpawnChance() / 100));
 
         // Liquid region sampler
-        double liquidRegionSize = config.liquidRegionSize();
+        double liquidRegionSize = settings.liquidRegionSize();
         liquidRegionSampler = new FastNoise();
         liquidRegionSampler.SetSeed((int) this.serverLevel.getSeed() + 444);
         liquidRegionSampler.SetFrequency((float) liquidRegionSize);
@@ -77,28 +85,40 @@ public class ExperimentalLiquidRegions {
         }
 
         CacheData cacheData = new CacheData(blocks, this.getLiquidAltitude());
-        cache.put(chunkPos,cacheData);
+        cache.put(chunkPos, cacheData);
         return cacheData;
     }
 
     public int getLiquidAltitude() {
-        return this.config.liquidAltitude();
+        return this.settings.liquidAltitude();
     }
 
     private BlockState getLiquidBlockAtPos(Random rand, ColPos colPos) {
         if (this.liquidRegionThreshold <= -1f) { // Don't bother calculating noise if water regions are disabled
-            return this.config.lavaBlockState();
+            return this.settings.lavaBlockState();
         }
 
         float liquidRegionNoise = this.liquidRegionSampler.GetNoise(colPos.getX(), colPos.getZ());
         float barrierZoneWidth = rand.nextFloat() * SMOOTH_DELTA + SMOOTH_RANGE;
 
         if (liquidRegionNoise < liquidRegionThreshold - barrierZoneWidth) {
-            return config.waterBlockState();
+            return settings.waterBlockState();
         } else if (liquidRegionNoise < liquidRegionThreshold + barrierZoneWidth) {
             return null; // Solid block barrier between water and lava regions
         } else {
-            return config.lavaBlockState();
+            return settings.lavaBlockState();
         }
+    }
+
+    private record Settings(double liquidRegionSize, double waterRegionSpawnChance, int liquidAltitude,
+                                       BlockState waterBlockState, BlockState lavaBlockState) {
+        public static final Codec<Settings> CODEC = RecordCodecBuilder.create(
+                builder -> builder.group(
+                        Codec.DOUBLE.fieldOf("liquid_region_size").forGetter(Settings::liquidRegionSize),
+                        Codec.DOUBLE.fieldOf("water_region_spawn_chance").forGetter(Settings::waterRegionSpawnChance),
+                        Codec.INT.fieldOf("liquid_altitude").forGetter(Settings::liquidAltitude),
+                        BlockState.CODEC.fieldOf("water_block_state").forGetter(Settings::waterBlockState),
+                        BlockState.CODEC.fieldOf("lava_block_state").forGetter(Settings::lavaBlockState)
+                ).apply(builder, Settings::new));
     }
 }

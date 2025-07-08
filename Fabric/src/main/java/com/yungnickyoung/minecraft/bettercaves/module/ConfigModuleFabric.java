@@ -1,5 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.module;
 
+import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
 import com.yungnickyoung.minecraft.bettercaves.config.BCConfigFabric;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigHolder;
@@ -20,5 +21,8 @@ public class ConfigModuleFabric {
     }
 
     private static void bakeConfig(BCConfigFabric configFabric) {
+        BetterCavesCommon.CONFIG.liquidRegions.liquidAltitude = configFabric.general.liquidRegions.liquidAltitude;
+        BetterCavesCommon.CONFIG.liquidRegions.liquidRegionSize = configFabric.general.liquidRegions.liquidRegionSize;
+        BetterCavesCommon.CONFIG.liquidRegions.waterRegionSpawnChance = configFabric.general.liquidRegions.waterRegionSpawnChance;
     }
 }

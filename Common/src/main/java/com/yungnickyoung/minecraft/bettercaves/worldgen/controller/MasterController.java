@@ -2,6 +2,7 @@ package com.yungnickyoung.minecraft.bettercaves.worldgen.controller;
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.BetterCavesWorldCarverConfig;
+import com.yungnickyoung.minecraft.bettercaves.worldgen.ExperimentalLiquidRegions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
@@ -20,19 +21,21 @@ import java.util.Set;
 import java.util.function.Function;
 
 public class MasterController {
+    private final ServerLevel serverLevel;
     private final BetterCavesWorldCarverConfig config;
     private final List<CaveCarverController> caveLayers = new ArrayList<>();
     private final List<CavernCarverController> cavernLayers = new ArrayList<>();
-    private final LiquidRegionController liquidRegionController;
+//    private final LiquidRegionController liquidRegionController;
     private final Set<ChunkPos> carvedChunkCache = new HashSet<>();
 
     public MasterController(ServerLevel serverLevel, BetterCavesWorldCarverConfig config) {
+        this.serverLevel = serverLevel;
         this.config = config;
         config.caveLayers.forEach(caveLayerSettings -> this.caveLayers.add(
                 new CaveCarverController(serverLevel, config, caveLayerSettings)));
         config.cavernLayers.forEach(cavernLayerSettings -> this.cavernLayers.add(
                 new CavernCarverController(serverLevel, config, cavernLayerSettings)));
-        this.liquidRegionController = new LiquidRegionController(serverLevel, config);
+//        this.liquidRegionController = new LiquidRegionController(serverLevel, config);
         BetterCavesCommon.LOGGER.debug("MASTER CONTROLLER INITIALIZED");
     }
 
@@ -43,7 +46,8 @@ public class MasterController {
         }
 
         int[][] surfaceAltitudes = getSurfaceAltitudes(chunkAccess);
-        BlockState[][] liquidBlocks = liquidRegionController.getLiquidBlocksForChunk(chunkAccess);
+//        BlockState[][] liquidBlocks = liquidRegionController.getLiquidBlocksForChunk(chunkAccess);
+        BlockState[][] liquidBlocks = ExperimentalLiquidRegions.getInstance(this.serverLevel).generateLiquidBlocksForChunk(chunkAccess).liquidBlocks();
 
         // Carve chunk
         caveLayers.forEach(caveLayer -> caveLayer.carveChunk(chunkAccess, surfaceAltitudes, liquidBlocks, biomeProvider, carvingMask, aquifer));

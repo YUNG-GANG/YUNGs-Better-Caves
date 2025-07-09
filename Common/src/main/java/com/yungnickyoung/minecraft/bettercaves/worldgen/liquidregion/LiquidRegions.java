@@ -28,8 +28,8 @@ public class LiquidRegions {
      * Constants used to add a small amount of random offset to the noise threshold check to smooth out the transition
      * between liquid and non-liquid blocks.
      */
-    private static final float SMOOTH_RANGE = .04f;
-    private static final float SMOOTH_DELTA = .01f;
+    private static final float SMOOTH_RANGE = .05f;
+    private static final float SMOOTH_DELTA = .005f;
 
     public LiquidRegions(ServerLevel serverLevel) {
         // TODO - use dimension-specific configs instead
@@ -74,10 +74,6 @@ public class LiquidRegions {
         cache.put(chunkPos, cacheData);
         return cacheData;
     }
-
-//    public CacheData getLiquidBlocksForChunk(ChunkPos chunkPos) {
-//        return cache.get(chunkPos);
-//    }
 
     public int getLiquidAltitude() {
         return this.settings.liquidAltitude();

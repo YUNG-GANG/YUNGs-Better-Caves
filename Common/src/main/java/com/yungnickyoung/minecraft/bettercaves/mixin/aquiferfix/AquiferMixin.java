@@ -63,7 +63,7 @@ public class AquiferMixin {
         BlockState liquidBlock = cacheData.liquidBlocks()[localX][localZ];
 
         // Only modify if the block is different from the liquid block it should be
-        if (liquidBlock != null && !blockState.is(liquidBlock.getBlock())) {
+        if (liquidBlock == null || !blockState.is(liquidBlock.getBlock())) {
             cir.setReturnValue(liquidBlock);
         }
     }

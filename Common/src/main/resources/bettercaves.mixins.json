@@ -6,8 +6,10 @@
   "mixins": [
     "AquiferMixin",
     "ChunkStatusTasksMixin",
+    "ChunkStepMixin",
     "NoiseBasedChunkGeneratorMixin",
-    "ServerLevelMixin"
+    "ServerLevelMixin",
+    "accessor.StructureManagerAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

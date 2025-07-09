@@ -20,6 +20,7 @@ dependencies {
     } else {
         compileOnly("com.yungnickyoung.minecraft.yungsapi:YungsApi:${mc_version}-Common-${yungsapi_version}")
     }
+    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.4.1"))
 }
 
 configurations {

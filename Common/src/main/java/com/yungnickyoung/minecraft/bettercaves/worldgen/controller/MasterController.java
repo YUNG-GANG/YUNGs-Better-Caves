@@ -2,7 +2,6 @@ package com.yungnickyoung.minecraft.bettercaves.worldgen.controller;
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.BetterCavesWorldCarverConfig;
-import com.yungnickyoung.minecraft.bettercaves.worldgen.LiquidRegions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
@@ -44,7 +43,8 @@ public class MasterController {
         }
 
         int[][] surfaceAltitudes = getSurfaceAltitudes(chunkAccess);
-        BlockState[][] liquidBlocks = LiquidRegions.getInstance(this.serverLevel).generateLiquidBlocksForChunk(chunkAccess).liquidBlocks();
+        BlockState[][] liquidBlocks = LiquidRegionController.getInstance().getLiquidRegionsForServerLevel(this.serverLevel)
+                .getLiquidBlocksForChunk(chunkAccess.getPos()).liquidBlocks();
 
         // Carve chunk
         caveLayers.forEach(caveLayer -> caveLayer.carveChunk(chunkAccess, surfaceAltitudes, liquidBlocks, biomeProvider, carvingMask, aquifer));

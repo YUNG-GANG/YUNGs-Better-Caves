@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:overworld",
+  "generator": {
+    "type": "minecraft:noise",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "bettercaves:test_biome"
+    },
+    "settings": "minecraft:overworld"
+  }
+}

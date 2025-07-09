@@ -3,6 +3,7 @@ package com.yungnickyoung.minecraft.bettercaves.worldgen;
 import com.mojang.serialization.Codec;
 import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
 import com.yungnickyoung.minecraft.bettercaves.duck.IMasterControllerProvider;
+import com.yungnickyoung.minecraft.bettercaves.worldgen.context.CavegenContext;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.controller.MasterController;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;

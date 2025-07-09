@@ -1,4 +1,4 @@
-package com.yungnickyoung.minecraft.bettercaves.worldgen;
+package com.yungnickyoung.minecraft.bettercaves.worldgen.context;
 
 import net.minecraft.server.level.ServerLevel;
 import org.jetbrains.annotations.Nullable;

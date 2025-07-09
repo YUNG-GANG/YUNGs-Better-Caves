@@ -16,17 +16,6 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class LiquidRegions {
-    private static LiquidRegions INSTANCE;
-    public static LiquidRegions getInstance(ServerLevel serverLevel) {
-        if (INSTANCE == null) {
-            INSTANCE = new LiquidRegions(serverLevel);
-        }
-        return INSTANCE;
-    }
-    public static LiquidRegions getInstance() {
-        return INSTANCE;
-    }
-
     private final Settings settings;
     private final ServerLevel serverLevel;
     private final Random rand;
@@ -45,6 +34,7 @@ public class LiquidRegions {
     private static final float SMOOTH_DELTA = .01f;
 
     public LiquidRegions(ServerLevel serverLevel) {
+        // TODO - use dimension-specific configs instead
         this.settings = new Settings(
                 BetterCavesCommon.CONFIG.liquidRegions.liquidRegionSize,
                 BetterCavesCommon.CONFIG.liquidRegions.waterRegionSpawnChance,
@@ -65,12 +55,12 @@ public class LiquidRegions {
         liquidRegionSampler.SetFrequency((float) liquidRegionSize);
     }
 
-    public CacheData generateLiquidBlocksForChunk(ChunkAccess chunkAccess) {
+    public void generateLiquidBlocksForChunk(ChunkAccess chunkAccess) {
         ChunkPos chunkPos = chunkAccess.getPos();
 
         // Return cached value, if available
         if (cache.containsKey(chunkPos)) {
-            return cache.get(chunkPos);
+            return;
         }
 
         // If not cached, generate the liquid blocks for the chunk
@@ -86,7 +76,10 @@ public class LiquidRegions {
 
         CacheData cacheData = new CacheData(blocks, this.getLiquidAltitude());
         cache.put(chunkPos, cacheData);
-        return cacheData;
+    }
+
+    public CacheData getLiquidBlocksForChunk(ChunkPos chunkPos) {
+        return cache.get(chunkPos);
     }
 
     public int getLiquidAltitude() {

@@ -1,4 +1,4 @@
-package com.yungnickyoung.minecraft.bettercaves.worldgen;
+package com.yungnickyoung.minecraft.bettercaves.worldgen.liquidregion;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -10,7 +10,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
 
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,7 +21,6 @@ public class LiquidRegions {
     private final FastNoise liquidRegionSampler;
     private final float liquidRegionThreshold;
 
-    // TODO - make this work for multiple dimensions?
     public final ConcurrentHashMap<ChunkPos, CacheData> cache = new ConcurrentHashMap<>();
     public record CacheData(BlockState[][] liquidBlocks, int liquidAltitude) {}
 
@@ -55,12 +53,10 @@ public class LiquidRegions {
         liquidRegionSampler.SetFrequency((float) liquidRegionSize);
     }
 
-    public void generateLiquidBlocksForChunk(ChunkAccess chunkAccess) {
-        ChunkPos chunkPos = chunkAccess.getPos();
-
+    public CacheData getOrCreateLiquidBlocksForChunk(ChunkPos chunkPos) {
         // Return cached value, if available
         if (cache.containsKey(chunkPos)) {
-            return;
+            return cache.get(chunkPos);
         }
 
         // If not cached, generate the liquid blocks for the chunk
@@ -76,11 +72,12 @@ public class LiquidRegions {
 
         CacheData cacheData = new CacheData(blocks, this.getLiquidAltitude());
         cache.put(chunkPos, cacheData);
+        return cacheData;
     }
 
-    public CacheData getLiquidBlocksForChunk(ChunkPos chunkPos) {
-        return cache.get(chunkPos);
-    }
+//    public CacheData getLiquidBlocksForChunk(ChunkPos chunkPos) {
+//        return cache.get(chunkPos);
+//    }
 
     public int getLiquidAltitude() {
         return this.settings.liquidAltitude();

@@ -1,4 +1,4 @@
-package com.yungnickyoung.minecraft.bettercaves.mixin;
+package com.yungnickyoung.minecraft.bettercaves.mixin.aquiferfix;
 
 import com.yungnickyoung.minecraft.bettercaves.worldgen.context.AquiferContext;
 import net.minecraft.server.level.GenerationChunkHolder;
@@ -13,15 +13,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Mixin to push and pop the AquiferContext at the start and end of every chunk generation step.
+ * This should ensure that the AquiferContext is available for aquifer-related operations
+ * at all times during chunk generation (except when new threads are created dynamically - see {@link NoiseBasedChunkGeneratorMixin}.
+ */
 @Mixin(ChunkStep.class)
 public class ChunkStepMixin {
     @Inject(method = "apply", at = @At("HEAD"))
-    private void bettercaves$apply(WorldGenContext worldGenContext, StaticCache2D<GenerationChunkHolder> $$1, ChunkAccess $$2, CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir) {
+    private void bettercaves$pushAquiferContext(WorldGenContext worldGenContext, StaticCache2D<GenerationChunkHolder> $$1, ChunkAccess $$2, CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir) {
         AquiferContext.push(worldGenContext.level());
     }
 
     @Inject(method = "apply", at = @At("RETURN"))
-    private void bettercaves$apply2(WorldGenContext worldGenContext, StaticCache2D<GenerationChunkHolder> $$1, ChunkAccess $$2, CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir) {
+    private void bettercaves$popAquiferContext(WorldGenContext worldGenContext, StaticCache2D<GenerationChunkHolder> $$1, ChunkAccess $$2, CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir) {
         AquiferContext.pop();
     }
 }

@@ -6,6 +6,9 @@ import net.minecraft.server.level.ServerLevel;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
+/**
+ * Attaches a MasterController to the ServerLevel.
+ */
 @Mixin(ServerLevel.class)
 public class ServerLevelMixin implements IMasterControllerProvider {
     @Unique

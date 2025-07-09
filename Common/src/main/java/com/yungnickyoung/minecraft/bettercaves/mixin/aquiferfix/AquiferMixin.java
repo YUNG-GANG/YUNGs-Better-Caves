@@ -1,8 +1,9 @@
-package com.yungnickyoung.minecraft.bettercaves.mixin;
+package com.yungnickyoung.minecraft.bettercaves.mixin.aquiferfix;
 
+import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.context.AquiferContext;
-import com.yungnickyoung.minecraft.bettercaves.worldgen.controller.LiquidRegionController;
-import com.yungnickyoung.minecraft.bettercaves.worldgen.LiquidRegions;
+import com.yungnickyoung.minecraft.bettercaves.worldgen.liquidregion.LiquidRegionsController;
+import com.yungnickyoung.minecraft.bettercaves.worldgen.liquidregion.LiquidRegions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -18,22 +19,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Aquifer.NoiseBasedAquifer.class)
 public class AquiferMixin {
-//    @Unique
-//    private ServerLevel serverLevel;
-
-    @Inject(method = "computeSubstance",
-            at = @At("RETURN"), cancellable = true)
+    /**
+     * Replaces Aquifer-generated liquids at and below the liquidAltitude with the proper Better Caves liquid,
+     * as defined by the LiquidRegions data for the current chunk.
+     */
+    @Inject(method = "computeSubstance", at = @At("RETURN"), cancellable = true)
     private void bettercaves$fixAquiferLiquids(DensityFunction.FunctionContext context, double d, CallbackInfoReturnable<BlockState> cir) {
-        // Only modify aquifers in the overworld.
-        // TODO - support other dimensions via config
+        // Grab the AquiferContext from the current thread and fetch the ServerLevel from it
         AquiferContext aquiferContext = AquiferContext.peek();
         if (aquiferContext == null) {
+            BetterCavesCommon.LOGGER.warn("AquiferContext is null in AquiferMixin, this should not happen!");
             return;
-        } else {
-            int i = 1;
         }
-        ServerLevel serverLevel = AquiferContext.peek().getServerLevel();
+        ServerLevel serverLevel = aquiferContext.getServerLevel();
 
+        // Only modify aquifers in the overworld.
+        // TODO - support other dimensions via config
         if (!serverLevel.dimension().location().equals(ResourceLocation.withDefaultNamespace("overworld"))) {
             return;
         }
@@ -43,12 +44,13 @@ public class AquiferMixin {
             return; // Only modify liquids
         }
 
+        // Fetch the (previously generated) LiquidRegions data for the current chunk.
+        // If the cached LiquidRegions data is missing for some reason, it will be generated again.
         ChunkPos chunkPos = new ChunkPos(new BlockPos(context.blockX(), context.blockY(), context.blockZ()));
-        LiquidRegions liquidRegions = LiquidRegionController.getInstance().getLiquidRegionsForServerLevel(serverLevel);
-        LiquidRegions.CacheData cacheData = liquidRegions.getLiquidBlocksForChunk(chunkPos);
-
+        LiquidRegions liquidRegions = LiquidRegionsController.getInstance().getLiquidRegionsForServerLevel(serverLevel);
+        LiquidRegions.CacheData cacheData = liquidRegions.getOrCreateLiquidBlocksForChunk(chunkPos);
         if (cacheData == null) {
-//            BetterCavesCommon.LOGGER.info("NULL ({} {} {}) {}", context.blockX(), context.blockY(), context.blockZ(), chunkPos);
+            BetterCavesCommon.LOGGER.warn("No LiquidRegions data found for chunk {} in AquiferMixin, this should not happen!", chunkPos);
             return;
         }
 
@@ -65,16 +67,4 @@ public class AquiferMixin {
             cir.setReturnValue(liquidBlock);
         }
     }
-
-//    @Unique
-//    @Override
-//    public ServerLevel getServerLevel() {
-//        return this.serverLevel;
-//    }
-//
-//    @Unique
-//    @Override
-//    public void setServerLevel(ServerLevel serverLevel) {
-//        this.serverLevel = serverLevel;
-//    }
 }

@@ -48,6 +48,13 @@ pluginManagement {
                 includeGroupAndSubgroups("org.spongepowered")
             }
         }
+//        maven {
+//            url = uri("https://maven.kaolinmc.com/snapshots")
+//        }
+//        maven {
+//            url = uri("https://maven.kaolinmc.com/releases")
+//        }
+//        gradlePluginPortal()
     }
 }
 
@@ -57,3 +64,4 @@ plugins {
 
 rootProject.name = 'bettercaves'
 include("Common", "Fabric", "NeoForge")
+//include("Kaolin")

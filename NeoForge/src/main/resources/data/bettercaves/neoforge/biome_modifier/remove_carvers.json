@@ -1,8 +1,0 @@
-{
-  "type": "neoforge:remove_carvers",
-  "biomes": "#minecraft:is_overworld",
-  "carvers": [
-    "minecraft:cave",
-    "minecraft:cave_extra_underground"
-  ]
-}

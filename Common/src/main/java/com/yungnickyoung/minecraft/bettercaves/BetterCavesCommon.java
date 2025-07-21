@@ -13,13 +13,13 @@ public class BetterCavesCommon {
     public static final ConfigModule CONFIG = new ConfigModule();
 
     // TODO - change this whenever updating to a new Minecraft version
-    public static final String MC_VERSION_STRING = "1_21_1";
+    public static final String MC_VERSION_STRING = "1_20_1";
 
     public static void init() {
         YungAutoRegister.scanPackageForAnnotations("com.yungnickyoung.minecraft.bettercaves.module");
     }
 
     public static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+        return new ResourceLocation(MOD_ID, path);
     }
 }

@@ -1,53 +1,34 @@
 plugins {
-    id 'multiloader-common'
+    id 'java'
     id 'org.spongepowered.gradle.vanilla' version '0.2.1-SNAPSHOT'
 }
+
+archivesBaseName = "${mod_name}"
+version = "${mc_version}-Common-${version}"
+group = maven_group
 
 def useLocalYungsApi = findProject(':yungsapi') != null
 
 minecraft {
     version(mc_version)
-    def aw = file("src/main/resources/${mod_id}.accesswidener")
-    if (aw.exists()) {
-        accessWideners(aw)
+    runs {
+        if (project.hasProperty('common_runs_enabled') ? project.findProperty('common_runs_enabled').toBoolean() : true) {
+            server(project.hasProperty('common_server_run_name') ? project.findProperty('common_server_run_name') : 'vanilla_server') {
+                workingDirectory(this.file("run"))
+            }
+            client(project.hasProperty('common_client_run_name') ? project.findProperty('common_client_run_name') : 'vanilla_client') {
+                workingDirectory(this.file("run"))
+            }
+        }
     }
 }
 
 dependencies {
     compileOnly group:'org.spongepowered', name:'mixin', version:'0.8.5'
+    implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
     if (useLocalYungsApi) {
-        compileOnly files("libs/YungsApi-${mc_version}-Common-${yungsapi_version}.jar")
+        compileOnly files("libs/YungsApi-${yungsapi_mc_version}-Common-${yungsapi_version}.jar")
     } else {
-        compileOnly("com.yungnickyoung.minecraft.yungsapi:YungsApi:${mc_version}-Common-${yungsapi_version}")
+        compileOnly("com.yungnickyoung.minecraft.yungsapi:YungsApi:${yungsapi_mc_version}-Common-${yungsapi_version}")
     }
-    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.4.1"))
-}
-
-configurations {
-    commonJava {
-        canBeResolved = false
-        canBeConsumed = true
-    }
-    commonResources {
-        canBeResolved = false
-        canBeConsumed = true
-    }
-    commonGeneratedResources {
-        canBeResolved = false
-        canBeConsumed = true
-    }
-}
-
-sourceSets {
-    generated {
-        resources {
-            srcDir 'src/generated/resources'
-        }
-    }
-}
-
-artifacts {
-    commonJava sourceSets.main.java.sourceDirectories.singleFile
-    commonResources sourceSets.main.resources.sourceDirectories.singleFile
-    commonGeneratedResources sourceSets.generated.resources.sourceDirectories.singleFile
 }

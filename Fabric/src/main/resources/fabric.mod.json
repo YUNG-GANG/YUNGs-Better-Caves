@@ -13,7 +13,7 @@
     "issues": "https://github.com/yungnickyoung/YUNGs-Better-Caves/issues",
     "discord": "discord.gg/rns3beq"
   },
-  "license": "${license}",
+  "license": "LGPLv3",
   "icon": "icon.png",
   "environment": "*",
   "entrypoints": {
@@ -30,10 +30,10 @@
   "depends": {
     "fabricloader": ">=${fabric_loader_version}",
     "fabric": ">=${fabric_version}",
-    "minecraft": "${mc_version_range_fabric}",
+    "minecraft": ">=${mc_version}",
     "cloth-config2": ">=${clothconfig_version_fabric}",
-    "java": ">=${java_version}",
-    "yungsapi": ">=${mc_version}-Fabric-${yungsapi_version}"
+    "java": ">=17",
+    "yungsapi": ">=${yungsapi_mc_version}-Fabric-${yungsapi_version}"
   },
   "custom": {
     "catalogue": {

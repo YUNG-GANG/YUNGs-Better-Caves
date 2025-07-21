@@ -1,28 +1,47 @@
-plugins {
-    id 'fabric-loom' version '1.10-SNAPSHOT' apply false
-    id "org.jetbrains.gradle.plugin.idea-ext" version "1.1.7" // required for NeoGradle
-    id 'org.spongepowered.mixin' version '0.7-SNAPSHOT' apply false
-    id 'net.darkhax.curseforgegradle' version "${curseforgegradle_version}" apply false // curseforge publishing
-    id "com.modrinth.minotaur" version "2.+" apply false // modrinth publishing
-}
-
 subprojects {
-    configurations.all {
-        resolutionStrategy {
-            cacheChangingModulesFor 60, 'seconds'
-            cacheDynamicVersionsFor 60, 'seconds'
+    apply plugin: 'java'
+    java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+    java.withSourcesJar()
+    jar {
+        manifest {
+            attributes([
+                    "Specification-Title"     : mod_name,
+                    "Specification-Vendor"    : mod_author,
+                    'Specification-Version'   : project.jar.archiveVersion,
+                    'Implementation-Title'    : project.name,
+                    'Implementation-Version'  : project.jar.archiveVersion,
+                    'Implementation-Vendor'   : mod_author,
+                    'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                    'Timestampe'              : System.currentTimeMillis(),
+                    'Built-On-Java'           : "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
+                    'Built-On-Minecraft'      : mc_version
+            ])
         }
     }
-    // Pass the raw project version string as an extra property to each subproject
-    // since the version property will be overwritten by the complete version string
-    ext {
-        rawVersion = project.version
+    repositories {
+        mavenCentral()
+        maven {
+            name = 'Sponge / Mixin'
+            url = 'https://repo.spongepowered.org/repository/maven-public/'
+        }
+        flatDir {
+            dirs 'libs'
+        }
     }
-}
-
-task publishCurseForge(dependsOn: [':Forge:publishCurseForgeForge', ':Fabric:publishCurseForgeFabric', ':NeoForge:publishCurseForgeNeoForge']) {
-}
-task publishModrinth(dependsOn: [':Forge:modrinth', ':Fabric:modrinth', ':NeoForge:modrinth']) {
-}
-task publishCurseAndModrinth(dependsOn: ['publishCurseForge', 'publishModrinth']) {
+    tasks.withType(JavaCompile).configureEach {
+        it.options.encoding = 'UTF-8'
+        it.options.release = 17
+    }
+    // Disables Gradle's custom module metadata from being published to maven. The
+    // metadata includes mapped dependencies which are not reasonably consumable by
+    // other mod developers.
+    tasks.withType(GenerateModuleMetadata) {
+        enabled = false
+    }
+    task publishCurseForge(dependsOn: [':Forge:publishCurseForgeForge', ':Fabric:publishCurseForgeFabric']) {
+    }
+    task publishModrinth(dependsOn: [':Forge:modrinth', ':Fabric:modrinth']) {
+    }
+    task publishCurseAndModrinth(dependsOn: ['publishCurseForge', 'publishModrinth']) {
+    }
 }

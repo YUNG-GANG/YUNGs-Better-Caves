@@ -1,9 +1,0 @@
-{
-  "type": "neoforge:add_carvers",
-  "biomes": "#minecraft:is_overworld",
-  "carvers": [
-    "bettercaves:better_cave",
-    "bettercaves:surface_cave"
-  ],
-  "step": "air"
-}

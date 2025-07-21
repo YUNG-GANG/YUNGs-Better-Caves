@@ -1,0 +1,168 @@
+buildscript {
+    repositories {
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+    }
+    dependencies {
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
+    }
+}
+
+plugins {
+    id 'eclipse'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'net.darkhax.curseforgegradle' version "${cursegradle_version}"
+    id 'com.modrinth.minotaur' version '2.+'
+}
+
+apply plugin: 'org.spongepowered.mixin'
+
+def modVersion = version
+
+archivesBaseName = "${mod_name}"
+version = "${mc_version}-Forge-${version}"
+group = maven_group
+
+minecraft {
+    mappings channel: 'official', version: mc_version
+
+    // This property allows configuring Gradle's ProcessResources task(s) to run on IDE output locations before launching the game.
+    // It is REQUIRED to be set to true for this template to function.
+    // See https://docs.gradle.org/current/dsl/org.gradle.language.jvm.tasks.ProcessResources.html
+    copyIdeResources = true
+
+    if (project.hasProperty('forge_ats_enabled') && project.findProperty('forge_ats_enabled').toBoolean()) {
+        // This location is hardcoded in Forge and can not be changed.
+        // https://github.com/MinecraftForge/MinecraftForge/blob/be1698bb1554f9c8fa2f58e32b9ab70bc4385e60/fmlloader/src/main/java/net/minecraftforge/fml/loading/moddiscovery/ModFile.java#L123
+        accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+        project.logger.debug('Forge Access Transformers are enabled for this project.')
+    }
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+            args "-mixin.config=${mod_id}.mixins.json"
+            ideaModule "${rootProject.name}.${project.name}.main"
+            taskName 'Client'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+            mods {
+                modClientRun {
+                    source sourceSets.main
+                    source project(":Common").sourceSets.main
+                }
+            }
+        }
+
+        server {
+            workingDirectory project.file('run')
+            args "-mixin.config=${mod_id}.mixins.json"
+            ideaModule "${rootProject.name}.${project.name}.main"
+            taskName 'Server'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+            mods {
+                modServerRun {
+                    source sourceSets.main
+                    source project(":Common").sourceSets.main
+                }
+            }
+        }
+
+        data {
+            workingDirectory project.file('run')
+            args "-mixin.config=${mod_id}.mixins.json"
+            args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            ideaModule "${rootProject.name}.${project.name}.main"
+            taskName 'Data'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+            mods {
+                modDataRun {
+                    source sourceSets.main
+                    source project(":Common").sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+sourceSets.main.resources.srcDir 'src/generated/resources'
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
+    implementation fg.deobf("com.yungnickyoung.minecraft.yungsapi:YungsApi:${yungsapi_mc_version}-Forge-${yungsapi_version}")
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    compileOnly project(":Common")
+}
+
+tasks.withType(JavaCompile) {
+    source(project(":Common").sourceSets.main.allSource)
+}
+
+processResources {
+    from project(":Common").sourceSets.main.resources
+    inputs.property "version", project.version
+    inputs.property "yungsapi_version", project.yungsapi_version
+    inputs.property "yungsapi_mc_version", project.yungsapi_mc_version
+    inputs.property "mc_version", project.mc_version
+    inputs.property "mod_description", project.mod_description
+    inputs.property "mod_full_name", project.mod_full_name
+    inputs.property "mod_id", project.mod_id
+    inputs.property "forge_version", project.forge_version
+
+    filesMatching("META-INF/mods.toml") {
+        expand "version": project.version,
+                "yungsapi_version": project.yungsapi_version,
+                "yungsapi_mc_version": project.yungsapi_mc_version,
+                "mc_version": project.mc_version,
+                "mod_description": project.mod_description,
+                "mod_full_name": project.mod_full_name,
+                "mod_id": project.mod_id,
+                "forge_version": project.forge_version
+    }
+}
+
+mixin {
+    add project(":Common").sourceSets.main, "${mod_id}.refmap.json"
+    config "${mod_id}.mixins.json"
+}
+
+jar.finalizedBy('reobfJar')
+
+String[] compatibleVersions = project.compatible_versions.split(',')
+task publishCurseForgeForge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
+    dependsOn(tasks.jar)
+    apiToken = curseforgeApiKey
+
+    debugMode = false
+
+    def mainFile = upload(curseforge_project_id_forge, tasks.jar.archiveFile)
+    mainFile.changelogType = 'markdown'
+    mainFile.changelog = file("../CHANGELOG.md").exists() ? file("../CHANGELOG.md").text : "No changelog provided"
+    mainFile.releaseType = 'release'
+    mainFile.addRequirement('yungs-api')
+    mainFile.displayName = "[${mc_version}] ${mod_full_name} v${modVersion} (Forge)"
+    compatibleVersions.each { version ->
+        mainFile.addGameVersion(version)
+    }
+}
+
+List compatibleVersionsList = project.compatible_versions.split(',')
+modrinth {
+    token = modrinthToken
+    projectId = modrinth_project_id
+    versionNumber = version
+    versionName = "[${mc_version}] v${modVersion} (Forge)"
+    versionType = "release"
+    uploadFile = jar
+    gameVersions = compatibleVersionsList
+    debugMode = false
+    changelog = file("../CHANGELOG.md").exists() ? file("../CHANGELOG.md").text : "No changelog provided"
+    dependencies { // A special DSL for creating dependencies
+        // scope.type
+        // The scope can be `required`, `optional`, `incompatible`, or `embedded`
+        // The type can either be `project` or `version`
+        required.project "yungs-api"
+    }
+}
+tasks.modrinth.dependsOn(tasks.jar)

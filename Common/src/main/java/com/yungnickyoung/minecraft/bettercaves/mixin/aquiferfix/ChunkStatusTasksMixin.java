@@ -23,6 +23,10 @@ public class ChunkStatusTasksMixin {
      */
     @Inject(method = "generateStructureStarts", at = @At("HEAD"))
     private static void bettercaves$generateLiquidRegions(WorldGenContext worldGenContext, ChunkStep $$1, StaticCache2D<GenerationChunkHolder> $$2, ChunkAccess chunkAccess, CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir) {
+        if (!LiquidRegionsController.getInstance().hasSettingsForLevel(worldGenContext.level())) {
+            return; // No liquid regions to generate for this level
+        }
+
         LiquidRegionsController.getInstance()
                 .getLiquidRegionsForServerLevel(worldGenContext.level())
                 .getOrCreateLiquidBlocksForChunk(chunkAccess.getPos());

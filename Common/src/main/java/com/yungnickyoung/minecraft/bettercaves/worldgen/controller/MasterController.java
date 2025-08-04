@@ -44,8 +44,9 @@ public class MasterController {
         }
 
         int[][] surfaceAltitudes = getSurfaceAltitudes(chunkAccess);
-        BlockState[][] liquidBlocks = LiquidRegionsController.getInstance().getLiquidRegionsForServerLevel(this.serverLevel)
-                .getOrCreateLiquidBlocksForChunk(chunkAccess.getPos()).liquidBlocks();
+        BlockState[][] liquidBlocks = LiquidRegionsController.getInstance().hasSettingsForLevel(serverLevel)
+                ? LiquidRegionsController.getInstance().getLiquidRegionsForServerLevel(this.serverLevel).getOrCreateLiquidBlocksForChunk(chunkAccess.getPos()).liquidBlocks()
+                : new BlockState[16][16];
 
         // Carve chunk
         caveLayers.forEach(caveLayer -> caveLayer.carveChunk(chunkAccess, surfaceAltitudes, liquidBlocks, biomeProvider, carvingMask, aquifer));

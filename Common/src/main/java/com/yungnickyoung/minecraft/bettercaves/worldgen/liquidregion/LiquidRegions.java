@@ -1,7 +1,6 @@
 package com.yungnickyoung.minecraft.bettercaves.worldgen.liquidregion;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.google.gson.annotations.SerializedName;
 import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtils;
 import com.yungnickyoung.minecraft.yungsapi.math.ColPos;
@@ -15,6 +14,10 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class LiquidRegions {
+    public static final double DEFAULT_SIZE = 0.001;
+    public static final double DEFAULT_SPAWN_CHANCE = 40.0;
+    public static final int DEFAULT_ALTITUDE = -55;
+
     private final Settings settings;
     private final ServerLevel serverLevel;
     private final Random rand;
@@ -22,7 +25,9 @@ public class LiquidRegions {
     private final float liquidRegionThreshold;
 
     public final ConcurrentHashMap<ChunkPos, CacheData> cache = new ConcurrentHashMap<>();
-    public record CacheData(BlockState[][] liquidBlocks, int liquidAltitude) {}
+
+    public record CacheData(BlockState[][] liquidBlocks, int liquidAltitude) {
+    }
 
     /*
      * Constants used to add a small amount of random offset to the noise threshold check to smooth out the transition
@@ -31,15 +36,8 @@ public class LiquidRegions {
     private static final float SMOOTH_RANGE = .05f;
     private static final float SMOOTH_DELTA = .005f;
 
-    public LiquidRegions(ServerLevel serverLevel) {
-        // TODO - use dimension-specific configs instead
-        this.settings = new Settings(
-                BetterCavesCommon.CONFIG.liquidRegions.liquidRegionSize,
-                BetterCavesCommon.CONFIG.liquidRegions.waterRegionSpawnChance,
-                BetterCavesCommon.CONFIG.liquidRegions.liquidAltitude,
-                Blocks.WATER.defaultBlockState(),
-                Blocks.LAVA.defaultBlockState()
-        );
+    public LiquidRegions(ServerLevel serverLevel, Settings settings) {
+        this.settings = settings;
         this.serverLevel = serverLevel;
         this.rand = new Random();
 
@@ -81,30 +79,46 @@ public class LiquidRegions {
 
     private BlockState getLiquidBlockAtPos(Random rand, ColPos colPos) {
         if (this.liquidRegionThreshold <= -1f) { // Don't bother calculating noise if water regions are disabled
-            return this.settings.lavaBlockState();
+            return Blocks.LAVA.defaultBlockState();
         }
 
         float liquidRegionNoise = this.liquidRegionSampler.GetNoise(colPos.getX(), colPos.getZ());
         float barrierZoneWidth = rand.nextFloat() * SMOOTH_DELTA + SMOOTH_RANGE;
 
         if (liquidRegionNoise < liquidRegionThreshold - barrierZoneWidth) {
-            return settings.waterBlockState();
+            return Blocks.WATER.defaultBlockState();
         } else if (liquidRegionNoise < liquidRegionThreshold + barrierZoneWidth) {
             return null; // Solid block barrier between water and lava regions
         } else {
-            return settings.lavaBlockState();
+            return Blocks.LAVA.defaultBlockState();
         }
     }
 
-    private record Settings(double liquidRegionSize, double waterRegionSpawnChance, int liquidAltitude,
-                                       BlockState waterBlockState, BlockState lavaBlockState) {
-        public static final Codec<Settings> CODEC = RecordCodecBuilder.create(
-                builder -> builder.group(
-                        Codec.DOUBLE.fieldOf("liquid_region_size").forGetter(Settings::liquidRegionSize),
-                        Codec.DOUBLE.fieldOf("water_region_spawn_chance").forGetter(Settings::waterRegionSpawnChance),
-                        Codec.INT.fieldOf("liquid_altitude").forGetter(Settings::liquidAltitude),
-                        BlockState.CODEC.fieldOf("water_block_state").forGetter(Settings::waterBlockState),
-                        BlockState.CODEC.fieldOf("lava_block_state").forGetter(Settings::lavaBlockState)
-                ).apply(builder, Settings::new));
+    public record Settings(@SerializedName("liquid_region_size") double liquidRegionSize,
+                           @SerializedName("water_region_spawn_chance") double waterRegionSpawnChance,
+                           @SerializedName("liquid_altitude") int liquidAltitude) {
+        public static final Settings DEFAULT = new Settings(
+                DEFAULT_SIZE, DEFAULT_SPAWN_CHANCE, DEFAULT_ALTITUDE
+        );
+
+        // Validate parameters after deserialization
+        public Settings {
+            if (liquidRegionSize <= 0) {
+                BetterCavesCommon.LOGGER.error("liquid_region_size must be greater than 0.");
+                BetterCavesCommon.LOGGER.error("Double check that your liquidregions.json config is correct.");
+                BetterCavesCommon.LOGGER.error("Using default value of {}...", DEFAULT_SIZE);
+                liquidRegionSize = DEFAULT_SIZE;
+            }
+            if (waterRegionSpawnChance < 0 || waterRegionSpawnChance > 100) {
+                BetterCavesCommon.LOGGER.error("water_region_spawn_chance must be between 0 and 100.");
+                BetterCavesCommon.LOGGER.error("Double check that your liquidregions.json config is correct.");
+                BetterCavesCommon.LOGGER.error("Using default value of {}...", DEFAULT_SPAWN_CHANCE);
+                waterRegionSpawnChance = DEFAULT_SPAWN_CHANCE;
+            }
+        }
+
+        public Settings copy() {
+            return new Settings(this.liquidRegionSize, this.waterRegionSpawnChance, this.liquidAltitude);
+        }
     }
 }

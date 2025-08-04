@@ -2,10 +2,9 @@ package com.yungnickyoung.minecraft.bettercaves.mixin.aquiferfix;
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.context.AquiferContext;
-import com.yungnickyoung.minecraft.bettercaves.worldgen.liquidregion.LiquidRegionsController;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.liquidregion.LiquidRegions;
+import com.yungnickyoung.minecraft.bettercaves.worldgen.liquidregion.LiquidRegionsController;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.ChunkPos;
@@ -33,9 +32,8 @@ public class AquiferMixin {
         }
         ServerLevel serverLevel = aquiferContext.getServerLevel();
 
-        // Only modify aquifers in the overworld.
-        // TODO - support other dimensions via config
-        if (!serverLevel.dimension().location().equals(ResourceLocation.withDefaultNamespace("overworld"))) {
+        // Only modify aquifers if LiquidRegions are enabled for the current level
+        if (!LiquidRegionsController.getInstance().hasSettingsForLevel(serverLevel)) {
             return;
         }
 

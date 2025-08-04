@@ -42,7 +42,7 @@ public class CaveCarver extends AbstractCarver {
                                                                BetterCavesWorldCarverConfig.CaveLayerSettings layerSettings) {
         List<AbstractCarver> carvers = new ArrayList<>();
         layerSettings.carvers().forEach(carverSettings -> {
-            carvers.add(new Builder(serverLevel.getSeed())
+            carvers.add(new Builder(serverLevel)
                     .fromConfig(config, carverSettings)
                     .build());
         });
@@ -56,7 +56,7 @@ public class CaveCarver extends AbstractCarver {
                 this.settings.isFastNoise(),
                 this.settings.getNoiseSettings(),
                 this.settings.getNumGens(),
-                this.settings.getyCompression(),
+                this.settings.getYCompression(),
                 this.settings.getXzCompression()
         );
         this.surfaceCutoff = builder.getSurfaceCutoff();
@@ -232,8 +232,8 @@ public class CaveCarver extends AbstractCarver {
         private float yAdjustF1;
         private float yAdjustF2;
 
-        public Builder(long seed) {
-            settings = new CarverSettings(seed);
+        public Builder(ServerLevel serverLevel) {
+            settings = new CarverSettings(serverLevel);
         }
 
         public CaveCarver build() {
@@ -241,7 +241,6 @@ public class CaveCarver extends AbstractCarver {
         }
 
         private Builder fromConfig(BetterCavesWorldCarverConfig config, BetterCavesWorldCarverConfig.CaveLayerSettings.CaveSubCarverSettings subCarverSettings) {
-            this.settings.setLiquidAltitude(BetterCavesCommon.CONFIG.liquidRegions.liquidAltitude);
             this.settings.setEnableDebugVisualizer(config.debugSettings.enabled());
             this.settings.getNoiseSettings().setFractalType(FastNoise.FractalType.RigidMulti);
             this.settings.setDebugBlock(subCarverSettings.debugCarveState());
@@ -253,7 +252,7 @@ public class CaveCarver extends AbstractCarver {
             this.settings.getNoiseSettings().setFrequency((float) subCarverSettings.advanced().fractalFrequency());
             this.settings.setNumGens(subCarverSettings.advanced().numGenerators());
             this.settings.setXzCompression((float) subCarverSettings.xzCompression());
-            this.settings.setyCompression((float) subCarverSettings.yCompression());
+            this.settings.setYCompression((float) subCarverSettings.yCompression());
             this.settings.setSpawnWeight(subCarverSettings.spawnWeight());
             this.surfaceCutoff = subCarverSettings.surfaceCutoffDistance();
             this.bottomY = subCarverSettings.bottomY();

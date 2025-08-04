@@ -4,12 +4,13 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "bettercaves.refmap.json",
   "mixins": [
-    "aquiferfix.AquiferMixin",
     "ChunkStatusTasksMixin",
-    "aquiferfix.ChunkStepMixin",
-    "aquiferfix.NoiseBasedChunkGeneratorMixin",
     "ServerLevelMixin",
-    "accessor.StructureManagerAccessor"
+    "accessor.StructureManagerAccessor",
+    "aquiferfix.AquiferMixin",
+    "aquiferfix.ChunkStatusTasksMixin",
+    "aquiferfix.ChunkStepMixin",
+    "aquiferfix.NoiseBasedChunkGeneratorMixin"
   ],
   "injectors": {
     "defaultRequire": 1

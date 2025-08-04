@@ -1,40 +1,43 @@
 package com.yungnickyoung.minecraft.bettercaves.worldgen.carver;
 
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseSettings;
+import com.yungnickyoung.minecraft.bettercaves.worldgen.liquidregion.LiquidRegions;
+import com.yungnickyoung.minecraft.bettercaves.worldgen.liquidregion.LiquidRegionsController;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class CarverSettings {
-    private long  seed;
-    private int spawnWeight;
+    private final long seed;
 
-    /* ============================== Values determined through config ============================== */
     /* ------------- Ridged Multifractal Params ------------- */
-    private NoiseSettings noiseSettings = new NoiseSettings();
-    private boolean       isFastNoise; // True if using the FastNoise library; false if using OpenSimplex2S
-    private int           numGens; // Number of noise values to generate per iteration (block, sub-chunk, etc)
+    private final NoiseSettings noiseSettings = new NoiseSettings();
+    private boolean isFastNoise; // True if using the FastNoise library; false if using OpenSimplex2S
+    private int numGens; // Number of noise values to generate per iteration (block, sub-chunk, etc)
 
     /* -------------- Noise Processing Params -------------- */
     private float yCompression;   // Vertical cave gen compression
     private float xzCompression;  // Horizontal cave gen compression
-    private float noiseThreshold; // Noise threshold for determining whether or not a block gets dug out
+    private float noiseThreshold; // Noise threshold for determining whether a block gets dug out
 
     /* ------------------ Worldgen Params ------------------ */
-    private int     liquidAltitude;
+    private final int liquidAltitude;
+    private int spawnWeight;
 
     /* -------------------- Debug Params ------------------- */
-    private BlockState debugBlock;             // Block used to represent this cave/cavern type in the debug visualizer
-    private boolean    enableDebugVisualizer;  // Set true to enable debug visualization for this carver
+    private BlockState debugBlock;          // Block used to represent this cave/cavern type in the debug visualizer
+    private boolean enableDebugVisualizer;  // Set true to enable debug visualization for this carver
 
-    public CarverSettings(long seed) {
-        this.seed = seed;
+    public CarverSettings(ServerLevel serverLevel) {
+        this.seed = serverLevel.getSeed();
+        if (LiquidRegionsController.getInstance().hasSettingsForLevel(serverLevel)) {
+            this.liquidAltitude = LiquidRegionsController.getInstance().getLiquidRegionsForServerLevel(serverLevel).getLiquidAltitude();
+        } else {
+            this.liquidAltitude = LiquidRegions.DEFAULT_ALTITUDE;
+        }
     }
 
     public long getSeed() {
         return seed;
-    }
-
-    public void setSeed(long seed) {
-        this.seed = seed;
     }
 
     public int getSpawnWeight() {
@@ -47,10 +50,6 @@ public class CarverSettings {
 
     public NoiseSettings getNoiseSettings() {
         return noiseSettings;
-    }
-
-    public void setNoiseSettings(NoiseSettings noiseSettings) {
-        this.noiseSettings = noiseSettings;
     }
 
     public boolean isFastNoise() {
@@ -69,11 +68,11 @@ public class CarverSettings {
         this.numGens = numGens;
     }
 
-    public float getyCompression() {
+    public float getYCompression() {
         return yCompression;
     }
 
-    public void setyCompression(float yCompression) {
+    public void setYCompression(float yCompression) {
         this.yCompression = yCompression;
     }
 
@@ -95,10 +94,6 @@ public class CarverSettings {
 
     public int getLiquidAltitude() {
         return liquidAltitude;
-    }
-
-    public void setLiquidAltitude(int liquidAltitude) {
-        this.liquidAltitude = liquidAltitude;
     }
 
     public BlockState getDebugBlock() {

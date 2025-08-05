@@ -99,34 +99,8 @@
             }
           }
         ],
-        "cavern_spawn_chance": 30.0,
+        "cavern_spawn_chance": 23.0,
         "cavern_region_size_frequency": 0.005
-      },
-      {
-        "carvers": [
-          {
-            "spawn_weight": 10,
-            "bottom_y": 0,
-            "top_y": 28,
-            "y_compression": 1.5,
-            "xz_compression": 0.9,
-            "is_floored": false,
-            "debug_carve_state": {
-              "Name": "minecraft:redstone_block"
-            },
-            "advanced": {
-              "noise_threshold": 0.6,
-              "fractal_octaves": 1,
-              "fractal_gain": 0.3,
-              "fractal_frequency": 0.03,
-              "num_generators": 2,
-              "noise_type": "SimplexFractal",
-              "is_fast_noise": true
-            }
-          }
-        ],
-        "cavern_spawn_chance":15.0,
-        "cavern_region_size_frequency": 0.007
       }
     ],
     "misc": {

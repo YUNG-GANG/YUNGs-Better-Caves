@@ -33,7 +33,7 @@
         "absolute": 180
       },
       "min_inclusive": {
-        "above_bottom": 40
+        "above_bottom": 80
       }
     },
     "yScale": {

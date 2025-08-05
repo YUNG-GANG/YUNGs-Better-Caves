@@ -38,9 +38,7 @@ public class AquiferMixin {
         }
 
         BlockState blockState = cir.getReturnValue();
-        if (blockState == null || blockState.is(BlockTags.AIR)) {
-            return; // Only modify liquids
-        }
+        if (blockState == null) return; // Only modify air or liquid blocks
 
         // Fetch the (previously generated) LiquidRegions data for the current chunk.
         // If the cached LiquidRegions data is missing for some reason, it will be generated again.

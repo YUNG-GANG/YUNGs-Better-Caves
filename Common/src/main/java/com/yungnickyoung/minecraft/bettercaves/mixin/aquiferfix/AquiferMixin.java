@@ -5,10 +5,8 @@ import com.yungnickyoung.minecraft.bettercaves.worldgen.context.AquiferContext;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.liquidregion.LiquidRegions;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.liquidregion.LiquidRegionsController;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Aquifer;
 import net.minecraft.world.level.levelgen.DensityFunction;
@@ -33,16 +31,13 @@ public class AquiferMixin {
         }
         ServerLevel serverLevel = aquiferContext.getServerLevel();
 
-        // Only modify aquifers in the overworld.
-        // TODO - support other dimensions via config
-        if (!serverLevel.dimension().location().equals(new ResourceLocation("overworld"))) {
+        // Only modify aquifers if LiquidRegions are enabled for the current level
+        if (!LiquidRegionsController.getInstance().hasSettingsForLevel(serverLevel)) {
             return;
         }
 
         BlockState blockState = cir.getReturnValue();
-        if (blockState == null || blockState.is(Blocks.AIR) || blockState.is(Blocks.CAVE_AIR)) {
-            return; // Only modify liquids
-        }
+        if (blockState == null) return; // Only modify air or liquid blocks
 
         // Fetch the (previously generated) LiquidRegions data for the current chunk.
         // If the cached LiquidRegions data is missing for some reason, it will be generated again.

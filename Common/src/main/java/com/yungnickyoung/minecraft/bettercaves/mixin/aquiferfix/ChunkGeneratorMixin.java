@@ -23,13 +23,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ChunkGenerator.class)
 public class ChunkGeneratorMixin {
     @Inject(method = "createStructures", at = @At("HEAD"))
-    private void bettercaves$generateLiquidRegions1(RegistryAccess $$0, ChunkGeneratorStructureState $$1, StructureManager $$2, ChunkAccess chunkAccess, StructureTemplateManager $$4, CallbackInfo ci) {
-        if (((StructureManagerAccessor) $$2).getLevel() instanceof ServerLevel serverLevel) {
-            LiquidRegionsController.getInstance()
-                    .getLiquidRegionsForServerLevel(serverLevel)
-                    .getOrCreateLiquidBlocksForChunk(chunkAccess.getPos());
+    private void bettercaves$generateLiquidRegions1(RegistryAccess $$0, ChunkGeneratorStructureState $$1, StructureManager structureManager, ChunkAccess chunkAccess, StructureTemplateManager $$4, CallbackInfo ci) {
+        if (((StructureManagerAccessor) structureManager).getLevel() instanceof ServerLevel serverLevel) {
+            if (LiquidRegionsController.getInstance().hasSettingsForLevel(serverLevel)) {
+                LiquidRegionsController.getInstance()
+                        .getLiquidRegionsForServerLevel(serverLevel)
+                        .getOrCreateLiquidBlocksForChunk(chunkAccess.getPos());
+            }
         } else {
-            BetterCavesCommon.LOGGER.error("Better Caves expected a ServerLevel, but got: {}", ((StructureManagerAccessor) $$2).getLevel().getClass().getName());
+            BetterCavesCommon.LOGGER.error("Better Caves expected a ServerLevel, but got: {}", ((StructureManagerAccessor) structureManager).getLevel().getClass().getName());
             BetterCavesCommon.LOGGER.error("Liquid regions will not be generated for this chunk. This may be fatal!");
         }
     }

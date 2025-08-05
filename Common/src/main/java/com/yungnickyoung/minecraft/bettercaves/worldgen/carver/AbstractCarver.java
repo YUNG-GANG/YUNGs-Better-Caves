@@ -49,7 +49,10 @@ public abstract class AbstractCarver {
             return;
         }
 
-        if (airBlockState.isAir() && blockPos.getY() <= settings.getLiquidAltitude()) { // Replace any block below the liquid altitude with the liquid block passed in
+        if (airBlockState.isAir() && blockPos.getY() <= settings.getLiquidAltitude()) {
+            // Replace any block below the liquid altitude with the liquid block passed in.
+            // null means that we're either in the buffer zone between liquid regions,
+            // or that there is no liquid region specified for this dimension.
             if (liquidBlockState != null) {
                 chunkAccess.setBlockState(blockPos, liquidBlockState, false);
             }

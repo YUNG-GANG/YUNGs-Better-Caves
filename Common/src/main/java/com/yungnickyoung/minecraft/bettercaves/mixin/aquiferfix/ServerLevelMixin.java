@@ -18,6 +18,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ServerLevelMixin {
     @Inject(method = "onStructureStartsAvailable", at = @At("HEAD"))
     private void bettercaves$generateLiquidRegions2(ChunkAccess chunkAccess, CallbackInfo ci) {
+        if (!LiquidRegionsController.getInstance().hasSettingsForLevel((ServerLevel) (Object) this)) {
+            return; // No liquid regions to generate for this level
+        }
+
         LiquidRegionsController.getInstance()
                 .getLiquidRegionsForServerLevel((ServerLevel) (Object) this)
                 .getOrCreateLiquidBlocksForChunk(chunkAccess.getPos());

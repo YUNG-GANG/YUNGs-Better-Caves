@@ -6,9 +6,7 @@ import com.yungnickyoung.minecraft.bettercaves.config.BCConfigFabric;
 import com.yungnickyoung.minecraft.bettercaves.json.ResourceLocationAdapter;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.liquidregion.LiquidRegionsController;
 import com.yungnickyoung.minecraft.yungsapi.io.JSON;
-import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigHolder;
-import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resources.ResourceLocation;
@@ -26,10 +24,10 @@ public class ConfigModuleFabric {
 
     public static void init() {
         initCustomFiles();
-        AutoConfig.register(BCConfigFabric.class, Toml4jConfigSerializer::new);
-        AutoConfig.getConfigHolder(BCConfigFabric.class).registerSaveListener(ConfigModuleFabric::bakeConfig);
-        AutoConfig.getConfigHolder(BCConfigFabric.class).registerLoadListener(ConfigModuleFabric::bakeConfig);
-        bakeConfig(AutoConfig.getConfigHolder(BCConfigFabric.class).get());
+//        AutoConfig.register(BCConfigFabric.class, Toml4jConfigSerializer::new);
+//        AutoConfig.getConfigHolder(BCConfigFabric.class).registerSaveListener(ConfigModuleFabric::bakeConfig);
+//        AutoConfig.getConfigHolder(BCConfigFabric.class).registerLoadListener(ConfigModuleFabric::bakeConfig);
+//        bakeConfig(AutoConfig.getConfigHolder(BCConfigFabric.class).get());
 
         // Reload JSON files when server starts to ensure modded blocks and items load properly
         ServerLifecycleEvents.SERVER_STARTED.register(server -> ConfigModuleFabric.reloadJSON());

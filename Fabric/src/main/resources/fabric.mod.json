@@ -19,9 +19,6 @@
   "entrypoints": {
     "main": [
       "com.yungnickyoung.minecraft.bettercaves.BetterCavesFabric"
-    ],
-    "modmenu": [
-      "com.yungnickyoung.minecraft.bettercaves.config.gui.BCModMenu"
     ]
   },
   "mixins": [

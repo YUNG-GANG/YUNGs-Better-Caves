@@ -4,6 +4,7 @@ package com.yungnickyoung.minecraft.bettercaves.worldgen.carver;
 import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.BetterCavesWorldCarverConfig;
+import com.yungnickyoung.minecraft.yungsapi.math.ColPos;
 import com.yungnickyoung.minecraft.yungsapi.noise.FastNoise;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -60,8 +61,8 @@ public class CavernCarver extends AbstractCarver {
         this.isFloored = builder.isFloored();
     }
 
-    public void carveColumn(BetterCavesWorldCarverConfig config, ChunkAccess chunk, BlockPos colPos, int topY, float smoothAmp,
-                            double[][] noises, BlockState liquidBlock, CarvingMask carvingMask,
+    public void carveColumn(BetterCavesWorldCarverConfig config, ChunkAccess chunk, ColPos colPos, int topY, float smoothAmp,
+                            double[][] noiseColumn, BlockState liquidBlock, CarvingMask carvingMask,
                             Aquifer aquifer) {
         int localX = colPos.getX() & 0xF;
         int localZ = colPos.getZ() & 0xF;
@@ -87,7 +88,7 @@ public class CavernCarver extends AbstractCarver {
         BlockPos.MutableBlockPos localPos = new BlockPos.MutableBlockPos(localX, 1, localZ);
         BlockPos.MutableBlockPos realPos = new BlockPos.MutableBlockPos(colPos.getX(), 1, colPos.getZ());
 
-        /* =============== Dig out caves and caverns in this chunk, based on noise values =============== */
+        // Dig out caverns in this column, based on noise values
         for (int y = topY; y >= bottomY; y--) {
             if (y <= settings.getLiquidAltitude() && liquidBlock == null)
                 break;
@@ -96,7 +97,7 @@ public class CavernCarver extends AbstractCarver {
 
             // Compute a single noise value to represent all the noise values in the NoiseTuple
             float noise = 1;
-            double[] noiseBlock = noises[y - bottomY];
+            double[] noiseBlock = noiseColumn[y - bottomY];
             for (double n : noiseBlock)
                 noise *= (float) n;
 
@@ -141,10 +142,12 @@ public class CavernCarver extends AbstractCarver {
         return settings.getSpawnWeight();
     }
 
+    @Override
     public int getBottomY() {
         return bottomY;
     }
 
+    @Override
     public int getTopY() {
         return topY;
     }

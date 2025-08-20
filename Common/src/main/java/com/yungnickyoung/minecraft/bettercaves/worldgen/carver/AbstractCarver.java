@@ -1,6 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves.worldgen.carver;
 
 import com.google.common.collect.ImmutableSet;
+import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.BetterCavesWorldCarverConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Blocks;
@@ -14,9 +15,11 @@ public abstract class AbstractCarver {
     protected final CarverSettings settings;
 
     public abstract int getSpawnWeight();
+    public abstract int getBottomY();
     public abstract int getTopY();
+    public abstract NoiseGen getNoiseGen();
 
-    private final ImmutableSet<BlockState> DEBUG_BLOCKS = ImmutableSet.of(
+        private final ImmutableSet<BlockState> DEBUG_BLOCKS = ImmutableSet.of(
             Blocks.GOLD_BLOCK.defaultBlockState(), Blocks.OAK_PLANKS.defaultBlockState(),
             Blocks.COBBLESTONE.defaultBlockState(), Blocks.REDSTONE_BLOCK.defaultBlockState(),
             Blocks.EMERALD_BLOCK.defaultBlockState(), Blocks.BRICKS.defaultBlockState());

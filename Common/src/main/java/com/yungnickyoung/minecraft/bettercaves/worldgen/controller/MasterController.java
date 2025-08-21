@@ -2,6 +2,8 @@ package com.yungnickyoung.minecraft.bettercaves.worldgen.controller;
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.BetterCavesWorldCarverConfig;
+import com.yungnickyoung.minecraft.bettercaves.worldgen.layer.CaveLayer;
+import com.yungnickyoung.minecraft.bettercaves.worldgen.layer.CavernLayer;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.liquidregion.LiquidRegionsController;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -23,17 +25,17 @@ import java.util.function.Function;
 public class MasterController {
     private final ServerLevel serverLevel;
     private final BetterCavesWorldCarverConfig config;
-    private final List<CaveCarverController> caveLayers = new ArrayList<>();
-    private final List<CavernCarverController> cavernLayers = new ArrayList<>();
+    private final List<CaveLayer> caveLayers = new ArrayList<>();
+    private final List<CavernLayer> cavernLayers = new ArrayList<>();
     private final Set<ChunkPos> carvedChunkCache = new HashSet<>();
 
     public MasterController(ServerLevel serverLevel, BetterCavesWorldCarverConfig config) {
         this.serverLevel = serverLevel;
         this.config = config;
         config.caveLayers.forEach(caveLayerSettings -> this.caveLayers.add(
-                new CaveCarverController(serverLevel, config, caveLayerSettings)));
+                new CaveLayer(serverLevel, config, caveLayerSettings)));
         config.cavernLayers.forEach(cavernLayerSettings -> this.cavernLayers.add(
-                new CavernCarverController(serverLevel, config, cavernLayerSettings)));
+                new CavernLayer(serverLevel, config, cavernLayerSettings)));
         BetterCavesCommon.LOGGER.debug("MASTER CONTROLLER INITIALIZED");
     }
 

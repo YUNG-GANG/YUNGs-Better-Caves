@@ -3,6 +3,7 @@ package com.yungnickyoung.minecraft.bettercaves.worldgen.carver;
 import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.BetterCavesWorldCarverConfig;
+import com.yungnickyoung.minecraft.yungsapi.math.ColPos;
 import com.yungnickyoung.minecraft.yungsapi.noise.FastNoise;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -74,7 +75,7 @@ public class CaveCarver extends AbstractCarver {
         }
     }
 
-    public void carveColumn(BetterCavesWorldCarverConfig config, ChunkAccess chunk, BlockPos colPos, int topY, double[][] noises,
+    public void carveColumn(BetterCavesWorldCarverConfig config, ChunkAccess chunk, ColPos colPos, int topY, double[][] noiseColumn,
                             BlockState liquidBlock, CarvingMask carvingMask, Aquifer aquifer) {
         int localX = colPos.getX() & 0xF;
         int localZ = colPos.getZ() & 0xF;
@@ -95,7 +96,7 @@ public class CaveCarver extends AbstractCarver {
         // Basically this makes caves taller to give players more headroom.
         // See the javadoc for the function for more info.
         if (this.enableYAdjust) {
-            preprocessCaveNoiseCol(noises, topY, bottomY, thresholds, settings.getNumGens());
+            preprocessCaveNoiseCol(noiseColumn, topY, bottomY, thresholds, settings.getNumGens());
         }
 
         BlockPos.MutableBlockPos localPos = new BlockPos.MutableBlockPos(localX, 1, localZ);
@@ -107,7 +108,7 @@ public class CaveCarver extends AbstractCarver {
                 break;
             }
 
-            double[] noiseBlock = noises[y - bottomY];
+            double[] noiseBlock = noiseColumn[y - bottomY];
             boolean digBlock = true;
 
             for (double noise : noiseBlock) {
@@ -203,6 +204,7 @@ public class CaveCarver extends AbstractCarver {
         return thresholds;
     }
 
+    @Override
     public NoiseGen getNoiseGen() {
         return noiseGen;
     }
@@ -215,10 +217,12 @@ public class CaveCarver extends AbstractCarver {
         return settings.getSpawnWeight();
     }
 
+    @Override
     public int getBottomY() {
         return this.bottomY;
     }
 
+    @Override
     public int getTopY() {
         return this.topY;
     }

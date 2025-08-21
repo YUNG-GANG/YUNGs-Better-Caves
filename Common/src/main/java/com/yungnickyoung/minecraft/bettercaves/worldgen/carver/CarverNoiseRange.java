@@ -4,10 +4,8 @@ package com.yungnickyoung.minecraft.bettercaves.worldgen.carver;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtils;
 
 /**
- * Couples the bounds of a particular range of noise values with a NoiseCube and carver.
- * Having these pieces of information in one place is kind of bad practice, but proves to be very
- * convenient in the Carver Controllers.
- * The smooth cutoff variables are currently only used by the CavernCarverController, since
+ * Couples the bounds of a particular range of noise values with a carver.
+ * The smooth cutoff variables are currently only used by CavernLayer, since
  * caves currently do not have boundary smoothing.
  */
 public class CarverNoiseRange {
@@ -23,9 +21,6 @@ public class CarverNoiseRange {
     // The carver associated with this range of noises.
     private final AbstractCarver carver;
 
-    // The NoiseCube associated with this range of noises.
-    private double[][][][] noiseCube;
-
     // The degree of smoothing on cavern edges. For a given SMOOTH_PERCENT x, both the
     // bottom and top ends of the noise range are each smoothed by (x * 100) percent.
     private static final float SMOOTH_PERCENT = .3f;
@@ -37,7 +32,6 @@ public class CarverNoiseRange {
         this.smoothBottomCutoff = NoiseUtils.simplexNoiseOffsetByPercent(bottom, smoothRangePercent);
         this.smoothTopCutoff = NoiseUtils.simplexNoiseNegativeOffsetByPercent(top, smoothRangePercent);
         this.carver = carver;
-        this.noiseCube = null;
     }
 
     public boolean contains(float noiseValue) {
@@ -59,14 +53,6 @@ public class CarverNoiseRange {
 
     public AbstractCarver getCarver() {
         return carver;
-    }
-
-    public double[][][][] getNoiseCube() {
-        return noiseCube;
-    }
-
-    public void setNoiseCube(double[][][][] noiseCube) {
-        this.noiseCube = noiseCube;
     }
 
     @Override

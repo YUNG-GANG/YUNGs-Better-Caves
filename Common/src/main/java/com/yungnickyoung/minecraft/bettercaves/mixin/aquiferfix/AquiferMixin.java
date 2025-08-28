@@ -6,30 +6,53 @@ import com.yungnickyoung.minecraft.bettercaves.worldgen.liquidregion.LiquidRegio
 import com.yungnickyoung.minecraft.bettercaves.worldgen.liquidregion.LiquidRegionsController;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Aquifer;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Aquifer.NoiseBasedAquifer.class)
 public class AquiferMixin {
+    @Unique
+    private static int logCounter = 0;
+
+    @Unique
+    private static final int MAX_LOG_COUNTER = 20;
+
+    @Unique
+    private static boolean PRINTED_FINAL_ERROR = false; // potentially necessary for multithreading mods
+
     /**
      * Replaces Aquifer-generated liquids at and below the liquidAltitude with the proper Better Caves liquid,
      * as defined by the LiquidRegions data for the current chunk.
      */
     @Inject(method = "computeSubstance", at = @At("RETURN"), cancellable = true)
     private void bettercaves$fixAquiferLiquids(DensityFunction.FunctionContext context, double d, CallbackInfoReturnable<BlockState> cir) {
+        // Only log the first 20 times this happens to avoid spamming the log
+        if (logCounter > MAX_LOG_COUNTER) {
+            if (!PRINTED_FINAL_ERROR) {
+                BetterCavesCommon.LOGGER.error("Failed to fetch the AquiferContext. Liquid Regions for YUNG's Better Caves may not generate properly.");
+                BetterCavesCommon.LOGGER.error("This is a mod compatibility issue. Please report it to the Better Caves GitHub issue tracker!");
+                PRINTED_FINAL_ERROR = true;
+            }
+            return;
+        }
+
         // Grab the AquiferContext from the current thread and fetch the ServerLevel from it
         AquiferContext aquiferContext = AquiferContext.peek();
         if (aquiferContext == null) {
-            BetterCavesCommon.LOGGER.warn("AquiferContext is null in AquiferMixin, this should not happen!");
+            if (logCounter < MAX_LOG_COUNTER) {
+                BetterCavesCommon.LOGGER.warn("AquiferContext is null in AquiferMixin, this should not happen!");
+            }
+            logCounter++;
             return;
         }
+
         ServerLevel serverLevel = aquiferContext.getServerLevel();
 
         // Only modify aquifers if LiquidRegions are enabled for the current level

@@ -5,8 +5,8 @@ import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtils;
 
 /**
  * Couples the bounds of a particular range of noise values with a carver.
- * The smooth cutoff variables are currently only used by the CavernCarverController, since
- * caves currently do not have boundary smoothing.
+ * The smooth cutoff variables are currently only used by {@link com.yungnickyoung.minecraft.bettercaves.worldgen.layer.CavernLayer},
+ * since caves currently do not have boundary smoothing.
  */
 public class CarverNoiseRange {
     // Bounds of a range of noise values

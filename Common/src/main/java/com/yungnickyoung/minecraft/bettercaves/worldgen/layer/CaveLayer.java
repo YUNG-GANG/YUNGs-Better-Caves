@@ -109,7 +109,7 @@ public class CaveLayer {
                     }
                 }
                 if (this.isDebugViewEnabled) {
-                    maxHeight = 128;
+                    maxHeight = this.config.debugSettings.topY();
                 }
 
                 // Construct noise cube for each range
@@ -139,7 +139,7 @@ public class CaveLayer {
                             int topY = this.isOverrideSurfaceDetectionEnabled
                                     ? range.getCarver().getTopY()
                                     : Math.min(surfaceAltitude, range.getCarver().getTopY());
-                            if (this.isDebugViewEnabled) topY = 128;
+                            if (this.isDebugViewEnabled) topY = this.config.debugSettings.topY();
 
                             double[][] noiseColumn = noiseCubes.get(range)[offsetX][offsetZ];
                             ((CaveCarver) range.getCarver()).carveColumn(this.config, chunkAccess, colPos, topY, noiseColumn, liquidBlock, carvingMask, aquifer);

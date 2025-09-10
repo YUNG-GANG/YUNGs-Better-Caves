@@ -48,6 +48,7 @@ dependencies {
 
 loom {
     mixin.defaultRefmapName = "${mod_id}.refmap.json"
+    accessWidenerPath = file("src/main/resources/bettercaves.accesswidener")
 
     runs {
         client {

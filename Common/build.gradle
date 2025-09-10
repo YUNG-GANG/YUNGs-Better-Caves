@@ -11,6 +11,7 @@ def useLocalYungsApi = findProject(':yungsapi') != null
 
 minecraft {
     version(mc_version)
+    accessWideners(file("../Fabric/src/main/resources/${mod_id}.accesswidener"))
     runs {
         if (project.hasProperty('common_runs_enabled') ? project.findProperty('common_runs_enabled').toBoolean() : true) {
             server(project.hasProperty('common_server_run_name') ? project.findProperty('common_server_run_name') : 'vanilla_server') {

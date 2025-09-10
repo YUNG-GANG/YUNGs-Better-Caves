@@ -24,6 +24,7 @@
   "mixins": [
     "bettercaves.mixins.json"
   ],
+  "accessWidener": "bettercaves.accesswidener",
   "depends": {
     "fabricloader": ">=${fabric_loader_version}",
     "fabric": ">=${fabric_version}",

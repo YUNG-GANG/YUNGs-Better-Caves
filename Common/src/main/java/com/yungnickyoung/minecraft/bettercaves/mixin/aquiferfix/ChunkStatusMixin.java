@@ -1,23 +1,17 @@
 package com.yungnickyoung.minecraft.bettercaves.mixin.aquiferfix;
 
-import com.mojang.datafixers.util.Either;
+import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.context.AquiferContext;
-import net.minecraft.server.level.ChunkHolder;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ThreadedLevelLightEngine;
-import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.ChunkStatus;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.function.Function;
+import java.util.EnumSet;
 
 /**
  * Mixin to push and pop the AquiferContext at the start and end of every chunk generation step.
@@ -26,13 +20,23 @@ import java.util.function.Function;
  */
 @Mixin(ChunkStatus.class)
 public class ChunkStatusMixin {
-    @Inject(method = "generate", at = @At("HEAD"))
-    private void bettercaves$pushAquiferContext(Executor $$0, ServerLevel serverLevel, ChunkGenerator $$2, StructureTemplateManager $$3, ThreadedLevelLightEngine $$4, Function<ChunkAccess, CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> $$5, List<ChunkAccess> $$6, CallbackInfoReturnable<CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> cir) {
-        AquiferContext.push(serverLevel);
-    }
 
-    @Inject(method = "generate", at = @At("RETURN"))
-    private void bettercaves$popAquiferContext(Executor $$0, ServerLevel $$1, ChunkGenerator $$2, StructureTemplateManager $$3, ThreadedLevelLightEngine $$4, Function<ChunkAccess, CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> $$5, List<ChunkAccess> $$6, CallbackInfoReturnable<CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> cir) {
-        AquiferContext.pop();
+    @Mutable
+    @Shadow
+    @Final
+    private ChunkStatus.GenerationTask generationTask;
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void bettercaves$wrapAquiferContext(ChunkStatus $$0, int $$1, boolean $$2, EnumSet $$3, ChunkStatus.ChunkType $$4, ChunkStatus.GenerationTask $$5, ChunkStatus.LoadingTask $$6, CallbackInfo ci) {
+        ChunkStatus.GenerationTask originalTask = this.generationTask;
+        this.generationTask = (chunkStatus, executor, serverLevel, chunkGnerator, structureTemplateManager, lightEngine, var7, chunks, chunk) -> {
+            try {
+                AquiferContext.push(serverLevel);
+                return originalTask.doWork(chunkStatus, executor, serverLevel, chunkGnerator, structureTemplateManager, lightEngine, var7, chunks, chunk);
+            } finally {
+                AquiferContext.pop();
+            }
+        };
+        BetterCavesCommon.LOGGER.debug("WRAPPED GENERATION TASK FOR CHUNK STATUS");
     }
 }

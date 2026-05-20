@@ -1,8 +1,8 @@
 plugins {
-    id 'fabric-loom' version '1.10-SNAPSHOT' apply false
-    id "org.jetbrains.gradle.plugin.idea-ext" version "1.1.7" // required for NeoGradle
+    id 'net.fabricmc.fabric-loom' version '1.15-SNAPSHOT' apply false
+    id "org.jetbrains.gradle.plugin.idea-ext" version "1.4.1" // required for VanillaGradle and NeoForge to work together?
     id 'org.spongepowered.mixin' version '0.7-SNAPSHOT' apply false
-    id 'net.darkhax.curseforgegradle' version "${curseforgegradle_version}" apply false // curseforge publishing
+    id 'net.darkhax.curseforgegradle' version "${cursegradle_version}" apply false // curseforge publishing
     id "com.modrinth.minotaur" version "2.+" apply false // modrinth publishing
 }
 

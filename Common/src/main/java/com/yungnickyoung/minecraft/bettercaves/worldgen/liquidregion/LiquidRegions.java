@@ -58,12 +58,12 @@ public class LiquidRegions {
         }
 
         // If not cached, generate the liquid blocks for the chunk
-        this.rand.setSeed(this.serverLevel.getSeed() ^ chunkPos.x ^ chunkPos.z);
+        this.rand.setSeed(this.serverLevel.getSeed() ^ chunkPos.x() ^ chunkPos.z());
         BlockState[][] blocks = new BlockState[16][16];
         ColPos.Mutable pos = new ColPos.Mutable();
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
-                pos.set(chunkPos.x * 16 + x, chunkPos.z * 16 + z);
+                pos.set(chunkPos.x() * 16 + x, chunkPos.z() * 16 + z);
                 blocks[x][z] = this.getLiquidBlockAtPos(this.rand, pos);
             }
         }

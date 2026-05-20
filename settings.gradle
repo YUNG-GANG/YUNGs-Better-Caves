@@ -2,18 +2,7 @@ pluginManagement {
     repositories {
         gradlePluginPortal()
         mavenCentral()
-        exclusiveContent {
-            forRepository {
-                maven {
-                    name = 'Fabric'
-                    url = uri("https://maven.fabricmc.net")
-                }
-            }
-            filter {
-                includeGroup("net.fabricmc")
-                includeGroup("fabric-loom")
-            }
-        }
+        maven { url "https://maven.fabricmc.net/" }
         exclusiveContent {
             forRepository {
                 maven {
@@ -48,13 +37,6 @@ pluginManagement {
                 includeGroupAndSubgroups("org.spongepowered")
             }
         }
-//        maven {
-//            url = uri("https://maven.kaolinmc.com/snapshots")
-//        }
-//        maven {
-//            url = uri("https://maven.kaolinmc.com/releases")
-//        }
-//        gradlePluginPortal()
     }
 }
 
@@ -64,4 +46,3 @@ plugins {
 
 rootProject.name = 'bettercaves'
 include("Common", "Fabric", "NeoForge")
-//include("Kaolin")

@@ -65,7 +65,7 @@ public class AquiferMixin {
 
         // Fetch the (previously generated) LiquidRegions data for the current chunk.
         // If the cached LiquidRegions data is missing for some reason, it will be generated again.
-        ChunkPos chunkPos = new ChunkPos(new BlockPos(context.blockX(), context.blockY(), context.blockZ()));
+        ChunkPos chunkPos = ChunkPos.containing(new BlockPos(context.blockX(), context.blockY(), context.blockZ()));
         LiquidRegions liquidRegions = LiquidRegionsController.getInstance().getLiquidRegionsForServerLevel(serverLevel);
         LiquidRegions.CacheData cacheData = liquidRegions.getOrCreateLiquidBlocksForChunk(chunkPos);
         if (cacheData == null) {

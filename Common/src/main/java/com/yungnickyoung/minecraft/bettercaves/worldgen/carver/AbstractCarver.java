@@ -57,7 +57,7 @@ public abstract class AbstractCarver {
             // null means that we're either in the buffer zone between liquid regions,
             // or that there is no liquid region specified for this dimension.
             if (liquidBlockState != null) {
-                chunkAccess.setBlockState(blockPos, liquidBlockState, false);
+                chunkAccess.setBlockState(blockPos, liquidBlockState);
             }
         } else {
             BlockState newBlockState = aquifer.computeSubstance(new DensityFunction.SinglePointContext(
@@ -67,7 +67,7 @@ public abstract class AbstractCarver {
                 return;
             }
 
-            chunkAccess.setBlockState(blockPos, newBlockState, false);
+            chunkAccess.setBlockState(blockPos, newBlockState);
             if (aquifer.shouldScheduleFluidUpdate() && !newBlockState.getFluidState().isEmpty()) {
                 chunkAccess.markPosForPostprocessing(blockPos);
             }
@@ -103,9 +103,9 @@ public abstract class AbstractCarver {
         if (DEBUG_BLOCKS.contains(chunkIn.getBlockState(blockPos))) return;
 
         if (digBlock) {
-            chunkIn.setBlockState(blockPos, this.settings.getDebugBlock(), false);
+            chunkIn.setBlockState(blockPos, this.settings.getDebugBlock());
         } else {
-            chunkIn.setBlockState(blockPos, Blocks.AIR.defaultBlockState(), false);
+            chunkIn.setBlockState(blockPos, Blocks.AIR.defaultBlockState());
         }
     }
 }

@@ -1,7 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves.worldgen.liquidregion;
 
 import com.google.gson.annotations.SerializedName;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 
 import java.util.Map;
@@ -21,7 +21,7 @@ public class LiquidRegionsController {
     // Default settings
     public static void useDefaultSettings() {
         LiquidRegionsController controller = new LiquidRegionsController();
-        controller.settingsByDimensionId.put(ResourceLocation.withDefaultNamespace("overworld"), LiquidRegions.Settings.DEFAULT.copy());
+        controller.settingsByDimensionId.put(Identifier.withDefaultNamespace("overworld"), LiquidRegions.Settings.DEFAULT.copy());
         INSTANCE = controller;
     }
 
@@ -36,18 +36,18 @@ public class LiquidRegionsController {
      * This is deserialized from the liquidregions.json config file.
      */
     @SerializedName("liquidRegions")
-    private final Map<ResourceLocation, LiquidRegions.Settings> settingsByDimensionId = new ConcurrentHashMap<>();
+    private final Map<Identifier, LiquidRegions.Settings> settingsByDimensionId = new ConcurrentHashMap<>();
 
     public boolean hasSettingsForLevel(ServerLevel serverLevel) {
-        ResourceLocation dimensionId = serverLevel.dimension().location();
+        Identifier dimensionId = serverLevel.dimension().identifier();
         return this.settingsByDimensionId.containsKey(dimensionId);
     }
 
     public LiquidRegions getLiquidRegionsForServerLevel(ServerLevel serverLevel) {
         return this.regionsByLevel.computeIfAbsent(serverLevel, sl -> {
-            LiquidRegions.Settings settings = this.settingsByDimensionId.get(sl.dimension().location());
+            LiquidRegions.Settings settings = this.settingsByDimensionId.get(sl.dimension().identifier());
             if (settings == null) {
-                throw new IllegalStateException("No LiquidRegions settings found for dimension: " + sl.dimension().location());
+                throw new IllegalStateException("No LiquidRegions settings found for dimension: " + sl.dimension().identifier());
             }
             return new LiquidRegions(sl, settings);
         });

@@ -43,6 +43,7 @@ repositories {
     flatDir {
         dirs 'libs'
     }
+    mavenLocal()
 }
 
 // Declare capabilities on the outgoing configurations.
@@ -90,27 +91,26 @@ jar {
 
 processResources {
     def expandProps = [
-            "version": version,
-            "group": project.group, //Else we target the task's group.
-            "mc_version": mc_version,
-            "mc_version_range": mc_version_range,
-            "mc_version_range_fabric": mc_version_range_fabric,
-            "fabric_version": fabric_version,
-            "fabric_loader_version": fabric_loader_version,
-            "clothconfig_version_fabric": clothconfig_version_fabric,
-            "neoforge_version": neoforge_version,
-            "neoforge_version_range": neoforge_version_range,
+            "version"                      : version,
+            "group"                        : project.group, //Else we target the task's group.
+            "mc_version"                   : mc_version,
+            "mc_version_range"             : mc_version_range,
+            "mc_version_range_fabric"      : mc_version_range_fabric,
+            "fabric_version"               : fabric_version,
+            "fabric_loader_version"        : fabric_loader_version,
+            "clothconfig_version_fabric"   : clothconfig_version_fabric,
+            "modmenu_version_fabric"       : modmenu_version_fabric,
+            "neoforge_version"             : neoforge_version,
+            "neoforge_version_range"       : neoforge_version_range,
             "neoforge_loader_version_range": neoforge_loader_version_range,
-            "forge_version": forge_version,
-            "forge_loader_version_range": forge_loader_version_range,
-            "mod_full_name": mod_full_name,
-            "mod_author": mod_author,
-            "mod_id": mod_id,
-            "license": license,
-            "mod_description": project.mod_description,
-            "mod_credits": mod_credits,
-            "java_version": java_version,
-            "yungsapi_version": yungsapi_version
+            "mod_full_name"                : mod_full_name,
+            "mod_author"                   : mod_author,
+            "mod_id"                       : mod_id,
+            "license"                      : license,
+            "mod_description"              : project.mod_description,
+            "mod_credits"                  : mod_credits,
+            "java_version"                 : java_version,
+            "yungsapi_version"             : yungsapi_version
     ]
 
     filesMatching(['pack.mcmeta', 'fabric.mod.json', 'META-INF/mods.toml', 'META-INF/neoforge.mods.toml', '*.mixins.json']) {

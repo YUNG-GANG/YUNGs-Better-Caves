@@ -25,49 +25,30 @@ repositories {
                 url = 'https://repo.spongepowered.org/repository/maven-public'
             }
         }
-        filter { includeGroupAndSubgroups("org.spongepowered") }
-    }
-    exclusiveContent {
-        forRepository {
-            maven {
-                name = 'ParchmentMC'
-                url = 'https://maven.parchmentmc.org/'
-            }
-        }
-        filter { includeGroup('org.parchmentmc.data') }
+        filter { includeGroupAndSubgroups('org.spongepowered') }
     }
     maven {
         name = 'BlameJared'
         url = 'https://maven.blamejared.com'
     }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'GeckoLib'
+                url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+            }
+        }
+        filter { includeGroupAndSubgroups('com.geckolib') }
+    }
+    mavenLocal()
     flatDir {
         dirs 'libs'
     }
-    mavenLocal()
-}
-
-// Declare capabilities on the outgoing configurations.
-// Read more about capabilities here: https://docs.gradle.org/current/userguide/component_capabilities.html#sec:declaring-additional-capabilities-for-a-local-component
-['apiElements', 'runtimeElements', 'sourcesElements', 'javadocElements'].each { variant ->
-    configurations."$variant".outgoing {
-        capability("$group:${base.archivesName.get()}:$version")
-        capability("$group:$mod_id-${project.name}-${mc_version}:$version")
-        capability("$group:$mod_id:$version")
-    }
-//    publishing.publications.configureEach {
-//        suppressPomMetadataWarningsFor(variant)
-//    }
 }
 
 sourcesJar {
     from(rootProject.file("LICENSE")) {
         rename { "${it}_${mod_name}" }
-    }
-}
-
-javadoc {
-    if (JavaVersion.current().isJava9Compatible()) {
-        options.addBooleanOption('html5', true)
     }
 }
 
@@ -91,30 +72,38 @@ jar {
 
 processResources {
     def expandProps = [
-            "version"                      : version,
-            "group"                        : project.group, //Else we target the task's group.
-            "mc_version"                   : mc_version,
-            "mc_version_range"             : mc_version_range,
-            "mc_version_range_fabric"      : mc_version_range_fabric,
-            "fabric_version"               : fabric_version,
-            "fabric_loader_version"        : fabric_loader_version,
-            "clothconfig_version_fabric"   : clothconfig_version_fabric,
-            "modmenu_version_fabric"       : modmenu_version_fabric,
-            "neoforge_version"             : neoforge_version,
-            "neoforge_version_range"       : neoforge_version_range,
+            "version": version,
+            "group": project.group, //Else we target the task's group.
+            "mc_version": mc_version,
+            "mc_version_range": mc_version_range,
+            "mc_version_range_fabric": mc_version_range_fabric,
+            "fabric_version": fabric_version,
+            "fabric_loader_version": fabric_loader_version,
+            "clothconfig_version_fabric": clothconfig_version_fabric,
+            "neoforge_version": neoforge_version,
+            "neoforge_version_range": neoforge_version_range,
             "neoforge_loader_version_range": neoforge_loader_version_range,
-            "mod_full_name"                : mod_full_name,
-            "mod_author"                   : mod_author,
-            "mod_id"                       : mod_id,
-            "license"                      : license,
-            "mod_description"              : project.mod_description,
-            "mod_credits"                  : mod_credits,
-            "java_version"                 : java_version,
-            "yungsapi_version"             : yungsapi_version
+            "mod_full_name": mod_full_name,
+            "mod_author": mod_author,
+            "mod_id": mod_id,
+            "license": license,
+            "mod_description": project.mod_description,
+            "mod_credits": mod_credits,
+            "java_version": java_version,
+            "yungsapi_version": yungsapi_version,
     ]
 
-    filesMatching(['pack.mcmeta', 'fabric.mod.json', 'META-INF/mods.toml', 'META-INF/neoforge.mods.toml', '*.mixins.json']) {
+    var jsonExpandProps = expandProps.collectEntries {
+        key, value -> [(key): value instanceof String ? value.replace("\n", "\\\\n") : value]
+    }
+
+    filesMatching(['META-INF/mods.toml', 'META-INF/neoforge.mods.toml']) {
         expand expandProps
     }
+
+    filesMatching(['pack.mcmeta', 'fabric.mod.json', '*.mixins.json']) {
+        expand jsonExpandProps
+    }
+
     inputs.properties(expandProps)
 }

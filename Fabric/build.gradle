@@ -1,6 +1,6 @@
 plugins {
     id 'multiloader-loader'
-    id 'fabric-loom'
+    id 'net.fabricmc.fabric-loom'
     id 'net.darkhax.curseforgegradle'
     id 'com.modrinth.minotaur'
 }
@@ -14,41 +14,33 @@ repositories {
 
 dependencies {
     minecraft "com.mojang:minecraft:${mc_version}"
-    mappings loom.layered {
-        officialMojangMappings()
-        parchment("org.parchmentmc.data:parchment-${parchment_minecraft}:${parchment_version}@zip")
-    }
 
     // YUNG's API
     if (useLocalYungsApi) {
-        modImplementation files("libs/YungsApi-${mc_version}-Fabric-${yungsapi_version}.jar")
+        implementation files("libs/YungsApi-${mc_version}-Fabric-${yungsapi_version}.jar")
     } else {
-        modImplementation "com.yungnickyoung.minecraft.yungsapi:YungsApi:${mc_version}-Fabric-${yungsapi_version}"
+        implementation "com.yungnickyoung.minecraft.yungsapi:YungsApi:${mc_version}-Fabric-${yungsapi_version}"
     }
-    implementation("org.reflections:reflections:0.10.2")
-    include("org.reflections:reflections:0.10.2")
 
     // Fabric
-    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}+${mc_version}"
+    implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}+${mc_version}"
+
+    // Reflections
+    implementation(include("org.reflections:reflections:0.10.2"))
 
     // ClothConfig
-    modImplementation "me.shedaniel.cloth:cloth-config-fabric:${project.clothconfig_version_fabric}"
+    implementation "me.shedaniel.cloth:cloth-config-fabric:${project.clothconfig_version_fabric}"
 
     // ModMenu
-    modImplementation ("com.terraformersmc:modmenu:${project.modmenu_version_fabric}") { transitive = false }
+    implementation ("com.terraformersmc:modmenu:${project.modmenu_version_fabric}") { transitive = false }
 }
 
 loom {
-    def aw = file("src/main/resources/${mod_id}.accesswidener")
+    def aw = project(':Common').file("src/main/resources/${mod_id}.accesswidener")
     if (aw.exists()) {
         accessWidenerPath.set(aw)
     }
-
-    mixin {
-        defaultRefmapName.set("${mod_id}.refmap.json")
-    }
-
     runs {
         client {
             client()
@@ -65,14 +57,33 @@ loom {
     }
 }
 
+// Implement mcgradleconventions loader attribute
+def loaderAttribute = Attribute.of('io.github.mcgradleconventions.loader', String)
+['apiElements', 'runtimeElements', 'sourcesElements', 'javadocElements', 'includeInternal', 'modCompileClasspath'].each { variant ->
+    configurations.named("$variant") {
+        attributes {
+            attribute(loaderAttribute, 'fabric')
+        }
+    }
+}
+sourceSets.configureEach {
+    [it.compileClasspathConfigurationName, it.runtimeClasspathConfigurationName].each { variant->
+        configurations.named("$variant") {
+            attributes {
+                attribute(loaderAttribute, 'fabric')
+            }
+        }
+    }
+}
+
 String[] compatibleVersions = project.compatible_versions.split(',')
 task publishCurseForgeFabric(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
-    dependsOn(tasks.remapJar)
+    dependsOn(tasks.jar)
     apiToken = curseforgeApiKey
 
     debugMode = debug_publish.toBoolean()
 
-    def mainFile = upload(curseforge_project_id_fabric, tasks.remapJar.archiveFile)
+    def mainFile = upload(curseforge_project_id_fabric, tasks.jar.archiveFile)
     mainFile.changelogType = 'markdown'
     mainFile.changelog = file("../CHANGELOG.md").exists() ? file("../CHANGELOG.md").text : "No changelog provided"
     mainFile.releaseType = 'release'
@@ -93,7 +104,7 @@ modrinth {
     versionNumber = version
     versionName = "[${mc_version}] v${rawVersion} (Fabric)"
     versionType = "release"
-    uploadFile = remapJar
+    uploadFile = jar
     gameVersions = compatibleVersionsList
     debugMode = debug_publish.toBoolean()
     changelog = file("../CHANGELOG.md").exists() ? file("../CHANGELOG.md").text : "No changelog provided"
@@ -107,4 +118,4 @@ modrinth {
         optional.project "modmenu"
     }
 }
-tasks.modrinth.dependsOn(tasks.remapJar)
+tasks.modrinth.dependsOn(tasks.jar)

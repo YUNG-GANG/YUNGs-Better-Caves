@@ -3,13 +3,13 @@ package com.yungnickyoung.minecraft.bettercaves.module;
 import com.google.gson.Gson;
 import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
 import com.yungnickyoung.minecraft.bettercaves.config.BCConfigFabric;
-import com.yungnickyoung.minecraft.bettercaves.json.ResourceLocationAdapter;
+import com.yungnickyoung.minecraft.bettercaves.json.IdentifierAdapter;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.liquidregion.LiquidRegionsController;
 import com.yungnickyoung.minecraft.yungsapi.io.JSON;
 import me.shedaniel.autoconfig.ConfigHolder;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionResult;
 
 import java.io.File;
@@ -132,7 +132,7 @@ public class ConfigModuleFabric {
 
             try {
                 Gson gson = JSON.newGsonBuilder()
-                        .registerTypeHierarchyAdapter(ResourceLocation.class, new ResourceLocationAdapter())
+                        .registerTypeHierarchyAdapter(Identifier.class, new IdentifierAdapter())
                         .setPrettyPrinting()
                         .disableHtmlEscaping()
                         .create();

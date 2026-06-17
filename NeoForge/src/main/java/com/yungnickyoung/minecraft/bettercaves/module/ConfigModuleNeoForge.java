@@ -4,10 +4,10 @@ import com.google.gson.Gson;
 import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
 import com.yungnickyoung.minecraft.bettercaves.BetterCavesNeoForge;
 import com.yungnickyoung.minecraft.bettercaves.config.BCConfigNeoForge;
-import com.yungnickyoung.minecraft.bettercaves.json.ResourceLocationAdapter;
+import com.yungnickyoung.minecraft.bettercaves.json.IdentifierAdapter;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.liquidregion.LiquidRegionsController;
 import com.yungnickyoung.minecraft.yungsapi.io.JSON;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.config.ModConfigEvent;
@@ -138,7 +138,7 @@ public class ConfigModuleNeoForge {
 
             try {
                 Gson gson = JSON.newGsonBuilder()
-                        .registerTypeHierarchyAdapter(ResourceLocation.class, new ResourceLocationAdapter())
+                        .registerTypeHierarchyAdapter(Identifier.class, new IdentifierAdapter())
                         .setPrettyPrinting()
                         .disableHtmlEscaping()
                         .create();

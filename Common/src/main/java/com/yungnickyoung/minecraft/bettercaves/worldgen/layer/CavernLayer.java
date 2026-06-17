@@ -93,8 +93,8 @@ public class CavernLayer {
                 int localSubStartZ = subZ * BCConstants.SUB_CHUNK_SIZE;
                 int localSubEndX = localSubStartX + BCConstants.SUB_CHUNK_SIZE - 1;
                 int localSubEndZ = localSubStartZ + BCConstants.SUB_CHUNK_SIZE - 1;
-                BlockPos startPos = new BlockPos(chunkAccess.getPos().x * 16 + localSubStartX, 1, chunkAccess.getPos().z * 16 + localSubStartZ);
-                BlockPos endPos = new BlockPos(chunkAccess.getPos().x * 16 + localSubEndX, 1, chunkAccess.getPos().z * 16 + localSubEndZ);
+                BlockPos startPos = new BlockPos(chunkAccess.getPos().x() * 16 + localSubStartX, 1, chunkAccess.getPos().z() * 16 + localSubStartZ);
+                BlockPos endPos = new BlockPos(chunkAccess.getPos().x() * 16 + localSubEndX, 1, chunkAccess.getPos().z() * 16 + localSubEndZ);
 
                 // Reset noise cubes for this subchunk
 //                this.noiseRanges.forEach(range -> range.setNoiseCube(null));
@@ -129,7 +129,7 @@ public class CavernLayer {
                     for (int offsetZ = 0; offsetZ < BCConstants.SUB_CHUNK_SIZE; offsetZ++) {
                         int localX = localSubStartX + offsetX;
                         int localZ = localSubStartZ + offsetZ;
-                        ColPos colPos = new ColPos(chunkAccess.getPos().x * 16 + localX, chunkAccess.getPos().z * 16 + localZ);
+                        ColPos colPos = new ColPos(chunkAccess.getPos().x() * 16 + localX, chunkAccess.getPos().z() * 16 + localZ);
 
                         int surfaceAltitude = surfaceAltitudes[localX][localZ];
                         BlockState liquidBlock = liquidBlocks[localX][localZ];

@@ -4,24 +4,24 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.io.IOException;
 
-public class ResourceLocationAdapter extends TypeAdapter<ResourceLocation> {
-    public ResourceLocationAdapter() {
+public class IdentifierAdapter extends TypeAdapter<Identifier> {
+    public IdentifierAdapter() {
     }
 
-    public ResourceLocation read(JsonReader reader) throws IOException {
+    public Identifier read(JsonReader reader) throws IOException {
         if (reader.peek() == JsonToken.NULL) {
             reader.nextNull();
             return null;
         } else {
-            return ResourceLocation.parse(reader.nextString());
+            return Identifier.parse(reader.nextString());
         }
     }
 
-    public void write(JsonWriter writer, ResourceLocation resourceLocation) throws IOException {
+    public void write(JsonWriter writer, Identifier resourceLocation) throws IOException {
         if (resourceLocation == null) {
             writer.nullValue();
         } else {

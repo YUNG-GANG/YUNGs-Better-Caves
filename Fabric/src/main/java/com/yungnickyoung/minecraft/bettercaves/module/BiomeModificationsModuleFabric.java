@@ -29,11 +29,11 @@ public class BiomeModificationsModuleFabric {
                 .add(ModificationPhase.ADDITIONS,
                         biomeSelectionContext -> biomeSelectionContext.hasTag(BiomeTags.IS_OVERWORLD),
                         modificationContext -> modificationContext.getGenerationSettings()
-                                .addCarver(GenerationStep.Carving.AIR, BETTER_CAVE_CARVER_KEY));
+                                .addCarver(BETTER_CAVE_CARVER_KEY));
         BiomeModifications.create(BetterCavesCommon.id("add_surface_cave_carver"))
                 .add(ModificationPhase.ADDITIONS,
                         biomeSelectionContext -> biomeSelectionContext.hasTag(BiomeTags.IS_OVERWORLD),
                         modificationContext -> modificationContext.getGenerationSettings()
-                                .addCarver(GenerationStep.Carving.AIR, SURFACE_CAVE_CARVER_KEY));
+                                .addCarver(SURFACE_CAVE_CARVER_KEY));
     }
 }

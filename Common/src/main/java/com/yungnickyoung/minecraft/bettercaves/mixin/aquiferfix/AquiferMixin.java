@@ -22,7 +22,7 @@ public class AquiferMixin {
     private static int logCounter = 0;
 
     @Unique
-    private static final int MAX_LOG_COUNTER = 20;
+    private static final int MAX_LOG_COUNTER = 10;
 
     @Unique
     private static boolean PRINTED_FINAL_ERROR = false; // potentially necessary for multithreading mods
@@ -37,7 +37,7 @@ public class AquiferMixin {
         if (logCounter > MAX_LOG_COUNTER) {
             if (!PRINTED_FINAL_ERROR) {
                 BetterCavesCommon.LOGGER.error("Failed to fetch the AquiferContext. Liquid Regions for YUNG's Better Caves may not generate properly.");
-                BetterCavesCommon.LOGGER.error("This is a mod compatibility issue. Please report it to the Better Caves GitHub issue tracker!");
+                BetterCavesCommon.LOGGER.error("This is a known issue. You may see some packets of lava mixed in with water regions.");
                 PRINTED_FINAL_ERROR = true;
             }
             return;

@@ -5,12 +5,12 @@ import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseUtils;
 import com.yungnickyoung.minecraft.yungsapi.math.ColPos;
 import com.yungnickyoung.minecraft.yungsapi.noise.FastNoise;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.PositionalRandomFactory;
 
-import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class LiquidRegions {
@@ -19,8 +19,7 @@ public class LiquidRegions {
     public static final int DEFAULT_ALTITUDE = -55;
 
     private final Settings settings;
-    private final ServerLevel serverLevel;
-    private final Random rand;
+    private final PositionalRandomFactory rand;
     private final FastNoise liquidRegionSampler;
     private final float liquidRegionThreshold;
 
@@ -36,40 +35,40 @@ public class LiquidRegions {
     private static final float SMOOTH_RANGE = .05f;
     private static final float SMOOTH_DELTA = .005f;
 
-    public LiquidRegions(ServerLevel serverLevel, Settings settings) {
+    public LiquidRegions(RandomSource random, Settings settings) {
         this.settings = settings;
-        this.serverLevel = serverLevel;
-        this.rand = new Random();
+        long seed = random.nextLong();
+        this.rand = random.forkPositional();
 
-        liquidRegionThreshold = NoiseUtils.simplexNoiseOffsetByPercent(-1f,
-                (float) (settings.waterRegionSpawnChance() / 100));
+        this.liquidRegionThreshold = NoiseUtils.simplexNoiseOffsetByPercent(-1f,
+                                                                            (float) (settings.waterRegionSpawnChance() / 100));
 
         // Liquid region sampler
         double liquidRegionSize = settings.liquidRegionSize();
-        liquidRegionSampler = new FastNoise();
-        liquidRegionSampler.SetSeed((int) this.serverLevel.getSeed() + 444);
-        liquidRegionSampler.SetFrequency((float) liquidRegionSize);
+        this.liquidRegionSampler = new FastNoise();
+        this.liquidRegionSampler.SetSeed((int) seed + 444);
+        this.liquidRegionSampler.SetFrequency((float) liquidRegionSize);
     }
 
     public CacheData getOrCreateLiquidBlocksForChunk(ChunkPos chunkPos) {
         // Return cached value, if available
-        if (cache.containsKey(chunkPos)) {
-            return cache.get(chunkPos);
+        if (this.cache.containsKey(chunkPos)) {
+            return this.cache.get(chunkPos);
         }
 
         // If not cached, generate the liquid blocks for the chunk
-        this.rand.setSeed(this.serverLevel.getSeed() ^ chunkPos.x() ^ chunkPos.z());
+        var rand = this.rand.at(chunkPos.getMinBlockX(), 0, chunkPos.getMinBlockZ());
         BlockState[][] blocks = new BlockState[16][16];
         ColPos.Mutable pos = new ColPos.Mutable();
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
                 pos.set(chunkPos.x() * 16 + x, chunkPos.z() * 16 + z);
-                blocks[x][z] = this.getLiquidBlockAtPos(this.rand, pos);
+                blocks[x][z] = this.getLiquidBlockAtPos(rand, pos);
             }
         }
 
         CacheData cacheData = new CacheData(blocks, this.getLiquidAltitude());
-        cache.put(chunkPos, cacheData);
+        this.cache.put(chunkPos, cacheData);
         return cacheData;
     }
 
@@ -77,7 +76,7 @@ public class LiquidRegions {
         return this.settings.liquidAltitude();
     }
 
-    private BlockState getLiquidBlockAtPos(Random rand, ColPos colPos) {
+    private BlockState getLiquidBlockAtPos(RandomSource rand, ColPos colPos) {
         if (this.liquidRegionThreshold <= -1f) { // Don't bother calculating noise if water regions are disabled
             return Blocks.LAVA.defaultBlockState();
         }
@@ -85,9 +84,9 @@ public class LiquidRegions {
         float liquidRegionNoise = this.liquidRegionSampler.GetNoise(colPos.getX(), colPos.getZ());
         float barrierZoneWidth = rand.nextFloat() * SMOOTH_DELTA + SMOOTH_RANGE;
 
-        if (liquidRegionNoise < liquidRegionThreshold - barrierZoneWidth) {
+        if (liquidRegionNoise < this.liquidRegionThreshold - barrierZoneWidth) {
             return Blocks.WATER.defaultBlockState();
-        } else if (liquidRegionNoise < liquidRegionThreshold + barrierZoneWidth) {
+        } else if (liquidRegionNoise < this.liquidRegionThreshold + barrierZoneWidth) {
             return null; // Solid block barrier between water and lava regions
         } else {
             return Blocks.LAVA.defaultBlockState();

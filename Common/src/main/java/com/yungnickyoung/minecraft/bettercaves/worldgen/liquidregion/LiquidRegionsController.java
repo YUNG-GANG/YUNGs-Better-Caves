@@ -1,16 +1,23 @@
 package com.yungnickyoung.minecraft.bettercaves.worldgen.liquidregion;
 
 import com.google.gson.annotations.SerializedName;
+import com.yungnickyoung.minecraft.bettercaves.worldgen.context.ScopedValue;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * Handles LiquidRegions settings.
+ */
+@NullMarked
 public class LiquidRegionsController {
     // Singleton stuff
-    public static LiquidRegionsController INSTANCE;
+    public static @Nullable LiquidRegionsController INSTANCE;
     public static LiquidRegionsController getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new LiquidRegionsController();
@@ -26,30 +33,56 @@ public class LiquidRegionsController {
     }
 
     /**
-     * Map of ServerLevels to their corresponding LiquidRegions instances.
-     * This is populated at runtime as needed, depending on the settingsByDimensionId map.
-     */
-    private transient final ConcurrentMap<ServerLevel, LiquidRegions> regionsByLevel = new ConcurrentHashMap<>();
-
-    /**
      * Map of dimension IDs to LiquidRegions settings.
      * This is deserialized from the liquidregions.json config file.
      */
     @SerializedName("liquidRegions")
     private final Map<ResourceLocation, LiquidRegions.Settings> settingsByDimensionId = new ConcurrentHashMap<>();
 
-    public boolean hasSettingsForLevel(ServerLevel serverLevel) {
-        ResourceLocation dimensionId = serverLevel.dimension().location();
+    public boolean hasSettingsForDimension(ResourceLocation dimensionId) {
         return this.settingsByDimensionId.containsKey(dimensionId);
     }
 
-    public LiquidRegions getLiquidRegionsForServerLevel(ServerLevel serverLevel) {
-        return this.regionsByLevel.computeIfAbsent(serverLevel, sl -> {
-            LiquidRegions.Settings settings = this.settingsByDimensionId.get(sl.dimension().location());
-            if (settings == null) {
-                throw new IllegalStateException("No LiquidRegions settings found for dimension: " + sl.dimension().location());
-            }
-            return new LiquidRegions(sl, settings);
-        });
+    public LiquidRegions.Settings getSettingsForDimension(ResourceLocation dimensionId) {
+        return this.settingsByDimensionId.get(dimensionId);
+    }
+
+    /**
+     * Retrieve the liquid regions settings as set by {@link #withSettings(ServerLevel, ScopedValue.CallableOp)}.
+     * @return  the current liquid regions settings, if set
+     */
+    public LiquidRegions.@Nullable Settings getSettings() {
+        var context = LiquidRegionsContext.get();
+        if (context == null) {
+            return null;
+        } else {
+            return context.settings();
+        }
+    }
+
+    /**
+     * Call the given callable with context of the liquid regions settings for the given level.
+     * The liquid region settings can be retrieved in the callable with {@link #getSettings()}.
+     */
+    public <R, X extends Throwable> R withSettings(final ServerLevel level, final ScopedValue.CallableOp<R, X> callable) throws X {
+        var dimensionId = level.dimension().location();
+        if (!this.hasSettingsForDimension(dimensionId)) {
+            return callable.call();
+        } else {
+            return LiquidRegionsContext.call(this.settingsByDimensionId.get(dimensionId), callable);
+        }
+    }
+
+    private static record LiquidRegionsContext(LiquidRegions.Settings settings) {
+        private static final ScopedValue<LiquidRegionsContext> CONTEXT = ScopedValue.newInstance();
+
+        public static <R, X extends Throwable> R call(LiquidRegions.Settings settings, ScopedValue.CallableOp<R, X> callable) throws X {
+            return ScopedValue.where(CONTEXT, new LiquidRegionsContext(settings))
+                    .call(callable);
+        }
+
+        public static LiquidRegionsController.@Nullable LiquidRegionsContext get() {
+            return CONTEXT.isBound() ? CONTEXT.get() : null;
+        }
     }
 }

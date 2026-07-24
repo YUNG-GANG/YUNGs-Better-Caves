@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.spongepowered.gradle.vanilla' version '0.2.1-SNAPSHOT'
+    id 'org.spongepowered.gradle.vanilla' version '0.2.2-SNAPSHOT'
 }
 
 archivesBaseName = "${mod_name}"
@@ -26,6 +26,8 @@ minecraft {
 
 dependencies {
     compileOnly group:'org.spongepowered', name:'mixin', version:'0.8.5'
+    compileOnly group: 'io.github.llamalad7', name: 'mixinextras-common', version: '0.5.4'
+    annotationProcessor group: 'io.github.llamalad7', name: 'mixinextras-common', version: '0.5.4'
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
     if (useLocalYungsApi) {
         compileOnly files("libs/YungsApi-${yungsapi_mc_version}-Common-${yungsapi_version}.jar")

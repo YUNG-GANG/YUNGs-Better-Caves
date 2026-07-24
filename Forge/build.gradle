@@ -86,6 +86,12 @@ sourceSets.main.resources.srcDir 'src/generated/resources'
 dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
     implementation fg.deobf("com.yungnickyoung.minecraft.yungsapi:YungsApi:${yungsapi_mc_version}-Forge-${yungsapi_version}")
+    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.5.4"))
+    implementation(jarJar("io.github.llamalad7:mixinextras-forge:0.5.4")) {
+        jarJar.ranged(it, "[0.5.4,)")
+    }
+    // for some bizarre reason this is necessary
+    testCompileOnly("io.github.llamalad7:mixinextras-common:0.5.4")
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     compileOnly project(":Common")
 }

@@ -9,10 +9,9 @@
     "ServerLevelMixin",
     "accessor.StructureManagerAccessor",
     "aquiferfix.AquiferMixin",
-    "aquiferfix.ChunkGeneratorMixin",
-    "aquiferfix.ChunkStatusMixin",
-    "aquiferfix.NoiseBasedChunkGeneratorMixin",
-    "aquiferfix.ServerLevelMixin"
+    "aquiferfix.ChunkMapMixin",
+    "aquiferfix.NoiseChunkMixin",
+    "aquiferfix.RandomStateMixin"
   ],
   "injectors": {
     "defaultRequire": 1

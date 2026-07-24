@@ -43,6 +43,7 @@ dependencies {
     modImplementation ("com.terraformersmc:modmenu:${project.modmenu_version_fabric}") { transitive = false }
 
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
+    include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:0.5.4")))
     compileOnly project(":Common")
 }
 
@@ -127,6 +128,7 @@ task publishCurseForgeFabric(type: net.darkhax.curseforgegradle.TaskPublishCurse
     compatibleVersions.each { version ->
         mainFile.addGameVersion(version)
     }
+    mainFile.addEnvironment('client', 'server')
 }
 
 List compatibleVersionsList = project.compatible_versions.split(',')

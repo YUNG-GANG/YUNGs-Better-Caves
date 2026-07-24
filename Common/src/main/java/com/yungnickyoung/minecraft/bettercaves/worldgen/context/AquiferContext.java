@@ -1,36 +1,29 @@
 package com.yungnickyoung.minecraft.bettercaves.worldgen.context;
 
-import net.minecraft.server.level.ServerLevel;
-import org.jetbrains.annotations.Nullable;
+import com.yungnickyoung.minecraft.bettercaves.worldgen.liquidregion.LiquidRegions;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
-import java.lang.ref.WeakReference;
+/**
+ * Context for creation of an Aquifer. Set by
+ * {@link com.yungnickyoung.minecraft.bettercaves.mixin.aquiferfix.ChunkMapMixin}
+ * and consumed by {@link com.yungnickyoung.minecraft.bettercaves.mixin.aquiferfix.AquiferMixin}
+ */
+@NullMarked
+public record AquiferContext(@Nullable LiquidRegions liquidRegions) {
+    private static final ScopedValue<AquiferContext> CONTEXT = ScopedValue.newInstance();
 
-public class AquiferContext {
-    private static final ThreadLocal<AquiferContext> CONTEXT = new ThreadLocal<>();
-
-    private final WeakReference<ServerLevel> serverLevel;
-
-    public AquiferContext(ServerLevel serverLevel) {
-        this.serverLevel = new WeakReference<>(serverLevel);
+    public static <R, X extends Throwable> R call(LiquidRegions liquidRegions, ScopedValue.CallableOp<R, X> callable) throws X {
+        return ScopedValue.where(CONTEXT, new AquiferContext(liquidRegions))
+                .call(callable);
     }
 
-    public ServerLevel getServerLevel() {
-        return serverLevel.get();
+    public static <R, X extends Throwable> R callWithoutRegions(ScopedValue.CallableOp<R, X> callable) throws X {
+        return ScopedValue.where(CONTEXT, new AquiferContext(null))
+                .call(callable);
     }
 
-    @Nullable
-    public static AquiferContext pop() {
-        AquiferContext context = CONTEXT.get();
-        CONTEXT.remove();
-        return context;
-    }
-
-    @Nullable
-    public static AquiferContext peek() {
-        return CONTEXT.get();
-    }
-
-    public static void push(ServerLevel world) {
-        CONTEXT.set(new AquiferContext(world));
+    public static @Nullable AquiferContext get() {
+        return CONTEXT.isBound() ? CONTEXT.get() : null;
     }
 }

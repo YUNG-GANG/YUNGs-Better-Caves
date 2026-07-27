@@ -87,6 +87,7 @@ task publishCurseForgeNeoForge(type: net.darkhax.curseforgegradle.TaskPublishCur
     compatibleVersions.each { version ->
         mainFile.addGameVersion(version)
     }
+    mainFile.addEnvironment('client', 'server')
 }
 
 List compatibleVersionsList = project.compatible_versions.split(',')

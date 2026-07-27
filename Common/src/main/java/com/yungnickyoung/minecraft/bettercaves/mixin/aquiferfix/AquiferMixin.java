@@ -1,73 +1,72 @@
 package com.yungnickyoung.minecraft.bettercaves.mixin.aquiferfix;
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
+import com.yungnickyoung.minecraft.bettercaves.duck.ILiquidRegionsProvider;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.context.AquiferContext;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.liquidregion.LiquidRegions;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.liquidregion.LiquidRegionsController;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.Aquifer;
-import net.minecraft.world.level.levelgen.DensityFunction;
+import net.minecraft.world.level.levelgen.*;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+/**
+ * Apply LiquidRegions changes to aquifers.
+ * This is where all the LiquidRegions stuff actually has an effect.
+ * The LiquidRegions are passed in through {@link AquiferContext}.
+ */
+@NullMarked
 @Mixin(Aquifer.NoiseBasedAquifer.class)
-public class AquiferMixin {
+public class AquiferMixin implements ILiquidRegionsProvider {
     @Unique
-    private static int logCounter = 0;
+    private @Nullable LiquidRegions liquidRegions;
 
-    @Unique
-    private static final int MAX_LOG_COUNTER = 10;
-
-    @Unique
-    private static boolean PRINTED_FINAL_ERROR = false; // potentially necessary for multithreading mods
+    @Inject(method = "<init>", at = @At("TAIL"))
+    private void bettercaves$setLiquidRegions(final NoiseChunk noiseChunk,
+                                              final ChunkPos pos,
+                                              final NoiseRouter router,
+                                              final PositionalRandomFactory positionalRandomFactory,
+                                              final int minBlockY,
+                                              final int yBlockSize,
+                                              final Aquifer.FluidPicker globalFluidPicker,
+                                              final CallbackInfo ci) {
+        var context = AquiferContext.get();
+        if (context == null) {
+            BetterCavesCommon.LOGGER.error("Failed to fetch the AquiferContext. Liquid Regions for YUNG's Better Caves may not generate properly.");
+            BetterCavesCommon.LOGGER.error("This is a mod compatibility issue. Please report it to the Better Caves GitHub issue tracker!");
+        } else if (context.liquidRegions() != null) {
+            this.liquidRegions = context.liquidRegions();
+        }
+    }
 
     /**
      * Replaces Aquifer-generated liquids at and below the liquidAltitude with the proper Better Caves liquid,
      * as defined by the LiquidRegions data for the current chunk.
      */
     @Inject(method = "computeSubstance", at = @At("RETURN"), cancellable = true)
-    private void bettercaves$fixAquiferLiquids(DensityFunction.FunctionContext context, double d, CallbackInfoReturnable<BlockState> cir) {
-        // Only log the first 20 times this happens to avoid spamming the log
-        if (logCounter > MAX_LOG_COUNTER) {
-            if (!PRINTED_FINAL_ERROR) {
-                BetterCavesCommon.LOGGER.error("Failed to fetch the AquiferContext. Liquid Regions for YUNG's Better Caves may not generate properly.");
-                BetterCavesCommon.LOGGER.error("This is a known issue. You may see some packets of lava mixed in with water regions.");
-                PRINTED_FINAL_ERROR = true;
-            }
-            return;
-        }
-
-        // Grab the AquiferContext from the current thread and fetch the ServerLevel from it
-        AquiferContext aquiferContext = AquiferContext.peek();
-        if (aquiferContext == null) {
-            if (logCounter < MAX_LOG_COUNTER) {
-                BetterCavesCommon.LOGGER.warn("AquiferContext is null in AquiferMixin, this should not happen!");
-            }
-            logCounter++;
-            return;
-        }
-
-        ServerLevel serverLevel = aquiferContext.getServerLevel();
-
+    private void bettercaves$fixAquiferLiquids(DensityFunction.FunctionContext context,
+                                               double d,
+                                               CallbackInfoReturnable<@Nullable BlockState> cir) {
         // Only modify aquifers if LiquidRegions are enabled for the current level
-        if (!LiquidRegionsController.getInstance().hasSettingsForLevel(serverLevel)) {
+        if (this.liquidRegions == null) {
             return;
         }
 
         BlockState blockState = cir.getReturnValue();
         if (blockState == null) return; // Only modify air or liquid blocks
 
-        // Fetch the (previously generated) LiquidRegions data for the current chunk.
-        // If the cached LiquidRegions data is missing for some reason, it will be generated again.
+        // Fetch the LiquidRegions data for the current chunk.
+        // If the LiquidRegions data has been generated before, that cached result will be reused.
         ChunkPos chunkPos = ChunkPos.containing(new BlockPos(context.blockX(), context.blockY(), context.blockZ()));
-        LiquidRegions liquidRegions = LiquidRegionsController.getInstance().getLiquidRegionsForServerLevel(serverLevel);
-        LiquidRegions.CacheData cacheData = liquidRegions.getOrCreateLiquidBlocksForChunk(chunkPos);
+        LiquidRegions.CacheData cacheData = this.liquidRegions.getOrCreateLiquidBlocksForChunk(chunkPos);
         if (cacheData == null) {
             BetterCavesCommon.LOGGER.warn("No LiquidRegions data found for chunk {} in AquiferMixin, this should not happen!", chunkPos);
             return;
@@ -85,5 +84,9 @@ public class AquiferMixin {
         if (liquidBlock == null || !blockState.is(liquidBlock.getBlock())) {
             cir.setReturnValue(liquidBlock);
         }
+    }
+
+    @Override public @Nullable LiquidRegions bettercaves$getLiquidRegions() {
+        return this.liquidRegions;
     }
 }

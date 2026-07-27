@@ -29,8 +29,8 @@ public class CarverSettings {
 
     public CarverSettings(ServerLevel serverLevel) {
         this.seed = serverLevel.getSeed();
-        if (LiquidRegionsController.getInstance().hasSettingsForLevel(serverLevel)) {
-            this.liquidAltitude = LiquidRegionsController.getInstance().getLiquidRegionsForServerLevel(serverLevel).getLiquidAltitude();
+        if (LiquidRegionsController.getInstance().hasSettingsForDimension(serverLevel.dimension().identifier())) {
+            this.liquidAltitude = LiquidRegionsController.getInstance().getSettingsForDimension(serverLevel.dimension().identifier()).liquidAltitude();
         } else {
             this.liquidAltitude = LiquidRegions.DEFAULT_ALTITUDE;
         }

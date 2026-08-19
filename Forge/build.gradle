@@ -46,6 +46,7 @@ minecraft {
                     source project(":Common").sourceSets.main
                 }
             }
+
         }
 
         server {
@@ -146,6 +147,7 @@ task publishCurseForgeForge(type: net.darkhax.curseforgegradle.TaskPublishCurseF
     compatibleVersions.each { version ->
         mainFile.addGameVersion(version)
     }
+    mainFile.addEnvironment('client', 'server')
 }
 
 List compatibleVersionsList = project.compatible_versions.split(',')

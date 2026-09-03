@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.2-SNAPSHOT'
+    id 'fabric-loom' version '1.7-SNAPSHOT'
     id 'idea'
     id 'net.darkhax.curseforgegradle' version "${cursegradle_version}"
     id 'com.modrinth.minotaur' version '2.+'

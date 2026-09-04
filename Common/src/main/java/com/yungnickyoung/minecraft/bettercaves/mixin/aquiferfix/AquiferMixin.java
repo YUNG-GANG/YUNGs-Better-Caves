@@ -2,9 +2,9 @@ package com.yungnickyoung.minecraft.bettercaves.mixin.aquiferfix;
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
 import com.yungnickyoung.minecraft.bettercaves.duck.ILiquidRegionsProvider;
+import com.yungnickyoung.minecraft.bettercaves.services.Services;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.context.AquiferContext;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.liquidregion.LiquidRegions;
-import com.yungnickyoung.minecraft.bettercaves.worldgen.liquidregion.LiquidRegionsController;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
@@ -18,6 +18,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+
 /**
  * Apply LiquidRegions changes to aquifers.
  * This is where all the LiquidRegions stuff actually has an effect.
@@ -26,6 +30,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @NullMarked
 @Mixin(Aquifer.NoiseBasedAquifer.class)
 public class AquiferMixin implements ILiquidRegionsProvider {
+    @Unique
+    private static final AtomicBoolean hasWarned = new AtomicBoolean(false);
+
+    /**
+     * Some mods will change worldgen enough that they will interfere
+     */
+    @Unique
+    private static final List<String> OK_TO_INTERFERE_MODS = List.of(
+            /*
+            Moderner Beta changes world gen all the way through, so our AquiferContext never gets attached. It's not really
+            an issue though because this doesn't seem to result in any visible cave weirdness: from flying around I couldn't
+            see any of the normal lava-water mixing issues that show up when AquiferContext doesn't work.
+             */
+            "moderner_beta"
+    );
+
     @Unique
     private @Nullable LiquidRegions liquidRegions;
 
@@ -40,10 +60,35 @@ public class AquiferMixin implements ILiquidRegionsProvider {
                                               final CallbackInfo ci) {
         var context = AquiferContext.get();
         if (context == null) {
-            BetterCavesCommon.LOGGER.error("Failed to fetch the AquiferContext. Liquid Regions for YUNG's Better Caves may not generate properly.");
-            BetterCavesCommon.LOGGER.error("This is a mod compatibility issue. Please report it to the Better Caves GitHub issue tracker!");
+            if (!hasWarned.getAndSet(true)) {
+                warnAboutAquifer();
+            }
         } else if (context.liquidRegions() != null) {
             this.liquidRegions = context.liquidRegions();
+        }
+    }
+
+    @Unique
+    private static void warnAboutAquifer() {
+        var mods = OK_TO_INTERFERE_MODS.stream()
+                .filter(Services.PLATFORM::isModLoaded)
+                .toList();
+        if (mods.isEmpty()) {
+            StackWalker stackWalker = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
+            var stackTrace = stackWalker.walk(sfs -> sfs.skip(1)
+                    .map(sf -> sf.toStackTraceElement().toString())
+                    .collect(Collectors.joining("\n")));
+            BetterCavesCommon.LOGGER.error("Failed to fetch the AquiferContext. Liquid Regions for YUNG's Better Caves may not generate properly.");
+            BetterCavesCommon.LOGGER.error("Please report this issue to YUNG's Better Caves, including this stack trace: {}", stackTrace);
+            BetterCavesCommon.LOGGER.error("This is a mod compatibility issue. Please report it to the YUNG's Better Caves GitHub issue tracker!");
+        } else {
+            BetterCavesCommon.LOGGER.warn("Failed to fetch the AquiferContext for YUNG's Better Caves.");
+            if (mods.size() == 1) {
+                BetterCavesCommon.LOGGER.warn("This is likely because you have the mod '{}' installed.", mods.get(0));
+            } else {
+                BetterCavesCommon.LOGGER.warn("This is likely because of the following mods: {}.", String.join(", ", mods));
+            }
+            BetterCavesCommon.LOGGER.warn("If caves generate fine, there's nothing to worry about. If caves seem to generate weirdly, you can report that to the YUNG's Better Caves GitHub issue tracker.");
         }
     }
 

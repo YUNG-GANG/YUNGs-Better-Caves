@@ -69,7 +69,7 @@ public abstract class AbstractCarver {
 
             chunkAccess.setBlockState(blockPos, newBlockState);
             if (aquifer.shouldScheduleFluidUpdate() && !newBlockState.getFluidState().isEmpty()) {
-                chunkAccess.markPosForPostprocessing(blockPos);
+                chunkAccess.markPosForPostProcessing(blockPos);
             }
 
             // TODO? vanilla behavior

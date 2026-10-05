@@ -6,6 +6,8 @@ import com.yungnickyoung.minecraft.bettercaves.worldgen.liquidregion.LiquidRegio
 import net.minecraft.core.HolderGetter;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.NoiseRouter;
 import net.minecraft.world.level.levelgen.PositionalRandomFactory;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
@@ -28,10 +30,13 @@ public class RandomStateMixin implements ILiquidRegionsProvider {
     private @Unique @Nullable LiquidRegions           liquidRegions;
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void bettercaves$setLiquidRegions(final NoiseGeneratorSettings settings,
-                                              final HolderGetter<NormalNoise.NoiseParameters> noises,
-                                              final long seed,
-                                              final CallbackInfo ci) {
+    private void bettercaves$setLiquidRegions(final HolderGetter<NormalNoise> noises,
+                                               final long seed,
+                                               final boolean useLegacyRandom,
+                                               final BlockState defaultBlock,
+                                               final int seaLevel,
+                                               final NoiseRouter router,
+                                               final CallbackInfo ci) {
         var liquidRegionsSettings = LiquidRegionsController.getInstance().getSettings();
         if (liquidRegionsSettings != null) {
             var forkedRandom = this.random.fromHashOf(Identifier.withDefaultNamespace("liquid_regions"));

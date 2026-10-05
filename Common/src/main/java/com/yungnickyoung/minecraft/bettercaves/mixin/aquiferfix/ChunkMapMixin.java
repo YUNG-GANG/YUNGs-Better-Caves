@@ -19,12 +19,12 @@ import org.spongepowered.asm.mixin.injection.At;
  */
 @Mixin(ChunkMap.class)
 public class ChunkMapMixin {
-    @WrapOperation(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/levelgen/RandomState;create(Lnet/minecraft/world/level/levelgen/NoiseGeneratorSettings;Lnet/minecraft/core/HolderGetter;J)Lnet/minecraft/world/level/levelgen/RandomState;"))
-    private RandomState bettercaves$setLiquidRegionsContext(final NoiseGeneratorSettings settings,
-                                                            final HolderGetter<NormalNoise.NoiseParameters> noises,
-                                                            final long seed,
-                                                            final Operation<RandomState> original,
-                                                            final ServerLevel level) {
-        return LiquidRegionsController.getInstance().withSettings(level, () -> original.call(settings, noises, seed));
+    @WrapOperation(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/levelgen/RandomState;create(Lnet/minecraft/core/HolderGetter;JLnet/minecraft/world/level/levelgen/NoiseGeneratorSettings;)Lnet/minecraft/world/level/levelgen/RandomState;"))
+    private RandomState bettercaves$setLiquidRegionsContext(final HolderGetter<NormalNoise> noises,
+                                                             final long seed,
+                                                             final NoiseGeneratorSettings settings,
+                                                             final Operation<RandomState> original,
+                                                             final ServerLevel level) {
+        return LiquidRegionsController.getInstance().withSettings(level, () -> original.call(noises, seed, settings));
     }
 }

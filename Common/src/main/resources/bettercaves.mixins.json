@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "ChunkStatusTasksMixin",
+    "NoiseBasedChunkGeneratorMixin",
     "ServerLevelMixin",
     "accessor.StructureManagerAccessor",
     "aquiferfix.AquiferMixin",

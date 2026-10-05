@@ -81,8 +81,7 @@ public class CavernLayer {
     }
 
     public void carveChunk(ChunkAccess chunkAccess, int[][] surfaceAltitudes,
-                           BlockState[][] liquidBlocks, Function<BlockPos, Holder<Biome>> biomeProvider, CarvingMask carvingMask,
-                           Aquifer aquifer) {
+                           BlockState[][] liquidBlocks, CarvingMask carvingMask, Aquifer aquifer) {
         // Prevent unnecessary computation if caverns are disabled
         if (this.noiseRanges.isEmpty()) return;
 

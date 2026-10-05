@@ -9,6 +9,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.*;
+import net.minecraft.world.level.levelgen.densityfunction.DensitySamplerSet;
+import net.minecraft.world.level.levelgen.densityfunction.DensityVolume;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -50,14 +52,12 @@ public class AquiferMixin implements ILiquidRegionsProvider {
     private @Nullable LiquidRegions liquidRegions;
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void bettercaves$setLiquidRegions(final NoiseChunk noiseChunk,
-                                              final ChunkPos pos,
-                                              final NoiseRouter router,
-                                              final PositionalRandomFactory positionalRandomFactory,
-                                              final int minBlockY,
-                                              final int yBlockSize,
-                                              final Aquifer.FluidPicker globalFluidPicker,
-                                              final CallbackInfo ci) {
+    private void bettercaves$setLiquidRegions(final DensitySamplerSet cachingSamplers,
+                                               final Aquifer.Config config,
+                                               final PositionalRandomFactory positionalRandomFactory,
+                                               final DensityVolume volume,
+                                               final Aquifer.FluidPicker globalFluidPicker,
+                                               final CallbackInfo ci) {
         var context = AquiferContext.get();
         if (context == null) {
             if (!hasWarned.getAndSet(true)) {
@@ -97,8 +97,7 @@ public class AquiferMixin implements ILiquidRegionsProvider {
      * as defined by the LiquidRegions data for the current chunk.
      */
     @Inject(method = "computeSubstance", at = @At("RETURN"), cancellable = true)
-    private void bettercaves$fixAquiferLiquids(DensityFunction.FunctionContext context,
-                                               double d,
+    private void bettercaves$fixAquiferLiquids(int blockX, int blockY, int blockZ, double density,
                                                CallbackInfoReturnable<@Nullable BlockState> cir) {
         // Only modify aquifers if LiquidRegions are enabled for the current level
         if (this.liquidRegions == null) {
@@ -110,19 +109,19 @@ public class AquiferMixin implements ILiquidRegionsProvider {
 
         // Fetch the LiquidRegions data for the current chunk.
         // If the LiquidRegions data has been generated before, that cached result will be reused.
-        ChunkPos chunkPos = ChunkPos.containing(new BlockPos(context.blockX(), context.blockY(), context.blockZ()));
+        ChunkPos chunkPos = ChunkPos.containing(new BlockPos(blockX, blockY, blockZ));
         LiquidRegions.CacheData cacheData = this.liquidRegions.getOrCreateLiquidBlocksForChunk(chunkPos);
         if (cacheData == null) {
             BetterCavesCommon.LOGGER.warn("No LiquidRegions data found for chunk {} in AquiferMixin, this should not happen!", chunkPos);
             return;
         }
 
-        if (context.blockY() > cacheData.liquidAltitude()) {
+        if (blockY > cacheData.liquidAltitude()) {
             return; // Only modify if it's at or below the liquid altitude for this position
         }
 
-        int localX = context.blockX() & 15;
-        int localZ = context.blockZ() & 15;
+        int localX = blockX & 15;
+        int localZ = blockZ & 15;
         BlockState liquidBlock = cacheData.liquidBlocks()[localX][localZ];
 
         // Only modify if the block is different from the liquid block it should be

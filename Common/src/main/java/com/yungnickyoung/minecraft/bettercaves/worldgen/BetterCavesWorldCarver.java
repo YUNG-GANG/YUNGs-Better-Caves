@@ -1,35 +1,34 @@
 package com.yungnickyoung.minecraft.bettercaves.worldgen;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.yungnickyoung.minecraft.bettercaves.BetterCavesCommon;
 import com.yungnickyoung.minecraft.bettercaves.duck.IMasterControllerProvider;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.context.CavegenContext;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.controller.MasterController;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.chunk.CarverOutput;
 import net.minecraft.world.level.chunk.CarvingMask;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.levelgen.Aquifer;
-import net.minecraft.world.level.levelgen.carver.CarvingContext;
+import net.minecraft.world.level.levelgen.WorldGenerationContext;
 import net.minecraft.world.level.levelgen.carver.WorldCarver;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.function.Function;
+public class BetterCavesWorldCarver implements WorldCarver {
+    public static final MapCodec<BetterCavesWorldCarver> CODEC = BetterCavesWorldCarverConfig.CODEC.fieldOf("config")
+            .xmap(BetterCavesWorldCarver::new, carver -> carver.config);
 
-public class BetterCavesWorldCarver extends WorldCarver<BetterCavesWorldCarverConfig> {
-    public BetterCavesWorldCarver(Codec<BetterCavesWorldCarverConfig> codec) {
-        super(codec);
+    private final BetterCavesWorldCarverConfig config;
+
+    public BetterCavesWorldCarver(BetterCavesWorldCarverConfig config) {
+        this.config = config;
     }
 
     @Override
     @ParametersAreNonnullByDefault
-    public boolean carve(CarvingContext carvingContext, BetterCavesWorldCarverConfig config, ChunkAccess centerChunk,
-                         Function<BlockPos, Holder<Biome>> biomeProvider, RandomSource random, Aquifer aquifer,
-                         ChunkPos carvingChunkPos, CarvingMask carvingMask) {
+    public boolean carve(WorldGenerationContext generationContext, RandomSource random, ChunkPos chunkPos,
+                         ChunkPos sourceChunkPos, CarverOutput output) {
         // A null CarvingContext indicates we're in not the 'air carving' stage so exit early.
         CavegenContext context = CavegenContext.peek();
         if (context == null) {
@@ -37,7 +36,8 @@ public class BetterCavesWorldCarver extends WorldCarver<BetterCavesWorldCarverCo
         }
 
         ServerLevel serverLevel = context.getServerLevel();
-        if (serverLevel == null) {
+        ChunkAccess centerChunk = context.getChunk();
+        if (serverLevel == null || centerChunk == null || context.getAquifer() == null) {
             BetterCavesCommon.LOGGER.error("Unable to retrieve ServerLevel from CarvingContext!");
             return false;
         }
@@ -54,12 +54,19 @@ public class BetterCavesWorldCarver extends WorldCarver<BetterCavesWorldCarverCo
             provider.setMasterController(masterController);
         }
 
-        return masterController.carve(centerChunk, biomeProvider, carvingMask, aquifer);
+        CarvingMask carvingMask = new CarvingMask(generationContext.getMinGenY(),
+                generationContext.getMinGenY() + generationContext.getGenDepth() - 1);
+        return masterController.carve(centerChunk, carvingMask, context.getAquifer());
     }
 
     @Override
     @ParametersAreNonnullByDefault
-    public boolean isStartChunk(BetterCavesWorldCarverConfig config, RandomSource random) {
+    public boolean isStartChunk(RandomSource random) {
         return true;
+    }
+
+    @Override
+    public MapCodec<BetterCavesWorldCarver> codec() {
+        return CODEC;
     }
 }

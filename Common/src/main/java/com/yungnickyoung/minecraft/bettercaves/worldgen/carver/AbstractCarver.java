@@ -9,7 +9,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.CarvingMask;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.Aquifer;
-import net.minecraft.world.level.levelgen.DensityFunction;
 
 public abstract class AbstractCarver {
     protected final CarverSettings settings;
@@ -45,7 +44,7 @@ public abstract class AbstractCarver {
     protected void carveBlock(BetterCavesWorldCarverConfig config, ChunkAccess chunkAccess, BlockPos blockPos, BlockState airBlockState,
                               BlockState liquidBlockState, CarvingMask carvingMask, Aquifer aquifer) {
         // Mark block as processed - for use by features
-        carvingMask.set(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+        carvingMask.carve(blockPos.getX() & 15, blockPos.getY(), blockPos.getZ() & 15);
 
         // Only continue if the block is replaceable
         if (!chunkAccess.getBlockState(blockPos).is(config.misc.replaceable())) {
@@ -60,8 +59,7 @@ public abstract class AbstractCarver {
                 chunkAccess.setBlockState(blockPos, liquidBlockState);
             }
         } else {
-            BlockState newBlockState = aquifer.computeSubstance(new DensityFunction.SinglePointContext(
-                    blockPos.getX(), blockPos.getY(), blockPos.getZ()), 0.0);
+            BlockState newBlockState = aquifer.computeSubstance(blockPos.getX(), blockPos.getY(), blockPos.getZ(), 0.0);
 
             if (newBlockState == null) {
                 return;
@@ -69,7 +67,7 @@ public abstract class AbstractCarver {
 
             chunkAccess.setBlockState(blockPos, newBlockState);
             if (aquifer.shouldScheduleFluidUpdate() && !newBlockState.getFluidState().isEmpty()) {
-                chunkAccess.markPosForPostprocessing(blockPos);
+                chunkAccess.markPosForPostProcessing(blockPos);
             }
 
             // TODO? vanilla behavior
@@ -79,7 +77,7 @@ public abstract class AbstractCarver {
 //                    $$0.topMaterial($$3, $$2, $$6, !$$10.getFluidState().isEmpty()).ifPresent($$2x -> {
 //                        $$2.setBlockState($$6, $$2x, false);
 //                        if (!$$2x.getFluidState().isEmpty()) {
-//                            $$2.markPosForPostprocessing($$6);
+//                            $$2.markPosForPostProcessing($$6);
 //                        }
 //                    });
 //                }

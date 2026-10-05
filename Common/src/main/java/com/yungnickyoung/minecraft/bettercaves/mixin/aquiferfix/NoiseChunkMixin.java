@@ -6,6 +6,8 @@ import com.yungnickyoung.minecraft.bettercaves.duck.ILiquidRegionsProvider;
 import com.yungnickyoung.minecraft.bettercaves.worldgen.context.AquiferContext;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.levelgen.*;
+import net.minecraft.world.level.levelgen.densityfunction.DensitySamplerSet;
+import net.minecraft.world.level.levelgen.densityfunction.DensityVolume;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -16,22 +18,19 @@ import org.spongepowered.asm.mixin.injection.At;
  */
 @Mixin(NoiseChunk.class)
 public class NoiseChunkMixin {
-    @WrapOperation(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/levelgen/Aquifer;create(Lnet/minecraft/world/level/levelgen/NoiseChunk;Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/levelgen/NoiseRouter;Lnet/minecraft/world/level/levelgen/PositionalRandomFactory;IILnet/minecraft/world/level/levelgen/Aquifer$FluidPicker;)Lnet/minecraft/world/level/levelgen/Aquifer;"))
-    private Aquifer bettercaves$setAquiferContext(final NoiseChunk noiseChunk,
-                                                  final ChunkPos pos,
-                                                  final NoiseRouter router,
-                                                  final PositionalRandomFactory positionalRandomFactory,
-                                                  final int minBlockY,
-                                                  final int yBlockSize,
-                                                  final Aquifer.FluidPicker fluidRule,
-                                                  final Operation<Aquifer> original,
-                                                  final int cellCountXZ,
-                                                  final RandomState randomState) {
+    @WrapOperation(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/levelgen/Aquifer$Config;create(Lnet/minecraft/world/level/levelgen/densityfunction/DensitySamplerSet;Lnet/minecraft/world/level/levelgen/PositionalRandomFactory;Lnet/minecraft/world/level/levelgen/densityfunction/DensityVolume;Lnet/minecraft/world/level/levelgen/Aquifer$FluidPicker;)Lnet/minecraft/world/level/levelgen/Aquifer;"))
+    private Aquifer bettercaves$setAquiferContext(final Aquifer.Config config,
+                                                   final DensitySamplerSet cachingSamplers,
+                                                   final PositionalRandomFactory positionalRandomFactory,
+                                                   final DensityVolume volume,
+                                                   final Aquifer.FluidPicker fluidRule,
+                                                   final Operation<Aquifer> original,
+                                                   final RandomState randomState) {
         var liquidRegions = ((ILiquidRegionsProvider) (Object) randomState).bettercaves$getLiquidRegions();
         if (liquidRegions == null) {
-            return AquiferContext.callWithoutRegions(() -> original.call(noiseChunk, pos, router, positionalRandomFactory, minBlockY, yBlockSize, fluidRule));
+            return AquiferContext.callWithoutRegions(() -> original.call(config, cachingSamplers, positionalRandomFactory, volume, fluidRule));
         } else {
-            return AquiferContext.call(liquidRegions, () -> original.call(noiseChunk, pos, router, positionalRandomFactory, minBlockY, yBlockSize, fluidRule));
+            return AquiferContext.call(liquidRegions, () -> original.call(config, cachingSamplers, positionalRandomFactory, volume, fluidRule));
         }
     }
 }

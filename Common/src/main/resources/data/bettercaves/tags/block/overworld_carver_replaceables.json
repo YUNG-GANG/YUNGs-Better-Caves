@@ -1,0 +1,23 @@
+{
+  "values": [
+    "#minecraft:stone_ore_replaceables",
+    "#minecraft:deepslate_ore_replaceables",
+    "minecraft:dirt",
+    "minecraft:grass_block",
+    "minecraft:podzol",
+    "minecraft:mycelium",
+    "minecraft:coarse_dirt",
+    "minecraft:rooted_dirt",
+    "minecraft:clay",
+    "minecraft:sand",
+    "minecraft:red_sand",
+    "minecraft:gravel",
+    "minecraft:sandstone",
+    "minecraft:red_sandstone",
+    "minecraft:calcite",
+    "minecraft:tuff",
+    "minecraft:dripstone_block",
+    "minecraft:snow_block",
+    "minecraft:packed_ice"
+  ]
+}

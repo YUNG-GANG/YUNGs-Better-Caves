@@ -2,22 +2,16 @@ package com.yungnickyoung.minecraft.bettercaves.worldgen;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.util.valueproviders.UniformFloat;
+import net.minecraft.core.registries.codec.RegistryCodecs;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.VerticalAnchor;
-import net.minecraft.world.level.levelgen.carver.CarverConfiguration;
-import net.minecraft.world.level.levelgen.carver.CarverDebugSettings;
-import net.minecraft.world.level.levelgen.heightproviders.UniformHeight;
 
 import java.util.List;
 
-public class BetterCavesWorldCarverConfig extends CarverConfiguration {
+public class BetterCavesWorldCarverConfig {
     public static final Codec<BetterCavesWorldCarverConfig> CODEC = RecordCodecBuilder.create(
             builder -> builder.group(
                     CaveLayerSettings.CODEC.listOf().fieldOf("cave_layers").forGetter(config -> config.caveLayers),
@@ -33,15 +27,6 @@ public class BetterCavesWorldCarverConfig extends CarverConfiguration {
 
     public BetterCavesWorldCarverConfig(List<CaveLayerSettings> caveLayers, List<CavernLayerSettings> cavernLayers,
                                         MiscSettings misc, DebugSettings debugSettings) {
-        // Call the superclass constructor with default values.
-        // These values aren't actually used in the Better Caves carver.
-        super(
-                1.0F,
-                UniformHeight.of(VerticalAnchor.aboveBottom(8), VerticalAnchor.absolute(180)),
-                UniformFloat.of(0.1F, 0.9F),
-                VerticalAnchor.aboveBottom(8),
-                CarverDebugSettings.DEFAULT,
-                HolderSet.direct(Holder.direct(Blocks.STONE)));
         this.caveLayers = caveLayers;
         this.cavernLayers = cavernLayers;
         this.misc = misc;
@@ -163,7 +148,7 @@ public class BetterCavesWorldCarverConfig extends CarverConfiguration {
     public record MiscSettings(HolderSet<Block> replaceable, boolean overrideSurfaceDetection) {
         public static final Codec<MiscSettings> CODEC = RecordCodecBuilder.create(
                 builder -> builder.group(
-                        RegistryCodecs.homogeneousList(Registries.BLOCK).fieldOf("replaceable").forGetter(MiscSettings::replaceable),
+                        RegistryCodecs.holderSet(Registries.BLOCK).fieldOf("replaceable").forGetter(MiscSettings::replaceable),
                         Codec.BOOL.optionalFieldOf("override_surface_detection", false).forGetter(MiscSettings::overrideSurfaceDetection)
                 ).apply(builder, MiscSettings::new));
     }

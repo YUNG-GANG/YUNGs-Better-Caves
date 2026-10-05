@@ -7,14 +7,13 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.Carvers;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.BiomeTags;
-import net.minecraft.world.level.levelgen.GenerationStep;
-import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
+import net.minecraft.world.level.levelgen.carver.WorldCarver;
 
 public class BiomeModificationsModuleFabric {
-    private static final ResourceKey<ConfiguredWorldCarver<?>> BETTER_CAVE_CARVER_KEY = ResourceKey.create(Registries.CONFIGURED_CARVER,
+    private static final ResourceKey<WorldCarver> BETTER_CAVE_CARVER_KEY = ResourceKey.create(Registries.CARVER,
             BetterCavesCommon.id("better_cave"));
 
-    private static final ResourceKey<ConfiguredWorldCarver<?>> SURFACE_CAVE_CARVER_KEY = ResourceKey.create(Registries.CONFIGURED_CARVER,
+    private static final ResourceKey<WorldCarver> SURFACE_CAVE_CARVER_KEY = ResourceKey.create(Registries.CARVER,
             BetterCavesCommon.id("surface_cave"));
 
     public static void init() {

@@ -10,7 +10,8 @@ issueTrackerURL="https://github.com/yungnickyoung/YUNGs-Better-Caves/issues"
     credits="${mod_credits}"
     authors="YUNGNICKYOUNG"
     description="${mod_description}"
-    logoFile="logo.png"
+    bannerFile="logo.png"
+	iconFile="icon.png"
     displayURL="https://www.curseforge.com/minecraft/mc-mods/yungs-better-caves"
 
 [modproperties.${mod_id}]

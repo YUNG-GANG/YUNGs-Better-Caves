@@ -1,6 +1,8 @@
 package com.yungnickyoung.minecraft.bettercaves.worldgen.context;
 
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.Aquifer;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
@@ -9,6 +11,8 @@ public class CavegenContext {
     private static final ThreadLocal<CavegenContext> CONTEXT = new ThreadLocal<>();
 
     private final WeakReference<ServerLevel> serverLevel;
+    private ChunkAccess chunk;
+    private Aquifer aquifer;
 
     public CavegenContext(ServerLevel serverLevel) {
         this.serverLevel = new WeakReference<>(serverLevel);
@@ -16,6 +20,22 @@ public class CavegenContext {
 
     public ServerLevel getServerLevel() {
         return serverLevel.get();
+    }
+
+    public ChunkAccess getChunk() {
+        return chunk;
+    }
+
+    public Aquifer getAquifer() {
+        return aquifer;
+    }
+
+    public static void attach(ChunkAccess chunk, Aquifer aquifer) {
+        CavegenContext context = CONTEXT.get();
+        if (context != null) {
+            context.chunk = chunk;
+            context.aquifer = aquifer;
+        }
     }
 
     /**

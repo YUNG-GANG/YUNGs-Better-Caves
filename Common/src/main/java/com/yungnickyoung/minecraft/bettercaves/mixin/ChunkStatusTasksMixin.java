@@ -19,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
  */
 @Mixin(ChunkStatusTasks.class)
 public class ChunkStatusTasksMixin {
-    @Inject(method = "generateCarvers", at = @At("HEAD"))
+    @Inject(method = "buildTerrain", at = @At("HEAD"))
     private static void bettercaves$attachCavegenContext(WorldGenContext worldGenContext, ChunkStep $$1, StaticCache2D<GenerationChunkHolder> $$2, ChunkAccess $$3, CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir) {
         CavegenContext.push(worldGenContext.level());
     }

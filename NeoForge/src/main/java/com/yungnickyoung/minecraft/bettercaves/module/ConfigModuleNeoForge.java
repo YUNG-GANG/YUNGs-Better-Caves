@@ -27,7 +27,7 @@ public class ConfigModuleNeoForge {
 
     public static void init(ModContainer container) {
         initCustomFiles();
-        container.registerConfig(ModConfig.Type.COMMON, BCConfigNeoForge.SPEC,
+        container.registerConfig(ModConfig.Type.LOCAL, BCConfigNeoForge.SPEC,
                 BetterCavesCommon.MOD_ID + "-" + VERSION_PATH + ".toml");
         NeoForge.EVENT_BUS.addListener(ConfigModuleNeoForge::onWorldLoad);
         BetterCavesNeoForge.loadingContextEventBus.addListener(ConfigModuleNeoForge::onConfigChange);
